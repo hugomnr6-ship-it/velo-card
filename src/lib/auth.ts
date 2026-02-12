@@ -41,12 +41,14 @@ export const authOptions: NextAuthOptions = {
     },
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       if (account && profile) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at;
         token.stravaId = Number(account.providerAccountId);
+        // Store avatar URL in token so it persists across sessions
+        token.picture = user?.image ?? (profile as any).profile ?? null;
 
         // Upsert profile in Supabase on sign-in
         const stravaProfile = profile as any;
@@ -76,6 +78,7 @@ export const authOptions: NextAuthOptions = {
       session.user.id = token.userId as string;
       session.user.stravaId = token.stravaId as number;
       session.user.accessToken = token.accessToken as string;
+      session.user.image = (token.picture as string) ?? null;
       return session;
     },
   },

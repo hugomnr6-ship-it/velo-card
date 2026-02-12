@@ -20,10 +20,10 @@ export default async function VeloCardSection({
     // 1. Fetch last 50 activities from Strava API
     const activities = await fetchActivities(userInfo.accessToken);
 
-    // 2. Get profile ID from Supabase
+    // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id")
+      .select("id, avatar_url")
       .eq("strava_id", userInfo.stravaId)
       .single();
 
@@ -74,10 +74,13 @@ export default async function VeloCardSection({
       );
 
     // 6. Render the card (data stays on server, only serializable props sent to client)
+    // Use session image, fallback to Supabase avatar_url
+    const avatarUrl = userInfo.image || profile.avatar_url || null;
+
     return (
       <VeloCardClient
         username={userInfo.name}
-        avatarUrl={userInfo.image}
+        avatarUrl={avatarUrl}
         stats={stats}
         tier={tier}
       />
