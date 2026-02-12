@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import VeloCard from "@/components/VeloCard";
 import DownloadButton from "@/components/DownloadButton";
 import GpxDropZone from "@/components/GpxDropZone";
@@ -13,7 +13,7 @@ import RouteSummaryPanel from "@/components/RouteSummaryPanel";
 import WeatherPanel from "@/components/WeatherPanel";
 import RdiBadge from "@/components/RdiBadge";
 import RegionSelector from "@/components/RegionSelector";
-import { DashboardSkeleton, VeloCardSkeleton, ButtonSkeleton } from "@/components/Skeleton";
+import { DashboardSkeleton } from "@/components/Skeleton";
 import Skeleton from "@/components/Skeleton";
 import { computeRdi } from "@/lib/rdi";
 import type {
@@ -24,16 +24,6 @@ import type {
   RdiResult,
   FrenchRegion,
 } from "@/types";
-
-/* ——— Animation variants ——— */
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay, duration: 0.5, ease: "easeOut" as const },
-  }),
-};
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -151,62 +141,39 @@ export default function DashboardPage() {
     setRdi(null);
   }
 
-  // ——— Full page skeleton while session loads ———
-  if (status === "loading" || !session) {
+  // ——— Full page skeleton while session or stats load ———
+  if (status === "loading" || !session || (!stats && !error)) {
     return <DashboardSkeleton />;
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 px-4 py-12">
       {/* ——— Phase 1: VeloCard ——— */}
-      <AnimatePresence mode="wait">
-        {syncing && !stats && (
-          <motion.div
-            key="skeleton"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center gap-6"
-          >
-            <VeloCardSkeleton />
-            <ButtonSkeleton />
-          </motion.div>
-        )}
-
-        {stats && (
-          <motion.div
-            key="card"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center gap-6"
-          >
-            <VeloCard
-              username={session.user.name ?? "Cycliste"}
-              avatarUrl={session.user.image ?? null}
-              stats={stats}
-              tier={tier}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.4 }}
-            >
-              <DownloadButton tier={tier} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {error && <p className="text-sm text-red-400">{error}</p>}
+
+      {stats && (
+        <>
+          <VeloCard
+            username={session.user.name ?? "Cycliste"}
+            avatarUrl={session.user.image ?? null}
+            stats={stats}
+            tier={tier}
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.4 }}
+          >
+            <DownloadButton tier={tier} />
+          </motion.div>
+        </>
+      )}
 
       {/* ——— Phase 2: Analyse de parcours ——— */}
       <motion.section
-        custom={0.2}
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0, duration: 0.5, ease: "easeOut" as const }}
         className="mt-8 w-full max-w-2xl"
       >
         {/* Section divider */}
@@ -264,10 +231,9 @@ export default function DashboardPage() {
 
       {/* ——— Phase 3: Social ——— */}
       <motion.section
-        custom={0.4}
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" as const }}
         className="mt-8 w-full max-w-2xl"
       >
         {/* Section divider */}
@@ -336,7 +302,7 @@ export default function DashboardPage() {
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
+        transition={{ delay: 1.4, duration: 0.4 }}
         onClick={() => signOut({ callbackUrl: "/" })}
         className="mt-4 text-sm text-neutral-500 underline hover:text-neutral-300"
       >
