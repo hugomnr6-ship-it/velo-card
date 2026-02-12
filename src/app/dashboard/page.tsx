@@ -4,7 +4,6 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import VeloCard from "@/components/VeloCard";
 import DownloadButton from "@/components/DownloadButton";
 import GpxDropZone from "@/components/GpxDropZone";
@@ -159,23 +158,12 @@ export default function DashboardPage() {
             stats={stats}
             tier={tier}
           />
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.4 }}
-          >
-            <DownloadButton tier={tier} />
-          </motion.div>
+          <DownloadButton tier={tier} />
         </>
       )}
 
       {/* ——— Phase 2: Analyse de parcours ——— */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.5, ease: "easeOut" as const }}
-        className="mt-8 w-full max-w-2xl"
-      >
+      <section className="mt-8 w-full max-w-2xl">
         {/* Section divider */}
         <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
 
@@ -186,12 +174,7 @@ export default function DashboardPage() {
         <GpxDropZone onRouteParsed={setRouteSummary} />
 
         {routeSummary && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mt-6 flex flex-col gap-5"
-          >
+          <div className="mt-6 flex flex-col gap-5">
             {/* Route summary stats */}
             <RouteSummaryPanel summary={routeSummary} tier={tier} />
 
@@ -225,17 +208,12 @@ export default function DashboardPage() {
             >
               Analyser un autre parcours
             </button>
-          </motion.div>
+          </div>
         )}
-      </motion.section>
+      </section>
 
       {/* ——— Phase 3: Social ——— */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" as const }}
-        className="mt-8 w-full max-w-2xl"
-      >
+      <section className="mt-8 w-full max-w-2xl">
         {/* Section divider */}
         <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
 
@@ -258,56 +236,41 @@ export default function DashboardPage() {
 
         {/* Navigation cards */}
         <div className="grid grid-cols-2 gap-4">
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          <Link
+            href="/races"
+            className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
           >
-            <Link
-              href="/races"
-              className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800"
-            >
-              <span className="text-3xl">🏁</span>
-              <span className="text-sm font-semibold text-white group-hover:text-white/90">
-                Courses
-              </span>
-              <span className="text-xs text-neutral-500">
-                Crée et rejoins des courses
-              </span>
-            </Link>
-          </motion.div>
+            <span className="text-3xl">🏁</span>
+            <span className="text-sm font-semibold text-white group-hover:text-white/90">
+              Courses
+            </span>
+            <span className="text-xs text-neutral-500">
+              Crée et rejoins des courses
+            </span>
+          </Link>
 
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          <Link
+            href="/leaderboard"
+            className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
           >
-            <Link
-              href="/leaderboard"
-              className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800"
-            >
-              <span className="text-3xl">🏆</span>
-              <span className="text-sm font-semibold text-white group-hover:text-white/90">
-                Classement
-              </span>
-              <span className="text-xs text-neutral-500">
-                Top hebdo de ta région
-              </span>
-            </Link>
-          </motion.div>
+            <span className="text-3xl">🏆</span>
+            <span className="text-sm font-semibold text-white group-hover:text-white/90">
+              Classement
+            </span>
+            <span className="text-xs text-neutral-500">
+              Top hebdo de ta région
+            </span>
+          </Link>
         </div>
-      </motion.section>
+      </section>
 
       {/* Sign out */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.4 }}
+      <button
         onClick={() => signOut({ callbackUrl: "/" })}
         className="mt-4 text-sm text-neutral-500 underline hover:text-neutral-300"
       >
         Se déconnecter
-      </motion.button>
+      </button>
     </main>
   );
 }

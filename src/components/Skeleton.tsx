@@ -58,12 +58,34 @@ export function ButtonSkeleton() {
   return <Skeleton className="h-12 w-64 rounded-full" />;
 }
 
-/** Skeleton for the full page loading state */
+/** Skeleton for the full page loading state — matches real dashboard layout */
 export function DashboardSkeleton() {
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 px-4 py-12">
+      {/* VeloCard skeleton */}
       <VeloCardSkeleton />
       <ButtonSkeleton />
+
+      {/* Phase 2: Analyse de parcours skeleton */}
+      <section className="mt-8 w-full max-w-2xl">
+        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <Skeleton className="mx-auto mb-4 h-6 w-48" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+      </section>
+
+      {/* Phase 3: Communauté skeleton */}
+      <section className="mt-8 w-full max-w-2xl">
+        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <Skeleton className="mx-auto mb-4 h-6 w-36" />
+        <Skeleton className="mb-5 h-10 w-48" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+        </div>
+      </section>
+
+      {/* Sign out skeleton */}
+      <Skeleton className="mt-4 h-5 w-32" />
     </main>
   );
 }

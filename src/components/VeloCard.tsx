@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ComputedStats, CardTier } from "@/types";
 
 interface VeloCardProps {
@@ -84,11 +83,8 @@ export default function VeloCard({
   const config = tierConfig[tier];
 
   return (
-    <motion.div
+    <div
       id="velo-card"
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
       className={`relative w-[400px] h-[711px] rounded-2xl border bg-gradient-to-b overflow-hidden ${config.bg} ${tierBorderColors[tier]} ${config.glowClass}`}
     >
       {/* Scan-lines overlay */}
@@ -110,12 +106,7 @@ export default function VeloCard({
         </div>
 
         {/* ——— Avatar ——— */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-          className="mt-8 flex flex-col items-center"
-        >
+        <div className="mt-8 flex flex-col items-center">
           <div
             className={`rounded-full border-[3px] p-1 ${tierAvatarRing[tier]} ${config.avatarGlow}`}
           >
@@ -140,7 +131,7 @@ export default function VeloCard({
           >
             {config.label} TIER
           </p>
-        </motion.div>
+        </div>
 
         {/* ——— Divider ——— */}
         <div
@@ -153,27 +144,17 @@ export default function VeloCard({
             { label: "PAC", value: stats.pac },
             { label: "END", value: stats.end },
             { label: "GRIM", value: stats.grim },
-          ] as const).map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.15, duration: 0.4, ease: "easeOut" }}
-            >
-              <StatHex label={s.label} value={s.value} tier={tier} />
-            </motion.div>
+          ] as const).map((s) => (
+            <StatHex key={s.label} label={s.label} value={s.value} tier={tier} />
           ))}
         </div>
 
         {/* ——— Locked stats ——— */}
         <div className="mt-5 flex w-full justify-center gap-5">
-          {lockedStats.map((label, i) => (
-            <motion.div
+          {lockedStats.map((label) => (
+            <div
               key={label}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              transition={{ delay: 1.0 + i * 0.1, duration: 0.4 }}
-              className="flex h-[100px] w-[90px] flex-col items-center justify-center"
+              className="flex h-[100px] w-[90px] flex-col items-center justify-center opacity-30"
             >
               <div className="stat-badge flex h-[80px] w-[75px] flex-col items-center justify-center bg-white/5">
                 <span className="text-lg text-white/30">&#128274;</span>
@@ -181,7 +162,7 @@ export default function VeloCard({
                   {label}
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -196,7 +177,7 @@ export default function VeloCard({
           VELOCARD.APP
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
