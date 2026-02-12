@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"where node & where npm & where npx\")",
+      "Bash(cmd /c \"node --version\")",
+      "Bash(cmd /c \"dir \"\"C:\\\\Program Files\\\\nodejs\"\" 2>nul & dir \"\"C:\\\\Users\\\\hugom\\\\AppData\\\\Local\\\\Programs\\\\nodejs\"\" 2>nul & dir \"\"C:\\\\Users\\\\hugom\\\\AppData\\\\Roaming\\\\nvm\"\" 2>nul\")",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(cmd /c \"node --version && npm --version\")",
+      "Bash(cmd /c \"\"\"C:\\\\Program Files\\\\nodejs\\\\node.exe\"\" --version && \"\"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\"\" --version\")",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\")",
+      "Bash(cat:*)",
+      "Bash(npx next build)"
+    ]
+  }
+}

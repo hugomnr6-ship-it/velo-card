@@ -1,0 +1,46 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ raceId: string }> },
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return Response.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  const { raceId } = await params;
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("id")
+    .eq("strava_id", session.user.stravaId)
+    .single();
+
+  if (!profile) {
+    return Response.json({ error: "Profil introuvable" }, { status: 404 });
+  }
+
+  const { data: race } = await supabaseAdmin
+    .from("races")
+    .select("creator_id")
+    .eq("id", raceId)
+    .single();
+
+  if (race?.creator_id === profile.id) {
+    return Response.json(
+      { error: "Le créateur ne peut pas se désinscrire" },
+      { status: 400 },
+    );
+  }
+
+  await supabaseAdmin
+    .from("race_entries")
+    .delete()
+    .eq("race_id", raceId)
+    .eq("user_id", profile.id);
+
+  return Response.json({ success: true });
+}

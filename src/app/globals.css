@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* ——— Tier glow effects ——— */
+.card-glow-bronze {
+  box-shadow:
+    0 0 40px rgba(217, 119, 6, 0.3),
+    0 0 80px rgba(217, 119, 6, 0.1),
+    inset 0 1px 0 rgba(255, 191, 0, 0.1);
+}
+.card-glow-silver {
+  box-shadow:
+    0 0 40px rgba(148, 163, 184, 0.3),
+    0 0 80px rgba(148, 163, 184, 0.1),
+    inset 0 1px 0 rgba(226, 232, 240, 0.1);
+}
+.card-glow-gold {
+  box-shadow:
+    0 0 40px rgba(250, 204, 21, 0.4),
+    0 0 80px rgba(250, 204, 21, 0.15),
+    inset 0 1px 0 rgba(253, 224, 71, 0.15);
+}
+
+/* ——— Angular stat badge clip-path ——— */
+.stat-badge {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* ——— Scan-lines overlay ——— */
+.scan-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
+}
+
+/* ——— Shimmer animation ——— */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ——— Avatar ring glow ——— */
+.avatar-glow-bronze {
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.5), 0 0 40px rgba(217, 119, 6, 0.2);
+}
+.avatar-glow-silver {
+  box-shadow: 0 0 20px rgba(148, 163, 184, 0.5), 0 0 40px rgba(148, 163, 184, 0.2);
+}
+.avatar-glow-gold {
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.25);
+}
+
+/* ——— Phase 2: GPX Drop Zone ——— */
+.drop-zone-active {
+  border-color: rgba(250, 204, 21, 0.6) !important;
+  background: rgba(250, 204, 21, 0.05) !important;
+}
