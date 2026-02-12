@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch {
+  } catch (err: unknown) {
+    console.error("Image proxy error:", err);
     return new Response("Error fetching image", { status: 500 });
   }
 }
