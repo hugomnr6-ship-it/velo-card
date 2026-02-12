@@ -112,7 +112,7 @@ export default function VeloCard({
           >
             {avatarUrl ? (
               <img
-                src={`/api/image-proxy?url=${encodeURIComponent(avatarUrl)}`}
+                src={`/api/img?url=${encodeURIComponent(avatarUrl)}`}
                 alt={username}
                 crossOrigin="anonymous"
                 className="h-20 w-20 rounded-full object-cover"

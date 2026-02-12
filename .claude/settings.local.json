@@ -13,7 +13,11 @@
       "Bash(npx next build)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(npx vercel logs --help:*)",
+      "Bash(npx vercel --version)",
+      "Bash(gh run list:*)"
     ]
   }
 }

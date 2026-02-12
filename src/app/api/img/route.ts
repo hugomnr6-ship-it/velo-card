@@ -1,6 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
-
-export const runtime = "edge";
+import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
@@ -13,7 +11,9 @@ export async function GET(req: NextRequest) {
     const response = await fetch(url);
 
     if (!response.ok) {
-      return new Response("Failed to fetch image", { status: response.status });
+      return new Response("Failed to fetch image", {
+        status: response.status,
+      });
     }
 
     const contentType = response.headers.get("content-type") || "image/jpeg";
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": contentType,
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "public, max-age=86400", // cache 24h
+        "Cache-Control": "public, max-age=86400",
       },
     });
   } catch {
