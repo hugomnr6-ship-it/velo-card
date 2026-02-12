@@ -58,6 +58,16 @@ export function ButtonSkeleton() {
   return <Skeleton className="h-12 w-64 rounded-full" />;
 }
 
+/** Combined skeleton for VeloCard + Download button (Suspense fallback) */
+export function VeloCardWithButtonSkeleton() {
+  return (
+    <>
+      <VeloCardSkeleton />
+      <ButtonSkeleton />
+    </>
+  );
+}
+
 /** Skeleton for the full page loading state — matches real dashboard layout */
 export function DashboardSkeleton() {
   return (
