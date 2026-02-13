@@ -56,11 +56,11 @@ export const authOptions: NextAuthOptions = {
         let clubLogoUrl: string | null = null;
 
         try {
-          const athleteRes = await fetch("https://www.strava.com/api/v3/athlete", {
+          const clubsRes = await fetch("https://www.strava.com/api/v3/athlete/clubs", {
             headers: { Authorization: `Bearer ${account.access_token}` },
           });
-          const athleteData = await athleteRes.json();
-          const primaryClub = athleteData.clubs?.[0];
+          const clubs = await clubsRes.json();
+          const primaryClub = Array.isArray(clubs) ? clubs[0] : null;
           if (primaryClub) {
             clubName = primaryClub.name ?? null;
             clubLogoUrl = primaryClub.profile_medium ?? null;
