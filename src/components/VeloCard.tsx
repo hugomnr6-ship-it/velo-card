@@ -1,12 +1,13 @@
 "use client";
 
-import type { ComputedStats, CardTier } from "@/types";
+import type { ComputedStats, CardTier, Badge } from "@/types";
 
 interface VeloCardProps {
   username: string;
   avatarUrl: string | null;
   stats: ComputedStats;
   tier: CardTier;
+  badges?: Badge[];
 }
 
 /* ——— Tier-specific config ——— */
@@ -72,6 +73,12 @@ const tierAvatarRing: Record<CardTier, string> = {
   gold: "border-yellow-500",
 };
 
+const tierBadgeStyles: Record<CardTier, string> = {
+  bronze: "border-amber-600/40 bg-amber-900/20",
+  silver: "border-slate-400/40 bg-slate-700/20",
+  gold: "border-yellow-500/40 bg-yellow-900/20",
+};
+
 const lockedStats = ["PUI", "EXP", "TEC"] as const;
 
 export default function VeloCard({
@@ -79,6 +86,7 @@ export default function VeloCard({
   avatarUrl,
   stats,
   tier,
+  badges = [],
 }: VeloCardProps) {
   const config = tierConfig[tier];
 
@@ -131,6 +139,24 @@ export default function VeloCard({
           >
             {config.label} TIER
           </p>
+
+          {/* ——— PlayStyle Badges ——— */}
+          {badges.length > 0 && (
+            <div className="mt-3 flex items-center gap-2">
+              {badges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 ${tierBadgeStyles[tier]}`}
+                  title={badge.name}
+                >
+                  <span className="text-xs">{badge.emoji}</span>
+                  <span className="text-[9px] font-bold tracking-wide text-white/80">
+                    {badge.name.toUpperCase()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ——— Divider ——— */}

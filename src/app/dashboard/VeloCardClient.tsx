@@ -1,14 +1,15 @@
 "use client";
 
-import VeloCard from "@/components/VeloCard";
+import VeloCardInteractive from "@/components/VeloCardInteractive";
 import DownloadButton from "@/components/DownloadButton";
-import type { ComputedStats, CardTier } from "@/types";
+import type { ComputedStats, CardTier, Badge } from "@/types";
 
 interface VeloCardClientProps {
   username: string;
   avatarUrl: string | null;
   stats: ComputedStats;
   tier: CardTier;
+  badges: Badge[];
 }
 
 export default function VeloCardClient({
@@ -16,14 +17,16 @@ export default function VeloCardClient({
   avatarUrl,
   stats,
   tier,
+  badges,
 }: VeloCardClientProps) {
   return (
     <>
-      <VeloCard
+      <VeloCardInteractive
         username={username}
         avatarUrl={avatarUrl}
         stats={stats}
         tier={tier}
+        badges={badges}
       />
       <DownloadButton tier={tier} />
     </>

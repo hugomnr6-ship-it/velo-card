@@ -21,10 +21,15 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
 
     try {
       /* 1. First capture just the card as a PNG data URL */
+      /* Filter out holographic overlay elements (data-holo="true") */
+      const holoFilter = (node: HTMLElement) =>
+        !(node instanceof HTMLElement && node.dataset?.holo === "true");
+
       const cardDataUrl = await toPng(card, {
         pixelRatio: 2.7,
         cacheBust: true,
         fetchRequestInit: { mode: "cors" },
+        filter: holoFilter,
       });
 
       /* 2. Draw it onto a 1080x1920 canvas */

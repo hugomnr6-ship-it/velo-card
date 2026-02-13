@@ -30,6 +30,14 @@ export interface LockedStats {
 
 export type CardTier = "bronze" | "silver" | "gold";
 
+// ——— Badges PlayStyles ———
+
+export interface Badge {
+  id: string;
+  name: string;
+  emoji: string;
+}
+
 // ——— DB row shapes ———
 
 export interface Profile {

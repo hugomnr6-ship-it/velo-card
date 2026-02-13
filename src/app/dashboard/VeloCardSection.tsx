@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { computeStats, getTier } from "@/lib/stats";
+import { computeBadges } from "@/lib/badges";
 import VeloCardClient from "./VeloCardClient";
 import RetryButton from "./RetryButton";
 
@@ -73,7 +74,10 @@ export default async function VeloCardSection({
         { onConflict: "user_id" },
       );
 
-    // 6. Render the card (data stays on server, only serializable props sent to client)
+    // 6. Compute PlayStyle badges
+    const badges = computeBadges(stats);
+
+    // 7. Render the card (data stays on server, only serializable props sent to client)
     // Use session image, fallback to Supabase avatar_url
     const avatarUrl = userInfo.image || profile.avatar_url || null;
 
@@ -83,6 +87,7 @@ export default async function VeloCardSection({
         avatarUrl={avatarUrl}
         stats={stats}
         tier={tier}
+        badges={badges}
       />
     );
   } catch (err: any) {
