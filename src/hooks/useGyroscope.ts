@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 interface TiltValues {
-  rotateX: number; // degrees, -15 to 15
-  rotateY: number; // degrees, -15 to 15
+  rotateX: number; // degrees
+  rotateY: number; // degrees
 }
 
-const MAX_TILT = 15;
-const SPRING_FACTOR = 0.08; // smooth interpolation
+const MAX_TILT_DESKTOP = 15;
+const MAX_TILT_MOBILE = 8; // gentler on mobile
+const SPRING_FACTOR = 0.06; // slightly smoother
 
 function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(min, val));
@@ -17,7 +18,7 @@ function clamp(val: number, min: number, max: number) {
 export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
   const [tilt, setTilt] = useState<TiltValues>({ rotateX: 0, rotateY: 0 });
   const [isGyro, setIsGyro] = useState(false);
-  const [permissionNeeded, setPermissionNeeded] = useState(false);
+  const [needsIOSPermission, setNeedsIOSPermission] = useState(false);
   const targetRef = useRef<TiltValues>({ rotateX: 0, rotateY: 0 });
   const currentRef = useRef<TiltValues>({ rotateX: 0, rotateY: 0 });
   const rafRef = useRef<number>(0);
@@ -40,13 +41,13 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [animate]);
 
-  // Check if gyroscope permission is needed (iOS)
+  // Check if iOS permission is needed
   useEffect(() => {
     if (
       typeof DeviceOrientationEvent !== "undefined" &&
       typeof (DeviceOrientationEvent as any).requestPermission === "function"
     ) {
-      setPermissionNeeded(true);
+      setNeedsIOSPermission(true);
     }
   }, []);
 
@@ -66,8 +67,8 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
       const offsetY = (e.clientY - centerY) / (rect.height / 2);
 
       targetRef.current = {
-        rotateX: clamp(-offsetY * MAX_TILT, -MAX_TILT, MAX_TILT),
-        rotateY: clamp(offsetX * MAX_TILT, -MAX_TILT, MAX_TILT),
+        rotateX: clamp(-offsetY * MAX_TILT_DESKTOP, -MAX_TILT_DESKTOP, MAX_TILT_DESKTOP),
+        rotateY: clamp(offsetX * MAX_TILT_DESKTOP, -MAX_TILT_DESKTOP, MAX_TILT_DESKTOP),
       };
     }
 
@@ -85,7 +86,7 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
     };
   }, [cardRef, isGyro]);
 
-  // Mobile: gyroscope
+  // Enable gyroscope (called on touch for iOS, auto for Android)
   const enableGyroscope = useCallback(async () => {
     try {
       // iOS permission
@@ -99,12 +100,12 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
       }
 
       function handleOrientation(e: DeviceOrientationEvent) {
-        const beta = e.beta ?? 0; // front-back tilt (-180 to 180)
-        const gamma = e.gamma ?? 0; // left-right tilt (-90 to 90)
+        const beta = e.beta ?? 0;
+        const gamma = e.gamma ?? 0;
 
-        // Normalize: beta ~45 is "phone held naturally", gamma ~0 is centered
-        const normalizedX = clamp((beta - 45) * 0.3, -MAX_TILT, MAX_TILT);
-        const normalizedY = clamp(gamma * 0.3, -MAX_TILT, MAX_TILT);
+        // Gentler multiplier for mobile (0.15 instead of 0.3)
+        const normalizedX = clamp((beta - 45) * 0.15, -MAX_TILT_MOBILE, MAX_TILT_MOBILE);
+        const normalizedY = clamp(gamma * 0.15, -MAX_TILT_MOBILE, MAX_TILT_MOBILE);
 
         targetRef.current = {
           rotateX: -normalizedX,
@@ -114,11 +115,24 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
 
       window.addEventListener("deviceorientation", handleOrientation);
       setIsGyro(true);
-      setPermissionNeeded(false);
+      setNeedsIOSPermission(false);
     } catch {
       console.warn("Gyroscope permission denied");
     }
   }, []);
+
+  // iOS: auto-enable on first touch (requestPermission needs user gesture)
+  useEffect(() => {
+    if (!needsIOSPermission) return;
+
+    function handleFirstTouch() {
+      enableGyroscope();
+      window.removeEventListener("touchstart", handleFirstTouch);
+    }
+
+    window.addEventListener("touchstart", handleFirstTouch, { once: true });
+    return () => window.removeEventListener("touchstart", handleFirstTouch);
+  }, [needsIOSPermission, enableGyroscope]);
 
   // Auto-enable gyroscope on non-iOS devices that support it
   useEffect(() => {
@@ -126,7 +140,6 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
       typeof DeviceOrientationEvent !== "undefined" &&
       typeof (DeviceOrientationEvent as any).requestPermission !== "function"
     ) {
-      // Android / non-iOS: no permission needed, check if events fire
       let hasEvent = false;
       function testHandler(e: DeviceOrientationEvent) {
         if (e.beta !== null || e.gamma !== null) {
@@ -136,7 +149,6 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
         }
       }
       window.addEventListener("deviceorientation", testHandler);
-      // Cleanup if no event fires within 1 second (desktop)
       const timeout = setTimeout(() => {
         if (!hasEvent) {
           window.removeEventListener("deviceorientation", testHandler);
@@ -149,5 +161,5 @@ export function useGyroscope(cardRef: React.RefObject<HTMLDivElement | null>) {
     }
   }, [enableGyroscope]);
 
-  return { tilt, isGyro, permissionNeeded, enableGyroscope };
+  return { tilt, isGyro };
 }
