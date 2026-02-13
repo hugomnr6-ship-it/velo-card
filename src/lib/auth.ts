@@ -72,6 +72,30 @@ export const authOptions: NextAuthOptions = {
           token.userId = data.id;
         }
       }
+      // Refresh token if expired
+      if (token.expiresAt && Date.now() >= (token.expiresAt as number) * 1000) {
+        try {
+          const res = await fetch("https://www.strava.com/oauth/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              client_id: process.env.STRAVA_CLIENT_ID,
+              client_secret: process.env.STRAVA_CLIENT_SECRET,
+              grant_type: "refresh_token",
+              refresh_token: token.refreshToken,
+            }),
+          });
+          const refreshed = await res.json();
+          if (refreshed.access_token) {
+            token.accessToken = refreshed.access_token;
+            token.refreshToken = refreshed.refresh_token ?? token.refreshToken;
+            token.expiresAt = refreshed.expires_at;
+          }
+        } catch (err) {
+          console.error("[AUTH] Token refresh failed:", err);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
