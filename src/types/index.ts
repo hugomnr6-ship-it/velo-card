@@ -171,3 +171,34 @@ export interface LeaderboardEntry {
 }
 
 export type LeaderboardSort = "weekly_km" | "weekly_dplus" | "card_score";
+
+// ——— Phase: Clubs ———
+
+export interface Club {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  creator_id: string;
+  created_at: string;
+}
+
+export interface ClubWithCount extends Club {
+  member_count: number;
+  creator: { username: string; avatar_url: string | null };
+}
+
+export interface ClubMember {
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  pac: number;
+  end: number;
+  grim: number;
+  tier: CardTier;
+  joined_at: string;
+}
+
+export interface ClubInfo {
+  name: string;
+  logo_url: string;
+}

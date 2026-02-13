@@ -2,7 +2,7 @@
 
 import VeloCardInteractive from "@/components/VeloCardInteractive";
 import DownloadButton from "@/components/DownloadButton";
-import type { ComputedStats, CardTier, Badge } from "@/types";
+import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
 interface VeloCardClientProps {
   username: string;
@@ -10,8 +10,7 @@ interface VeloCardClientProps {
   stats: ComputedStats;
   tier: CardTier;
   badges: Badge[];
-  clubName?: string | null;
-  clubLogoUrl?: string | null;
+  clubs?: ClubInfo[];
 }
 
 export default function VeloCardClient({
@@ -20,8 +19,7 @@ export default function VeloCardClient({
   stats,
   tier,
   badges,
-  clubName,
-  clubLogoUrl,
+  clubs,
 }: VeloCardClientProps) {
   return (
     <>
@@ -31,8 +29,7 @@ export default function VeloCardClient({
         stats={stats}
         tier={tier}
         badges={badges}
-        clubName={clubName}
-        clubLogoUrl={clubLogoUrl}
+        clubs={clubs}
       />
       <DownloadButton tier={tier} />
     </>

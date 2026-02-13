@@ -24,7 +24,7 @@ export default async function VeloCardSection({
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, avatar_url, club_name, club_logo_url")
+      .select("id, avatar_url")
       .eq("strava_id", userInfo.stravaId)
       .single();
 
@@ -83,7 +83,26 @@ export default async function VeloCardSection({
     // 6. Compute PlayStyle badges
     const badges = computeBadges(stats);
 
-    // 7. Render the card (data stays on server, only serializable props sent to client)
+    // 7. Fetch user's clubs via club_members → clubs
+    const { data: memberRows } = await supabaseAdmin
+      .from("club_members")
+      .select("club_id")
+      .eq("user_id", profile.id);
+
+    let clubs: { name: string; logo_url: string }[] = [];
+    if (memberRows && memberRows.length > 0) {
+      const clubIds = memberRows.map((m: any) => m.club_id);
+      const { data: clubRows } = await supabaseAdmin
+        .from("clubs")
+        .select("name, logo_url")
+        .in("id", clubIds);
+      clubs = (clubRows || []).filter((c: any) => c.logo_url) as {
+        name: string;
+        logo_url: string;
+      }[];
+    }
+
+    // 8. Render the card (data stays on server, only serializable props sent to client)
     // Use session image, fallback to Supabase avatar_url
     const avatarUrl = userInfo.image || profile.avatar_url || null;
 
@@ -94,8 +113,7 @@ export default async function VeloCardSection({
         stats={stats}
         tier={tier}
         badges={badges}
-        clubName={profile.club_name}
-        clubLogoUrl={profile.club_logo_url}
+        clubs={clubs}
       />
     );
   } catch (err: any) {

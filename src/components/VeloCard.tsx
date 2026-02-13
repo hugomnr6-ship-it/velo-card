@@ -1,6 +1,7 @@
 "use client";
 
-import type { ComputedStats, CardTier, Badge } from "@/types";
+import { useState, useEffect } from "react";
+import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
 interface VeloCardProps {
   username: string;
@@ -8,8 +9,7 @@ interface VeloCardProps {
   stats: ComputedStats;
   tier: CardTier;
   badges?: Badge[];
-  clubName?: string | null;
-  clubLogoUrl?: string | null;
+  clubs?: ClubInfo[];
 }
 
 /* ——— Tier-specific config ——— */
@@ -87,10 +87,22 @@ export default function VeloCard({
   stats,
   tier,
   badges = [],
-  clubName,
-  clubLogoUrl,
+  clubs = [],
 }: VeloCardProps) {
   const config = tierConfig[tier];
+
+  // Rotating club logo index (cycles every 3s if multiple clubs)
+  const [clubIndex, setClubIndex] = useState(0);
+
+  useEffect(() => {
+    if (clubs.length <= 1) return;
+    const interval = setInterval(() => {
+      setClubIndex((prev) => (prev + 1) % clubs.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [clubs.length]);
+
+  const currentClub = clubs.length > 0 ? clubs[clubIndex] : null;
 
   return (
     <div
@@ -102,22 +114,26 @@ export default function VeloCard({
 
       {/* Content */}
       <div className="relative z-20 flex h-full flex-col items-center px-6 pt-6 pb-5">
-        {/* ——— Top bar: branding + club logo + tier ——— */}
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
-              VELOCARD
-            </span>
-            {clubLogoUrl && (
+        {/* ——— Top bar: branding + centered club logo + tier ——— */}
+        <div className="relative flex w-full items-center justify-between">
+          <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
+            VELOCARD
+          </span>
+
+          {/* Club logo — centered absolutely */}
+          {currentClub && (
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <img
-                src={`/api/img?url=${encodeURIComponent(clubLogoUrl)}`}
-                alt={clubName || "Club"}
+                src={`/api/img?url=${encodeURIComponent(currentClub.logo_url)}`}
+                alt={currentClub.name}
                 crossOrigin="anonymous"
-                className="h-6 w-6 rounded-full border border-white/20 object-cover"
-                title={clubName || undefined}
+                className="h-7 w-7 rounded-full border border-white/20 object-cover transition-opacity duration-500"
+                title={currentClub.name}
+                key={currentClub.logo_url}
               />
-            )}
-          </div>
+            </div>
+          )}
+
           <span
             className={`shimmer rounded-full px-3 py-0.5 text-[10px] font-bold tracking-[0.2em] ${config.accent}`}
             style={{ backgroundImage: config.shimmerGradient }}

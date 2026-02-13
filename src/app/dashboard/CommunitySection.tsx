@@ -56,7 +56,7 @@ export default function CommunitySection() {
       </div>
 
       {/* Navigation cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Link
           href="/races"
           className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
@@ -80,6 +80,19 @@ export default function CommunitySection() {
           </span>
           <span className="text-xs text-neutral-500">
             Top hebdo de ta région
+          </span>
+        </Link>
+
+        <Link
+          href="/clubs"
+          className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
+        >
+          <span className="text-3xl">🛡️</span>
+          <span className="text-sm font-semibold text-white group-hover:text-white/90">
+            Clubs
+          </span>
+          <span className="text-xs text-neutral-500">
+            Crée ou rejoins un club
           </span>
         </Link>
       </div>

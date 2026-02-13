@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useGyroscope } from "@/hooks/useGyroscope";
-import type { ComputedStats, CardTier, Badge } from "@/types";
+import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 import VeloCard from "./VeloCard";
 
 interface VeloCardInteractiveProps {
@@ -11,8 +11,7 @@ interface VeloCardInteractiveProps {
   stats: ComputedStats;
   tier: CardTier;
   badges: Badge[];
-  clubName?: string | null;
-  clubLogoUrl?: string | null;
+  clubs?: ClubInfo[];
 }
 
 const tierHoloColors: Record<CardTier, string> = {
@@ -29,8 +28,7 @@ export default function VeloCardInteractive({
   stats,
   tier,
   badges,
-  clubName,
-  clubLogoUrl,
+  clubs,
 }: VeloCardInteractiveProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tilt } = useGyroscope(wrapperRef);
@@ -65,8 +63,7 @@ export default function VeloCardInteractive({
             stats={stats}
             tier={tier}
             badges={badges}
-            clubName={clubName}
-            clubLogoUrl={clubLogoUrl}
+            clubs={clubs}
           />
 
           {/* Holographic overlay — filtered out during export */}
