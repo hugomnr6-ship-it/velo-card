@@ -1,26 +1,29 @@
 @import "tailwindcss";
 
-/* ——— Tier glow effects + drop shadow ——— */
+/* ——— Tier glow effects + drop shadow + bevel ——— */
 .card-glow-bronze {
   box-shadow:
     0 0 45px rgba(205, 127, 50, 0.35),
     0 0 90px rgba(205, 127, 50, 0.12),
     0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 191, 0, 0.12);
+    inset 0 1px 0 rgba(255, 200, 120, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 .card-glow-silver {
   box-shadow:
     0 0 45px rgba(189, 195, 199, 0.35),
     0 0 90px rgba(189, 195, 199, 0.12),
     0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(226, 232, 240, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 .card-glow-gold {
   box-shadow:
     0 0 50px rgba(255, 215, 0, 0.5),
     0 0 100px rgba(255, 215, 0, 0.2),
     0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 240, 100, 0.2);
+    inset 0 1px 0 rgba(255, 240, 100, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* ——— Angular stat badge clip-path ——— */
@@ -64,22 +67,45 @@
   box-shadow: 0 0 28px rgba(255, 215, 0, 0.65), 0 0 56px rgba(255, 215, 0, 0.3);
 }
 
-/* ——— Tier background textures ——— */
+/* ——— Tier background textures — Brushed metal circulaire ——— */
 .texture-bronze {
-  background-image: repeating-linear-gradient(
-    45deg, transparent, transparent 2px,
-    rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px
-  );
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(205, 127, 50, 0.03) 3px, rgba(205, 127, 50, 0.03) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(255, 255, 255, 0.015) 7px, rgba(255, 255, 255, 0.015) 8px
+    );
 }
 .texture-silver {
-  background-image: repeating-linear-gradient(
-    0deg, transparent, transparent 1px,
-    rgba(255, 255, 255, 0.03) 1px, rgba(255, 255, 255, 0.03) 2px
-  );
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(189, 195, 199, 0.04) 3px, rgba(189, 195, 199, 0.04) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(255, 255, 255, 0.02) 7px, rgba(255, 255, 255, 0.02) 8px
+    );
 }
 .texture-gold {
-  background-image: radial-gradient(circle, rgba(255, 215, 0, 0.04) 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(255, 215, 0, 0.03) 3px, rgba(255, 215, 0, 0.03) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(255, 255, 255, 0.015) 7px, rgba(255, 255, 255, 0.015) 8px
+    );
 }
 
 /* ——— Stat elite pulse (scores >= 90) ——— */

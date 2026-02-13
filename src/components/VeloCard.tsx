@@ -12,7 +12,7 @@ interface VeloCardProps {
   clubs?: ClubInfo[];
 }
 
-/* ——— Tier-specific config (Premium palettes) ——— */
+/* ——— Tier-specific config (V2 — Brushed metal premium) ——— */
 const tierConfig: Record<
   CardTier,
   {
@@ -26,7 +26,7 @@ const tierConfig: Record<
   }
 > = {
   bronze: {
-    bg: "from-[#1a1108] via-[#2a1a0d] to-[#3d2b1f]",
+    bg: "from-[#120c04] via-[#1e1209] to-[#2a1a0d]",
     accent: "text-[#cd7f32]",
     accentLight: "text-[#daa06d]",
     glowClass: "card-glow-bronze",
@@ -36,7 +36,7 @@ const tierConfig: Record<
     label: "BRONZE",
   },
   silver: {
-    bg: "from-[#10141d] via-[#1a2030] to-[#2c3e50]",
+    bg: "from-[#0c1018] via-[#151c28] to-[#1e2a3a]",
     accent: "text-[#bdc3c7]",
     accentLight: "text-[#e2e8f0]",
     glowClass: "card-glow-silver",
@@ -46,7 +46,7 @@ const tierConfig: Record<
     label: "SILVER",
   },
   gold: {
-    bg: "from-[#1c1804] via-[#2e2508] to-[#3a2e08]",
+    bg: "from-[#141004] via-[#221a06] to-[#302208]",
     accent: "text-[#ffd700]",
     accentLight: "text-[#ffe44d]",
     glowClass: "card-glow-gold",
@@ -75,20 +75,61 @@ const tierAvatarRing: Record<CardTier, string> = {
   gold: "border-[#ffd700]",
 };
 
+/* ——— Badge styles: dark opaque pill ——— */
 const tierBadgeStyles: Record<CardTier, string> = {
-  bronze: "border-[#cd7f32]/40 bg-[#cd7f32]/10",
-  silver: "border-[#bdc3c7]/40 bg-[#bdc3c7]/10",
-  gold: "border-[#ffd700]/40 bg-[#ffd700]/10",
+  bronze: "border-[1.5px] border-[#cd7f32]/60 bg-[#1a1108]/90",
+  silver: "border-[1.5px] border-[#bdc3c7]/50 bg-[#10141d]/90",
+  gold: "border-[1.5px] border-[#ffd700]/60 bg-[#1c1804]/90",
 };
 
-/* ——— Spotlight gradients (radial halo behind avatar) ——— */
+/* ——— Spotlight: diagonal light ray across card ——— */
 const spotlightGradients: Record<CardTier, string> = {
   bronze:
-    "radial-gradient(circle at 50% 35%, rgba(205,127,50,0.15) 0%, transparent 50%)",
+    "linear-gradient(135deg, transparent 20%, rgba(205,127,50,0.08) 35%, rgba(255,255,255,0.12) 50%, rgba(205,127,50,0.08) 65%, transparent 80%)",
   silver:
-    "radial-gradient(circle at 50% 35%, rgba(189,195,199,0.12) 0%, transparent 50%)",
+    "linear-gradient(135deg, transparent 20%, rgba(189,195,199,0.10) 35%, rgba(255,255,255,0.18) 50%, rgba(189,195,199,0.10) 65%, transparent 80%)",
   gold:
-    "radial-gradient(circle at 50% 35%, rgba(255,215,0,0.22) 0%, transparent 50%)",
+    "linear-gradient(135deg, transparent 20%, rgba(255,215,0,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(255,215,0,0.10) 65%, transparent 80%)",
+};
+
+/* ——— Avatar outer ring gradient (3D lighting) ——— */
+const tierRingGradient: Record<CardTier, string> = {
+  bronze:
+    "linear-gradient(180deg, rgba(205,127,50,0.8), rgba(205,127,50,0.3))",
+  silver:
+    "linear-gradient(180deg, rgba(220,225,230,0.7), rgba(150,160,170,0.3))",
+  gold: "linear-gradient(180deg, rgba(255,215,0,0.8), rgba(255,170,0,0.3))",
+};
+
+/* ——— Tier pill (top-right label) ——— */
+const tierPillBg: Record<CardTier, string> = {
+  bronze: "rgba(20,12,5,0.8)",
+  silver: "rgba(15,20,30,0.8)",
+  gold: "rgba(25,20,5,0.8)",
+};
+const tierPillBorder: Record<CardTier, string> = {
+  bronze: "rgba(205,127,50,0.4)",
+  silver: "rgba(189,195,199,0.3)",
+  gold: "rgba(255,215,0,0.4)",
+};
+
+/* ——— Hex stat configs ——— */
+const tierOuterBorderColor: Record<CardTier, string> = {
+  bronze: "rgba(205,127,50,0.25)",
+  silver: "rgba(189,195,199,0.20)",
+  gold: "rgba(255,215,0,0.30)",
+};
+const tierHexBg: Record<CardTier, string> = {
+  bronze:
+    "linear-gradient(180deg, rgba(30,20,10,0.9), rgba(20,12,5,0.95))",
+  silver:
+    "linear-gradient(180deg, rgba(25,30,40,0.9), rgba(15,20,30,0.95))",
+  gold: "linear-gradient(180deg, rgba(30,25,10,0.9), rgba(20,15,5,0.95))",
+};
+const tierValueColors: Record<CardTier, string> = {
+  bronze: "text-[#daa06d]",
+  silver: "text-[#e2e8f0]",
+  gold: "text-[#ffe44d]",
 };
 
 export default function VeloCard({
@@ -117,9 +158,9 @@ export default function VeloCard({
   return (
     <div
       id="velo-card"
-      className={`relative w-[400px] h-[711px] rounded-2xl border bg-gradient-to-b overflow-hidden ${config.bg} ${tierBorderColors[tier]} ${config.glowClass}`}
+      className={`relative w-[400px] h-[711px] rounded-2xl border-[1.5px] bg-gradient-to-b overflow-hidden ${config.bg} ${tierBorderColors[tier]} ${config.glowClass}`}
     >
-      {/* Tier texture overlay (z-5) */}
+      {/* Tier texture overlay — brushed metal circulaire (z-5) */}
       <div
         className={`pointer-events-none absolute inset-0 z-[5] rounded-2xl texture-${tier}`}
       />
@@ -127,7 +168,7 @@ export default function VeloCard({
       {/* Scan-lines overlay (z-10) */}
       <div className="scan-lines pointer-events-none absolute inset-0 z-10 rounded-2xl" />
 
-      {/* Spotlight halo behind avatar (z-15) */}
+      {/* Spotlight — diagonal light ray (z-15) */}
       <div
         className="pointer-events-none absolute inset-0 z-[15]"
         style={{ background: spotlightGradients[tier] }}
@@ -135,7 +176,7 @@ export default function VeloCard({
 
       {/* Content (z-20) */}
       <div className="relative z-20 flex h-full flex-col items-center px-6 pt-6 pb-5">
-        {/* ——— Top bar: branding + centered club logo + tier ——— */}
+        {/* ——— Top bar: branding + centered club logo + tier pill ——— */}
         <div className="relative flex w-full items-center justify-between">
           <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
             VELOCARD
@@ -155,37 +196,49 @@ export default function VeloCard({
             </div>
           )}
 
+          {/* Tier pill — 3D encapsulated */}
           <span
-            className={`shimmer rounded-full px-3 py-0.5 text-[10px] font-bold tracking-[0.2em] ${config.accent}`}
-            style={{ backgroundImage: config.shimmerGradient }}
+            className={`shimmer rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.2em] ${config.accent}`}
+            style={{
+              backgroundImage: config.shimmerGradient,
+              backgroundColor: tierPillBg[tier],
+              border: `1px solid ${tierPillBorder[tier]}`,
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.3)",
+            }}
           >
             {config.label}
           </span>
         </div>
 
-        {/* ——— Avatar with rim light ——— */}
+        {/* ——— Avatar with double ring 3D ——— */}
         <div className="mt-8 flex flex-col items-center">
+          {/* Outer glow ring — tier-colored gradient */}
           <div
-            className={`relative rounded-full border-[3px] p-1 ${tierAvatarRing[tier]} ${config.avatarGlow}`}
+            className={`rounded-full p-[3px] ${config.avatarGlow}`}
+            style={{ background: tierRingGradient[tier] }}
           >
-            {avatarUrl ? (
-              <img
-                src={`/api/img?url=${encodeURIComponent(avatarUrl)}`}
-                alt={username}
-                crossOrigin="anonymous"
-                className="h-20 w-20 rounded-full object-cover"
+            {/* Inner white ring */}
+            <div className="relative rounded-full border-[3px] border-white/20 p-[2px]">
+              {avatarUrl ? (
+                <img
+                  src={`/api/img?url=${encodeURIComponent(avatarUrl)}`}
+                  alt={username}
+                  crossOrigin="anonymous"
+                  className="h-20 w-20 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-full bg-white/10" />
+              )}
+              {/* Rim light overlay — white arc on top for 3D effect */}
+              <div
+                className="pointer-events-none absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 40%)",
+                }}
               />
-            ) : (
-              <div className="h-20 w-20 rounded-full bg-white/10" />
-            )}
-            {/* Rim light overlay — white arc on top for 3D effect */}
-            <div
-              className="pointer-events-none absolute inset-0 rounded-full"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.20) 0%, transparent 40%)",
-              }}
-            />
+            </div>
           </div>
 
           {/* Username + tier */}
@@ -198,14 +251,17 @@ export default function VeloCard({
             {config.label} TIER
           </p>
 
-          {/* ——— PlayStyle Badges (Glossy) ——— */}
+          {/* ——— PlayStyle Badges (Dark glossy pills) ——— */}
           {badges.length > 0 && (
             <div className="mt-3 flex items-center gap-2">
               {badges.map((badge) => (
                 <div
                   key={badge.id}
-                  className={`relative overflow-hidden flex items-center gap-1 rounded-full border px-2.5 py-0.5 ${tierBadgeStyles[tier]}`}
-                  style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
+                  className={`relative overflow-hidden flex items-center gap-1 rounded-full px-2.5 py-0.5 ${tierBadgeStyles[tier]}`}
+                  style={{
+                    boxShadow:
+                      "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+                  }}
                   title={badge.name}
                 >
                   {/* Glossy shine overlay */}
@@ -213,11 +269,11 @@ export default function VeloCard({
                     className="pointer-events-none absolute inset-0 rounded-full"
                     style={{
                       background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%)",
+                        "linear-gradient(180deg, rgba(255,255,255,0.20) 0%, transparent 45%)",
                     }}
                   />
                   <span className="text-xs">{badge.emoji}</span>
-                  <span className="relative text-[9px] font-bold tracking-wide text-white/80">
+                  <span className="relative text-[9px] font-bold tracking-wide text-white/90">
                     {badge.name.toUpperCase()}
                   </span>
                 </div>
@@ -282,7 +338,7 @@ export default function VeloCard({
   );
 }
 
-/* ——— Hexagonal stat badge (Glassmorphism + Elite glow) ——— */
+/* ——— Hexagonal stat badge — 3D double border ——— */
 function StatHex({
   label,
   value,
@@ -294,30 +350,36 @@ function StatHex({
 }) {
   const isElite = value >= 90;
 
-  const valueColors: Record<CardTier, string> = {
-    bronze: "text-[#daa06d]",
-    silver: "text-[#e2e8f0]",
-    gold: "text-[#ffe44d]",
-  };
-
   return (
     <div className="flex h-[100px] w-[90px] flex-col items-center justify-center">
+      {/* Outer border hex */}
       <div
-        className={`stat-badge flex h-[80px] w-[75px] flex-col items-center justify-center ${isElite ? "stat-elite" : ""}`}
+        className="stat-badge flex items-center justify-center"
         style={{
-          background: "rgba(255,255,255,0.04)",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.20)",
+          width: 79,
+          height: 84,
+          background: isElite
+            ? "linear-gradient(180deg, rgba(255,215,0,0.6), rgba(255,170,0,0.4))"
+            : tierOuterBorderColor[tier],
         }}
       >
-        <span
-          className={`text-2xl font-black ${isElite ? "text-yellow-200" : valueColors[tier]}`}
+        {/* Inner hex — dark glassmorphism */}
+        <div
+          className={`stat-badge flex h-[76px] w-[71px] flex-col items-center justify-center ${isElite ? "stat-elite" : ""}`}
+          style={{
+            background: tierHexBg[tier],
+            boxShadow: `inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.3)${isElite ? ", 0 0 12px rgba(255,215,0,0.4)" : ""}`,
+          }}
         >
-          {value}
-        </span>
-        <span className="mt-0.5 text-[9px] font-bold tracking-[0.15em] text-white/50">
-          {label}
-        </span>
+          <span
+            className={`text-2xl font-black ${isElite ? "text-yellow-200" : tierValueColors[tier]}`}
+          >
+            {value}
+          </span>
+          <span className="mt-0.5 text-[9px] font-bold tracking-[0.15em] text-white/50">
+            {label}
+          </span>
+        </div>
       </div>
     </div>
   );
