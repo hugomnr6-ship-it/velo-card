@@ -11,6 +11,8 @@ interface VeloCardInteractiveProps {
   stats: ComputedStats;
   tier: CardTier;
   badges: Badge[];
+  clubName?: string | null;
+  clubLogoUrl?: string | null;
 }
 
 const tierHoloColors: Record<CardTier, string> = {
@@ -27,6 +29,8 @@ export default function VeloCardInteractive({
   stats,
   tier,
   badges,
+  clubName,
+  clubLogoUrl,
 }: VeloCardInteractiveProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tilt } = useGyroscope(wrapperRef);
@@ -61,6 +65,8 @@ export default function VeloCardInteractive({
             stats={stats}
             tier={tier}
             badges={badges}
+            clubName={clubName}
+            clubLogoUrl={clubLogoUrl}
           />
 
           {/* Holographic overlay — filtered out during export */}

@@ -24,7 +24,7 @@ export default async function VeloCardSection({
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, avatar_url")
+      .select("id, avatar_url, club_name, club_logo_url")
       .eq("strava_id", userInfo.stravaId)
       .single();
 
@@ -43,8 +43,11 @@ export default async function VeloCardSection({
       name: a.name,
       distance: a.distance,
       moving_time: a.moving_time,
+      elapsed_time: a.elapsed_time,
       total_elevation_gain: a.total_elevation_gain,
       average_speed: a.average_speed,
+      max_speed: a.max_speed,
+      weighted_average_watts: a.weighted_average_watts ?? null,
       start_date: a.start_date,
       activity_type: a.type,
     }));
@@ -68,6 +71,9 @@ export default async function VeloCardSection({
           pac: stats.pac,
           end: stats.end,
           grim: stats.grim,
+          pui: stats.pui,
+          exp: stats.exp,
+          tec: stats.tec,
           tier,
           last_synced_at: new Date().toISOString(),
         },
@@ -88,6 +94,8 @@ export default async function VeloCardSection({
         stats={stats}
         tier={tier}
         badges={badges}
+        clubName={profile.club_name}
+        clubLogoUrl={profile.club_logo_url}
       />
     );
   } catch (err: any) {

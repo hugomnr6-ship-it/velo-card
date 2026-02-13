@@ -7,6 +7,15 @@ interface BadgeDefinition extends Badge {
 
 const badgeDefinitions: BadgeDefinition[] = [
   {
+    id: "complet",
+    name: "Complet",
+    emoji: "\uD83C\uDFC6",
+    priority: 0,
+    condition: (s) =>
+      s.pac >= 40 && s.end >= 40 && s.grim >= 40 &&
+      s.pui >= 40 && s.exp >= 40 && s.tec >= 40,
+  },
+  {
     id: "chevre",
     name: "Chevre",
     emoji: "\uD83D\uDC10",
@@ -47,6 +56,20 @@ const badgeDefinitions: BadgeDefinition[] = [
     emoji: "\u26A1",
     priority: 6,
     condition: (s) => s.pac >= 30 && s.grim >= 40,
+  },
+  {
+    id: "explosif",
+    name: "Explosif",
+    emoji: "\uD83D\uDCA5",
+    priority: 7,
+    condition: (s) => s.exp >= 60,
+  },
+  {
+    id: "technicien",
+    name: "Technicien",
+    emoji: "\uD83C\uDFAF",
+    priority: 8,
+    condition: (s) => s.tec >= 60,
   },
 ];
 

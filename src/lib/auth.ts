@@ -50,8 +50,26 @@ export const authOptions: NextAuthOptions = {
         // Store avatar URL in token so it persists across sessions
         token.picture = user?.image ?? (profile as any).profile ?? null;
 
-        // Upsert profile in Supabase on sign-in
+        // Fetch full athlete data (includes clubs)
         const stravaProfile = profile as any;
+        let clubName: string | null = null;
+        let clubLogoUrl: string | null = null;
+
+        try {
+          const athleteRes = await fetch("https://www.strava.com/api/v3/athlete", {
+            headers: { Authorization: `Bearer ${account.access_token}` },
+          });
+          const athleteData = await athleteRes.json();
+          const primaryClub = athleteData.clubs?.[0];
+          if (primaryClub) {
+            clubName = primaryClub.name ?? null;
+            clubLogoUrl = primaryClub.profile_medium ?? null;
+          }
+        } catch {
+          console.warn("[AUTH] Failed to fetch club data");
+        }
+
+        // Upsert profile in Supabase on sign-in
         console.log("[AUTH] Upserting profile for strava_id:", account.providerAccountId);
         const { data, error } = await supabaseAdmin
           .from("profiles")
@@ -60,6 +78,8 @@ export const authOptions: NextAuthOptions = {
               strava_id: Number(account.providerAccountId),
               username: `${stravaProfile.firstname} ${stravaProfile.lastname}`,
               avatar_url: stravaProfile.profile ?? null,
+              club_name: clubName,
+              club_logo_url: clubLogoUrl,
             },
             { onConflict: "strava_id" },
           )

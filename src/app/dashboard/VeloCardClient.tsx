@@ -10,6 +10,8 @@ interface VeloCardClientProps {
   stats: ComputedStats;
   tier: CardTier;
   badges: Badge[];
+  clubName?: string | null;
+  clubLogoUrl?: string | null;
 }
 
 export default function VeloCardClient({
@@ -18,6 +20,8 @@ export default function VeloCardClient({
   stats,
   tier,
   badges,
+  clubName,
+  clubLogoUrl,
 }: VeloCardClientProps) {
   return (
     <>
@@ -27,6 +31,8 @@ export default function VeloCardClient({
         stats={stats}
         tier={tier}
         badges={badges}
+        clubName={clubName}
+        clubLogoUrl={clubLogoUrl}
       />
       <DownloadButton tier={tier} />
     </>

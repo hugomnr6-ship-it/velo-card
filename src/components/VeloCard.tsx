@@ -8,6 +8,8 @@ interface VeloCardProps {
   stats: ComputedStats;
   tier: CardTier;
   badges?: Badge[];
+  clubName?: string | null;
+  clubLogoUrl?: string | null;
 }
 
 /* ——— Tier-specific config ——— */
@@ -79,14 +81,14 @@ const tierBadgeStyles: Record<CardTier, string> = {
   gold: "border-yellow-500/40 bg-yellow-900/20",
 };
 
-const lockedStats = ["PUI", "EXP", "TEC"] as const;
-
 export default function VeloCard({
   username,
   avatarUrl,
   stats,
   tier,
   badges = [],
+  clubName,
+  clubLogoUrl,
 }: VeloCardProps) {
   const config = tierConfig[tier];
 
@@ -100,11 +102,22 @@ export default function VeloCard({
 
       {/* Content */}
       <div className="relative z-20 flex h-full flex-col items-center px-6 pt-6 pb-5">
-        {/* ——— Top bar: branding + tier ——— */}
+        {/* ——— Top bar: branding + club logo + tier ——— */}
         <div className="flex w-full items-center justify-between">
-          <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
-            VELOCARD
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
+              VELOCARD
+            </span>
+            {clubLogoUrl && (
+              <img
+                src={`/api/img?url=${encodeURIComponent(clubLogoUrl)}`}
+                alt={clubName || "Club"}
+                crossOrigin="anonymous"
+                className="h-6 w-6 rounded-full border border-white/20 object-cover"
+                title={clubName || undefined}
+              />
+            )}
+          </div>
           <span
             className={`shimmer rounded-full px-3 py-0.5 text-[10px] font-bold tracking-[0.2em] ${config.accent}`}
             style={{ backgroundImage: config.shimmerGradient }}
@@ -164,7 +177,7 @@ export default function VeloCard({
           className={`mt-6 h-px w-full bg-gradient-to-r ${tierDividerColors[tier]}`}
         />
 
-        {/* ——— Active stats ——— */}
+        {/* ——— Stats row 1: PAC / END / GRIM ——— */}
         <div className="mt-8 flex w-full justify-center gap-5">
           {([
             { label: "PAC", value: stats.pac },
@@ -175,20 +188,14 @@ export default function VeloCard({
           ))}
         </div>
 
-        {/* ——— Locked stats ——— */}
+        {/* ——— Stats row 2: PUI / EXP / TEC ——— */}
         <div className="mt-5 flex w-full justify-center gap-5">
-          {lockedStats.map((label) => (
-            <div
-              key={label}
-              className="flex h-[100px] w-[90px] flex-col items-center justify-center opacity-30"
-            >
-              <div className="stat-badge flex h-[80px] w-[75px] flex-col items-center justify-center bg-white/5">
-                <span className="text-lg text-white/30">&#128274;</span>
-                <span className="mt-0.5 text-[9px] font-bold tracking-[0.15em] text-white/30">
-                  {label}
-                </span>
-              </div>
-            </div>
+          {([
+            { label: "PUI", value: stats.pui },
+            { label: "EXP", value: stats.exp },
+            { label: "TEC", value: stats.tec },
+          ] as const).map((s) => (
+            <StatHex key={s.label} label={s.label} value={s.value} tier={tier} />
           ))}
         </div>
 

@@ -9,23 +9,20 @@ export interface StravaActivity {
   total_elevation_gain: number; // meters
   average_speed: number; // m/s
   max_speed: number; // m/s
+  weighted_average_watts?: number; // Strava estimated power (may be absent)
   start_date: string;
   type: string;
 }
 
-// ——— Computed stats (Phase 1: "3+3") ———
+// ——— Computed stats (6 active stats) ———
 
 export interface ComputedStats {
   pac: number; // speed score (weighted by elevation)
   end: number; // endurance score (max distance)
   grim: number; // climbing score (D+ / VAM)
-}
-
-// The 3 locked stats for Phase 1
-export interface LockedStats {
-  pui: null; // power — requires sensor
-  exp: null; // explosivity — requires sensor
-  tec: null; // technique — requires sensor
+  pui: number; // power score (watts or physics estimate)
+  exp: number; // explosivity (max_speed / avg_speed ratio)
+  tec: number; // technique (pacing + consistency)
 }
 
 export type CardTier = "bronze" | "silver" | "gold";
@@ -45,6 +42,8 @@ export interface Profile {
   strava_id: number;
   username: string;
   avatar_url: string | null;
+  club_name: string | null;
+  club_logo_url: string | null;
   created_at: string;
 }
 
@@ -54,6 +53,9 @@ export interface UserStats {
   pac: number;
   end: number;
   grim: number;
+  pui: number;
+  exp: number;
+  tec: number;
   tier: CardTier;
   last_synced_at: string;
 }
