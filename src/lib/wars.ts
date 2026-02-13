@@ -4,8 +4,24 @@ import { supabaseAdmin } from "./supabase";
 // Squad Wars — Core logic
 // ——————————————————————————————————————————————
 
-const SPRINT_THRESHOLD_MS = 13.89; // 50 km/h in m/s
 const MIN_MEMBERS = 3;
+
+// ——— Sprint scoring with anti-descent filter ———
+
+function getSprintPoints(activity: any): number {
+  const maxSpeed = activity.max_speed || 0;
+  if (maxSpeed < 13.89) return 0; // < 50 km/h → no sprint
+
+  // Anti-descent filter: short ride with almost no D+ = probably a downhill
+  const distKm = (activity.distance || 0) / 1000;
+  const dplusPerKm = distKm > 0
+    ? (activity.total_elevation_gain || 0) / distKm
+    : 0;
+
+  if (distKm < 10 && dplusPerKm < 1) return 0; // Pure descent → doesn't count
+
+  return 1;
+}
 
 // ——— Week bounds ———
 
@@ -139,17 +155,17 @@ async function computeClubContributions(
   (activities || []).forEach((a: any) => {
     const km = (a.distance || 0) / 1000;
     const dplus = a.total_elevation_gain || 0;
-    const isSprint = (a.max_speed || 0) >= SPRINT_THRESHOLD_MS ? 1 : 0;
+    const sprintPts = getSprintPoints(a);
 
     total_km += km;
     total_dplus += dplus;
-    total_sprints += isSprint;
+    total_sprints += sprintPts;
 
     const member = per_member.get(a.user_id);
     if (member) {
       member.km += km;
       member.dplus += dplus;
-      member.sprints += isSprint;
+      member.sprints += sprintPts;
     }
   });
 
