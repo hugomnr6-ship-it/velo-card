@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import CreateClubForm from "@/components/CreateClubForm";
 import type { ClubWithCount, ClubMember } from "@/types";
 
@@ -105,17 +104,11 @@ export default function ClubsPage() {
   const otherClubs = clubs.filter((c) => !userClubIds.includes(c.id));
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-4 py-12">
+    <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
       <div className="w-full max-w-2xl">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6">
           <h1 className="text-xl font-bold text-white">Clubs</h1>
-          <Link
-            href="/dashboard"
-            className="text-sm text-neutral-500 hover:text-neutral-300"
-          >
-            Retour au dashboard
-          </Link>
         </div>
 
         {/* Club detail modal */}

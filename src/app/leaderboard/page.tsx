@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import RegionSelector from "@/components/RegionSelector";
 import SortTabs from "@/components/SortTabs";
 import LeaderboardRow from "@/components/LeaderboardRow";
@@ -73,16 +72,8 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-4 py-12">
+    <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
       <div className="w-full max-w-2xl">
-        {/* Back link */}
-        <Link
-          href="/dashboard"
-          className="mb-6 inline-block text-sm text-neutral-500 hover:text-neutral-300"
-        >
-          ← Retour au dashboard
-        </Link>
-
         <h1 className="mb-6 text-2xl font-bold text-white">
           🏆 Classement hebdomadaire
         </h1>

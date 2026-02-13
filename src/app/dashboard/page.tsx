@@ -35,7 +35,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 px-4 py-12">
+    <main className="flex min-h-screen flex-col items-center gap-6 px-4 pb-24 pt-12">
       {/* ——— VeloCard: skeleton appears instantly, card streams in when ready ——— */}
       <Suspense fallback={<VeloCardWithButtonSkeleton />}>
         <VeloCardSection userInfo={userInfo} />

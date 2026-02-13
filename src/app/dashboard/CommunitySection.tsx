@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import RegionSelector from "@/components/RegionSelector";
 import type { FrenchRegion } from "@/types";
 
@@ -43,7 +42,7 @@ export default function CommunitySection() {
       </h2>
 
       {/* Region selector */}
-      <div className="mb-5 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <span className="text-sm text-neutral-400">Ma région :</span>
         <RegionSelector
           value={region}
@@ -53,48 +52,6 @@ export default function CommunitySection() {
         {regionSaving && (
           <span className="text-xs text-neutral-500">Sauvegarde...</span>
         )}
-      </div>
-
-      {/* Navigation cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <Link
-          href="/races"
-          className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
-        >
-          <span className="text-3xl">🏁</span>
-          <span className="text-sm font-semibold text-white group-hover:text-white/90">
-            Courses
-          </span>
-          <span className="text-xs text-neutral-500">
-            Crée et rejoins des courses
-          </span>
-        </Link>
-
-        <Link
-          href="/leaderboard"
-          className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
-        >
-          <span className="text-3xl">🏆</span>
-          <span className="text-sm font-semibold text-white group-hover:text-white/90">
-            Classement
-          </span>
-          <span className="text-xs text-neutral-500">
-            Top hebdo de ta région
-          </span>
-        </Link>
-
-        <Link
-          href="/clubs"
-          className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-6 transition hover:border-neutral-600 hover:bg-neutral-800 active:scale-95"
-        >
-          <span className="text-3xl">🛡️</span>
-          <span className="text-sm font-semibold text-white group-hover:text-white/90">
-            Clubs
-          </span>
-          <span className="text-xs text-neutral-500">
-            Crée ou rejoins un club
-          </span>
-        </Link>
       </div>
     </section>
   );
