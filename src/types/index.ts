@@ -202,3 +202,80 @@ export interface ClubInfo {
   name: string;
   logo_url: string;
 }
+
+// ——— Phase: Squad Wars (Guerre des Pelotons) ———
+
+export type TowerType = "roi" | "montagne" | "sprint";
+export type WarStatus = "active" | "finished";
+
+export interface War {
+  id: string;
+  week_label: string;
+  club_a_id: string;
+  club_b_id: string;
+  club_a_score: number;
+  club_b_score: number;
+  status: WarStatus;
+  starts_at: string;
+  ends_at: string;
+}
+
+export interface WarTower {
+  tower_type: TowerType;
+  current_value: number;
+  target_value: number;
+  is_winner: boolean;
+}
+
+export interface WarContribution {
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  km_contributed: number;
+  dplus_contributed: number;
+  sprints_contributed: number;
+}
+
+export interface WarTowerView {
+  my_progress: number;
+  my_target: number;
+  opp_progress: number;
+  opp_target: number;
+  my_winner: boolean;
+  opp_winner: boolean;
+}
+
+export interface WarDashboard {
+  war: {
+    id: string;
+    week_label: string;
+    starts_at: string;
+    ends_at: string;
+    status: WarStatus;
+    my_club: { id: string; name: string; logo_url: string | null; member_count: number };
+    opponent_club: { id: string; name: string; logo_url: string | null; member_count: number };
+    towers: {
+      roi: WarTowerView;
+      montagne: WarTowerView;
+      sprint: WarTowerView;
+    };
+    my_club_towers_won: number;
+    opp_club_towers_won: number;
+    contributions: WarContribution[];
+  } | null;
+  no_club: boolean;
+  club_too_small: boolean;
+  no_match_found: boolean;
+  is_debrief_day: boolean;
+}
+
+export interface WarHistoryEntry {
+  war_id: string;
+  week_label: string;
+  opponent_name: string;
+  opponent_logo_url: string | null;
+  my_score: number;
+  opp_score: number;
+  result: "win" | "loss" | "draw";
+  ended_at: string;
+}

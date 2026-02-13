@@ -7,8 +7,9 @@ import { useSession } from "next-auth/react";
 const tabs = [
   { href: "/dashboard", label: "Home", icon: "🏠" },
   { href: "/clubs", label: "Clubs", icon: "🛡️" },
+  { href: "/wars", label: "Guerres", icon: "⚔️" },
   { href: "/races", label: "Courses", icon: "🏁" },
-  { href: "/leaderboard", label: "Classement", icon: "🏆" },
+  { href: "/leaderboard", label: "Rang", icon: "🏆" },
 ];
 
 export default function BottomTabBar() {

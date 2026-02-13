@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { computeStats, getTier } from "@/lib/stats";
+import { updateWarProgressForUser } from "@/lib/wars";
 
 export async function POST() {
   // 1. Check auth
@@ -72,7 +73,10 @@ export async function POST() {
         { onConflict: "user_id" },
       );
 
-    // 7. Return stats to frontend
+    // 7. Update Squad Wars progress (non-blocking)
+    updateWarProgressForUser(profile.id).catch(() => {});
+
+    // 8. Return stats to frontend
     return Response.json({
       pac: stats.pac,
       end: stats.end,
