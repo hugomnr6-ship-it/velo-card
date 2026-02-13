@@ -1,23 +1,26 @@
 @import "tailwindcss";
 
-/* ——— Tier glow effects ——— */
+/* ——— Tier glow effects + drop shadow ——— */
 .card-glow-bronze {
   box-shadow:
-    0 0 40px rgba(217, 119, 6, 0.3),
-    0 0 80px rgba(217, 119, 6, 0.1),
-    inset 0 1px 0 rgba(255, 191, 0, 0.1);
+    0 0 45px rgba(205, 127, 50, 0.35),
+    0 0 90px rgba(205, 127, 50, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 191, 0, 0.12);
 }
 .card-glow-silver {
   box-shadow:
-    0 0 40px rgba(148, 163, 184, 0.3),
-    0 0 80px rgba(148, 163, 184, 0.1),
-    inset 0 1px 0 rgba(226, 232, 240, 0.1);
+    0 0 45px rgba(189, 195, 199, 0.35),
+    0 0 90px rgba(189, 195, 199, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(226, 232, 240, 0.12);
 }
 .card-glow-gold {
   box-shadow:
-    0 0 40px rgba(250, 204, 21, 0.4),
-    0 0 80px rgba(250, 204, 21, 0.15),
-    inset 0 1px 0 rgba(253, 224, 71, 0.15);
+    0 0 50px rgba(255, 215, 0, 0.5),
+    0 0 100px rgba(255, 215, 0, 0.2),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 240, 100, 0.2);
 }
 
 /* ——— Angular stat badge clip-path ——— */
@@ -52,13 +55,40 @@
 
 /* ——— Avatar ring glow ——— */
 .avatar-glow-bronze {
-  box-shadow: 0 0 20px rgba(217, 119, 6, 0.5), 0 0 40px rgba(217, 119, 6, 0.2);
+  box-shadow: 0 0 24px rgba(205, 127, 50, 0.55), 0 0 48px rgba(205, 127, 50, 0.2);
 }
 .avatar-glow-silver {
-  box-shadow: 0 0 20px rgba(148, 163, 184, 0.5), 0 0 40px rgba(148, 163, 184, 0.2);
+  box-shadow: 0 0 24px rgba(189, 195, 199, 0.55), 0 0 48px rgba(189, 195, 199, 0.2);
 }
 .avatar-glow-gold {
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.25);
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.65), 0 0 56px rgba(255, 215, 0, 0.3);
+}
+
+/* ——— Tier background textures ——— */
+.texture-bronze {
+  background-image: repeating-linear-gradient(
+    45deg, transparent, transparent 2px,
+    rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px
+  );
+}
+.texture-silver {
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 1px,
+    rgba(255, 255, 255, 0.03) 1px, rgba(255, 255, 255, 0.03) 2px
+  );
+}
+.texture-gold {
+  background-image: radial-gradient(circle, rgba(255, 215, 0, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* ——— Stat elite pulse (scores >= 90) ——— */
+@keyframes stat-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); }
+}
+.stat-elite {
+  animation: stat-pulse 2s ease-in-out infinite;
 }
 
 /* ——— Phase 2: GPX Drop Zone ——— */
