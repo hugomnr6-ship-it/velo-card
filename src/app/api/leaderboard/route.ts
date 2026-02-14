@@ -61,7 +61,7 @@ export async function GET(request: Request) {
   // Get stats
   const { data: allStats } = await supabaseAdmin
     .from("user_stats")
-    .select('user_id, pac, "end", grim, tier')
+    .select('user_id, pac, "end", mon, ovr, tier')
     .in("user_id", userIds);
 
   // Aggregate weekly data
@@ -78,14 +78,14 @@ export async function GET(request: Request) {
   // Build entries
   const entries = regionProfiles.map((p: any) => {
     const weekly = weeklyMap[p.id] || { km: 0, dplus: 0 };
-    const st = statsMap[p.id] || { pac: 0, end: 0, grim: 0, tier: "bronze" };
+    const st = statsMap[p.id] || { pac: 0, end: 0, mon: 0, ovr: 0, tier: "bronze" };
     return {
       user_id: p.id,
       username: p.username,
       avatar_url: p.avatar_url,
       weekly_km: Math.round(weekly.km * 10) / 10,
       weekly_dplus: Math.round(weekly.dplus),
-      card_score: Math.round((st.pac + st.end + st.grim) / 3),
+      card_score: st.ovr || Math.round((st.pac + st.end + st.mon) / 3),
       tier: st.tier,
     };
   });

@@ -186,14 +186,14 @@ async function getClubScore(clubId: string): Promise<{ score: number; memberCoun
 
   const { data: stats } = await supabaseAdmin
     .from("user_stats")
-    .select("pac, \"end\", grim")
+    .select('pac, "end", mon, ovr')
     .in("user_id", memberIds);
 
   if (!stats || stats.length === 0) return { score: 0, memberCount: members.length };
 
   const avgScore =
     stats.reduce((sum: number, s: any) => {
-      return sum + (s.pac + s.end + s.grim) / 3;
+      return sum + (s.ovr || (s.pac + s.end + s.mon) / 3);
     }, 0) / stats.length;
 
   return { score: Math.round(avgScore), memberCount: members.length };

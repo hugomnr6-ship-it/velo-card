@@ -9,20 +9,26 @@ interface ParticipantRowProps {
 
 const tierColors: Record<CardTier, string> = {
   bronze: "text-amber-500 bg-amber-500/10 border-amber-800/50",
-  silver: "text-slate-300 bg-slate-300/10 border-slate-600/50",
-  gold: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
+  argent: "text-slate-300 bg-slate-300/10 border-slate-600/50",
+  platine: "text-[#A8D8EA] bg-[#A8D8EA]/10 border-[#A8D8EA]/30",
+  diamant: "text-[#B9F2FF] bg-[#B9F2FF]/10 border-[#B9F2FF]/30",
+  legende: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
 };
 
 const tierRing: Record<CardTier, string> = {
   bronze: "border-amber-600",
-  silver: "border-slate-400",
-  gold: "border-yellow-500",
+  argent: "border-slate-400",
+  platine: "border-[#A8D8EA]",
+  diamant: "border-[#B9F2FF]",
+  legende: "border-yellow-500",
 };
 
 const statColors: Record<CardTier, string> = {
   bronze: "text-amber-400",
-  silver: "text-slate-200",
-  gold: "text-yellow-300",
+  argent: "text-slate-200",
+  platine: "text-[#A8D8EA]",
+  diamant: "text-[#B9F2FF]",
+  legende: "text-yellow-300",
 };
 
 export default function ParticipantRow({
@@ -74,8 +80,8 @@ export default function ParticipantRow({
           <p className="text-neutral-600">END</p>
         </div>
         <div className="text-center">
-          <p className={`font-bold ${statColors[tier]}`}>{participant.grim}</p>
-          <p className="text-neutral-600">GRIM</p>
+          <p className={`font-bold ${statColors[tier]}`}>{participant.mon}</p>
+          <p className="text-neutral-600">MON</p>
         </div>
       </div>
     </div>

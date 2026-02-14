@@ -18,8 +18,10 @@ interface ElevationChartProps {
 
 const tierColors: Record<CardTier, { stroke: string; fill: string }> = {
   bronze: { stroke: "#f59e0b", fill: "rgba(217,119,6,0.2)" },
-  silver: { stroke: "#94a3b8", fill: "rgba(148,163,184,0.2)" },
-  gold: { stroke: "#facc15", fill: "rgba(250,204,21,0.2)" },
+  argent: { stroke: "#94a3b8", fill: "rgba(148,163,184,0.2)" },
+  platine: { stroke: "#A8D8EA", fill: "rgba(168,216,234,0.2)" },
+  diamant: { stroke: "#B9F2FF", fill: "rgba(185,242,255,0.2)" },
+  legende: { stroke: "#facc15", fill: "rgba(250,204,21,0.2)" },
 };
 
 export default function ElevationChart({ points, tier }: ElevationChartProps) {

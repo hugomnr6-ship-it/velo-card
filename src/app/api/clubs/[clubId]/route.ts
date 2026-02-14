@@ -50,7 +50,7 @@ export async function GET(
 
     const { data: s } = await supabaseAdmin
       .from("user_stats")
-      .select('user_id, pac, "end", grim, tier')
+      .select('user_id, pac, "end", mon, tier')
       .in("user_id", userIds);
     stats = s || [];
   }
@@ -66,7 +66,7 @@ export async function GET(
     avatar_url: profileMap[e.user_id]?.avatar_url || null,
     pac: statsMap[e.user_id]?.pac || 0,
     end: statsMap[e.user_id]?.end || 0,
-    grim: statsMap[e.user_id]?.grim || 0,
+    mon: statsMap[e.user_id]?.mon || 0,
     tier: statsMap[e.user_id]?.tier || "bronze",
     joined_at: e.joined_at,
   }));

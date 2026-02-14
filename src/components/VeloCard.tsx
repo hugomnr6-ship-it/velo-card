@@ -12,8 +12,8 @@ interface VeloCardProps {
   clubs?: ClubInfo[];
 }
 
-/* ——— Tier-specific config (V2 — Brushed metal premium) ——— */
-const tierConfig: Record<
+/* ——— Tier-specific config (5 tiers premium) ——— */
+export const tierConfig: Record<
   CardTier,
   {
     bg: string;
@@ -26,7 +26,7 @@ const tierConfig: Record<
   }
 > = {
   bronze: {
-    bg: "from-[#120c04] via-[#1e1209] to-[#2a1a0d]",
+    bg: "from-[#1A1208] via-[#2D1F0E] to-[#1A1208]",
     accent: "text-[#cd7f32]",
     accentLight: "text-[#daa06d]",
     glowClass: "card-glow-bronze",
@@ -35,60 +35,92 @@ const tierConfig: Record<
       "linear-gradient(110deg, transparent 30%, rgba(205,127,50,0.18) 50%, transparent 70%)",
     label: "BRONZE",
   },
-  silver: {
-    bg: "from-[#0c1018] via-[#151c28] to-[#1e2a3a]",
-    accent: "text-[#bdc3c7]",
+  argent: {
+    bg: "from-[#14141E] via-[#1E1E2E] to-[#14141E]",
+    accent: "text-[#C0C0C0]",
     accentLight: "text-[#e2e8f0]",
-    glowClass: "card-glow-silver",
-    avatarGlow: "avatar-glow-silver",
+    glowClass: "card-glow-argent",
+    avatarGlow: "avatar-glow-argent",
     shimmerGradient:
-      "linear-gradient(110deg, transparent 30%, rgba(189,195,199,0.15) 50%, transparent 70%)",
-    label: "SILVER",
+      "linear-gradient(110deg, transparent 30%, rgba(192,192,192,0.15) 50%, transparent 70%)",
+    label: "ARGENT",
   },
-  gold: {
-    bg: "from-[#141004] via-[#221a06] to-[#302208]",
-    accent: "text-[#ffd700]",
+  platine: {
+    bg: "from-[#1A1A2E] via-[#2A2A42] to-[#1A1A2E]",
+    accent: "text-[#E5E4E2]",
+    accentLight: "text-[#A8D8EA]",
+    glowClass: "card-glow-platine",
+    avatarGlow: "avatar-glow-platine",
+    shimmerGradient:
+      "linear-gradient(110deg, transparent 30%, rgba(168,216,234,0.15) 50%, transparent 70%)",
+    label: "PLATINE",
+  },
+  diamant: {
+    bg: "from-[#0A1628] via-[#162040] to-[#0A1628]",
+    accent: "text-[#B9F2FF]",
+    accentLight: "text-[#d4f8ff]",
+    glowClass: "card-glow-diamant",
+    avatarGlow: "avatar-glow-diamant",
+    shimmerGradient:
+      "linear-gradient(110deg, transparent 30%, rgba(185,242,255,0.18) 50%, transparent 70%)",
+    label: "DIAMANT",
+  },
+  legende: {
+    bg: "from-[#1A0A2E] via-[#2E1A0A] to-[#0A2E1A]",
+    accent: "text-[#FFD700]",
     accentLight: "text-[#ffe44d]",
-    glowClass: "card-glow-gold",
-    avatarGlow: "avatar-glow-gold",
+    glowClass: "card-glow-legende",
+    avatarGlow: "avatar-glow-legende",
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(255,215,0,0.22) 50%, transparent 70%)",
-    label: "GOLD",
+    label: "LEGENDE",
   },
 };
 
-const tierBorderColors: Record<CardTier, string> = {
+export const tierBorderColors: Record<CardTier, string> = {
   bronze: "border-[#cd7f32]/40",
-  silver: "border-[#bdc3c7]/30",
-  gold: "border-[#ffd700]/40",
+  argent: "border-[#C0C0C0]/30",
+  platine: "border-[#A8D8EA]/30",
+  diamant: "border-[#B9F2FF]/30",
+  legende: "border-[#ffd700]/40",
 };
 
-const tierDividerColors: Record<CardTier, string> = {
+export const tierDividerColors: Record<CardTier, string> = {
   bronze: "from-transparent via-[#cd7f32]/50 to-transparent",
-  silver: "from-transparent via-[#bdc3c7]/40 to-transparent",
-  gold: "from-transparent via-[#ffd700]/60 to-transparent",
+  argent: "from-transparent via-[#C0C0C0]/40 to-transparent",
+  platine: "from-transparent via-[#A8D8EA]/40 to-transparent",
+  diamant: "from-transparent via-[#B9F2FF]/50 to-transparent",
+  legende: "from-transparent via-[#ffd700]/60 to-transparent",
 };
 
 const tierAvatarRing: Record<CardTier, string> = {
   bronze: "border-[#cd7f32]",
-  silver: "border-[#bdc3c7]",
-  gold: "border-[#ffd700]",
+  argent: "border-[#C0C0C0]",
+  platine: "border-[#A8D8EA]",
+  diamant: "border-[#B9F2FF]",
+  legende: "border-[#ffd700]",
 };
 
 /* ——— Badge styles: dark opaque pill ——— */
 const tierBadgeStyles: Record<CardTier, string> = {
   bronze: "border-[1.5px] border-[#cd7f32]/60 bg-[#1a1108]/90",
-  silver: "border-[1.5px] border-[#bdc3c7]/50 bg-[#10141d]/90",
-  gold: "border-[1.5px] border-[#ffd700]/60 bg-[#1c1804]/90",
+  argent: "border-[1.5px] border-[#C0C0C0]/50 bg-[#10141d]/90",
+  platine: "border-[1.5px] border-[#A8D8EA]/50 bg-[#14142a]/90",
+  diamant: "border-[1.5px] border-[#B9F2FF]/50 bg-[#0a1628]/90",
+  legende: "border-[1.5px] border-[#ffd700]/60 bg-[#1c1804]/90",
 };
 
 /* ——— Spotlight: diagonal light ray across card ——— */
-const spotlightGradients: Record<CardTier, string> = {
+export const spotlightGradients: Record<CardTier, string> = {
   bronze:
     "linear-gradient(135deg, transparent 20%, rgba(205,127,50,0.08) 35%, rgba(255,255,255,0.12) 50%, rgba(205,127,50,0.08) 65%, transparent 80%)",
-  silver:
-    "linear-gradient(135deg, transparent 20%, rgba(189,195,199,0.10) 35%, rgba(255,255,255,0.18) 50%, rgba(189,195,199,0.10) 65%, transparent 80%)",
-  gold:
+  argent:
+    "linear-gradient(135deg, transparent 20%, rgba(192,192,192,0.10) 35%, rgba(255,255,255,0.18) 50%, rgba(192,192,192,0.10) 65%, transparent 80%)",
+  platine:
+    "linear-gradient(135deg, transparent 20%, rgba(168,216,234,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(168,216,234,0.10) 65%, transparent 80%)",
+  diamant:
+    "linear-gradient(135deg, transparent 20%, rgba(185,242,255,0.10) 35%, rgba(255,255,255,0.18) 50%, rgba(185,242,255,0.10) 65%, transparent 80%)",
+  legende:
     "linear-gradient(135deg, transparent 20%, rgba(255,215,0,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(255,215,0,0.10) 65%, transparent 80%)",
 };
 
@@ -96,40 +128,58 @@ const spotlightGradients: Record<CardTier, string> = {
 const tierRingGradient: Record<CardTier, string> = {
   bronze:
     "linear-gradient(180deg, rgba(205,127,50,0.8), rgba(205,127,50,0.3))",
-  silver:
-    "linear-gradient(180deg, rgba(220,225,230,0.7), rgba(150,160,170,0.3))",
-  gold: "linear-gradient(180deg, rgba(255,215,0,0.8), rgba(255,170,0,0.3))",
+  argent:
+    "linear-gradient(180deg, rgba(192,192,192,0.7), rgba(150,150,150,0.3))",
+  platine:
+    "linear-gradient(180deg, rgba(168,216,234,0.7), rgba(229,228,226,0.3))",
+  diamant:
+    "linear-gradient(180deg, rgba(185,242,255,0.8), rgba(185,242,255,0.3))",
+  legende:
+    "linear-gradient(180deg, rgba(255,215,0,0.8), rgba(255,170,0,0.3))",
 };
 
 /* ——— Tier pill (top-right label) ——— */
-const tierPillBg: Record<CardTier, string> = {
+export const tierPillBg: Record<CardTier, string> = {
   bronze: "rgba(20,12,5,0.8)",
-  silver: "rgba(15,20,30,0.8)",
-  gold: "rgba(25,20,5,0.8)",
+  argent: "rgba(15,15,25,0.8)",
+  platine: "rgba(20,20,35,0.8)",
+  diamant: "rgba(10,22,40,0.8)",
+  legende: "rgba(25,20,5,0.8)",
 };
-const tierPillBorder: Record<CardTier, string> = {
+export const tierPillBorder: Record<CardTier, string> = {
   bronze: "rgba(205,127,50,0.4)",
-  silver: "rgba(189,195,199,0.3)",
-  gold: "rgba(255,215,0,0.4)",
+  argent: "rgba(192,192,192,0.3)",
+  platine: "rgba(168,216,234,0.3)",
+  diamant: "rgba(185,242,255,0.4)",
+  legende: "rgba(255,215,0,0.4)",
 };
 
 /* ——— Hex stat configs ——— */
-const tierOuterBorderColor: Record<CardTier, string> = {
+export const tierOuterBorderColor: Record<CardTier, string> = {
   bronze: "rgba(205,127,50,0.25)",
-  silver: "rgba(189,195,199,0.20)",
-  gold: "rgba(255,215,0,0.30)",
+  argent: "rgba(192,192,192,0.20)",
+  platine: "rgba(168,216,234,0.25)",
+  diamant: "rgba(185,242,255,0.25)",
+  legende: "rgba(255,215,0,0.30)",
 };
-const tierHexBg: Record<CardTier, string> = {
+export const tierHexBg: Record<CardTier, string> = {
   bronze:
     "linear-gradient(180deg, rgba(30,20,10,0.9), rgba(20,12,5,0.95))",
-  silver:
-    "linear-gradient(180deg, rgba(25,30,40,0.9), rgba(15,20,30,0.95))",
-  gold: "linear-gradient(180deg, rgba(30,25,10,0.9), rgba(20,15,5,0.95))",
+  argent:
+    "linear-gradient(180deg, rgba(25,25,35,0.9), rgba(15,15,25,0.95))",
+  platine:
+    "linear-gradient(180deg, rgba(25,25,40,0.9), rgba(20,20,35,0.95))",
+  diamant:
+    "linear-gradient(180deg, rgba(15,25,45,0.9), rgba(10,20,35,0.95))",
+  legende:
+    "linear-gradient(180deg, rgba(30,25,10,0.9), rgba(20,15,5,0.95))",
 };
-const tierValueColors: Record<CardTier, string> = {
+export const tierValueColors: Record<CardTier, string> = {
   bronze: "text-[#daa06d]",
-  silver: "text-[#e2e8f0]",
-  gold: "text-[#ffe44d]",
+  argent: "text-[#e2e8f0]",
+  platine: "text-[#A8D8EA]",
+  diamant: "text-[#B9F2FF]",
+  legende: "text-[#ffe44d]",
 };
 
 export default function VeloCard({
@@ -178,7 +228,7 @@ export default function VeloCard({
       <div className="relative z-20 flex h-full flex-col items-center px-6 pt-6 pb-5">
         {/* ——— Top bar: branding + centered club logo + tier pill ——— */}
         <div className="relative flex w-full items-center justify-between">
-          <span className="text-[11px] font-bold tracking-[0.3em] text-white/40">
+          <span className="text-[11px] font-bold tracking-[0.3em] text-white/40 font-[var(--font-title)]">
             VELOCARD
           </span>
 
@@ -242,13 +292,20 @@ export default function VeloCard({
           </div>
 
           {/* Username + tier */}
-          <p className="mt-4 text-xl font-bold tracking-wide text-white">
+          <p className="mt-4 text-xl font-bold tracking-wide text-white font-['Space_Grotesk']">
             {username}
           </p>
           <p
             className={`mt-1 text-[10px] font-semibold tracking-[0.25em] ${config.accent} opacity-70`}
           >
             {config.label} TIER
+          </p>
+
+          {/* ——— OVR Display ——— */}
+          <p
+            className={`mt-3 text-[48px] font-black leading-none ${config.accent} font-['JetBrains_Mono']`}
+          >
+            {stats.ovr}
           </p>
 
           {/* ——— PlayStyle Badges (Dark glossy pills) ——— */}
@@ -284,16 +341,16 @@ export default function VeloCard({
 
         {/* ——— Divider ——— */}
         <div
-          className={`mt-6 h-px w-full bg-gradient-to-r ${tierDividerColors[tier]}`}
+          className={`mt-4 h-px w-full bg-gradient-to-r ${tierDividerColors[tier]}`}
         />
 
-        {/* ——— Stats row 1: PAC / END / GRIM ——— */}
-        <div className="mt-8 flex w-full justify-center gap-5">
+        {/* ——— Stats row 1: PAC / MON / VAL ——— */}
+        <div className="mt-5 flex w-full justify-center gap-5">
           {(
             [
               { label: "PAC", value: stats.pac },
-              { label: "END", value: stats.end },
-              { label: "GRIM", value: stats.grim },
+              { label: "MON", value: stats.mon },
+              { label: "VAL", value: stats.val },
             ] as const
           ).map((s) => (
             <StatHex
@@ -305,13 +362,13 @@ export default function VeloCard({
           ))}
         </div>
 
-        {/* ——— Stats row 2: PUI / EXP / TEC ——— */}
-        <div className="mt-5 flex w-full justify-center gap-5">
+        {/* ——— Stats row 2: SPR / END / RES ——— */}
+        <div className="mt-3 flex w-full justify-center gap-5">
           {(
             [
-              { label: "PUI", value: stats.pui },
-              { label: "EXP", value: stats.exp },
-              { label: "TEC", value: stats.tec },
+              { label: "SPR", value: stats.spr },
+              { label: "END", value: stats.end },
+              { label: "RES", value: stats.res },
             ] as const
           ).map((s) => (
             <StatHex
@@ -339,7 +396,7 @@ export default function VeloCard({
 }
 
 /* ——— Hexagonal stat badge — 3D double border ——— */
-function StatHex({
+export function StatHex({
   label,
   value,
   tier,
@@ -372,7 +429,7 @@ function StatHex({
           }}
         >
           <span
-            className={`text-2xl font-black ${isElite ? "text-yellow-200" : tierValueColors[tier]}`}
+            className={`text-2xl font-black font-['JetBrains_Mono'] ${isElite ? "text-yellow-200" : tierValueColors[tier]}`}
           >
             {value}
           </span>

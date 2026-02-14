@@ -14,18 +14,19 @@ export interface StravaActivity {
   type: string;
 }
 
-// ——— Computed stats (6 active stats) ———
+// ——— Computed stats (6 active stats + OVR) ———
 
 export interface ComputedStats {
-  pac: number; // speed score (weighted by elevation)
-  end: number; // endurance score (max distance)
-  grim: number; // climbing score (D+ / VAM)
-  pui: number; // power score (watts or physics estimate)
-  exp: number; // explosivity (max_speed / avg_speed ratio)
-  tec: number; // technique (pacing + consistency)
+  pac: number;   // Vitesse / Pace
+  mon: number;   // Montagne / Climbing
+  val: number;   // Vallonné / Technique
+  spr: number;   // Sprint / Explosivité
+  end: number;   // Endurance
+  res: number;   // Résistance / Puissance
+  ovr: number;   // Overall Rating (calculé)
 }
 
-export type CardTier = "bronze" | "silver" | "gold";
+export type CardTier = "bronze" | "argent" | "platine" | "diamant" | "legende";
 
 // ——— Badges PlayStyles ———
 
@@ -52,10 +53,11 @@ export interface UserStats {
   user_id: string; // FK -> profiles.id
   pac: number;
   end: number;
-  grim: number;
-  pui: number;
-  exp: number;
-  tec: number;
+  mon: number;
+  res: number;
+  spr: number;
+  val: number;
+  ovr: number;
   tier: CardTier;
   last_synced_at: string;
 }
@@ -140,7 +142,7 @@ export interface RaceParticipant {
   avatar_url: string | null;
   pac: number;
   end: number;
-  grim: number;
+  mon: number;
   tier: CardTier;
   joined_at: string;
 }
@@ -193,7 +195,7 @@ export interface ClubMember {
   avatar_url: string | null;
   pac: number;
   end: number;
-  grim: number;
+  mon: number;
   tier: CardTier;
   joined_at: string;
 }
@@ -278,4 +280,53 @@ export interface WarHistoryEntry {
   opp_score: number;
   result: "win" | "loss" | "draw";
   ended_at: string;
+}
+
+// ——— Phase: Ghost Cards (Growth Hack) ———
+
+export interface RaceResult {
+  id: string;
+  race_id: string;
+  position: number;
+  rider_name: string;
+  finish_time: number; // seconds
+  gen_score: number;
+  ghost_id: string | null;
+  user_id: string | null;
+}
+
+export interface GhostProfile {
+  id: string;
+  race_id: string;
+  rider_name: string;
+  gen_score: number;
+  tier: CardTier;
+  claim_token: string;
+  claimed_by: string | null;
+  created_at: string;
+}
+
+export interface RaceResultInput {
+  position: number;
+  rider_name: string;
+  finish_time_str: string; // "HH:MM:SS"
+}
+
+export interface RaceResultView {
+  position: number;
+  rider_name: string;
+  finish_time: number; // seconds
+  gen_score: number;
+  is_ghost: boolean;
+  ghost_claim_token: string | null;
+  avatar_url: string | null;
+  tier: CardTier;
+  user_id: string | null;
+}
+
+export interface RaceDetailWithResults extends RaceDetail {
+  results: RaceResultView[];
+  results_published: boolean;
+  race_time: number;      // seconds (winner time)
+  avg_speed: number;      // km/h
 }

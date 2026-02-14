@@ -9,8 +9,10 @@ interface LeaderboardRowProps {
 
 const tierColors: Record<CardTier, string> = {
   bronze: "text-amber-500 bg-amber-500/10 border-amber-800/50",
-  silver: "text-slate-300 bg-slate-300/10 border-slate-600/50",
-  gold: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
+  argent: "text-slate-300 bg-slate-300/10 border-slate-600/50",
+  platine: "text-[#A8D8EA] bg-[#A8D8EA]/10 border-[#A8D8EA]/30",
+  diamant: "text-[#B9F2FF] bg-[#B9F2FF]/10 border-[#B9F2FF]/30",
+  legende: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
 };
 
 const rankColors: Record<number, string> = {

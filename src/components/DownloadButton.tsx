@@ -6,8 +6,10 @@ import type { CardTier } from "@/types";
 /* Story background colors matching each tier */
 const storyBgColors: Record<CardTier, string> = {
   bronze: "#0d0a04",
-  silver: "#06080c",
-  gold: "#0d0b04",
+  argent: "#06080c",
+  platine: "#060a0c",
+  diamant: "#040a0d",
+  legende: "#0d0b04",
 };
 
 interface DownloadButtonProps {
@@ -71,8 +73,12 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
       const gradient = ctx.createRadialGradient(540, 800, 0, 540, 800, 700);
       if (tier === "bronze") {
         gradient.addColorStop(0, "rgba(217,119,6,0.08)");
-      } else if (tier === "silver") {
+      } else if (tier === "argent") {
         gradient.addColorStop(0, "rgba(148,163,184,0.08)");
+      } else if (tier === "platine") {
+        gradient.addColorStop(0, "rgba(168,216,234,0.08)");
+      } else if (tier === "diamant") {
+        gradient.addColorStop(0, "rgba(185,242,255,0.1)");
       } else {
         gradient.addColorStop(0, "rgba(250,204,21,0.1)");
       }

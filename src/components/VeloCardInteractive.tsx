@@ -17,9 +17,13 @@ interface VeloCardInteractiveProps {
 const tierHoloColors: Record<CardTier, string> = {
   bronze:
     "linear-gradient(135deg, rgba(255,140,50,0.05) 0%, rgba(255,200,100,0.08) 25%, rgba(255,100,50,0.04) 50%, rgba(255,220,150,0.06) 75%, rgba(255,140,50,0.05) 100%)",
-  silver:
+  argent:
     "linear-gradient(135deg, rgba(150,180,255,0.05) 0%, rgba(200,220,255,0.08) 25%, rgba(150,200,255,0.04) 50%, rgba(220,240,255,0.06) 75%, rgba(150,180,255,0.05) 100%)",
-  gold: "linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,240,100,0.09) 25%, rgba(255,200,0,0.05) 50%, rgba(255,250,150,0.07) 75%, rgba(255,215,0,0.06) 100%)",
+  platine:
+    "linear-gradient(135deg, rgba(168,216,234,0.05) 0%, rgba(200,230,240,0.08) 25%, rgba(168,216,234,0.04) 50%, rgba(229,228,226,0.06) 75%, rgba(168,216,234,0.05) 100%)",
+  diamant:
+    "linear-gradient(135deg, rgba(185,242,255,0.06) 0%, rgba(200,248,255,0.09) 25%, rgba(185,242,255,0.05) 50%, rgba(220,250,255,0.07) 75%, rgba(185,242,255,0.06) 100%)",
+  legende: "linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,240,100,0.09) 25%, rgba(255,200,0,0.05) 50%, rgba(255,250,150,0.07) 75%, rgba(255,215,0,0.06) 100%)",
 };
 
 export default function VeloCardInteractive({

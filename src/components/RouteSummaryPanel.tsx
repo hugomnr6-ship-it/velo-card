@@ -9,8 +9,10 @@ interface RouteSummaryPanelProps {
 
 const tierValueColors: Record<CardTier, string> = {
   bronze: "text-amber-400",
-  silver: "text-slate-200",
-  gold: "text-yellow-300",
+  argent: "text-slate-200",
+  platine: "text-[#A8D8EA]",
+  diamant: "text-[#B9F2FF]",
+  legende: "text-yellow-300",
 };
 
 export default function RouteSummaryPanel({

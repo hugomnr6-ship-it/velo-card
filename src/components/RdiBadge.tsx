@@ -16,8 +16,10 @@ const labelColors: Record<RdiLabel, string> = {
 
 const tierBg: Record<CardTier, string> = {
   bronze: "bg-amber-900/30",
-  silver: "bg-slate-700/30",
-  gold: "bg-yellow-900/30",
+  argent: "bg-slate-700/30",
+  platine: "bg-sky-900/30",
+  diamant: "bg-cyan-900/30",
+  legende: "bg-yellow-900/30",
 };
 
 export default function RdiBadge({ rdi, tier }: RdiBadgeProps) {
@@ -33,7 +35,7 @@ export default function RdiBadge({ rdi, tier }: RdiBadgeProps) {
           {rdi.score}
         </span>
         <span className="mt-0.5 text-[9px] font-bold tracking-wider text-white/50">
-          RDI
+          RDI / 10
         </span>
       </div>
       <p className={`mt-2 text-sm font-semibold ${labelColors[rdi.label]}`}>
