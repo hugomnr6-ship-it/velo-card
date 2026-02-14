@@ -241,7 +241,7 @@ export default function VeloCard({
   return (
     <div
       id="velo-card"
-      className={`relative w-[400px] h-[711px] rounded-2xl border-[1.5px] bg-gradient-to-b overflow-hidden ${config.bg} ${tierBorderColors[tier]} ${config.glowClass}`}
+      className={`relative w-[400px] h-[711px] rounded-2xl border-[1.5px] bg-gradient-to-b overflow-hidden ${config.bg} ${tierBorderColors[tier]} ${config.glowClass}${tier === "diamant" || tier === "legende" ? " glow-pulse" : ""}`}
     >
       {/* Tier texture overlay — brushed metal circulaire (z-5) */}
       <div

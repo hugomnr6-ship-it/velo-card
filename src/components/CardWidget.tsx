@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ComputedStats, CardTier } from "@/types";
 import { tierConfig } from "./VeloCard";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface CardWidgetProps {
   username: string;
@@ -56,6 +57,7 @@ export default function CardWidget({
   const accent = tierAccentHex[tier];
   const progress = getProgress(stats.ovr, tier);
   const nextTier = nextTierLabel[tier];
+  const animatedOvr = useCountUp(stats.ovr);
 
   const statPills: { label: string; value: number }[] = [
     { label: "PAC", value: stats.pac },
@@ -94,7 +96,7 @@ export default function CardWidget({
               className="mt-1 text-[20px] font-black leading-none font-['JetBrains_Mono']"
               style={{ color: accent }}
             >
-              {stats.ovr}
+              {animatedOvr}
             </span>
             <span className="text-[6px] font-bold tracking-widest text-white/40">
               {config.label}
