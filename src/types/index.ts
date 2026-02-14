@@ -170,9 +170,16 @@ export interface LeaderboardEntry {
   weekly_dplus: number;
   card_score: number;
   tier: CardTier;
+  pac: number;
+  mon: number;
+  val: number;
+  spr: number;
+  end: number;
+  res: number;
+  ovr: number;
 }
 
-export type LeaderboardSort = "weekly_km" | "weekly_dplus" | "card_score";
+export type LeaderboardSort = "weekly_km" | "weekly_dplus" | "card_score" | "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res";
 
 // ——— Phase: Clubs ———
 

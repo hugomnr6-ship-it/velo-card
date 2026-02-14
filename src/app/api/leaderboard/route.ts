@@ -61,7 +61,7 @@ export async function GET(request: Request) {
   // Get stats
   const { data: allStats } = await supabaseAdmin
     .from("user_stats")
-    .select('user_id, pac, "end", mon, ovr, tier')
+    .select('user_id, pac, "end", mon, val, spr, res, ovr, tier')
     .in("user_id", userIds);
 
   // Aggregate weekly data
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
   // Build entries
   const entries = regionProfiles.map((p: any) => {
     const weekly = weeklyMap[p.id] || { km: 0, dplus: 0 };
-    const st = statsMap[p.id] || { pac: 0, end: 0, mon: 0, ovr: 0, tier: "bronze" };
+    const st = statsMap[p.id] || { pac: 0, end: 0, mon: 0, val: 0, spr: 0, res: 0, ovr: 0, tier: "bronze" };
     return {
       user_id: p.id,
       username: p.username,
@@ -87,14 +87,24 @@ export async function GET(request: Request) {
       weekly_dplus: Math.round(weekly.dplus),
       card_score: st.ovr || Math.round((st.pac + st.end + st.mon) / 3),
       tier: st.tier,
+      pac: st.pac || 0,
+      mon: st.mon || 0,
+      val: st.val || 0,
+      spr: st.spr || 0,
+      end: st.end || 0,
+      res: st.res || 0,
+      ovr: st.ovr || 0,
     };
   });
 
   // Sort
+  const statSorts = ["pac", "mon", "val", "spr", "end", "res", "ovr"];
   if (sort === "weekly_dplus") {
     entries.sort((a: any, b: any) => b.weekly_dplus - a.weekly_dplus);
   } else if (sort === "card_score") {
     entries.sort((a: any, b: any) => b.card_score - a.card_score);
+  } else if (statSorts.includes(sort)) {
+    entries.sort((a: any, b: any) => (b[sort] || 0) - (a[sort] || 0));
   } else {
     entries.sort((a: any, b: any) => b.weekly_km - a.weekly_km);
   }
