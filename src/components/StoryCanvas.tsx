@@ -3,12 +3,14 @@
 import type { ComputedStats, CardTier } from "@/types";
 import VeloCard from "./VeloCard";
 import { tierConfig, tierBorderColors } from "./VeloCard";
+import QRCode from "./QRCode";
 
 interface StoryCanvasProps {
   username: string;
   avatarUrl: string | null;
   stats: ComputedStats;
   tier: CardTier;
+  userId: string;
 }
 
 const tierAccentHex: Record<CardTier, string> = {
@@ -32,7 +34,9 @@ export default function StoryCanvas({
   avatarUrl,
   stats,
   tier,
+  userId,
 }: StoryCanvasProps) {
+  const cardUrl = `https://velocard.app/card/${userId}`;
   const config = tierConfig[tier];
   const accent = tierAccentHex[tier];
   const bg = tierBgHex[tier];
@@ -113,9 +117,10 @@ export default function StoryCanvas({
         ))}
       </div>
 
-      {/* CTA */}
-      <div className="absolute bottom-[100px] left-0 right-0 text-center">
-        <p className="text-[16px] font-semibold tracking-wider text-white/30">
+      {/* QR Code + CTA */}
+      <div className="absolute bottom-[80px] left-0 right-0 flex flex-col items-center gap-3">
+        <QRCode url={cardUrl} size={100} color={accent} asImage />
+        <p className="text-[14px] font-semibold tracking-wider text-white/30">
           Scanne pour voir ma carte
         </p>
       </div>

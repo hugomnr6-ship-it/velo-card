@@ -45,7 +45,7 @@ export default function VeloCardClient({
         badges={badges}
         clubs={clubs}
       />
-      <DownloadButton tier={tier} />
+      <DownloadButton tier={tier} userId={userId} />
       <RouteAnalysisSection tier={tier} />
     </>
   );

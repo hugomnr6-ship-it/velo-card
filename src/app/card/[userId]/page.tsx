@@ -1,5 +1,8 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import VeloCard from "@/components/VeloCard";
+import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
 // Public card page — /card/[userId]
@@ -9,6 +12,7 @@ export default async function CardPage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
+  const session = await getServerSession(authOptions);
 
   // Fetch profile
   const { data: profile } = await supabaseAdmin
@@ -19,11 +23,17 @@ export default async function CardPage({
 
   if (!profile) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-black p-4">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0A0A12] p-4">
         <p className="text-lg font-bold text-white">Profil introuvable</p>
-        <p className="text-sm text-neutral-500">
-          Ce cycliste n&apos;existe pas ou n&apos;a pas encore synchronise ses donnees.
+        <p className="text-sm text-[#A0A0B8]">
+          Ce cycliste n&apos;existe pas ou n&apos;a pas encore synchronisé ses données.
         </p>
+        <Link
+          href="/"
+          className="mt-4 rounded-full bg-[#6C5CE7] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#5A4BD6]"
+        >
+          Crée ta carte
+        </Link>
       </main>
     );
   }
@@ -70,18 +80,40 @@ export default async function CardPage({
   const badges: Badge[] = [];
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black px-4 py-12">
-      <VeloCard
-        username={profile.username}
-        avatarUrl={profile.avatar_url}
-        stats={computedStats}
-        tier={tier}
-        badges={badges}
-        clubs={clubs}
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A12] px-4 py-12">
+      {/* Radial glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 40%, rgba(108,92,231,0.08) 0%, transparent 60%)",
+        }}
       />
-      <p className="mt-6 text-center text-xs text-neutral-600">
+
+      <div className="relative z-10">
+        <VeloCard
+          username={profile.username}
+          avatarUrl={profile.avatar_url}
+          stats={computedStats}
+          tier={tier}
+          badges={badges}
+          clubs={clubs}
+        />
+      </div>
+
+      <p className="relative z-10 mt-6 text-center text-xs text-[#5A5A72]">
         {profile.username} sur VeloCard
       </p>
+
+      {/* CTA for non-logged-in visitors */}
+      {!session && (
+        <Link
+          href="/"
+          className="relative z-10 mt-6 rounded-full bg-[#6C5CE7] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#6C5CE7]/25 transition hover:bg-[#5A4BD6]"
+        >
+          Crée ta carte gratuitement
+        </Link>
+      )}
     </main>
   );
 }

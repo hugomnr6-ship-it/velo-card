@@ -1,6 +1,7 @@
 "use client";
 
 import { toPng } from "html-to-image";
+import QRCodeLib from "qrcode";
 import type { CardTier } from "@/types";
 
 /* Story background colors matching each tier */
@@ -12,11 +13,20 @@ const storyBgColors: Record<CardTier, string> = {
   legende: "#0d0b04",
 };
 
+const tierAccentHex: Record<CardTier, string> = {
+  bronze: "#cd7f32",
+  argent: "#C0C0C0",
+  platine: "#A8D8EA",
+  diamant: "#B9F2FF",
+  legende: "#FFD700",
+};
+
 interface DownloadButtonProps {
   tier: CardTier;
+  userId: string;
 }
 
-export default function DownloadButton({ tier }: DownloadButtonProps) {
+export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
   async function handleDownload() {
     const card = document.getElementById("velo-card");
     if (!card) return;
@@ -27,26 +37,42 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
       const holoFilter = (node: HTMLElement) =>
         !(node instanceof HTMLElement && node.dataset?.holo === "true");
 
-      const cardDataUrl = await toPng(card, {
-        pixelRatio: 2.7,
-        cacheBust: true,
-        fetchRequestInit: { mode: "cors" },
-        filter: holoFilter,
-      });
+      const [cardDataUrl, qrDataUrl] = await Promise.all([
+        toPng(card, {
+          pixelRatio: 2.7,
+          cacheBust: true,
+          fetchRequestInit: { mode: "cors" },
+          filter: holoFilter,
+        }),
+        QRCodeLib.toDataURL(`https://velocard.app/card/${userId}`, {
+          width: 120,
+          margin: 1,
+          color: { dark: tierAccentHex[tier], light: "#00000000" },
+          errorCorrectionLevel: "M",
+        }),
+      ]);
 
       /* 2. Draw it onto a 1080x1920 canvas */
-      const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier);
+      const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier, qrDataUrl);
       await shareOrDownload(storyDataUrl);
     } catch (err) {
       console.error("Export error:", err);
       /* Fallback: retry without images if CORS fails */
       try {
-        const cardDataUrl = await toPng(card, {
-          pixelRatio: 2.7,
-          skipFonts: true,
-          filter: (n) => !(n instanceof HTMLImageElement),
-        });
-        const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier);
+        const [cardDataUrl, qrDataUrl] = await Promise.all([
+          toPng(card, {
+            pixelRatio: 2.7,
+            skipFonts: true,
+            filter: (n) => !(n instanceof HTMLImageElement),
+          }),
+          QRCodeLib.toDataURL(`https://velocard.app/card/${userId}`, {
+            width: 120,
+            margin: 1,
+            color: { dark: tierAccentHex[tier], light: "#00000000" },
+            errorCorrectionLevel: "M",
+          }),
+        ]);
+        const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier, qrDataUrl);
         await shareOrDownload(storyDataUrl);
       } catch (err2) {
         console.error("Fallback export also failed:", err2);
@@ -57,6 +83,7 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
   function drawStoryCanvas(
     cardDataUrl: string,
     tier: CardTier,
+    qrDataUrl: string,
   ): Promise<string> {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas");
@@ -98,18 +125,31 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
         const drawW = cardW * scale;
         const drawH = cardH * scale;
         const x = (1080 - drawW) / 2;
-        const y = (1920 - drawH) / 2 - 40;
+        const y = (1920 - drawH) / 2 - 80;
 
         ctx.drawImage(img, x, y, drawW, drawH);
 
-        /* Watermark */
-        ctx.fillStyle = "rgba(255,255,255,0.12)";
-        ctx.font = "600 28px system-ui, sans-serif";
-        ctx.textAlign = "center";
-        ctx.letterSpacing = "4px";
-        ctx.fillText("velocard.app", 540, 1860);
+        /* QR code at bottom */
+        const qrImg = new Image();
+        qrImg.onload = () => {
+          const qrSize = 140;
+          ctx.drawImage(qrImg, (1080 - qrSize) / 2, 1700, qrSize, qrSize);
 
-        resolve(canvas.toDataURL("image/png"));
+          /* CTA text above QR */
+          ctx.fillStyle = "rgba(255,255,255,0.30)";
+          ctx.font = "600 22px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("Scanne pour voir ma carte", 540, 1685);
+
+          /* Watermark */
+          ctx.fillStyle = "rgba(255,255,255,0.12)";
+          ctx.font = "600 28px system-ui, sans-serif";
+          ctx.letterSpacing = "4px";
+          ctx.fillText("velocard.app", 540, 1880);
+
+          resolve(canvas.toDataURL("image/png"));
+        };
+        qrImg.src = qrDataUrl;
       };
       img.src = cardDataUrl;
     });
