@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import FlipCard from "@/components/FlipCard";
+import DownloadButton from "@/components/DownloadButton";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 import { tierConfig } from "@/components/VeloCard";
 
@@ -74,20 +75,25 @@ export default function ProfileClient({
       </div>
 
       {/* Actions */}
-      <div className="relative z-10 mt-6 flex gap-3">
-        <Link
-          href={`/card/${userId}`}
-          className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          Voir la carte
-        </Link>
-        <button
-          className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/40 transition"
-          disabled
-          title="Bientôt disponible"
-        >
-          Comparer
-        </button>
+      <div className="relative z-10 mt-6 flex flex-col items-center gap-3">
+        <div className="flex gap-3">
+          <Link
+            href={`/card/${userId}`}
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            Voir la carte
+          </Link>
+          <button
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/40 transition"
+            disabled
+            title="Bientôt disponible"
+          >
+            Comparer
+          </button>
+        </div>
+
+        {/* Partager Story Instagram — uses DownloadButton with StoryCanvas */}
+        <DownloadButton tier={tier} userId={userId} />
       </div>
     </main>
   );
