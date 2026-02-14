@@ -36,7 +36,7 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
 
       /* 2. Draw it onto a 1080x1920 canvas */
       const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier);
-      downloadImage(storyDataUrl);
+      await shareOrDownload(storyDataUrl);
     } catch (err) {
       console.error("Export error:", err);
       /* Fallback: retry without images if CORS fails */
@@ -47,7 +47,7 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
           filter: (n) => !(n instanceof HTMLImageElement),
         });
         const storyDataUrl = await drawStoryCanvas(cardDataUrl, tier);
-        downloadImage(storyDataUrl);
+        await shareOrDownload(storyDataUrl);
       } catch (err2) {
         console.error("Fallback export also failed:", err2);
       }
@@ -115,7 +115,17 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
     });
   }
 
-  function downloadImage(dataUrl: string) {
+  async function shareOrDownload(dataUrl: string) {
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], "velocard-story.png", { type: "image/png" });
+        await navigator.share({ files: [file] });
+        return;
+      }
+    } catch {
+      // Fallback to download
+    }
     const link = document.createElement("a");
     link.download = "velocard-story.png";
     link.href = dataUrl;
@@ -127,7 +137,7 @@ export default function DownloadButton({ tier }: DownloadButtonProps) {
       onClick={handleDownload}
       className="mt-6 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
     >
-      Télécharger pour Instagram
+      Partager pour Instagram
     </button>
   );
 }
