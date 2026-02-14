@@ -21,6 +21,31 @@ const rankColors: Record<number, string> = {
   3: "text-amber-600",
 };
 
+/* Mini-card background per tier */
+const miniCardBg: Record<CardTier, string> = {
+  bronze: "bg-gradient-to-b from-[#1A1208] to-[#2D1F0E]",
+  argent: "bg-gradient-to-b from-[#14141E] to-[#1E1E2E]",
+  platine: "bg-gradient-to-b from-[#1A1A2E] to-[#2A2A42]",
+  diamant: "bg-gradient-to-b from-[#0A1628] to-[#162040]",
+  legende: "bg-gradient-to-b from-[#1A0A2E] to-[#2E1A0A]",
+};
+
+const miniCardBorder: Record<CardTier, string> = {
+  bronze: "border-[#cd7f32]/40",
+  argent: "border-[#C0C0C0]/30",
+  platine: "border-[#A8D8EA]/30",
+  diamant: "border-[#B9F2FF]/30",
+  legende: "border-[#ffd700]/40",
+};
+
+const miniCardAccent: Record<CardTier, string> = {
+  bronze: "text-[#cd7f32]",
+  argent: "text-[#C0C0C0]",
+  platine: "text-[#A8D8EA]",
+  diamant: "text-[#B9F2FF]",
+  legende: "text-[#FFD700]",
+};
+
 export default function LeaderboardRow({
   entry,
   isCurrentUser,
@@ -29,7 +54,7 @@ export default function LeaderboardRow({
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-xl border p-3 ${
+      className={`flex items-center gap-3 rounded-xl border p-3 ${
         isCurrentUser
           ? "border-[#00F5D4]/20 bg-[#00F5D4]/5"
           : "border-white/[0.06] bg-[#12121E] hover:bg-[#1A1A2E]"
@@ -37,19 +62,43 @@ export default function LeaderboardRow({
     >
       {/* Rank */}
       <span
-        className={`w-8 text-center text-lg font-black ${rankColors[entry.rank] || "text-neutral-600"}`}
+        className={`w-7 text-center text-lg font-black font-['JetBrains_Mono'] ${rankColors[entry.rank] || "text-[#5A5A72]"}`}
       >
         {entry.rank}
       </span>
 
-      {/* Avatar */}
-      {entry.avatar_url ? (
-        <img src={entry.avatar_url} alt="" className="h-8 w-8 rounded-full" />
-      ) : (
-        <div className="h-8 w-8 rounded-full bg-neutral-700" />
-      )}
+      {/* Mini-card (36x52px) — replaces simple avatar */}
+      <div
+        className={`relative flex h-[52px] w-[36px] flex-shrink-0 flex-col items-center justify-center overflow-hidden rounded-md border ${miniCardBg[tier]} ${miniCardBorder[tier]}`}
+      >
+        {/* Scan-lines micro */}
+        <div className="scan-lines pointer-events-none absolute inset-0 opacity-50" />
 
-      {/* Name + tier */}
+        {/* Avatar mini */}
+        {entry.avatar_url ? (
+          <img
+            src={entry.avatar_url}
+            alt=""
+            className="h-5 w-5 rounded-full border border-white/20 object-cover"
+          />
+        ) : (
+          <div className="h-5 w-5 rounded-full bg-[#6C5CE7]" />
+        )}
+
+        {/* OVR mini */}
+        <span
+          className={`mt-0.5 text-[9px] font-black leading-none font-['JetBrains_Mono'] ${miniCardAccent[tier]}`}
+        >
+          {entry.ovr}
+        </span>
+
+        {/* Tier label micro */}
+        <span className="text-[5px] font-bold uppercase tracking-wider text-white/30">
+          {tier.slice(0, 3)}
+        </span>
+      </div>
+
+      {/* Name + tier badge */}
       <div className="flex-1 min-w-0">
         <p className="truncate text-sm font-semibold text-white">
           {entry.username}
@@ -62,18 +111,18 @@ export default function LeaderboardRow({
       </div>
 
       {/* Weekly stats */}
-      <div className="flex gap-4 text-xs">
+      <div className="flex gap-3 text-xs">
         <div className="text-center">
-          <p className="font-bold text-white">{entry.weekly_km}</p>
-          <p className="text-neutral-600">km</p>
+          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_km}</p>
+          <p className="text-[#5A5A72]">km</p>
         </div>
         <div className="text-center">
-          <p className="font-bold text-white">{entry.weekly_dplus}</p>
-          <p className="text-neutral-600">D+</p>
+          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_dplus}</p>
+          <p className="text-[#5A5A72]">D+</p>
         </div>
         <div className="text-center">
-          <p className="font-bold text-white">{entry.card_score}</p>
-          <p className="text-neutral-600">score</p>
+          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.ovr}</p>
+          <p className="text-[#5A5A72]">OVR</p>
         </div>
       </div>
     </div>
