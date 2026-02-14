@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCountUp } from "@/hooks/useCountUp";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
 interface VeloCardProps {
@@ -224,6 +225,7 @@ export default function VeloCard({
   clubs = [],
 }: VeloCardProps) {
   const config = tierConfig[tier];
+  const animatedOvr = useCountUp(stats.ovr);
 
   // Rotating club logo index (cycles every 3s if multiple clubs)
   const [clubIndex, setClubIndex] = useState(0);
@@ -368,7 +370,7 @@ export default function VeloCard({
           <p
             className={`mt-3 text-[48px] font-black leading-none ${config.accent} font-['JetBrains_Mono']`}
           >
-            {stats.ovr}
+            {animatedOvr}
           </p>
 
           {/* ——— PlayStyle Badges (Dark glossy pills) ——— */}
