@@ -15,21 +15,35 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-neutral-400">Chargement...</p>
+      <main className="flex min-h-screen items-center justify-center bg-[#0A0A12]">
+        <p className="text-[#A0A0B8]">Chargement...</p>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-8">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-tight">VeloCard</h1>
-        <p className="mt-3 text-lg text-neutral-400">
-          Découvre ta carte de cycliste basée sur tes stats Strava
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden bg-[#0A0A12] p-8">
+      {/* Animated gradient bg */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 30%, rgba(108,92,231,0.12) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(0,245,212,0.06) 0%, transparent 50%)",
+        }}
+      />
+
+      <div className="relative z-10 text-center">
+        <h1 className="text-5xl font-black tracking-tight text-white font-['Space_Grotesk']">
+          VeloCard
+        </h1>
+        <p className="mt-3 text-lg text-[#A0A0B8]">
+          Ta carte de cycliste. Tes stats. Ton style.
         </p>
       </div>
-      <LoginButton />
+
+      <div className="relative z-10">
+        <LoginButton />
+      </div>
     </main>
   );
 }

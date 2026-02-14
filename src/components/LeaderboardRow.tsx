@@ -31,8 +31,8 @@ export default function LeaderboardRow({
     <div
       className={`flex items-center gap-4 rounded-xl border p-3 ${
         isCurrentUser
-          ? "border-yellow-500/30 bg-yellow-500/5"
-          : "border-neutral-700/50 bg-neutral-800/50"
+          ? "border-[#00F5D4]/20 bg-[#00F5D4]/5"
+          : "border-white/[0.06] bg-[#12121E] hover:bg-[#1A1A2E]"
       }`}
     >
       {/* Rank */}
