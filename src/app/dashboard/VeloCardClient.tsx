@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import VeloCardInteractive from "@/components/VeloCardInteractive";
 import CardWidget from "@/components/CardWidget";
 import DownloadButton from "@/components/DownloadButton";
+import LevelUpToast from "@/components/LevelUpToast";
 import RouteAnalysisSection from "./RouteAnalysisSection";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
@@ -25,8 +27,20 @@ export default function VeloCardClient({
   clubs,
   userId,
 }: VeloCardClientProps) {
+  const [previousTier, setPreviousTier] = useState<CardTier | null>(null);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("velocard-prev-tier") as CardTier | null;
+    if (stored && stored !== tier) {
+      setPreviousTier(stored);
+    }
+    sessionStorage.setItem("velocard-prev-tier", tier);
+  }, [tier]);
+
   return (
     <>
+      <LevelUpToast previousTier={previousTier} currentTier={tier} />
+
       {/* Compact card widget — quick overview */}
       <CardWidget
         username={username}
