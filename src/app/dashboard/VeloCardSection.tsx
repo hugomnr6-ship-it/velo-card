@@ -119,6 +119,7 @@ export default async function VeloCardSection({
         tier={tier}
         badges={badges}
         clubs={clubs}
+        userId={profile.id}
       />
     );
   } catch (err: any) {
