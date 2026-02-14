@@ -12,6 +12,15 @@ interface VeloCardProps {
   clubs?: ClubInfo[];
 }
 
+/* ——— Tier accent hex colors ——— */
+const tierAccentHex: Record<CardTier, string> = {
+  bronze: "#cd7f32",
+  argent: "#C0C0C0",
+  platine: "#A8D8EA",
+  diamant: "#B9F2FF",
+  legende: "#FFD700",
+};
+
 /* ——— Tier-specific config (5 tiers premium) ——— */
 export const tierConfig: Record<
   CardTier,
@@ -23,6 +32,10 @@ export const tierConfig: Record<
     avatarGlow: string;
     shimmerGradient: string;
     label: string;
+    hasParticles: boolean;
+    hasHoloScan: boolean;
+    hasRainbow: boolean;
+    particleCount: number;
   }
 > = {
   bronze: {
@@ -34,6 +47,10 @@ export const tierConfig: Record<
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(205,127,50,0.18) 50%, transparent 70%)",
     label: "BRONZE",
+    hasParticles: false,
+    hasHoloScan: false,
+    hasRainbow: false,
+    particleCount: 0,
   },
   argent: {
     bg: "from-[#14141E] via-[#1E1E2E] to-[#14141E]",
@@ -44,6 +61,10 @@ export const tierConfig: Record<
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(192,192,192,0.15) 50%, transparent 70%)",
     label: "ARGENT",
+    hasParticles: false,
+    hasHoloScan: false,
+    hasRainbow: false,
+    particleCount: 0,
   },
   platine: {
     bg: "from-[#1A1A2E] via-[#2A2A42] to-[#1A1A2E]",
@@ -54,6 +75,10 @@ export const tierConfig: Record<
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(168,216,234,0.15) 50%, transparent 70%)",
     label: "PLATINE",
+    hasParticles: false,
+    hasHoloScan: false,
+    hasRainbow: false,
+    particleCount: 0,
   },
   diamant: {
     bg: "from-[#0A1628] via-[#162040] to-[#0A1628]",
@@ -64,6 +89,10 @@ export const tierConfig: Record<
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(185,242,255,0.18) 50%, transparent 70%)",
     label: "DIAMANT",
+    hasParticles: true,
+    hasHoloScan: true,
+    hasRainbow: false,
+    particleCount: 10,
   },
   legende: {
     bg: "from-[#1A0A2E] via-[#2E1A0A] to-[#0A2E1A]",
@@ -74,6 +103,10 @@ export const tierConfig: Record<
     shimmerGradient:
       "linear-gradient(110deg, transparent 30%, rgba(255,215,0,0.22) 50%, transparent 70%)",
     label: "LEGENDE",
+    hasParticles: true,
+    hasHoloScan: true,
+    hasRainbow: true,
+    particleCount: 24,
   },
 };
 
@@ -223,6 +256,36 @@ export default function VeloCard({
         className="pointer-events-none absolute inset-0 z-[15]"
         style={{ background: spotlightGradients[tier] }}
       />
+
+      {/* Holographic scan — Diamant/Légende only (z-18) */}
+      {config.hasHoloScan && (
+        <div className="holographic-scan rounded-2xl" />
+      )}
+
+      {/* Rainbow overlay — Légende only (z-19) */}
+      {config.hasRainbow && (
+        <div className="rainbow-holo pointer-events-none absolute inset-0 z-[19] rounded-2xl opacity-[0.12]" />
+      )}
+
+      {/* Floating particles — Diamant/Légende (z-22) */}
+      {config.hasParticles && (
+        <div className="pointer-events-none absolute inset-0 z-[22] overflow-hidden rounded-2xl">
+          {Array.from({ length: config.particleCount }).map((_, i) => (
+            <div
+              key={i}
+              className="particle absolute"
+              style={{
+                "--left": `${Math.random() * 100}%`,
+                "--delay": `${Math.random() * 5}s`,
+                "--duration": `${3 + Math.random() * 4}s`,
+                background: tierAccentHex[tier],
+                width: `${2 + Math.random() * 2}px`,
+                height: `${2 + Math.random() * 2}px`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Content (z-20) */}
       <div className="relative z-20 flex h-full flex-col items-center px-6 pt-6 pb-5">
