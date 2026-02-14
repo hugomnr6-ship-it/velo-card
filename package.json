@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
     "@supabase/supabase-js": "^2.45.0",
     "framer-motion": "^12.34.0",
     "html-to-image": "^1.11.0",

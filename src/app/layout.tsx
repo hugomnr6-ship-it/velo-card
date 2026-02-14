@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
+import '@fontsource/space-grotesk/400.css';
+import '@fontsource/space-grotesk/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/700.css';
+
 export const metadata: Metadata = {
   title: "VeloCard - Ta carte de cycliste",
   description: "Génère ta carte de stats vélo depuis Strava",
@@ -14,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className="min-h-screen bg-neutral-950 text-white antialiased">
+      <body className="min-h-screen bg-[#0A0A12] font-['Inter'] text-white antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
