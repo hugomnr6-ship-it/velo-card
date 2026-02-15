@@ -204,6 +204,7 @@ export default function UserProfilePage() {
   const config = tierConfig[stats.tier];
 
   // Check if the viewer is the profile owner
+  const displayAvatarUrl = profile.custom_avatar_url || profile.avatar_url;
 
   // Radar data
   const radarData = [
