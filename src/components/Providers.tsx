@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/contexts/ToastContext";
 import BottomTabBar from "./BottomTabBar";
+import PosthogProvider from "./PosthogProvider";
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <SessionProvider>
       <ToastProvider>
         <ServiceWorkerRegistrar />
+        <PosthogProvider />
         {children}
         <BottomTabBar />
       </ToastProvider>

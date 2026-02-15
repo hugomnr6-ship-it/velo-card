@@ -10,6 +10,7 @@ import {
   downloadDataUrl,
 } from "@/lib/share-utils";
 import type { CardTier } from "@/types";
+import { trackEvent } from "@/lib/analytics";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
       ]);
       const storyData = await drawStoryCanvas(cardData, tier, qrData);
       await shareOrDownload(storyData, "velocard-story.png");
+      trackEvent("card_shared", { method: "story", tier });
     } catch (err) {
       console.error("Story export error:", err);
     }
@@ -46,6 +48,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
     try {
       const cardData = await captureCard();
       await shareOrDownload(cardData, "velocard-card.png");
+      trackEvent("card_shared", { method: "card_image", tier });
     } catch (err) {
       console.error("Card export error:", err);
     }
@@ -56,6 +59,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
     setLoading("link");
     try {
       await navigator.clipboard.writeText(cardUrl);
+      trackEvent("card_shared", { method: "copy_link", tier });
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -77,6 +81,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
     try {
       const qrData = await generateQR(userId, tier);
       downloadDataUrl(qrData, "velocard-qr.png");
+      trackEvent("card_shared", { method: "qr_code", tier });
     } catch (err) {
       console.error("QR export error:", err);
     }

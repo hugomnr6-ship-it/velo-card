@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCountUp } from "@/hooks/useCountUp";
 import VeloCard from "@/components/VeloCard";
 import type { ComputedStats, CardTier, Badge } from "@/types";
+import { trackEvent } from "@/lib/analytics";
 
 /* ════════════════════════════════════════
    ONBOARDING — 4 Phases
@@ -431,6 +432,7 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
     } catch {
       // Non-blocking — continue to dashboard regardless
     }
+    trackEvent("onboarding_completed");
     router.push("/dashboard");
   }, [router]);
 
