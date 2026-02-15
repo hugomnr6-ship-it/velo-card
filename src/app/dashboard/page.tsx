@@ -28,8 +28,9 @@ export default async function DashboardPage() {
       .eq("user_id", profile.id)
       .single();
 
-    // If no stats at all OR hasn't onboarded → send to onboarding
-    if (!stats || stats.has_onboarded === false) {
+    // Only redirect to onboarding if has_onboarded is explicitly false
+    // null (no row) or true both allow access to dashboard
+    if (stats && stats.has_onboarded === false) {
       redirect("/onboarding");
     }
   } else {
