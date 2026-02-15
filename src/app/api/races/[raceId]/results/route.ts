@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
 import { insertFeedEvent } from "@/lib/feed";
+import { computeRacePoints } from "@/lib/race-points";
+import type { Federation } from "@/types";
 
 export async function POST(
   request: Request,
@@ -188,16 +190,41 @@ export async function POST(
     .eq("id", raceId);
 
   // Generate feed events for registered users who got results
+  // Also compute and insert race_points
+  const { data: raceInfo } = await supabaseAdmin.from("races").select("name, federation").eq("id", raceId).single();
+  const federation = (raceInfo?.federation as Federation) || "OTHER";
+
+  const racePointsToInsert: any[] = [];
+
   for (const r of raceResultsToInsert) {
     if (r.user_id) {
-      const { data: raceInfo } = await supabaseAdmin.from("races").select("name").eq("id", raceId).single();
       insertFeedEvent(r.user_id, "race_result", {
         race_name: raceInfo?.name || "Course",
         position: r.position,
         total_riders: totalRiders,
         gen_score: r.gen_score,
       });
+
+      // Compute race points
+      const pts = computeRacePoints(r.position, totalRiders, federation);
+      if (pts > 0) {
+        racePointsToInsert.push({
+          user_id: r.user_id,
+          race_id: raceId,
+          points: pts,
+          position: r.position,
+          total_participants: totalRiders,
+        });
+      }
     }
+  }
+
+  // Delete old race_points for this race (in case of re-publish)
+  await supabaseAdmin.from("race_points").delete().eq("race_id", raceId);
+
+  // Insert new race points
+  if (racePointsToInsert.length > 0) {
+    await supabaseAdmin.from("race_points").insert(racePointsToInsert);
   }
 
   return Response.json({ success: true, ghost_count: ghostCount });

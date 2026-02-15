@@ -200,18 +200,36 @@ export const FRENCH_REGIONS = [
 
 export type FrenchRegion = (typeof FRENCH_REGIONS)[number];
 
+// ——— Federation & Category types ———
+export type Federation = "FFC" | "UFOLEP" | "FSGT" | "OTHER";
+export type RaceGender = "H" | "F" | "MIXTE";
+export type RaceStatus = "upcoming" | "past" | "cancelled";
+
 export interface Race {
   id: string;
-  creator_id: string;
+  creator_id: string | null;
   name: string;
   date: string;
   location: string;
   description: string;
+  federation: Federation;
+  category: string;
+  gender: RaceGender;
+  distance_km: number | null;
+  elevation_gain: number | null;
+  rdi_score: number | null;
+  is_official: boolean;
+  department: string | null;
+  region: string | null;
+  gpx_data: any | null;
+  weather_cache: any | null;
+  source_url: string | null;
+  status: RaceStatus;
   created_at: string;
 }
 
 export interface RaceWithCreator extends Race {
-  creator: { username: string; avatar_url: string | null };
+  creator: { username: string; avatar_url: string | null } | null;
   participant_count: number;
 }
 
@@ -222,12 +240,13 @@ export interface RaceParticipant {
   pac: number;
   end: number;
   mon: number;
+  ovr: number;
   tier: CardTier;
   joined_at: string;
 }
 
 export interface RaceDetail extends Race {
-  creator: { username: string; avatar_url: string | null };
+  creator: { username: string; avatar_url: string | null } | null;
   participants: RaceParticipant[];
   is_creator: boolean;
   is_participant: boolean;
@@ -238,6 +257,44 @@ export interface CreateRaceInput {
   date: string;
   location: string;
   description: string;
+  federation?: Federation;
+  category?: string;
+  gender?: RaceGender;
+  distance_km?: number;
+  elevation_gain?: number;
+  department?: string;
+  region?: string;
+  is_official?: boolean;
+  source_url?: string;
+}
+
+// ——— Race Points (ranking by real results) ———
+export interface RacePoints {
+  id: string;
+  user_id: string;
+  race_id: string;
+  points: number;
+  position: number;
+  total_participants: number;
+  created_at: string;
+}
+
+export interface PalmaresEntry {
+  race_id: string;
+  race_name: string;
+  race_date: string;
+  position: number;
+  total_participants: number;
+  points: number;
+  federation: Federation;
+}
+
+export interface PalmaresSummary {
+  victories: number;
+  podiums: number;
+  races_completed: number;
+  total_points: number;
+  entries: PalmaresEntry[];
 }
 
 export interface LeaderboardEntry {

@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
   HomeIcon,
+  FlagIcon,
   SwordsIcon,
   StarIcon,
   TrophyIcon,
@@ -15,8 +16,8 @@ import type { ReactNode } from "react";
 
 const tabs: { href: string; label: string; icon: ReactNode }[] = [
   { href: "/dashboard", label: "Home", icon: <HomeIcon size={22} /> },
+  { href: "/races", label: "Courses", icon: <FlagIcon size={22} /> },
   { href: "/duels", label: "Duels", icon: <SwordsIcon size={22} /> },
-  { href: "/echappee", label: "Échappée", icon: <StarIcon size={22} /> },
   { href: "/leaderboard", label: "Rang", icon: <TrophyIcon size={22} /> },
   { href: "/profile", label: "Profil", icon: <UserIcon size={22} /> },
 ];

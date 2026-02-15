@@ -51,7 +51,7 @@ export async function GET(
 
     const { data: s } = await supabaseAdmin
       .from("user_stats")
-      .select('user_id, pac, "end", mon, tier')
+      .select('user_id, pac, "end", mon, ovr, tier')
       .in("user_id", userIds);
     stats = s || [];
   }
@@ -69,6 +69,7 @@ export async function GET(
     pac: statsMap[e.user_id]?.pac || 0,
     end: statsMap[e.user_id]?.end || 0,
     mon: statsMap[e.user_id]?.mon || 0,
+    ovr: statsMap[e.user_id]?.ovr || 0,
     tier: statsMap[e.user_id]?.tier || "bronze",
     joined_at: e.joined_at,
   }));
