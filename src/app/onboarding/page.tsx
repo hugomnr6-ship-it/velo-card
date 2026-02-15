@@ -20,11 +20,12 @@ export default async function OnboardingPage() {
   if (profile) {
     const { data: stats } = await supabaseAdmin
       .from("user_stats")
-      .select("has_onboarded")
+      .select("has_onboarded, ovr")
       .eq("user_id", profile.id)
       .single();
 
-    if (stats?.has_onboarded) {
+    // User déjà onboardé OU user existant avec des stats → dashboard
+    if (stats && (stats.has_onboarded || stats.ovr > 0)) {
       redirect("/dashboard");
     }
   }

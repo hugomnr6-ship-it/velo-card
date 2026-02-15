@@ -14,29 +14,30 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  // Check if user has completed onboarding
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id")
     .eq("strava_id", session.user.stravaId)
     .single();
 
-  if (profile) {
-    const { data: stats } = await supabaseAdmin
-      .from("user_stats")
-      .select("has_onboarded")
-      .eq("user_id", profile.id)
-      .single();
-
-    // Only redirect to onboarding if has_onboarded is explicitly false
-    // null (no row) or true both allow access to dashboard
-    if (stats && stats.has_onboarded === false) {
-      redirect("/onboarding");
-    }
-  } else {
-    // No profile yet — redirect to onboarding which will trigger sync
+  if (!profile) {
+    // Tout nouveau user sans profil → onboarding
     redirect("/onboarding");
   }
+
+  // Vérifier si le user a déjà des stats (= a déjà sync au moins une fois)
+  const { data: stats } = await supabaseAdmin
+    .from("user_stats")
+    .select("ovr")
+    .eq("user_id", profile.id)
+    .single();
+
+  if (!stats) {
+    // Pas de stats du tout → premier passage, onboarding
+    redirect("/onboarding");
+  }
+
+  // Si on arrive ici, le user a un profil ET des stats → dashboard direct
 
   const userInfo = {
     name: session.user.name ?? "Cycliste",
