@@ -43,9 +43,30 @@ export interface Profile {
   strava_id: number;
   username: string;
   avatar_url: string | null;
+  custom_avatar_url?: string | null;
   club_name: string | null;
   club_logo_url: string | null;
+  bio?: string;
+  favorite_climb?: string;
+  bike_name?: string;
+  region?: string;
   created_at: string;
+}
+
+// ——— Achievement badges (DB shape) ———
+
+export interface UserBadge {
+  badge_id: string;
+  earned_at: string;
+}
+
+export interface BadgeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: "progression" | "social" | "performance";
+  rarity: "common" | "rare" | "epic" | "legendary";
 }
 
 export interface UserStats {
