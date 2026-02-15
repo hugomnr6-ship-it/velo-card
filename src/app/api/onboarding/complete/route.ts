@@ -18,10 +18,16 @@ export async function POST() {
     return Response.json({ error: "Profil introuvable" }, { status: 404 });
   }
 
+  // Use upsert to handle case where user_stats row doesn't exist yet
   await supabaseAdmin
     .from("user_stats")
-    .update({ has_onboarded: true })
-    .eq("user_id", profile.id);
+    .upsert(
+      {
+        user_id: profile.id,
+        has_onboarded: true,
+      },
+      { onConflict: "user_id" },
+    );
 
   return Response.json({ ok: true });
 }

@@ -179,6 +179,12 @@ export default function UserProfilePage() {
       <AnimatedPage className="flex min-h-screen flex-col items-center justify-center px-4">
         <div className="mb-4 text-4xl"><IconStar size={32} className="text-white/40" /></div>
         <p className="text-sm text-white/40">Profil introuvable</p>
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="mt-4 rounded-full bg-[#6366F1] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5557E0]"
+        >
+          Retour au dashboard
+        </button>
       </AnimatedPage>
     );
   }

@@ -66,10 +66,10 @@ function SyncPhase({ progress }: { progress: number }) {
 
       <div className="text-center">
         <h2 className="font-['Space_Grotesk'] text-xl font-bold text-white">
-          Analyse de tes sorties...
+          On analyse tes sorties...
         </h2>
         <p className="mt-2 text-sm text-white/40">
-          Connexion avec Strava en cours
+          Synchro Strava en cours
         </p>
       </div>
 
@@ -128,7 +128,7 @@ function CardRevealPhase({
         transition={{ delay: 0.2 }}
         className="font-['Space_Grotesk'] text-xl font-bold text-white"
       >
-        Ta carte est prete !
+        Ta carte est prête !
       </motion.h2>
 
       {/* Pack opening container */}
@@ -219,7 +219,7 @@ const slides = [
       </svg>
     ),
     title: "6 stats, 1 score global",
-    desc: "VIT, MON, TEC, SPR, END, PUI — chaque stat reflette ton style de cycliste. Ton OVR les combine toutes.",
+    desc: "Vitesse, Grimpeur, Technique, Sprint, Endurance, Puissance. Chaque stat reflète ton style. L'OVR combine le tout.",
   },
   {
     icon: (
@@ -227,8 +227,8 @@ const slides = [
         <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
       </svg>
     ),
-    title: "Monte de tier chaque semaine",
-    desc: "Bronze, Argent, Platine, Diamant, Legende — continue de rouler pour atteindre le sommet.",
+    title: "Progresse chaque semaine",
+    desc: "Bronze, Argent, Platine, Diamant, Légende. Plus tu roules, plus ton tier monte.",
   },
   {
     icon: (
@@ -238,8 +238,8 @@ const slides = [
         <path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
       </svg>
     ),
-    title: "Defie tes amis",
-    desc: "Duels, clubs, classements, courses — prouve que tu es le plus fort sur chaque stat.",
+    title: "Défie tes potes",
+    desc: "Duels 1v1, clubs, classements, courses. Montre qui est le plus fort.",
   },
 ];
 
@@ -322,10 +322,10 @@ function CtaPhase({ onDashboard }: { onDashboard: () => void }) {
         </svg>
       </div>
       <h2 className="font-['Space_Grotesk'] text-2xl font-bold text-white">
-        Tu es pret !
+        C'est bon, t'es prêt !
       </h2>
       <p className="max-w-[280px] text-sm text-white/50">
-        Ta carte VeloCard est generee. Explore ton dashboard, defie des amis, et monte de tier !
+        Ta carte est générée. Go sur le dashboard pour voir tes stats, lancer des duels et progresser.
       </p>
       <button
         onClick={onDashboard}
@@ -426,11 +426,16 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
 
   // Handle go to dashboard
   const handleDashboard = useCallback(async () => {
-    // Mark onboarding as complete
+    // Mark onboarding as complete — MUST succeed before redirect
     try {
-      await fetch("/api/onboarding/complete", { method: "POST" });
+      const res = await fetch("/api/onboarding/complete", { method: "POST" });
+      if (!res.ok) {
+        // Retry once
+        await fetch("/api/onboarding/complete", { method: "POST" });
+      }
     } catch {
-      // Non-blocking — continue to dashboard regardless
+      // Last resort retry
+      try { await fetch("/api/onboarding/complete", { method: "POST" }); } catch {}
     }
     trackEvent("onboarding_completed");
     router.push("/dashboard");

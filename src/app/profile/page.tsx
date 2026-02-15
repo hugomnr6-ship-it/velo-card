@@ -12,6 +12,12 @@ export default async function ProfilePage() {
     redirect("/");
   }
 
+  // Fast path: use userId from JWT if available
+  if (session.user.id) {
+    redirect(`/profile/${session.user.id}`);
+  }
+
+  // Fallback: lookup by strava_id
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id")
@@ -19,6 +25,7 @@ export default async function ProfilePage() {
     .single();
 
   if (!profile) {
+    // Profile doesn't exist yet, send to dashboard (which will trigger onboarding)
     redirect("/dashboard");
   }
 
