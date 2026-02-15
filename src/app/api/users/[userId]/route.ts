@@ -43,17 +43,19 @@ export async function GET(
       .order("week_label", { ascending: false })
       .limit(12);
 
-    // 4. Clubs
-    const { data: clubMemberships } = await supabaseAdmin
-      .from("club_members")
-      .select("club_id, clubs(id, name, logo_url)")
-      .eq("user_id", userId);
-
-    const clubs = (clubMemberships || []).map((cm: any) => ({
-      id: cm.clubs.id,
-      name: cm.clubs.name,
-      logo_url: cm.clubs.logo_url,
-    }));
+    // 4. Clubs (table may not exist yet)
+    let clubs: any[] = [];
+    try {
+      const { data: clubMemberships } = await supabaseAdmin
+        .from("club_members")
+        .select("club_id, clubs(id, name, logo_url)")
+        .eq("user_id", userId);
+      clubs = (clubMemberships || []).map((cm: any) => ({
+        id: cm.clubs?.id,
+        name: cm.clubs?.name,
+        logo_url: cm.clubs?.logo_url,
+      }));
+    } catch { /* table doesn't exist yet */ }
 
     // 5. Weekly activity (current week)
     const now = new Date();
@@ -93,14 +95,17 @@ export async function GET(
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId);
 
-    // 8. War stats
-    const { data: warContributions } = await supabaseAdmin
-      .from("war_contributions")
-      .select("km_contributed, dplus_contributed")
-      .eq("user_id", userId);
-
-    const totalWarKm = (warContributions || []).reduce((sum, wc) => sum + (wc.km_contributed || 0), 0);
-    const warsParticipated = (warContributions || []).length;
+    // 8. War stats (table may not exist yet)
+    let totalWarKm = 0;
+    let warsParticipated = 0;
+    try {
+      const { data: warContributions } = await supabaseAdmin
+        .from("war_contributions")
+        .select("km_contributed, dplus_contributed")
+        .eq("user_id", userId);
+      totalWarKm = (warContributions || []).reduce((sum: number, wc: any) => sum + (wc.km_contributed || 0), 0);
+      warsParticipated = (warContributions || []).length;
+    } catch { /* table doesn't exist yet */ }
 
     // Compute deltas if prev stats exist
     const deltas = stats ? {

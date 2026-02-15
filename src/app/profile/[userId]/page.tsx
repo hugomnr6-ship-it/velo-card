@@ -114,6 +114,7 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"stats" | "history" | "career">("stats");
   const [editOpen, setEditOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   // Search state
   const [searchOpen, setSearchOpen] = useState(false);
@@ -162,6 +163,15 @@ export default function UserProfilePage() {
     }
   }, [searchOpen]);
 
+  // Check if the viewer is the profile owner
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((p) => { if (p?.id === userId) setIsOwner(true); })
+      .catch(() => {});
+  }, [session, userId]);
+
   /* ——— Loading ——— */
   if (loading) {
     return (
@@ -193,17 +203,7 @@ export default function UserProfilePage() {
   const accent = tierAccentHex[stats.tier];
   const config = tierConfig[stats.tier];
 
-  // Check if the viewer is the profile owner
-  const [isOwner, setIsOwner] = useState(false);
   const displayAvatarUrl = profile.custom_avatar_url || profile.avatar_url;
-
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch("/api/profile")
-      .then((r) => r.json())
-      .then((p) => { if (p?.id === userId) setIsOwner(true); })
-      .catch(() => {});
-  }, [session, userId]);
 
   // Radar data
   const radarData = [
