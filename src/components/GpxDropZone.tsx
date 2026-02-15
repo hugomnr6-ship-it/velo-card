@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import { parseGpx, computeRouteSummary } from "@/lib/gpx";
+import { IconCheck } from "@/components/icons/VeloIcons";
 import type { RouteSummary } from "@/types";
 
 interface GpxDropZoneProps {
@@ -75,12 +76,12 @@ export default function GpxDropZone({ onRouteParsed }: GpxDropZoneProps) {
         className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all ${
           dragging
             ? "drop-zone-active border-yellow-500/60 bg-yellow-500/5"
-            : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-500 hover:bg-neutral-800/50"
+            : "border-white/[0.08] bg-[#111827]/50 hover:border-[#6366F1]/30 hover:bg-[#1A1A2E]/60"
         }`}
       >
         {/* Upload icon */}
         <svg
-          className="mb-3 h-10 w-10 text-neutral-500"
+          className="mb-3 h-10 w-10 text-[#94A3B8]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,14 +96,14 @@ export default function GpxDropZone({ onRouteParsed }: GpxDropZoneProps) {
 
         {fileName ? (
           <p className="text-sm text-emerald-400">
-            ✓ {fileName}
+            <IconCheck size={14} className="inline-block mr-1 text-emerald-400" />{fileName}
           </p>
         ) : (
           <>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-[#94A3B8]">
               Glisse ton fichier <strong>.gpx</strong> ici
             </p>
-            <p className="mt-1 text-xs text-neutral-600">
+            <p className="mt-1 text-xs text-[#475569]">
               ou clique pour parcourir
             </p>
           </>

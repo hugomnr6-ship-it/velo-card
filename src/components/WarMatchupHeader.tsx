@@ -1,5 +1,7 @@
 "use client";
 
+import { IconShield } from "@/components/icons/VeloIcons";
+
 interface WarMatchupHeaderProps {
   myClubName: string;
   myClubLogo: string | null;
@@ -48,9 +50,9 @@ export default function WarMatchupHeader({
     side: "left" | "right";
   }) => (
     <div
-      className={`flex flex-col items-center gap-1.5 ${side === "right" ? "items-center" : "items-center"}`}
+      className="flex flex-col items-center gap-1.5"
     >
-      <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-neutral-700 bg-neutral-800">
+      <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/[0.08] bg-[#1A1A2E]">
         {logo ? (
           <img
             src={`/api/img?url=${encodeURIComponent(logo)}`}
@@ -58,29 +60,29 @@ export default function WarMatchupHeader({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-2xl">🛡️</span>
+          <IconShield size={24} className="text-white/40" />
         )}
       </div>
-      <span className="max-w-[90px] truncate text-center text-xs font-medium text-neutral-300">
+      <span className="max-w-[90px] truncate text-center text-xs font-medium text-white/80">
         {name}
       </span>
     </div>
   );
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-4">
+    <div className="rounded-xl border border-white/[0.06] bg-[#111827]/60 p-4">
       {/* Status badge */}
       <div className="mb-3 flex items-center justify-center gap-2">
         <span
           className={`rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
             status === "active"
-              ? "bg-emerald-500/20 text-emerald-400"
-              : "bg-neutral-700/50 text-neutral-400"
+              ? "bg-[#00F5D4]/15 text-[#00F5D4]"
+              : "bg-[#22223A]/60 text-[#94A3B8]"
           }`}
         >
           {status === "active" ? "En cours" : "Terminé"}
         </span>
-        <span className="text-[10px] text-neutral-500">
+        <span className="text-[10px] text-[#94A3B8]">
           Semaine {weekNum} {status === "active" && `· ${getTimeRemaining()}`}
         </span>
       </div>
@@ -93,18 +95,18 @@ export default function WarMatchupHeader({
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2">
             <span
-              className={`text-3xl font-black ${myScore > oppScore ? "text-emerald-400" : "text-white"}`}
+              className={`text-3xl font-black font-[family-name:var(--font-family-data)] ${myScore > oppScore ? "text-[#00F5D4]" : "text-white"}`}
             >
               {myScore}
             </span>
-            <span className="text-xl font-light text-neutral-600">—</span>
+            <span className="text-xl font-light text-[#475569]">—</span>
             <span
-              className={`text-3xl font-black ${oppScore > myScore ? "text-red-400" : "text-white"}`}
+              className={`text-3xl font-black font-[family-name:var(--font-family-data)] ${oppScore > myScore ? "text-red-400" : "text-white"}`}
             >
               {oppScore}
             </span>
           </div>
-          <span className="mt-0.5 text-[10px] uppercase tracking-widest text-neutral-600">
+          <span className="mt-0.5 text-[10px] uppercase tracking-widest text-[#475569]">
             VS
           </span>
         </div>

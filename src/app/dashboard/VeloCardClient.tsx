@@ -5,8 +5,10 @@ import VeloCardInteractive from "@/components/VeloCardInteractive";
 import CardWidget from "@/components/CardWidget";
 import DownloadButton from "@/components/DownloadButton";
 import LevelUpToast from "@/components/LevelUpToast";
+import MondayUpdateBanner from "@/components/MondayUpdateBanner";
 import RouteAnalysisSection from "./RouteAnalysisSection";
-import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
+import DashboardFeed from "./DashboardFeed";
+import type { ComputedStats, CardTier, Badge, ClubInfo, StatDeltas, SpecialCardType } from "@/types";
 
 interface VeloCardClientProps {
   username: string;
@@ -16,6 +18,9 @@ interface VeloCardClientProps {
   badges: Badge[];
   clubs?: ClubInfo[];
   userId: string;
+  deltas?: StatDeltas | null;
+  specialCard?: SpecialCardType | null;
+  streak?: number;
 }
 
 export default function VeloCardClient({
@@ -26,6 +31,9 @@ export default function VeloCardClient({
   badges,
   clubs,
   userId,
+  deltas,
+  specialCard,
+  streak = 0,
 }: VeloCardClientProps) {
   const [previousTier, setPreviousTier] = useState<CardTier | null>(null);
 
@@ -41,6 +49,11 @@ export default function VeloCardClient({
     <>
       <LevelUpToast previousTier={previousTier} currentTier={tier} />
 
+      {/* Monday Update Banner — shows deltas if available */}
+      {deltas && deltas.ovr !== 0 && (
+        <MondayUpdateBanner deltas={deltas} specialCard={specialCard} streak={streak} />
+      )}
+
       {/* Compact card widget — quick overview */}
       <CardWidget
         username={username}
@@ -48,6 +61,7 @@ export default function VeloCardClient({
         stats={stats}
         tier={tier}
         userId={userId}
+        deltas={deltas}
       />
 
       {/* Full interactive card */}
@@ -58,8 +72,13 @@ export default function VeloCardClient({
         tier={tier}
         badges={badges}
         clubs={clubs}
+        specialCard={specialCard}
       />
       <DownloadButton tier={tier} userId={userId} />
+
+      {/* Dashboard feed — weekly stats, Échappée teaser, quick links */}
+      <DashboardFeed userId={userId} tier={tier} />
+
       <RouteAnalysisSection tier={tier} />
     </>
   );

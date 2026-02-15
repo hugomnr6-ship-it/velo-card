@@ -5,6 +5,7 @@ import { computeBadges } from "@/lib/badges";
 import { updateWarProgressForUser } from "@/lib/wars";
 import VeloCardClient from "./VeloCardClient";
 import RetryButton from "./RetryButton";
+import type { StatDeltas, CardTier, SpecialCardType } from "@/types";
 
 interface UserInfo {
   name: string;
@@ -63,7 +64,33 @@ export default async function VeloCardSection({
     const stats = computeStats(activities);
     const tier = getTier(stats);
 
-    // 5. Upsert user_stats
+    // 5. Fetch previous stats for delta display (from Monday Update)
+    const { data: existingStats } = await supabaseAdmin
+      .from("user_stats")
+      .select("prev_pac, prev_end, prev_mon, prev_res, prev_spr, prev_val, prev_ovr, prev_tier, special_card, active_weeks_streak")
+      .eq("user_id", profile.id)
+      .single();
+
+    // Compute deltas
+    let deltas: StatDeltas | null = null;
+    if (existingStats && existingStats.prev_ovr > 0) {
+      deltas = {
+        pac: stats.pac - (existingStats.prev_pac || 0),
+        end: stats.end - (existingStats.prev_end || 0),
+        mon: stats.mon - (existingStats.prev_mon || 0),
+        res: stats.res - (existingStats.prev_res || 0),
+        spr: stats.spr - (existingStats.prev_spr || 0),
+        val: stats.val - (existingStats.prev_val || 0),
+        ovr: stats.ovr - (existingStats.prev_ovr || 0),
+        tierChanged: tier !== (existingStats.prev_tier || tier),
+        previousTier: (existingStats.prev_tier || tier) as CardTier,
+      };
+    }
+
+    const specialCard = existingStats?.special_card as SpecialCardType | null;
+    const streak = existingStats?.active_weeks_streak || 0;
+
+    // 6. Upsert user_stats (preserve prev_ fields from Monday Update)
     await supabaseAdmin
       .from("user_stats")
       .upsert(
@@ -82,13 +109,13 @@ export default async function VeloCardSection({
         { onConflict: "user_id" },
       );
 
-    // 6. Update Squad Wars progress (non-blocking, don't break card render)
+    // 7. Update Squad Wars progress (non-blocking, don't break card render)
     updateWarProgressForUser(profile.id).catch(() => {});
 
-    // 7. Compute PlayStyle badges
+    // 8. Compute PlayStyle badges
     const badges = computeBadges(stats);
 
-    // 7. Fetch user's clubs via club_members → clubs
+    // 9. Fetch user's clubs via club_members → clubs
     const { data: memberRows } = await supabaseAdmin
       .from("club_members")
       .select("club_id")
@@ -107,8 +134,7 @@ export default async function VeloCardSection({
       }[];
     }
 
-    // 8. Render the card (data stays on server, only serializable props sent to client)
-    // Use session image, fallback to Supabase avatar_url
+    // 10. Render the card
     const avatarUrl = userInfo.image || profile.avatar_url || null;
 
     return (
@@ -120,6 +146,9 @@ export default async function VeloCardSection({
         badges={badges}
         clubs={clubs}
         userId={profile.id}
+        deltas={deltas}
+        specialCard={specialCard}
+        streak={streak}
       />
     );
   } catch (err: any) {

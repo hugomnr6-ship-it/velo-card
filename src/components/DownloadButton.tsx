@@ -15,8 +15,8 @@ const storyBgColors: Record<CardTier, string> = {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
 };
@@ -103,7 +103,7 @@ export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
       } else if (tier === "argent") {
         gradient.addColorStop(0, "rgba(148,163,184,0.08)");
       } else if (tier === "platine") {
-        gradient.addColorStop(0, "rgba(168,216,234,0.08)");
+        gradient.addColorStop(0, "rgba(224,232,240,0.08)");
       } else if (tier === "diamant") {
         gradient.addColorStop(0, "rgba(185,242,255,0.1)");
       } else {

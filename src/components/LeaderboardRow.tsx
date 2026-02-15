@@ -10,7 +10,7 @@ interface LeaderboardRowProps {
 const tierColors: Record<CardTier, string> = {
   bronze: "text-amber-500 bg-amber-500/10 border-amber-800/50",
   argent: "text-slate-300 bg-slate-300/10 border-slate-600/50",
-  platine: "text-[#A8D8EA] bg-[#A8D8EA]/10 border-[#A8D8EA]/30",
+  platine: "text-[#E0E8F0] bg-[#E0E8F0]/10 border-[#E0E8F0]/30",
   diamant: "text-[#B9F2FF] bg-[#B9F2FF]/10 border-[#B9F2FF]/30",
   legende: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
 };
@@ -32,16 +32,16 @@ const miniCardBg: Record<CardTier, string> = {
 
 const miniCardBorder: Record<CardTier, string> = {
   bronze: "border-[#cd7f32]/40",
-  argent: "border-[#C0C0C0]/30",
-  platine: "border-[#A8D8EA]/30",
+  argent: "border-[#B8A0D8]/30",
+  platine: "border-[#E0E8F0]/30",
   diamant: "border-[#B9F2FF]/30",
   legende: "border-[#ffd700]/40",
 };
 
 const miniCardAccent: Record<CardTier, string> = {
   bronze: "text-[#cd7f32]",
-  argent: "text-[#C0C0C0]",
-  platine: "text-[#A8D8EA]",
+  argent: "text-[#B8A0D8]",
+  platine: "text-[#E0E8F0]",
   diamant: "text-[#B9F2FF]",
   legende: "text-[#FFD700]",
 };
@@ -57,12 +57,12 @@ export default function LeaderboardRow({
       className={`flex items-center gap-3 rounded-xl border p-3 ${
         isCurrentUser
           ? "border-[#00F5D4]/20 bg-[#00F5D4]/5"
-          : "border-white/[0.06] bg-[#12121E] hover:bg-[#1A1A2E]"
+          : "border-white/[0.06] bg-[#111827] hover:bg-[#1A1A2E]"
       }`}
     >
       {/* Rank */}
       <span
-        className={`w-7 text-center text-lg font-black font-['JetBrains_Mono'] ${rankColors[entry.rank] || "text-[#5A5A72]"}`}
+        className={`w-7 text-center text-lg font-black font-['JetBrains_Mono'] ${rankColors[entry.rank] || "text-[#475569]"}`}
       >
         {entry.rank}
       </span>
@@ -82,7 +82,7 @@ export default function LeaderboardRow({
             className="h-5 w-5 rounded-full border border-white/20 object-cover"
           />
         ) : (
-          <div className="h-5 w-5 rounded-full bg-[#6C5CE7]" />
+          <div className="h-5 w-5 rounded-full bg-[#6366F1]" />
         )}
 
         {/* OVR mini */}
@@ -114,15 +114,15 @@ export default function LeaderboardRow({
       <div className="flex gap-3 text-xs">
         <div className="text-center">
           <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_km}</p>
-          <p className="text-[#5A5A72]">km</p>
+          <p className="text-[#475569]">km</p>
         </div>
         <div className="text-center">
           <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_dplus}</p>
-          <p className="text-[#5A5A72]">D+</p>
+          <p className="text-[#475569]">D+</p>
         </div>
         <div className="text-center">
           <p className="font-bold text-white font-['JetBrains_Mono']">{entry.ovr}</p>
-          <p className="text-[#5A5A72]">OVR</p>
+          <p className="text-[#475569]">OVR</p>
         </div>
       </div>
     </div>

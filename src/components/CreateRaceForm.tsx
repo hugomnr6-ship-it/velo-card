@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/contexts/ToastContext";
 
 interface CreateRaceFormProps {
   onCreated: () => void;
 }
 
 export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
@@ -35,6 +37,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
       setDate("");
       setLocation("");
       setDescription("");
+      toast("Course creee !", "success");
       onCreated();
     } catch (err: any) {
       setError(err.message);
@@ -44,12 +47,12 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder-neutral-600 focus:border-neutral-500 focus:outline-none";
+    "w-full rounded-lg border border-white/[0.08] bg-[#111827] px-3 py-2 text-sm text-white placeholder-[#475569] focus:border-[#6366F1]/50 focus:outline-none";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-5"
+      className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-5"
     >
       <p className="mb-4 text-sm font-bold tracking-wide text-white">
         Créer une course
@@ -57,7 +60,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
 
       <div className="flex flex-col gap-3">
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">
+          <label className="mb-1 block text-xs text-[#94A3B8]">
             Nom de la course *
           </label>
           <input
@@ -72,7 +75,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-xs text-neutral-500">
+            <label className="mb-1 block text-xs text-[#94A3B8]">
               Date *
             </label>
             <input
@@ -85,7 +88,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-neutral-500">
+            <label className="mb-1 block text-xs text-[#94A3B8]">
               Lieu *
             </label>
             <input
@@ -100,7 +103,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">
+          <label className="mb-1 block text-xs text-[#94A3B8]">
             Description
           </label>
           <textarea
@@ -117,7 +120,7 @@ export default function CreateRaceForm({ onCreated }: CreateRaceFormProps) {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+          className="mt-1 rounded-lg bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50"
         >
           {submitting ? "Création..." : "Créer la course"}
         </button>

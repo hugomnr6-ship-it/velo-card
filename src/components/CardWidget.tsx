@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import type { ComputedStats, CardTier } from "@/types";
+import type { ComputedStats, CardTier, StatDeltas } from "@/types";
 import { tierConfig } from "./VeloCard";
 import { useCountUp } from "@/hooks/useCountUp";
+import { IconArrowUp, IconArrowDown } from "@/components/icons/VeloIcons";
 
 interface CardWidgetProps {
   username: string;
@@ -11,6 +12,7 @@ interface CardWidgetProps {
   stats: ComputedStats;
   tier: CardTier;
   userId: string;
+  deltas?: StatDeltas | null;
 }
 
 /* Tier thresholds for progress bar */
@@ -24,8 +26,8 @@ const tierThresholds: { tier: CardTier; min: number; max: number }[] = [
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
 };
@@ -52,6 +54,7 @@ export default function CardWidget({
   stats,
   tier,
   userId,
+  deltas,
 }: CardWidgetProps) {
   const config = tierConfig[tier];
   const accent = tierAccentHex[tier];
@@ -59,18 +62,18 @@ export default function CardWidget({
   const nextTier = nextTierLabel[tier];
   const animatedOvr = useCountUp(stats.ovr);
 
-  const statPills: { label: string; value: number }[] = [
-    { label: "PAC", value: stats.pac },
-    { label: "MON", value: stats.mon },
-    { label: "VAL", value: stats.val },
-    { label: "SPR", value: stats.spr },
-    { label: "END", value: stats.end },
-    { label: "RES", value: stats.res },
+  const statPills: { label: string; value: number; delta: number }[] = [
+    { label: "VIT", value: stats.pac, delta: deltas?.pac ?? 0 },
+    { label: "MON", value: stats.mon, delta: deltas?.mon ?? 0 },
+    { label: "TEC", value: stats.val, delta: deltas?.val ?? 0 },
+    { label: "SPR", value: stats.spr, delta: deltas?.spr ?? 0 },
+    { label: "END", value: stats.end, delta: deltas?.end ?? 0 },
+    { label: "PUI", value: stats.res, delta: deltas?.res ?? 0 },
   ];
 
   return (
     <Link
-      href={`/card/${userId}`}
+      href="/profile"
       className={`block w-full max-w-md rounded-2xl border border-white/[0.08] bg-gradient-to-r ${config.bg} p-4 transition hover:border-white/[0.15]`}
       style={{
         boxShadow: `0 0 24px ${accent}10, inset 0 1px 0 rgba(255,255,255,0.04)`,
@@ -130,7 +133,14 @@ export default function CardWidget({
             {nextTier && (
               <div className="mt-2">
                 <div className="flex items-center justify-between text-[9px] text-white/40">
-                  <span>OVR {stats.ovr}</span>
+                  <span className="flex items-center gap-1">
+                    OVR {stats.ovr}
+                    {deltas && deltas.ovr !== 0 && (
+                      <span className={`font-bold ${deltas.ovr > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        ({deltas.ovr > 0 ? "+" : ""}{deltas.ovr})
+                      </span>
+                    )}
+                  </span>
                   <span>{nextTier}</span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -155,6 +165,11 @@ export default function CardWidget({
               >
                 <span className="text-white/40">{s.label}</span>{" "}
                 <span style={{ color: `${accent}cc` }}>{s.value}</span>
+                {s.delta !== 0 && (
+                  <span className={`ml-0.5 ${s.delta > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <span className="inline-flex items-center">{s.delta > 0 ? <IconArrowUp size={8} /> : <IconArrowDown size={8} />}</span>{Math.abs(s.delta)}
+                  </span>
+                )}
               </span>
             ))}
           </div>

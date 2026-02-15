@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloCard — Toutes les cartes (Design B + Gauges)</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#060D18;color:#fff;font-family:'Inter',sans-serif;padding:40px 20px}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;text-align:center;margin-bottom:6px;background:linear-gradient(135deg,#00F5D4,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{text-align:center;color:#64748B;font-size:12px;margin-bottom:50px;line-height:1.6}
+  .stitle{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;text-align:center;margin:70px 0 8px;color:#F8FAFC;letter-spacing:0.03em}
+  .sdesc{text-align:center;color:#475569;font-size:11px;margin-bottom:30px;max-width:700px;margin-left:auto;margin-right:auto;line-height:1.6}
+  .row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+  .clbl{text-align:center;font-size:10px;font-weight:700;letter-spacing:0.15em;color:#475569;margin-top:12px;text-transform:uppercase}
+
+  /* ═══ CARD SHELL ═══ */
+  .card{position:relative;width:280px;height:470px;border-radius:18px;overflow:hidden;isolation:isolate}
+  .card .bg{position:absolute;inset:0;background:var(--cbg);border-radius:18px;border:1.5px solid var(--adim)}
+  .card .shim{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden;border-radius:18px}
+  .card .shim::after{content:'';position:absolute;top:-50%;left:-50%;width:25%;height:200%;background:linear-gradient(90deg,transparent,var(--shimc),transparent);transform:rotate(20deg);animation:sh 5s ease-in-out infinite}
+  @keyframes sh{0%{transform:translateX(-100%) rotate(20deg)}100%{transform:translateX(400%) rotate(20deg)}}
+  .card .scan{position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:18px;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.007) 2px,rgba(255,255,255,0.007) 4px)}
+  .card .crest{position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:100px;height:46px;z-index:10}
+  .card .crest-s{width:100%;height:100%;clip-path:polygon(0% 0%,100% 0%,85% 100%,50% 80%,15% 100%);background:var(--crestg);display:flex;align-items:flex-start;justify-content:center;padding-top:7px}
+  .card .crest-t{font-family:'Space Grotesk',sans-serif;font-size:7px;font-weight:700;letter-spacing:0.3em;color:var(--cresttc)}
+  .card .vl{position:absolute;top:50px;bottom:50px;width:1px;background:linear-gradient(180deg,transparent,var(--adim),transparent);z-index:3}
+  .card .vl-l{left:12px}.card .vl-r{right:12px}
+  .card .ct{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center}
+  /* Particles */
+  .ptw{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden;border-radius:18px}
+  .pt{position:absolute;width:2px;height:2px;border-radius:50%;animation:fp var(--d) linear infinite;animation-delay:var(--dl);left:var(--x);opacity:0}
+  @keyframes fp{0%{transform:translateY(470px);opacity:0}10%{opacity:.7}90%{opacity:.7}100%{transform:translateY(-20px) translateX(15px);opacity:0}}
+  .rbow{position:absolute;inset:0;z-index:9;pointer-events:none;border-radius:18px;background:linear-gradient(135deg,rgba(255,0,0,.05) 0%,rgba(255,165,0,.05) 16%,rgba(255,255,0,.05) 33%,rgba(0,255,0,.05) 50%,rgba(0,0,255,.05) 66%,rgba(75,0,130,.05) 83%,rgba(238,130,238,.05) 100%);animation:hu 6s linear infinite}
+  @keyframes hu{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+  /* Holo scan */
+  @keyframes hscan{0%{top:-20%}100%{top:120%}}
+  .hscan{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:11;border-radius:18px}
+  .hscan::after{content:'';position:absolute;left:0;right:0;height:40%;background:var(--hscanbg,linear-gradient(180deg,transparent,rgba(185,242,255,.06) 30%,rgba(185,242,255,.12) 50%,rgba(185,242,255,.06) 70%,transparent));animation:hscan 4s linear infinite}
+
+  /* ═══ TOP SECTION ═══ */
+  .top{padding:50px 20px 0;display:flex;flex-direction:column;align-items:center;width:100%}
+  .ovr-b{text-align:center;margin-bottom:4px}
+  .ovr-v{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:800;color:var(--acc);line-height:1;text-shadow:0 0 35px var(--aglow)}
+  .ovr-l{font-size:7px;font-weight:700;letter-spacing:.3em;color:rgba(255,255,255,.2)}
+  .av-hex{width:72px;height:72px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:var(--ringg);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 16px var(--aglow));margin-bottom:8px}
+  .av-hex-in{width:66px;height:66px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:#0E1828;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .av-hex-in img{width:100%;height:100%;object-fit:cover}
+  .uname{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#F8FAFC;margin-bottom:2px}
+  .cntry{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+  .flag{width:15px;height:11px;border-radius:2px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+  .flag-fr{background:linear-gradient(90deg,#002395 0% 33%,#fff 33% 66%,#ED2939 66% 100%)}
+  .cntry-n{font-size:8px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:.04em}
+  .tier-t{font-size:8px;font-weight:700;letter-spacing:.25em;color:var(--acc);opacity:.4}
+  .dvd{width:50%;height:1px;margin:10px 0;background:linear-gradient(90deg,transparent,var(--adim),transparent)}
+
+  /* ═══ CIRCULAR GAUGES ═══ */
+  .gauges{width:100%;padding:0 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;flex:1;align-content:start}
+  .g-item{display:flex;flex-direction:column;align-items:center;padding:4px 0}
+  .g-wrap{position:relative;width:56px;height:56px}
+  .g-wrap svg{width:56px;height:56px;transform:rotate(-90deg)}
+  .g-bg{fill:none;stroke:var(--gbgs,rgba(255,255,255,.04));stroke-width:3}
+  .g-fill{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;stroke-dasharray:151;stroke-dashoffset:var(--off);filter:drop-shadow(0 0 4px var(--aglow));transition:stroke-dashoffset 1s ease}
+  .g-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .g-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:var(--scolor);line-height:1}
+  .g-lbl{font-size:7px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.28);margin-top:1px}
+  /* Elite glow for 90+ */
+  .g-item.elite .g-val{text-shadow:0 0 12px var(--aglow)}
+  .g-item.elite .g-fill{stroke-width:3.5;filter:drop-shadow(0 0 8px var(--aglow))}
+
+  .ftr{font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,.08);padding-bottom:12px;margin-top:auto}
+
+  /* ═══ SPECIAL CARD: Gold sweep ═══ */
+  @keyframes gsweep{0%{transform:translateX(-100%) rotate(25deg)}100%{transform:translateX(200%) rotate(25deg)}}
+  .gold-sweep{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:hidden;border-radius:18px}
+  .gold-sweep::after{content:'';position:absolute;top:-50%;left:-50%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,215,0,.08) 30%,rgba(255,255,255,.15) 50%,rgba(255,215,0,.08) 70%,transparent);animation:gsweep 3s ease-in-out infinite}
+
+  /* ═══ SPECIAL CARD: Fire glow ═══ */
+  @keyframes firepulse{0%,100%{opacity:.8}50%{opacity:1}}
+  .fire-glow{position:absolute;inset:auto 0 0 0;height:40%;z-index:4;pointer-events:none;border-radius:0 0 18px 18px;background:linear-gradient(to top,rgba(255,60,0,.15),rgba(255,107,53,.06) 40%,transparent);animation:firepulse 2s ease-in-out infinite}
+
+  /* ═══ SPECIAL PILL ═══ */
+  .sp-pill{position:absolute;top:50px;right:14px;z-index:13;font-size:7px;font-weight:800;letter-spacing:.12em;padding:3px 8px;border-radius:10px;border:1px solid var(--spillb);background:var(--spillbg);color:var(--acc)}
+
+  /* ═══════ TIER VARS ═══════ */
+  /* BRONZE */
+  .card.bronze{--acc:#E8A854;--adim:rgba(232,168,84,.2);--aglow:rgba(232,168,84,.3);--cbg:linear-gradient(170deg,#1A1208,#241A0D 50%,#1A1208);--crestg:linear-gradient(180deg,#E8A854,#CD7F32);--cresttc:#1A1208;--ringg:linear-gradient(180deg,#E8A854,#8B6830);--shimc:rgba(232,168,84,.1);--scolor:#E8A854;box-shadow:0 0 50px rgba(205,127,50,.2),0 25px 50px rgba(0,0,0,.5)}
+
+  /* ARGENT — Cool silver-lavender, NOT blue like diamond */
+  .card.argent{--acc:#A8B4C8;--adim:rgba(168,180,200,.2);--aglow:rgba(168,180,200,.25);--cbg:linear-gradient(170deg,#10121E,#1A1C30 50%,#10121E);--crestg:linear-gradient(180deg,#B8C4D8,#8892A8);--cresttc:#10121E;--ringg:linear-gradient(180deg,#B8C4D8,#7882A0);--shimc:rgba(200,210,228,.14);--scolor:#C8D0E0;--gbgs:rgba(168,180,200,.06);box-shadow:0 0 45px rgba(168,180,200,.2),0 0 90px rgba(168,180,200,.06),0 25px 50px rgba(0,0,0,.5)}
+
+  /* PLATINE */
+  .card.platine{--acc:#A8D8EA;--adim:rgba(168,216,234,.2);--aglow:rgba(168,216,234,.3);--cbg:linear-gradient(170deg,#101828,#1A2640 50%,#101828);--crestg:linear-gradient(180deg,#A8D8EA,#7EB0C4);--cresttc:#101828;--ringg:linear-gradient(180deg,#A8D8EA,#7EB0C4);--shimc:rgba(168,216,234,.12);--scolor:#A8D8EA;box-shadow:0 0 55px rgba(168,216,234,.22),0 25px 50px rgba(0,0,0,.5)}
+
+  /* DIAMANT — Bright electric cyan, clearly different from silver */
+  .card.diamant{--acc:#00D4FF;--adim:rgba(0,212,255,.22);--aglow:rgba(0,212,255,.35);--cbg:linear-gradient(170deg,#041018,#0C2038 50%,#041018);--crestg:linear-gradient(180deg,#00D4FF,#0088AA);--cresttc:#041018;--ringg:linear-gradient(180deg,#00D4FF,#0098CC);--shimc:rgba(0,212,255,.12);--scolor:#00D4FF;--gbgs:rgba(0,212,255,.06);box-shadow:0 0 65px rgba(0,212,255,.3),0 0 130px rgba(0,212,255,.1),0 25px 50px rgba(0,0,0,.5)}
+
+  /* LEGENDE */
+  .card.legende{--acc:#FFD700;--adim:rgba(255,215,0,.25);--aglow:rgba(255,215,0,.4);--cbg:linear-gradient(170deg,#1A0E02,#2A1A08 50%,#0A1A12 70%,#1A0E02);--crestg:linear-gradient(180deg,#FFD700,#FF9500);--cresttc:#1A0E02;--ringg:linear-gradient(180deg,#FFD700,#CC8800);--shimc:rgba(255,215,0,.15);--scolor:#FFE44D;box-shadow:0 0 70px rgba(255,215,0,.35),0 0 140px rgba(255,215,0,.12),0 25px 50px rgba(0,0,0,.5)}
+
+  /* ═══ SPECIAL: ÉCHAPPÉE (TOTW) — Black & Gold ═══ */
+  .card.echappee{--acc:#FFD700;--adim:rgba(255,215,0,.3);--aglow:rgba(255,215,0,.45);--cbg:linear-gradient(170deg,#0A0A04,#1A1400 50%,#0A0A04);--crestg:linear-gradient(180deg,#FFD700,#CC8800);--cresttc:#0A0A04;--ringg:linear-gradient(180deg,rgba(255,215,0,.9),rgba(255,170,0,.5));--shimc:rgba(255,215,0,.18);--scolor:#FFD700;--spillb:rgba(255,215,0,.5);--spillbg:rgba(10,10,4,.9);--hscanbg:linear-gradient(180deg,transparent,rgba(255,215,0,.08) 30%,rgba(255,215,0,.15) 50%,rgba(255,215,0,.08) 70%,transparent);box-shadow:0 0 70px rgba(255,215,0,.45),0 0 140px rgba(255,215,0,.2),0 0 200px rgba(255,170,0,.08),0 25px 50px rgba(0,0,0,.55)}
+
+  /* ═══ SPECIAL: IN-FORM — Fire & Orange ═══ */
+  .card.inform{--acc:#FF6B35;--adim:rgba(255,107,53,.25);--aglow:rgba(255,107,53,.4);--cbg:linear-gradient(170deg,#1A0800,#2D1208 50%,#1A0500);--crestg:linear-gradient(180deg,#FF6B35,#CC4400);--cresttc:#1A0800;--ringg:linear-gradient(180deg,rgba(255,107,53,.9),rgba(255,60,0,.5));--shimc:rgba(255,107,53,.15);--scolor:#FF8C5A;--spillb:rgba(255,107,53,.5);--spillbg:rgba(26,8,0,.9);box-shadow:0 0 60px rgba(255,107,53,.45),0 0 120px rgba(255,107,53,.18),0 0 70px rgba(255,60,0,.12),0 25px 50px rgba(0,0,0,.55)}
+
+  /* ═══ SPECIAL: LEGEND MOMENT — Cosmic purple & cyan ═══ */
+  .card.legendm{--acc:#B9F2FF;--adim:rgba(185,242,255,.2);--aglow:rgba(185,242,255,.35);--cbg:linear-gradient(170deg,#0A0020,#1A0A40 50%,#000A20);--crestg:linear-gradient(180deg,#B9F2FF,#6366F1);--cresttc:#0A0020;--ringg:linear-gradient(180deg,rgba(185,242,255,.9),rgba(99,102,241,.6));--shimc:rgba(185,242,255,.15);--scolor:#B9F2FF;--spillb:rgba(185,242,255,.4);--spillbg:rgba(10,0,32,.9);--hscanbg:linear-gradient(180deg,transparent,rgba(99,102,241,.08) 25%,rgba(185,242,255,.12) 50%,rgba(99,102,241,.08) 75%,transparent);box-shadow:0 0 65px rgba(185,242,255,.4),0 0 130px rgba(99,102,241,.22),0 0 90px rgba(185,242,255,.12),0 25px 50px rgba(0,0,0,.55)}
+
+  /* Silver: subtle shimmer sweep */
+  @keyframes silversweep{0%{transform:translateX(-120%) rotate(12deg)}100%{transform:translateX(220%) rotate(12deg)}}
+  .silver-sweep{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:hidden;border-radius:18px}
+  .silver-sweep::after{content:'';position:absolute;top:-50%;left:-50%;width:30%;height:200%;background:linear-gradient(90deg,transparent,rgba(200,210,228,.12) 30%,rgba(255,255,255,.16) 50%,rgba(200,210,228,.12) 70%,transparent);animation:silversweep 5s ease-in-out infinite}
+
+  .sep{height:1px;width:100%;max-width:900px;background:#1E293B;margin:70px auto 0}
+
+  /* Argent accent line pattern */
+  .card.argent .bg::after{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(168,180,200,.03) 0%,transparent 40%,transparent 60%,rgba(168,180,200,.03) 100%);pointer-events:none}
+</style>
+</head>
+<body>
+
+<h1>VeloCard — Catalogue complet</h1>
+<p class="sub">Design B "Shield" + Stats en Gauges Circulaires<br>Argent = tons argent-lavande froids &nbsp;|&nbsp; Diamant = cyan &eacute;lectrique vif<br>Photo de profil = celle de Strava/Garmin/Wahoo (modifiable dans le profil)</p>
+
+<!-- ═══════════════════════════
+     5 TIERS STANDARDS
+     ═══════════════════════════ -->
+<div class="stitle">Les 5 Tiers</div>
+<div class="sdesc">Chaque tier a sa couleur, son intensit&eacute; et ses effets. Argent = argent&eacute;/lavande. Diamant = cyan vif. Impossible de confondre.</div>
+
+<div class="row">
+  <!-- BRONZE -->
+  <div>
+    <div class="card bronze">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">72</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">BRONZE</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:48"/></svg><div class="g-center"><span class="g-val">68</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:39"/></svg><div class="g-center"><span class="g-val">74</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:45"/></svg><div class="g-center"><span class="g-val">70</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:38"/></svg><div class="g-center"><span class="g-val">75</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:44"/></svg><div class="g-center"><span class="g-val">71</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:53"/></svg><div class="g-center"><span class="g-val">65</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">Bronze</div>
+  </div>
+
+  <!-- ARGENT -->
+  <div>
+    <div class="card argent">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="silver-sweep"></div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">78</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">ARGENT</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:36"/></svg><div class="g-center"><span class="g-val">76</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:30"/></svg><div class="g-center"><span class="g-val">80</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:35"/></svg><div class="g-center"><span class="g-val">77</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:27"/></svg><div class="g-center"><span class="g-val">82</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:33"/></svg><div class="g-center"><span class="g-val">78</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:41"/></svg><div class="g-center"><span class="g-val">73</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">Argent</div>
+  </div>
+
+  <!-- PLATINE -->
+  <div>
+    <div class="card platine">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">84</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">PLATINE</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:27"/></svg><div class="g-center"><span class="g-val">82</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:21"/></svg><div class="g-center"><span class="g-val">86</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:26"/></svg><div class="g-center"><span class="g-val">83</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:18"/></svg><div class="g-center"><span class="g-val">88</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:24"/></svg><div class="g-center"><span class="g-val">84</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:30"/></svg><div class="g-center"><span class="g-val">80</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">Platine</div>
+  </div>
+
+  <!-- DIAMANT -->
+  <div>
+    <div class="card diamant">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="hscan"></div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ptw">
+        <div class="pt" style="--x:15%;--d:4s;--dl:0s;background:#00D4FF"></div>
+        <div class="pt" style="--x:40%;--d:5s;--dl:1s;background:#B9F2FF"></div>
+        <div class="pt" style="--x:65%;--d:3.5s;--dl:2s;background:#00D4FF"></div>
+        <div class="pt" style="--x:85%;--d:4.5s;--dl:.5s;background:#B9F2FF"></div>
+      </div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">91</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">DIAMANT</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:15"/></svg><div class="g-center"><span class="g-val">90</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:11"/></svg><div class="g-center"><span class="g-val">93</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:17"/></svg><div class="g-center"><span class="g-val">89</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:9"/></svg><div class="g-center"><span class="g-val">94</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:14"/></svg><div class="g-center"><span class="g-val">91</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:18"/></svg><div class="g-center"><span class="g-val">88</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">Diamant</div>
+  </div>
+
+  <!-- LEGENDE -->
+  <div>
+    <div class="card legende">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="hscan"></div><div class="rbow"></div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ptw">
+        <div class="pt" style="--x:8%;--d:4s;--dl:0s;background:#FFD700"></div>
+        <div class="pt" style="--x:22%;--d:5s;--dl:1s;background:#FFE44D"></div>
+        <div class="pt" style="--x:38%;--d:3.5s;--dl:.5s;background:#FFC000"></div>
+        <div class="pt" style="--x:55%;--d:4.5s;--dl:2s;background:#FFD700"></div>
+        <div class="pt" style="--x:72%;--d:5.5s;--dl:.8s;background:#FFAA00"></div>
+        <div class="pt" style="--x:88%;--d:4s;--dl:1.5s;background:#FFE44D"></div>
+      </div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">96</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">LEGENDE</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:8"/></svg><div class="g-center"><span class="g-val">95</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:5"/></svg><div class="g-center"><span class="g-val">97</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:9"/></svg><div class="g-center"><span class="g-val">94</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:3"/></svg><div class="g-center"><span class="g-val">98</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:6"/></svg><div class="g-center"><span class="g-val">96</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:11"/></svg><div class="g-center"><span class="g-val">93</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">L&eacute;gende</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- ═══════════════════════════
+     3 CARTES SPÉCIALES
+     ═══════════════════════════ -->
+<div class="stitle">Cartes Sp&eacute;ciales</div>
+<div class="sdesc">Ces cartes remplacent temporairement le design du tier quand un joueur les obtient.<br>Chacune a son identit&eacute; visuelle unique.</div>
+
+<div class="row">
+  <!-- ÉCHAPPÉE (TOTW) -->
+  <div>
+    <div class="card echappee">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="hscan"></div>
+      <div class="gold-sweep"></div>
+      <div class="sp-pill">ÉCHAPPÉE</div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ptw">
+        <div class="pt" style="--x:10%;--d:4s;--dl:0s;background:#FFD700"></div>
+        <div class="pt" style="--x:25%;--d:5s;--dl:1s;background:#FFC000"></div>
+        <div class="pt" style="--x:42%;--d:3.5s;--dl:.5s;background:#FFE44D"></div>
+        <div class="pt" style="--x:58%;--d:4.5s;--dl:2s;background:#FFAA00"></div>
+        <div class="pt" style="--x:75%;--d:5.5s;--dl:.8s;background:#FFD700"></div>
+        <div class="pt" style="--x:90%;--d:4s;--dl:1.5s;background:#FFE44D"></div>
+      </div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">84</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">ÉCHAPPÉE · PLATINE</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:27"/></svg><div class="g-center"><span class="g-val">82</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:21"/></svg><div class="g-center"><span class="g-val">86</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:26"/></svg><div class="g-center"><span class="g-val">83</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:18"/></svg><div class="g-center"><span class="g-val">88</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:24"/></svg><div class="g-center"><span class="g-val">84</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:30"/></svg><div class="g-center"><span class="g-val">80</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">L'&Eacute;chapp&eacute;e (TOTW)</div>
+  </div>
+
+  <!-- IN-FORM -->
+  <div>
+    <div class="card inform">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="fire-glow"></div>
+      <div class="sp-pill">IN FORM</div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ptw">
+        <div class="pt" style="--x:12%;--d:3.5s;--dl:0s;background:#FF6B35"></div>
+        <div class="pt" style="--x:30%;--d:4s;--dl:.8s;background:#FF4500"></div>
+        <div class="pt" style="--x:50%;--d:4.5s;--dl:1.5s;background:#FF8C00"></div>
+        <div class="pt" style="--x:70%;--d:3s;--dl:.3s;background:#FFD700"></div>
+        <div class="pt" style="--x:88%;--d:5s;--dl:2s;background:#FF6B35"></div>
+      </div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">87</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">IN FORM · PLATINE</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:21"/></svg><div class="g-center"><span class="g-val">86</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:14"/></svg><div class="g-center"><span class="g-val">91</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:24"/></svg><div class="g-center"><span class="g-val">84</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:18"/></svg><div class="g-center"><span class="g-val">88</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:20"/></svg><div class="g-center"><span class="g-val">87</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:24"/></svg><div class="g-center"><span class="g-val">84</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">In-Form</div>
+  </div>
+
+  <!-- LEGEND MOMENT -->
+  <div>
+    <div class="card legendm">
+      <div class="bg"></div><div class="shim"></div><div class="scan"></div>
+      <div class="hscan"></div><div class="rbow"></div>
+      <div class="sp-pill">LÉGENDE</div>
+      <div class="crest"><div class="crest-s"><span class="crest-t">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="ptw">
+        <div class="pt" style="--x:8%;--d:4s;--dl:0s;background:#B9F2FF"></div>
+        <div class="pt" style="--x:20%;--d:5s;--dl:1s;background:#6366F1"></div>
+        <div class="pt" style="--x:35%;--d:3.5s;--dl:.5s;background:#A78BFA"></div>
+        <div class="pt" style="--x:48%;--d:4.5s;--dl:2s;background:#B9F2FF"></div>
+        <div class="pt" style="--x:62%;--d:5.5s;--dl:.8s;background:#818CF8"></div>
+        <div class="pt" style="--x:78%;--d:4s;--dl:1.5s;background:#B9F2FF"></div>
+        <div class="pt" style="--x:92%;--d:3s;--dl:2.5s;background:#6366F1"></div>
+      </div>
+      <div class="ct">
+        <div class="top">
+          <div class="ovr-b"><div class="ovr-v">92</div><div class="ovr-l">OVERALL</div></div>
+          <div class="av-hex"><div class="av-hex-in"><img src="https://dgtzuqphqg23d.cloudfront.net/SBGsOb5mFKh1BRzEN07OqGpMVkeSvPF2IJggbcR7UBk-128x128.jpg" alt="avatar" onerror="this.parentElement.innerHTML='<span style=font-size:24px;font-weight:800;color:var(--acc);font-family:Space_Grotesk>H</span>'"/></div></div>
+          <div class="uname">HugoMNR</div>
+          <div class="cntry"><div class="flag flag-fr"></div><span class="cntry-n">France</span></div>
+          <div class="tier-t">LÉGENDE · DIAMANT</div>
+          <div class="dvd"></div>
+        </div>
+        <div class="gauges">
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:12"/></svg><div class="g-center"><span class="g-val">92</span><span class="g-lbl">PAC</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:8"/></svg><div class="g-center"><span class="g-val">95</span><span class="g-lbl">MON</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:14"/></svg><div class="g-center"><span class="g-val">91</span><span class="g-lbl">VAL</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:6"/></svg><div class="g-center"><span class="g-val">96</span><span class="g-lbl">SPR</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:11"/></svg><div class="g-center"><span class="g-val">93</span><span class="g-lbl">END</span></div></div></div>
+          <div class="g-item elite"><div class="g-wrap"><svg viewBox="0 0 56 56"><circle class="g-bg" cx="28" cy="28" r="24"/><circle class="g-fill" cx="28" cy="28" r="24" style="--off:15"/></svg><div class="g-center"><span class="g-val">90</span><span class="g-lbl">RES</span></div></div></div>
+        </div>
+        <div class="ftr">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="clbl">Legend Moment</div>
+  </div>
+</div>
+
+<div style="text-align:center;color:#475569;font-size:11px;margin:60px auto 20px;padding-top:30px;border-top:1px solid #1E293B;max-width:700px;line-height:1.8">
+  <strong style="color:#94A3B8">Diff&eacute;rences Argent vs Diamant :</strong><br>
+  <b style="color:#A8B4C8">Argent</b> = tons argent-lavande froids, fond violet&eacute;-sombre, glow discret, sweep l&eacute;ger<br>
+  <b style="color:#00D4FF">Diamant</b> = cyan &eacute;lectrique vif, fond bleu-nuit profond, particules flottantes, holo-scan, glow intense<br><br>
+  <strong style="color:#94A3B8">Photo de profil :</strong><br>
+  R&eacute;cup&eacute;r&eacute;e auto depuis Strava/Garmin/Wahoo &agrave; la connexion.<br>
+  Modifiable dans la page Profil (upload custom).<br><br>
+  <span style="color:#334155">Si ce design te va, dis-le et j'impl&eacute;mente tout dans l'app.</span>
+</div>
+
+<div style="height:80px"></div>
+</body>
+</html>

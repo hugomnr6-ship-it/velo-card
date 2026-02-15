@@ -25,7 +25,7 @@ const tierBg: Record<CardTier, string> = {
 export default function RdiBadge({ rdi, tier }: RdiBadgeProps) {
   return (
     <div className="flex flex-col items-center">
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#94A3B8]">
         Difficulté
       </p>
       <div

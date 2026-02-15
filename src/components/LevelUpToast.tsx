@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { CardTier } from "@/types";
+import { TIER_ICONS } from "@/components/icons/VeloIcons";
 
 interface LevelUpToastProps {
   previousTier: CardTier | null;
@@ -18,18 +19,10 @@ const tierLabels: Record<CardTier, string> = {
 
 const tierAccents: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
-};
-
-const tierEmoji: Record<CardTier, string> = {
-  bronze: "\u{1F949}",
-  argent: "\u{1F948}",
-  platine: "\u{1F48E}",
-  diamant: "\u{1F4A0}",
-  legende: "\u{1F451}",
 };
 
 export default function LevelUpToast({ previousTier, currentTier }: LevelUpToastProps) {
@@ -89,7 +82,7 @@ export default function LevelUpToast({ previousTier, currentTier }: LevelUpToast
 
         <div className="flex items-center gap-4">
           {/* Emoji */}
-          <span className="text-3xl">{tierEmoji[currentTier]}</span>
+          <span className="flex items-center">{(() => { const TIcon = TIER_ICONS[currentTier]; return TIcon ? <TIcon size={28} style={{ color: accent }} /> : null; })()}</span>
 
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">

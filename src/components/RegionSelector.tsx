@@ -19,7 +19,7 @@ export default function RegionSelector({
       value={value || ""}
       onChange={(e) => onChange(e.target.value as FrenchRegion)}
       disabled={disabled}
-      className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white focus:border-neutral-500 focus:outline-none disabled:opacity-50"
+      className="rounded-lg border border-white/[0.08] bg-[#111827] px-3 py-2 text-sm text-white focus:border-[#6366F1]/50 focus:outline-none disabled:opacity-50"
     >
       <option value="" disabled>
         Choisis ta région

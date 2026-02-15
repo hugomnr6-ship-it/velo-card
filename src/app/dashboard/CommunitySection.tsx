@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import RegionSelector from "@/components/RegionSelector";
+import { useToast } from "@/contexts/ToastContext";
 import type { FrenchRegion } from "@/types";
 
 export default function CommunitySection() {
+  const { toast } = useToast();
   const [region, setRegion] = useState<FrenchRegion | null>(null);
   const [regionSaving, setRegionSaving] = useState(false);
 
@@ -19,14 +21,19 @@ export default function CommunitySection() {
   }, []);
 
   async function handleRegionChange(newRegion: FrenchRegion) {
+    const previousRegion = region;
     setRegion(newRegion);
     setRegionSaving(true);
     try {
-      await fetch("/api/profile/region", {
+      const res = await fetch("/api/profile/region", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ region: newRegion }),
       });
+      if (!res.ok) throw new Error("Erreur sauvegarde");
+    } catch {
+      setRegion(previousRegion);
+      toast("Impossible de sauvegarder la region", "error");
     } finally {
       setRegionSaving(false);
     }
@@ -35,7 +42,7 @@ export default function CommunitySection() {
   return (
     <section className="mt-8 w-full max-w-2xl">
       {/* Section divider */}
-      <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+      <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
       <h2 className="mb-4 text-center text-lg font-bold tracking-wide text-white">
         Communauté
@@ -43,14 +50,14 @@ export default function CommunitySection() {
 
       {/* Region selector */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-neutral-400">Ma région :</span>
+        <span className="text-sm text-[#94A3B8]">Ma région :</span>
         <RegionSelector
           value={region}
           onChange={handleRegionChange}
           disabled={regionSaving}
         />
         {regionSaving && (
-          <span className="text-xs text-neutral-500">Sauvegarde...</span>
+          <span className="text-xs text-[#94A3B8]">Sauvegarde...</span>
         )}
       </div>
     </section>

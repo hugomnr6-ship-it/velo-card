@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useToast } from "@/contexts/ToastContext";
 
 interface CreateClubFormProps {
   onCreated: () => void;
 }
 
 export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -49,6 +51,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
       setLogoFile(null);
       setLogoPreview(null);
       if (fileRef.current) fileRef.current.value = "";
+      toast("Club cree !", "success");
       onCreated();
     } catch (err: any) {
       setError(err.message);
@@ -58,12 +61,12 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder-neutral-600 focus:border-neutral-500 focus:outline-none";
+    "w-full rounded-lg border border-white/[0.08] bg-[#111827] px-3 py-2 text-sm text-white placeholder-[#475569] focus:border-[#6366F1]/50 focus:outline-none";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-5"
+      className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-5"
     >
       <p className="mb-4 text-sm font-bold tracking-wide text-white">
         Creer un club
@@ -71,7 +74,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
 
       <div className="flex flex-col gap-3">
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">
+          <label className="mb-1 block text-xs text-[#94A3B8]">
             Nom du club *
           </label>
           <input
@@ -86,7 +89,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">
+          <label className="mb-1 block text-xs text-[#94A3B8]">
             Photo du maillot *
           </label>
           <div className="flex items-center gap-3">
@@ -94,7 +97,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
               <img
                 src={logoPreview}
                 alt="Preview"
-                className="h-14 w-14 rounded-full border border-neutral-600 object-cover"
+                className="h-14 w-14 rounded-full border border-white/[0.10] object-cover"
               />
             )}
             <input
@@ -102,7 +105,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="text-sm text-neutral-400 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-700 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-neutral-600"
+              className="text-sm text-[#94A3B8] file:mr-3 file:rounded-lg file:border-0 file:bg-[#22223A] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-[#6366F1]/60"
             />
           </div>
         </div>
@@ -112,7 +115,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+          className="mt-1 rounded-lg bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50"
         >
           {submitting ? "Creation..." : "Creer le club"}
         </button>

@@ -18,7 +18,7 @@ create table user_stats (
   pac             smallint not null default 0,   -- 0-99
   "end"           smallint not null default 0,   -- 0-99 (quoted: reserved word)
   grim            smallint not null default 0,   -- 0-99
-  tier            text not null default 'bronze' check (tier in ('bronze', 'silver', 'gold')),
+  tier            text not null default 'bronze' check (tier in ('bronze', 'argent', 'platine', 'diamant', 'legende')),
   last_synced_at  timestamptz default now()
 );
 
@@ -130,3 +130,73 @@ create index idx_war_contributions_war on war_contributions(war_id);
 alter table wars enable row level security;
 alter table war_towers enable row level security;
 alter table war_contributions enable row level security;
+
+-- ==========================================
+-- Phase: Races
+-- ==========================================
+
+create table races (
+  id                uuid primary key default gen_random_uuid(),
+  creator_id        uuid not null references profiles(id) on delete cascade,
+  name              text not null,
+  date              text not null,
+  location          text not null,
+  description       text,
+  results_published boolean default false,
+  race_time         int default 0,              -- temps du vainqueur en secondes
+  avg_speed         numeric(5,2) default 0,     -- vitesse moyenne en km/h
+  created_at        timestamptz default now()
+);
+
+create table race_entries (
+  id        uuid primary key default gen_random_uuid(),
+  race_id   uuid not null references races(id) on delete cascade,
+  user_id   uuid not null references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  unique (race_id, user_id)
+);
+
+create index idx_races_date on races(date);
+create index idx_race_entries_race on race_entries(race_id);
+create index idx_race_entries_user on race_entries(user_id);
+
+alter table races enable row level security;
+alter table race_entries enable row level security;
+
+-- ==========================================
+-- Phase: Ghost Cards (Growth Hack)
+-- ==========================================
+
+-- 1. GHOST_PROFILES — Profils fantomes pour coureurs non-inscrits
+create table ghost_profiles (
+  id            uuid primary key default gen_random_uuid(),
+  race_id       uuid not null references races(id) on delete cascade,
+  rider_name    text not null,
+  gen_score     smallint not null default 0,
+  tier          text not null default 'bronze' check (tier in ('bronze', 'argent', 'platine', 'diamant', 'legende')),
+  claim_token   text unique not null,
+  claimed_by    uuid references profiles(id) on delete set null,
+  created_at    timestamptz default now()
+);
+
+create index idx_ghost_profiles_race on ghost_profiles(race_id);
+create index idx_ghost_profiles_token on ghost_profiles(claim_token);
+
+-- 3. RACE_RESULTS — Resultats individuels d'une course
+create table race_results (
+  id            uuid primary key default gen_random_uuid(),
+  race_id       uuid not null references races(id) on delete cascade,
+  position      smallint not null,
+  rider_name    text not null,
+  finish_time   int not null,          -- seconds
+  gen_score     smallint not null default 0,
+  ghost_id      uuid references ghost_profiles(id) on delete set null,
+  user_id       uuid references profiles(id) on delete set null,
+  created_at    timestamptz default now()
+);
+
+create index idx_race_results_race on race_results(race_id);
+create index idx_race_results_position on race_results(race_id, position);
+
+alter table ghost_profiles enable row level security;
+alter table race_results enable row level security;

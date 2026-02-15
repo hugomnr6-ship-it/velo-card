@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 2 : Les 5 Niveaux de Cartes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(253,203,110,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(253,203,110,.2)}
+
+.hero{min-height:55vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(253,203,110,.08),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:32px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+section{padding:80px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   ATHLETE CARD COMPONENT
+   ═══════════════════════════════════════ */
+.card-showcase{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:48px;perspective:1200px}
+
+.ath-card{
+  width:260px;height:380px;
+  border-radius:20px;
+  position:relative;
+  overflow:hidden;
+  cursor:default;
+  transition:all .5s cubic-bezier(.4,0,.2,1);
+  transform-style:preserve-3d;
+}
+.ath-card:hover{transform:translateY(-12px) rotateY(5deg) rotateX(2deg);z-index:10}
+
+/* Card inner frame */
+.ath-card-inner{
+  position:absolute;inset:0;
+  border-radius:20px;
+  padding:20px;
+  display:flex;flex-direction:column;
+  z-index:2;
+}
+
+/* Card background layers */
+.ath-card-bg{position:absolute;inset:0;border-radius:20px;z-index:0}
+.ath-card-texture{position:absolute;inset:0;border-radius:20px;z-index:1;opacity:.3}
+.ath-card-glow{position:absolute;inset:-2px;border-radius:22px;z-index:-1}
+.ath-card-particles{position:absolute;inset:0;border-radius:20px;z-index:3;pointer-events:none;overflow:hidden}
+
+/* Card content areas */
+.ath-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.ath-card-ovr{font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:700;line-height:1;letter-spacing:-2px}
+.ath-card-pos{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:4px}
+.ath-card-tier-icon{font-size:28px}
+
+.ath-card-avatar{
+  width:100px;height:100px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;font-weight:700;
+  position:relative;
+}
+.ath-card-avatar::after{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.15);
+}
+
+.ath-card-name{
+  text-align:center;margin-bottom:2px;
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;
+  letter-spacing:-.3px;
+}
+.ath-card-spec{
+  text-align:center;margin-bottom:4px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:1.5px;opacity:.6;
+}
+.ath-card-flag{text-align:center;font-size:16px;margin-bottom:12px}
+
+.ath-card-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:4px;margin-top:auto;
+}
+.ath-stat{
+  text-align:center;padding:6px 2px;
+  border-radius:8px;
+  background:rgba(0,0,0,.25);
+  backdrop-filter:blur(4px);
+}
+.ath-stat-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;line-height:1.2}
+.ath-stat-label{font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;opacity:.5}
+
+/* ═══ TIER: BRONZE ═══ */
+.ath-card.bronze .ath-card-bg{background:linear-gradient(160deg,#2A1F0E 0%,#4A3520 40%,#3D2A15 100%)}
+.ath-card.bronze .ath-card-texture{background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(205,127,50,.03) 10px,rgba(205,127,50,.03) 20px)}
+.ath-card.bronze .ath-card-glow{box-shadow:0 8px 40px rgba(139,105,20,.25)}
+.ath-card.bronze .ath-card-ovr{color:#CD7F32}
+.ath-card.bronze .ath-card-avatar{background:linear-gradient(135deg,rgba(205,127,50,.2),rgba(139,105,20,.3))}
+.ath-card.bronze .ath-card-avatar::after{border-color:rgba(205,127,50,.3)}
+.ath-card.bronze .ath-stat-val{color:#CD7F32}
+.ath-card.bronze::after{content:'';position:absolute;inset:0;border-radius:20px;border:1px solid rgba(205,127,50,.2)}
+
+/* ═══ TIER: ARGENT ═══ */
+.ath-card.silver .ath-card-bg{background:linear-gradient(160deg,#1A1A24 0%,#2A2A3A 40%,#1E1E2E 100%)}
+.ath-card.silver .ath-card-texture{background:repeating-linear-gradient(135deg,transparent,transparent 8px,rgba(192,192,192,.02) 8px,rgba(192,192,192,.02) 16px)}
+.ath-card.silver .ath-card-glow{box-shadow:0 8px 40px rgba(192,192,192,.15)}
+.ath-card.silver .ath-card-ovr{color:#D0D0E0}
+.ath-card.silver .ath-card-avatar{background:linear-gradient(135deg,rgba(192,192,192,.15),rgba(160,160,180,.2))}
+.ath-card.silver .ath-card-avatar::after{border-color:rgba(192,192,192,.3)}
+.ath-card.silver .ath-stat-val{color:#C0C0D0}
+.ath-card.silver::after{content:'';position:absolute;inset:0;border-radius:20px;border:1px solid rgba(192,192,192,.15)}
+
+/* ═══ TIER: PLATINE ═══ */
+.ath-card.platine .ath-card-bg{background:linear-gradient(160deg,#12102A 0%,#1E1840 40%,#2A2050 80%,#1A1535 100%)}
+.ath-card.platine .ath-card-texture{
+  background:
+    repeating-linear-gradient(60deg,transparent,transparent 15px,rgba(108,92,231,.04) 15px,rgba(108,92,231,.04) 16px),
+    repeating-linear-gradient(-60deg,transparent,transparent 15px,rgba(108,92,231,.03) 15px,rgba(108,92,231,.03) 16px);
+}
+.ath-card.platine .ath-card-glow{box-shadow:0 8px 48px rgba(108,92,231,.3),0 0 0 1px rgba(108,92,231,.2)}
+.ath-card.platine .ath-card-ovr{background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ath-card.platine .ath-card-avatar{background:linear-gradient(135deg,rgba(108,92,231,.2),rgba(162,155,254,.15))}
+.ath-card.platine .ath-card-avatar::after{border-color:rgba(108,92,231,.4)}
+.ath-card.platine .ath-stat-val{color:var(--accent-l)}
+.ath-card.platine::after{content:'';position:absolute;inset:0;border-radius:20px;border:1px solid rgba(108,92,231,.3)}
+/* Carbon texture overlay */
+.ath-card.platine .ath-card-texture::before{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:repeating-conic-gradient(rgba(108,92,231,.02) 0% 25%,transparent 0% 50%) 0 0 / 8px 8px;
+  opacity:.5;
+}
+
+/* ═══ TIER: DIAMANT ═══ */
+.ath-card.diamant .ath-card-bg{background:linear-gradient(160deg,#0A1520 0%,#0E2535 30%,#102A40 60%,#081A28 100%)}
+.ath-card.diamant .ath-card-glow{
+  box-shadow:0 8px 56px rgba(0,245,212,.2),0 0 0 1px rgba(0,245,212,.15);
+  animation:diamantGlow 3s ease-in-out infinite;
+}
+@keyframes diamantGlow{
+  0%,100%{box-shadow:0 8px 56px rgba(0,245,212,.2),0 0 0 1px rgba(0,245,212,.15)}
+  50%{box-shadow:0 12px 72px rgba(0,245,212,.35),0 0 0 1px rgba(0,245,212,.25)}
+}
+.ath-card.diamant .ath-card-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ath-card.diamant .ath-card-avatar{background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(116,185,255,.15))}
+.ath-card.diamant .ath-card-avatar::after{border-color:rgba(0,245,212,.4)}
+.ath-card.diamant .ath-stat-val{color:var(--mint)}
+.ath-card.diamant::after{content:'';position:absolute;inset:0;border-radius:20px;border:1px solid rgba(0,245,212,.2)}
+/* Particles */
+.ath-card.diamant .ath-card-particles{
+  background:
+    radial-gradient(1px 1px at 20% 30%,rgba(0,245,212,.6),transparent),
+    radial-gradient(1px 1px at 70% 20%,rgba(116,185,255,.5),transparent),
+    radial-gradient(1px 1px at 40% 70%,rgba(0,245,212,.4),transparent),
+    radial-gradient(1px 1px at 80% 60%,rgba(116,185,255,.3),transparent),
+    radial-gradient(1px 1px at 15% 85%,rgba(0,245,212,.5),transparent),
+    radial-gradient(1px 1px at 55% 45%,rgba(116,185,255,.4),transparent),
+    radial-gradient(1.5px 1.5px at 90% 10%,rgba(0,245,212,.7),transparent),
+    radial-gradient(1.5px 1.5px at 30% 90%,rgba(116,185,255,.6),transparent);
+  animation:particleFloat 6s ease-in-out infinite;
+}
+@keyframes particleFloat{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  33%{transform:translateY(-3px) rotate(.5deg)}
+  66%{transform:translateY(2px) rotate(-.5deg)}
+}
+/* Holographic scan line */
+.ath-card.diamant .ath-card-texture{
+  background:linear-gradient(180deg,transparent 0%,rgba(0,245,212,.06) 45%,rgba(116,185,255,.08) 50%,rgba(0,245,212,.06) 55%,transparent 100%);
+  background-size:100% 300%;
+  animation:holoScan 4s ease-in-out infinite;
+  opacity:1;
+}
+@keyframes holoScan{
+  0%{background-position:0% 0%}
+  100%{background-position:0% 100%}
+}
+
+/* ═══ TIER: LÉGENDE ═══ */
+.ath-card.legende .ath-card-bg{background:linear-gradient(160deg,#1A1005 0%,#2A1A08 25%,#3A2510 50%,#2A1808 75%,#1A1005 100%)}
+.ath-card.legende .ath-card-glow{
+  box-shadow:0 8px 64px rgba(253,203,110,.3),0 0 0 1px rgba(253,203,110,.25),0 0 120px rgba(255,107,107,.1);
+  animation:legendGlow 4s ease-in-out infinite;
+}
+@keyframes legendGlow{
+  0%,100%{box-shadow:0 8px 64px rgba(253,203,110,.3),0 0 0 1px rgba(253,203,110,.25),0 0 120px rgba(255,107,107,.1)}
+  50%{box-shadow:0 16px 80px rgba(253,203,110,.5),0 0 0 2px rgba(253,203,110,.4),0 0 160px rgba(255,107,107,.2)}
+}
+.ath-card.legende .ath-card-ovr{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ath-card.legende .ath-card-avatar{background:linear-gradient(135deg,rgba(253,203,110,.2),rgba(255,107,107,.15))}
+.ath-card.legende .ath-card-avatar::after{border:2px solid;border-image:linear-gradient(135deg,#FDCB6E,#FF6B6B,#6C5CE7) 1;border-radius:50%}
+.ath-card.legende .ath-stat-val{background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ath-card.legende::after{content:'';position:absolute;inset:0;border-radius:20px;border:2px solid transparent;background:linear-gradient(135deg,rgba(253,203,110,.4),rgba(255,107,107,.3),rgba(108,92,231,.3)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+/* Heavy particles */
+.ath-card.legende .ath-card-particles{
+  background:
+    radial-gradient(2px 2px at 10% 20%,rgba(253,203,110,.8),transparent),
+    radial-gradient(1.5px 1.5px at 25% 45%,rgba(255,107,107,.6),transparent),
+    radial-gradient(2px 2px at 50% 15%,rgba(253,203,110,.7),transparent),
+    radial-gradient(1px 1px at 75% 35%,rgba(108,92,231,.5),transparent),
+    radial-gradient(1.5px 1.5px at 85% 65%,rgba(253,203,110,.6),transparent),
+    radial-gradient(2px 2px at 35% 80%,rgba(255,107,107,.5),transparent),
+    radial-gradient(1px 1px at 60% 55%,rgba(253,203,110,.4),transparent),
+    radial-gradient(2.5px 2.5px at 15% 70%,rgba(253,203,110,.9),transparent),
+    radial-gradient(1.5px 1.5px at 90% 85%,rgba(255,107,107,.7),transparent),
+    radial-gradient(2px 2px at 45% 30%,rgba(108,92,231,.6),transparent),
+    radial-gradient(1px 1px at 70% 75%,rgba(253,203,110,.5),transparent),
+    radial-gradient(3px 3px at 5% 50%,rgba(253,203,110,1),transparent);
+  animation:legendParticles 5s ease-in-out infinite;
+}
+@keyframes legendParticles{
+  0%,100%{transform:translateY(0) rotate(0deg);opacity:.8}
+  25%{transform:translateY(-4px) rotate(.5deg);opacity:1}
+  50%{transform:translateY(-2px) rotate(-.3deg);opacity:.9}
+  75%{transform:translateY(3px) rotate(.2deg);opacity:1}
+}
+/* Holographic rainbow */
+.ath-card.legende .ath-card-texture{
+  background:linear-gradient(135deg,
+    rgba(253,203,110,.08) 0%,
+    rgba(255,107,107,.06) 20%,
+    rgba(108,92,231,.08) 40%,
+    rgba(0,245,212,.06) 60%,
+    rgba(116,185,255,.08) 80%,
+    rgba(253,203,110,.08) 100%
+  );
+  background-size:200% 200%;
+  animation:holoRainbow 6s ease-in-out infinite;
+  opacity:1;
+}
+@keyframes holoRainbow{
+  0%{background-position:0% 0%}
+  50%{background-position:100% 100%}
+  100%{background-position:0% 0%}
+}
+
+/* ═══════════════════════════════════════
+   DETAIL SECTIONS
+   ═══════════════════════════════════════ */
+.tier-detail{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:start;margin-bottom:80px;padding-bottom:80px;border-bottom:1px solid var(--b1)}
+.tier-detail:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.tier-detail.reverse{grid-template-columns:1fr 280px}
+.tier-detail.reverse .tier-card-wrap{order:2}
+
+.tier-card-wrap{display:flex;justify-content:center;perspective:800px;position:sticky;top:120px}
+
+.tier-specs{}
+.tier-spec-title{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px}
+.tier-spec-range{font-family:'JetBrains Mono',monospace;font-size:13px;margin-bottom:16px}
+.tier-spec-desc{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:20px}
+
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.spec-item{padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--r)}
+.spec-item-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.spec-item-value{font-size:13px;font-weight:600}
+.spec-item-desc{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* NEXT STEPS */
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .card-showcase{gap:20px}
+  .ath-card{width:220px;height:320px}
+  .ath-card-ovr{font-size:40px!important}
+  .ath-card-avatar{width:80px;height:80px;font-size:32px}
+  .ath-stat-val{font-size:16px!important}
+  .tier-detail,.tier-detail.reverse{grid-template-columns:1fr;gap:24px}
+  .tier-card-wrap{position:relative;top:0}
+  .tier-detail.reverse .tier-card-wrap{order:0}
+  .spec-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 02 / 04</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🃏 Maquettes Visuelles — 5 Niveaux de Cartes</div>
+    <h1>Du Bronze<br>au <span class="gt">Légendaire</span></h1>
+    <p class="hero-sub">5 niveaux de cartes avec des effets visuels croissants. Chaque tier a son identité unique : texture, glow, particules, et holographie. Le design est conçu pour être "Instagrammable" dès le Bronze.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     ALL 5 CARDS — SHOWCASE
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Vue d'ensemble</div>
+    <h2 class="s-title reveal">Les 5 Tiers en un Coup d'Œil</h2>
+    <p class="s-desc reveal">Chaque carte devient progressivement plus spectaculaire. Les effets visuels sont le principal signal de statut — on veut que chaque cycliste rêve de la carte suivante.</p>
+
+    <div class="card-showcase">
+
+      <!-- BRONZE -->
+      <div class="ath-card bronze reveal">
+        <div class="ath-card-bg"></div>
+        <div class="ath-card-texture"></div>
+        <div class="ath-card-glow"></div>
+        <div class="ath-card-inner">
+          <div class="ath-card-top">
+            <div><div class="ath-card-ovr">42</div><div class="ath-card-pos">Loisir</div></div>
+            <div class="ath-card-tier-icon">🥉</div>
+          </div>
+          <div class="ath-card-avatar" style="color:rgba(205,127,50,.6)">L</div>
+          <div class="ath-card-name">Lucas Petit</div>
+          <div class="ath-card-spec">Endurant</div>
+          <div class="ath-card-flag">🇫🇷</div>
+          <div class="ath-card-stats">
+            <div class="ath-stat"><div class="ath-stat-val">38</div><div class="ath-stat-label">PLA</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">35</div><div class="ath-stat-label">MON</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">40</div><div class="ath-stat-label">VAL</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">45</div><div class="ath-stat-label">SPR</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">52</div><div class="ath-stat-label">END</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">—</div><div class="ath-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SILVER -->
+      <div class="ath-card silver reveal">
+        <div class="ath-card-bg"></div>
+        <div class="ath-card-texture"></div>
+        <div class="ath-card-glow"></div>
+        <div class="ath-card-inner">
+          <div class="ath-card-top">
+            <div><div class="ath-card-ovr">58</div><div class="ath-card-pos">Confirmé</div></div>
+            <div class="ath-card-tier-icon">🥈</div>
+          </div>
+          <div class="ath-card-avatar" style="color:rgba(192,192,192,.5)">M</div>
+          <div class="ath-card-name">Marie Dubois</div>
+          <div class="ath-card-spec">Rouleuse</div>
+          <div class="ath-card-flag">🇧🇪</div>
+          <div class="ath-card-stats">
+            <div class="ath-stat"><div class="ath-stat-val">65</div><div class="ath-stat-label">PLA</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">50</div><div class="ath-stat-label">MON</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">55</div><div class="ath-stat-label">VAL</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">48</div><div class="ath-stat-label">SPR</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">62</div><div class="ath-stat-label">END</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">30</div><div class="ath-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATINE -->
+      <div class="ath-card platine reveal">
+        <div class="ath-card-bg"></div>
+        <div class="ath-card-texture"></div>
+        <div class="ath-card-glow"></div>
+        <div class="ath-card-inner">
+          <div class="ath-card-top">
+            <div><div class="ath-card-ovr">76</div><div class="ath-card-pos">Expert</div></div>
+            <div class="ath-card-tier-icon">💎</div>
+          </div>
+          <div class="ath-card-avatar" style="color:rgba(162,155,254,.5)">H</div>
+          <div class="ath-card-name">Hugo Martin</div>
+          <div class="ath-card-spec">Grimpeur</div>
+          <div class="ath-card-flag">🇫🇷</div>
+          <div class="ath-card-stats">
+            <div class="ath-stat"><div class="ath-stat-val">78</div><div class="ath-stat-label">PLA</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">85</div><div class="ath-stat-label">MON</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">72</div><div class="ath-stat-label">VAL</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">65</div><div class="ath-stat-label">SPR</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">END</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">70</div><div class="ath-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIAMANT -->
+      <div class="ath-card diamant reveal">
+        <div class="ath-card-bg"></div>
+        <div class="ath-card-texture"></div>
+        <div class="ath-card-particles"></div>
+        <div class="ath-card-glow"></div>
+        <div class="ath-card-inner">
+          <div class="ath-card-top">
+            <div><div class="ath-card-ovr">86</div><div class="ath-card-pos">Élite</div></div>
+            <div class="ath-card-tier-icon">🔮</div>
+          </div>
+          <div class="ath-card-avatar" style="color:rgba(0,245,212,.4)">T</div>
+          <div class="ath-card-name">Thomas Leclerc</div>
+          <div class="ath-card-spec">Complet</div>
+          <div class="ath-card-flag">🇨🇭</div>
+          <div class="ath-card-stats">
+            <div class="ath-stat"><div class="ath-stat-val">84</div><div class="ath-stat-label">PLA</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">88</div><div class="ath-stat-label">MON</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">VAL</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">78</div><div class="ath-stat-label">SPR</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">86</div><div class="ath-stat-label">END</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">85</div><div class="ath-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LÉGENDE -->
+      <div class="ath-card legende reveal">
+        <div class="ath-card-bg"></div>
+        <div class="ath-card-texture"></div>
+        <div class="ath-card-particles"></div>
+        <div class="ath-card-glow"></div>
+        <div class="ath-card-inner">
+          <div class="ath-card-top">
+            <div><div class="ath-card-ovr">94</div><div class="ath-card-pos">Pro</div></div>
+            <div class="ath-card-tier-icon">👑</div>
+          </div>
+          <div class="ath-card-avatar" style="color:rgba(253,203,110,.4)">A</div>
+          <div class="ath-card-name">Alex Moreau</div>
+          <div class="ath-card-spec">Grimpeur</div>
+          <div class="ath-card-flag">🇫🇷</div>
+          <div class="ath-card-stats">
+            <div class="ath-stat"><div class="ath-stat-val">90</div><div class="ath-stat-label">PLA</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">96</div><div class="ath-stat-label">MON</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">88</div><div class="ath-stat-label">VAL</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">SPR</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">92</div><div class="ath-stat-label">END</div></div>
+            <div class="ath-stat"><div class="ath-stat-val">95</div><div class="ath-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     DETAIL PAR TIER
+     ═══════════════════════════════════════ -->
+<section style="background:linear-gradient(180deg,rgba(108,92,231,.03),transparent)">
+  <div class="container">
+    <div class="s-label reveal">Spécifications par Tier</div>
+    <h2 class="s-title reveal">Détails Techniques & Visuels</h2>
+    <p class="s-desc reveal">Chaque tier est conçu pour être visuellement distinct en moins de 0.5 seconde. L'escalade visuelle crée une aspiration constante vers le tier suivant.</p>
+
+    <!-- BRONZE DETAIL -->
+    <div class="tier-detail reveal">
+      <div class="tier-card-wrap">
+        <div class="ath-card bronze" style="transform:none">
+          <div class="ath-card-bg"></div><div class="ath-card-texture"></div><div class="ath-card-glow"></div>
+          <div class="ath-card-inner">
+            <div class="ath-card-top"><div><div class="ath-card-ovr">42</div><div class="ath-card-pos">Loisir</div></div><div class="ath-card-tier-icon">🥉</div></div>
+            <div class="ath-card-avatar" style="color:rgba(205,127,50,.6)">L</div>
+            <div class="ath-card-name">Lucas Petit</div><div class="ath-card-spec">Endurant</div><div class="ath-card-flag">🇫🇷</div>
+            <div class="ath-card-stats"><div class="ath-stat"><div class="ath-stat-val">38</div><div class="ath-stat-label">PLA</div></div><div class="ath-stat"><div class="ath-stat-val">35</div><div class="ath-stat-label">MON</div></div><div class="ath-stat"><div class="ath-stat-val">40</div><div class="ath-stat-label">VAL</div></div><div class="ath-stat"><div class="ath-stat-val">45</div><div class="ath-stat-label">SPR</div></div><div class="ath-stat"><div class="ath-stat-val">52</div><div class="ath-stat-label">END</div></div><div class="ath-stat"><div class="ath-stat-val">—</div><div class="ath-stat-label">RES</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tier-specs">
+        <div class="tier-spec-title" style="color:#CD7F32">🥉 Bronze</div>
+        <div class="tier-spec-range" style="color:#CD7F32">OVR 1 — 49 · ~30% des utilisateurs</div>
+        <div class="tier-spec-desc">La carte de départ de chaque cycliste. Sobre mais propre. Le design doit donner envie de progresser sans décourager. L'absence de RES (tiret) signale que l'utilisateur n'a pas encore de résultats en course.</div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Background</div><div class="spec-item-value">Gradient brun foncé</div><div class="spec-item-desc">Tons terre, chauds mais contenus</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Texture</div><div class="spec-item-value">Lignes diagonales subtiles</div><div class="spec-item-desc">Repeating 45°, bronze 3% opacity</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Glow</div><div class="spec-item-value">Ombre douce</div><div class="spec-item-desc">Box-shadow 40px, opacity 25%</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Bordure</div><div class="spec-item-value">1px bronze 20%</div><div class="spec-item-desc">Fine et discrète</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Animation</div><div class="spec-item-value">Aucune</div><div class="spec-item-desc">Statique, comme FUT < 80</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#CD7F32">Émotion</div><div class="spec-item-value">"Je commence"</div><div class="spec-item-desc">Dignité du débutant, envie de monter</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARGENT DETAIL -->
+    <div class="tier-detail reverse reveal">
+      <div class="tier-specs">
+        <div class="tier-spec-title" style="color:#C0C0D0">🥈 Argent</div>
+        <div class="tier-spec-range" style="color:#C0C0D0">OVR 50 — 64 · ~35% des utilisateurs</div>
+        <div class="tier-spec-desc">Le tier du cycliste régulier qui s'entraîne sérieusement. Un upgrade visuel notable : la palette passe au gris-bleu métallisé. Les stats commencent à être respectables et le RES apparaît si l'utilisateur a participé à des courses.</div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Background</div><div class="spec-item-value">Gradient gris-bleu profond</div><div class="spec-item-desc">Plus froid et métallique que le Bronze</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Texture</div><div class="spec-item-value">Hachures croisées fines</div><div class="spec-item-desc">Métal brossé simulé, 135° silver 2%</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Glow</div><div class="spec-item-value">Lueur argentée</div><div class="spec-item-desc">Box-shadow 40px, silver 15%</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Bordure</div><div class="spec-item-value">1px silver 15%</div><div class="spec-item-desc">Froide et nette</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Animation</div><div class="spec-item-value">Aucune</div><div class="spec-item-desc">Statique, upgrade tonal seulement</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:#C0C0D0">Émotion</div><div class="spec-item-value">"Je progresse"</div><div class="spec-item-desc">Fierté mesurée, constance</div></div>
+        </div>
+      </div>
+      <div class="tier-card-wrap">
+        <div class="ath-card silver" style="transform:none">
+          <div class="ath-card-bg"></div><div class="ath-card-texture"></div><div class="ath-card-glow"></div>
+          <div class="ath-card-inner">
+            <div class="ath-card-top"><div><div class="ath-card-ovr">58</div><div class="ath-card-pos">Confirmé</div></div><div class="ath-card-tier-icon">🥈</div></div>
+            <div class="ath-card-avatar" style="color:rgba(192,192,192,.5)">M</div>
+            <div class="ath-card-name">Marie Dubois</div><div class="ath-card-spec">Rouleuse</div><div class="ath-card-flag">🇧🇪</div>
+            <div class="ath-card-stats"><div class="ath-stat"><div class="ath-stat-val">65</div><div class="ath-stat-label">PLA</div></div><div class="ath-stat"><div class="ath-stat-val">50</div><div class="ath-stat-label">MON</div></div><div class="ath-stat"><div class="ath-stat-val">55</div><div class="ath-stat-label">VAL</div></div><div class="ath-stat"><div class="ath-stat-val">48</div><div class="ath-stat-label">SPR</div></div><div class="ath-stat"><div class="ath-stat-val">62</div><div class="ath-stat-label">END</div></div><div class="ath-stat"><div class="ath-stat-val">30</div><div class="ath-stat-label">RES</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATINE DETAIL -->
+    <div class="tier-detail reveal">
+      <div class="tier-card-wrap">
+        <div class="ath-card platine" style="transform:none">
+          <div class="ath-card-bg"></div><div class="ath-card-texture"></div><div class="ath-card-glow"></div>
+          <div class="ath-card-inner">
+            <div class="ath-card-top"><div><div class="ath-card-ovr">76</div><div class="ath-card-pos">Expert</div></div><div class="ath-card-tier-icon">💎</div></div>
+            <div class="ath-card-avatar" style="color:rgba(162,155,254,.5)">H</div>
+            <div class="ath-card-name">Hugo Martin</div><div class="ath-card-spec">Grimpeur</div><div class="ath-card-flag">🇫🇷</div>
+            <div class="ath-card-stats"><div class="ath-stat"><div class="ath-stat-val">78</div><div class="ath-stat-label">PLA</div></div><div class="ath-stat"><div class="ath-stat-val">85</div><div class="ath-stat-label">MON</div></div><div class="ath-stat"><div class="ath-stat-val">72</div><div class="ath-stat-label">VAL</div></div><div class="ath-stat"><div class="ath-stat-val">65</div><div class="ath-stat-label">SPR</div></div><div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">END</div></div><div class="ath-stat"><div class="ath-stat-val">70</div><div class="ath-stat-label">RES</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tier-specs">
+        <div class="tier-spec-title" style="color:var(--accent-l)">💎 Platine</div>
+        <div class="tier-spec-range" style="color:var(--accent-l)">OVR 65 — 79 · ~25% des utilisateurs</div>
+        <div class="tier-spec-desc">Le premier "vrai" tier premium. Entrée dans la couleur signature VeloCard (violet). La texture carbone apparaît en overlay. Le glow devient plus prononcé. C'est la carte qui fait dire "j'ai la classe". Équivalent du "Boards" FUT (81-85).</div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Background</div><div class="spec-item-value">Gradient violet profond</div><div class="spec-item-desc">Identité VeloCard, dark purple layered</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Texture</div><div class="spec-item-value">Carbone hexagonal</div><div class="spec-item-desc">Conic-gradient 8px, violet 2% + hachures croisées 60°</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Glow</div><div class="spec-item-value">Lueur violette</div><div class="spec-item-desc">Box-shadow 48px violet 30% + ring 1px 20%</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Bordure</div><div class="spec-item-value">1px violet 30%</div><div class="spec-item-desc">Nette, affirmée, identitaire</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Animation</div><div class="spec-item-value">Aucune (statique)</div><div class="spec-item-desc">Le glow suffit à marquer le tier</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--accent-l)">Émotion</div><div class="spec-item-value">"Je suis bon"</div><div class="spec-item-desc">Fierté, crédibilité, ambition affichée</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAMANT DETAIL -->
+    <div class="tier-detail reverse reveal">
+      <div class="tier-specs">
+        <div class="tier-spec-title" style="color:var(--mint)">🔮 Diamant</div>
+        <div class="tier-spec-range" style="color:var(--mint)">OVR 80 — 89 · ~8% des utilisateurs</div>
+        <div class="tier-spec-desc">Le tier d'élite. Première apparition des effets animés : particules flottantes (mint/sky) et scan holographique. La carte vit, elle bouge, elle brille. Équivalent du "Walkout" FUT (86+). Le glow pulse. C'est la carte qu'on screenshote.</div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Background</div><div class="spec-item-value">Gradient bleu-pétrole profond</div><div class="spec-item-desc">Froid, technique, spatial</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Texture</div><div class="spec-item-value">Scan holographique</div><div class="spec-item-desc">Gradient vertical animé (4s loop), bande mint/sky qui traverse la carte</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Glow</div><div class="spec-item-value">Pulsation mint</div><div class="spec-item-desc">Box-shadow animé 3s (56→72px), amplitude doublée vs. Platine</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Particules</div><div class="spec-item-value">8 points lumineux</div><div class="spec-item-desc">Radial-gradient mint/sky, float 6s infinite, shimmer doux</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Bordure</div><div class="spec-item-value">1px mint 20%</div><div class="spec-item-desc">Froide et cristalline</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--mint)">Émotion</div><div class="spec-item-value">"Je suis un athlète"</div><div class="spec-item-desc">Respect, admiration, intimidation saine</div></div>
+        </div>
+      </div>
+      <div class="tier-card-wrap">
+        <div class="ath-card diamant" style="transform:none">
+          <div class="ath-card-bg"></div><div class="ath-card-texture"></div><div class="ath-card-particles"></div><div class="ath-card-glow"></div>
+          <div class="ath-card-inner">
+            <div class="ath-card-top"><div><div class="ath-card-ovr">86</div><div class="ath-card-pos">Élite</div></div><div class="ath-card-tier-icon">🔮</div></div>
+            <div class="ath-card-avatar" style="color:rgba(0,245,212,.4)">T</div>
+            <div class="ath-card-name">Thomas Leclerc</div><div class="ath-card-spec">Complet</div><div class="ath-card-flag">🇨🇭</div>
+            <div class="ath-card-stats"><div class="ath-stat"><div class="ath-stat-val">84</div><div class="ath-stat-label">PLA</div></div><div class="ath-stat"><div class="ath-stat-val">88</div><div class="ath-stat-label">MON</div></div><div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">VAL</div></div><div class="ath-stat"><div class="ath-stat-val">78</div><div class="ath-stat-label">SPR</div></div><div class="ath-stat"><div class="ath-stat-val">86</div><div class="ath-stat-label">END</div></div><div class="ath-stat"><div class="ath-stat-val">85</div><div class="ath-stat-label">RES</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LÉGENDE DETAIL -->
+    <div class="tier-detail reveal">
+      <div class="tier-card-wrap">
+        <div class="ath-card legende" style="transform:none">
+          <div class="ath-card-bg"></div><div class="ath-card-texture"></div><div class="ath-card-particles"></div><div class="ath-card-glow"></div>
+          <div class="ath-card-inner">
+            <div class="ath-card-top"><div><div class="ath-card-ovr">94</div><div class="ath-card-pos">Pro</div></div><div class="ath-card-tier-icon">👑</div></div>
+            <div class="ath-card-avatar" style="color:rgba(253,203,110,.4)">A</div>
+            <div class="ath-card-name">Alex Moreau</div><div class="ath-card-spec">Grimpeur</div><div class="ath-card-flag">🇫🇷</div>
+            <div class="ath-card-stats"><div class="ath-stat"><div class="ath-stat-val">90</div><div class="ath-stat-label">PLA</div></div><div class="ath-stat"><div class="ath-stat-val">96</div><div class="ath-stat-label">MON</div></div><div class="ath-stat"><div class="ath-stat-val">88</div><div class="ath-stat-label">VAL</div></div><div class="ath-stat"><div class="ath-stat-val">82</div><div class="ath-stat-label">SPR</div></div><div class="ath-stat"><div class="ath-stat-val">92</div><div class="ath-stat-label">END</div></div><div class="ath-stat"><div class="ath-stat-val">95</div><div class="ath-stat-label">RES</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tier-specs">
+        <div class="tier-spec-title"><span style="background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent">👑 Légende</span></div>
+        <div class="tier-spec-range" style="color:var(--gold)">OVR 90 — 99 · ~2% des utilisateurs</div>
+        <div class="tier-spec-desc">Le Graal. La carte ultime, réservée aux compétiteurs d'élite avec des résultats en courses. Effets visuels maximum : bordure rainbow animée, particules denses tri-couleur (gold/coral/violet), holographie arc-en-ciel fluide, glow pulsant massif. C'est la carte que tout le monde veut avoir — et que tout le monde screenshote quand elle apparaît dans un classement.</div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Background</div><div class="spec-item-value">Gradient or-sombre profond</div><div class="spec-item-desc">Tons royaux, chaleur dorée noble</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Texture</div><div class="spec-item-value">Holographie arc-en-ciel</div><div class="spec-item-desc">6 couleurs animées (6s loop), background-size 200% mouvant</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Glow</div><div class="spec-item-value">Triple glow pulsant</div><div class="spec-item-desc">Gold 64px + coral 120px ambient + pulse 4s (amplitude ×2)</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Particules</div><div class="spec-item-value">12 points tri-couleur</div><div class="spec-item-desc">Gold/coral/violet, 5s float, plus gros (3px) et plus lumineux</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Bordure</div><div class="spec-item-value">2px gradient rainbow</div><div class="spec-item-desc">Gold→coral→violet, mask-composite, la plus épaisse</div></div>
+          <div class="spec-item"><div class="spec-item-label" style="color:var(--gold)">Émotion</div><div class="spec-item-value">"Je suis une légende"</div><div class="spec-item-desc">Prestige absolu, rareté, intimidation</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     ESCALADE VISUELLE — RÉSUMÉ
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Résumé de l'escalade visuelle</div>
+    <h2 class="s-title reveal">Progression des Effets par Tier</h2>
+
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;overflow-x:auto" class="reveal">
+      <table style="width:100%;border-collapse:collapse;min-width:700px">
+        <tr>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);text-align:left;padding:12px;border-bottom:2px solid var(--b2)">Effet</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#CD7F32;text-align:center;padding:12px;border-bottom:2px solid var(--b2)">Bronze</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#C0C0D0;text-align:center;padding:12px;border-bottom:2px solid var(--b2)">Argent</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent-l);text-align:center;padding:12px;border-bottom:2px solid var(--b2)">Platine</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--mint);text-align:center;padding:12px;border-bottom:2px solid var(--b2)">Diamant</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);text-align:center;padding:12px;border-bottom:2px solid var(--b2)">Légende</th>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;font-weight:500">Gradient BG</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Brun</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Gris-bleu</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Violet</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Bleu pétrole</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Or royal</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;font-weight:500">Texture</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Diagonales</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Brossé</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">Carbone</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--mint)">Holo scan ✦</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--gold)">Holo rainbow ✦</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;font-weight:500">Glow</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">25%</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">15%</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">30%</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--mint)">Pulsant ✦</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--gold)">Triple puls. ✦</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;font-weight:500">Particules</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t3)">—</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t3)">—</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t3)">—</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--mint)">8 pts mint ✦</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--gold)">12 pts tri-col ✦</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;font-weight:500">Bordure</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">1px</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">1px</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">1px accent</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--t2)">1px mint</td>
+          <td style="padding:10px;border-bottom:1px solid var(--b1);text-align:center;font-size:12px;color:var(--gold)">2px rainbow ✦</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;font-size:13px;font-weight:500">Hover 3D</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--t2)">Léger</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--t2)">Léger</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--t2)">Moyen</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--mint)">Fort</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--gold)">Maximum</td>
+        </tr>
+      </table>
+      <div style="margin-top:12px;font-size:11px;color:var(--t3)">✦ = effet animé (CSS animation ou Lottie en production)</div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section class="next-section">
+  <div class="container">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:24px" class="reveal">Étape 2 complète — En attente de validation</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:16px" class="reveal">Prochaine étape</h2>
+    <p style="font-size:16px;color:var(--t2);max-width:520px;margin:0 auto 32px" class="reveal">
+      Valide les cartes visuelles pour que je passe à l'Étape 3 :
+      le format Story Instagram et l'intégration dans les écrans existants.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:900px;margin:0 auto" class="reveal">
+      <div style="background:var(--bg-card);border:1px solid rgba(253,203,110,.3);border-radius:var(--rl);padding:20px;text-align:left;opacity:.6">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:6px">Étape 01 ✓</div>
+        <div style="font-weight:600;font-size:14px">Recherche & Logique</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(253,203,110,.3);border-radius:var(--rl);padding:20px;text-align:left;opacity:.6">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:6px">Étape 02 ✓</div>
+        <div style="font-weight:600;font-size:14px">5 Cartes Visuelles</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--rl);padding:20px;text-align:left">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:6px">Étape 03 →</div>
+        <div style="font-weight:600;font-size:14px">Story + Intégration</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:20px;text-align:left">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px">Étape 04</div>
+        <div style="font-weight:600;font-size:14px">Vérification</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer"><div class="container"><p>VeloCard FUT — Étape 2 : Maquettes Visuelles des 5 Cartes · Confidentiel · Février 2026</p></div></div>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
+const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

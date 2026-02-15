@@ -10,7 +10,7 @@ interface RouteSummaryPanelProps {
 const tierValueColors: Record<CardTier, string> = {
   bronze: "text-amber-400",
   argent: "text-slate-200",
-  platine: "text-[#A8D8EA]",
+  platine: "text-[#E0E8F0]",
   diamant: "text-[#B9F2FF]",
   legende: "text-yellow-300",
 };
@@ -33,10 +33,10 @@ export default function RouteSummaryPanel({
       {stats.map((s) => (
         <div
           key={s.label}
-          className="rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-3 text-center"
+          className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3 text-center"
         >
           <p className={`text-lg font-bold ${valueColor}`}>{s.value}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-neutral-500">
+          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-[#94A3B8]">
             {s.label}
           </p>
         </div>

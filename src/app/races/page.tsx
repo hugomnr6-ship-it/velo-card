@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CreateRaceForm from "@/components/CreateRaceForm";
 import RaceCard from "@/components/RaceCard";
+import AnimatedPage from "@/components/AnimatedPage";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
+import { RacesSkeleton } from "@/components/Skeleton";
+import Skeleton from "@/components/Skeleton";
+import { FlagIcon } from "@/components/icons/TabIcons";
 import type { RaceWithCreator } from "@/types";
 
 export default function RacesPage() {
@@ -36,45 +43,47 @@ export default function RacesPage() {
 
   if (status === "loading" || !session) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-neutral-400">Chargement...</p>
+      <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
+        <RacesSkeleton />
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
+    <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
       <div className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-white">Courses</h1>
-        </div>
+        <PageHeader icon={<FlagIcon size={28} />} title="Courses" subtitle="Organise et participe" />
 
-        {/* Create form */}
         <CreateRaceForm onCreated={fetchRaces} />
 
-        {/* Divider */}
-        <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-        {/* Race list */}
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
-          Courses à venir
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-[#94A3B8]">
+          Courses a venir
         </h2>
 
         {loading ? (
-          <p className="text-sm text-neutral-400">Chargement...</p>
-        ) : races.length === 0 ? (
-          <p className="text-sm text-neutral-500">
-            Aucune course à venir. Crée la première !
-          </p>
-        ) : (
           <div className="flex flex-col gap-3">
-            {races.map((race) => (
-              <RaceCard key={race.id} race={race} />
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} className="h-20 w-full rounded-xl" />
             ))}
           </div>
+        ) : races.length === 0 ? (
+          <EmptyState
+            icon={<FlagIcon size={48} />}
+            title="Aucune course"
+            description="Aucune course a venir. Cree la premiere !"
+          />
+        ) : (
+          <AnimatedList className="flex flex-col gap-3">
+            {races.map((race) => (
+              <AnimatedListItem key={race.id}>
+                <RaceCard race={race} />
+              </AnimatedListItem>
+            ))}
+          </AnimatedList>
         )}
       </div>
-    </main>
+    </AnimatedPage>
   );
 }

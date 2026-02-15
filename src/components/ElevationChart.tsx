@@ -19,7 +19,7 @@ interface ElevationChartProps {
 const tierColors: Record<CardTier, { stroke: string; fill: string }> = {
   bronze: { stroke: "#f59e0b", fill: "rgba(217,119,6,0.2)" },
   argent: { stroke: "#94a3b8", fill: "rgba(148,163,184,0.2)" },
-  platine: { stroke: "#A8D8EA", fill: "rgba(168,216,234,0.2)" },
+  platine: { stroke: "#E0E8F0", fill: "rgba(224,232,240,0.2)" },
   diamant: { stroke: "#B9F2FF", fill: "rgba(185,242,255,0.2)" },
   legende: { stroke: "#facc15", fill: "rgba(250,204,21,0.2)" },
 };
@@ -44,8 +44,8 @@ export default function ElevationChart({ points, tier }: ElevationChartProps) {
   }));
 
   return (
-    <div className="rounded-xl border border-neutral-700/50 bg-neutral-900/50 p-4">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-500">
+    <div className="rounded-xl border border-white/[0.06] bg-[#111827]/50 p-4">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">
         Profil d&apos;altitude
       </p>
       <ResponsiveContainer width="100%" height={220}>

@@ -15,8 +15,8 @@ interface StoryCanvasProps {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
 };
@@ -100,7 +100,7 @@ export default function StoryCanvas({
       <div className="absolute bottom-[200px] left-0 right-0 flex justify-center gap-16">
         {[
           { label: "OVR", value: stats.ovr.toString() },
-          { label: "PAC", value: stats.pac.toString() },
+          { label: "VIT", value: stats.pac.toString() },
           { label: "MON", value: stats.mon.toString() },
         ].map((s) => (
           <div key={s.label} className="text-center">

@@ -23,14 +23,14 @@ export default async function CardPage({
 
   if (!profile) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0A0A12] p-4">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0B1120] p-4">
         <p className="text-lg font-bold text-white">Profil introuvable</p>
-        <p className="text-sm text-[#A0A0B8]">
+        <p className="text-sm text-[#94A3B8]">
           Ce cycliste n&apos;existe pas ou n&apos;a pas encore synchronisé ses données.
         </p>
         <Link
           href="/"
-          className="mt-4 rounded-full bg-[#6C5CE7] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#5A4BD6]"
+          className="mt-4 rounded-full bg-[#6366F1] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#5557E0]"
         >
           Crée ta carte
         </Link>
@@ -80,7 +80,7 @@ export default async function CardPage({
   const badges: Badge[] = [];
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A12] px-4 py-12">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0B1120] px-4 py-12">
       {/* Radial glow */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -101,7 +101,7 @@ export default async function CardPage({
         />
       </div>
 
-      <p className="relative z-10 mt-6 text-center text-xs text-[#5A5A72]">
+      <p className="relative z-10 mt-6 text-center text-xs text-[#475569]">
         {profile.username} sur VeloCard
       </p>
 
@@ -109,7 +109,7 @@ export default async function CardPage({
       {!session && (
         <Link
           href="/"
-          className="relative z-10 mt-6 rounded-full bg-[#6C5CE7] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#6C5CE7]/25 transition hover:bg-[#5A4BD6]"
+          className="relative z-10 mt-6 rounded-full bg-[#6366F1] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5557E0]"
         >
           Crée ta carte gratuitement
         </Link>

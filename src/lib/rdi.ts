@@ -2,23 +2,22 @@ import type { RouteSummary, WeatherData, RdiResult, RdiLabel } from "@/types";
 
 /**
  * Compute the Route Difficulty Index (RDI)
- * Formula: base = (distance_km × D+) / 1000
- * Wind factor: 1 + (windSpeed / 100)
- * Score: capped at 100
+ * Formula: [(D+(m) / 300) + (Distance(km) / 50)] × Coefficient Météo
+ * Score: 0-10, arrondi au 0.5 près
  */
 export function computeRdi(
   summary: RouteSummary,
   weather: WeatherData | null,
 ): RdiResult {
   const base =
-    (summary.totalDistanceKm * summary.totalElevationGain) / 1000;
+    summary.totalElevationGain / 300 + summary.totalDistanceKm / 50;
 
   const windFactor = weather ? 1 + weather.windSpeedKmh / 100 : 1;
 
   const rawScore = base * windFactor;
 
-  // Scale: 280 ≈ 140km with 2000m D+ → score 100
-  const score = Math.round(Math.min((rawScore / 280) * 100, 100));
+  // Arrondi au 0.5 le plus proche, plafonné à 10
+  const score = Math.min(Math.round(rawScore * 2) / 2, 10);
 
   return {
     score,
@@ -27,8 +26,8 @@ export function computeRdi(
 }
 
 function getRdiLabel(score: number): RdiLabel {
-  if (score <= 30) return "Facile";
-  if (score <= 60) return "Modéré";
-  if (score <= 80) return "Difficile";
+  if (score <= 3) return "Facile";
+  if (score <= 6) return "Modéré";
+  if (score <= 8) return "Difficile";
   return "Extrême";
 }

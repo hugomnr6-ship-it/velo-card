@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 3.2 : Intégration Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-hover:#1E1E38;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(253,203,110,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(253,203,110,.2)}
+
+.hero{min-height:50vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(108,92,231,.1),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--accent-l);margin-bottom:32px}
+.hero-badge::before{content:'';width:8px;height:8px;background:var(--mint);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+section{padding:80px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   PHONE MOCKUP
+   ═══════════════════════════════════════ */
+.screen-layout{display:grid;grid-template-columns:380px 1fr;gap:48px;align-items:start;margin-bottom:80px}
+.screen-layout.reverse{grid-template-columns:1fr 380px}
+.screen-layout.reverse .phone-wrap{order:2}
+.screen-layout.reverse .screen-specs{order:1}
+
+.phone-wrap{position:sticky;top:120px}
+.phone{
+  width:375px;min-height:780px;
+  background:var(--bg-0);
+  border:2px solid var(--b2);
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:140px;height:28px;background:var(--bg-0);border-radius:0 0 20px 20px;z-index:20;border:1px solid var(--b1);border-top:none}
+
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--t2);position:relative;z-index:10}
+.phone-screen{padding:0 0 90px}
+.phone-bottom-nav{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;align-items:center;padding:8px 12px 24px;background:linear-gradient(transparent,var(--bg-0) 20%);z-index:10}
+.bnav-i{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border-radius:12px;cursor:default}
+.bnav-i.active{background:rgba(108,92,231,.12)}
+.bnav-ic{font-size:18px;opacity:.4}
+.bnav-i.active .bnav-ic{opacity:1}
+.bnav-lb{font-size:9px;font-weight:500;color:var(--t3)}
+.bnav-i.active .bnav-lb{color:var(--accent-l)}
+.bnav-ride{background:var(--gp);padding:12px 18px;border-radius:16px}
+.bnav-ride .bnav-ic{opacity:1;font-size:22px}
+.bnav-ride .bnav-lb{color:rgba(255,255,255,.8);font-weight:600}
+
+/* Phone inner components */
+.ps{padding:0 20px}
+.ps-header{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.ps-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
+.ps-card{background:var(--bg-card);border:1px solid var(--b1);border-radius:16px;padding:16px;margin-bottom:12px}
+
+/* ═══════════════════════════════════════
+   MINI CARD WIDGET — The Hero Component
+   ═══════════════════════════════════════ */
+.mc-widget{
+  background:var(--bg-card);
+  border:1px solid var(--b1);
+  border-radius:20px;
+  padding:16px;
+  margin:0 20px 12px;
+  position:relative;
+  overflow:hidden;
+}
+.mc-widget::before{
+  content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:0;
+}
+/* Tier-specific glow on widget */
+.mc-widget.mc-bronze::before{background:radial-gradient(circle,rgba(205,127,50,.08),transparent 70%)}
+.mc-widget.mc-silver::before{background:radial-gradient(circle,rgba(192,192,220,.06),transparent 70%)}
+.mc-widget.mc-platine::before{background:radial-gradient(circle,rgba(108,92,231,.1),transparent 70%)}
+.mc-widget.mc-diamant::before{background:radial-gradient(circle,rgba(0,245,212,.08),transparent 70%);animation:mcGlow 3s ease-in-out infinite}
+.mc-widget.mc-legende::before{background:radial-gradient(circle,rgba(253,203,110,.1),transparent 70%);animation:mcGlow 4s ease-in-out infinite}
+@keyframes mcGlow{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+
+.mc-widget-inner{position:relative;z-index:1;display:flex;gap:12px;align-items:center}
+
+/* Mini card thumbnail (left) */
+.mc-thumb{
+  width:64px;height:92px;
+  border-radius:10px;
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.mc-thumb-bg{position:absolute;inset:0;border-radius:10px}
+.mc-thumb-glow{position:absolute;inset:-1px;border-radius:11px}
+.mc-thumb-inner{
+  position:absolute;inset:0;border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px;z-index:1;
+}
+.mc-thumb-ovr{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;line-height:1}
+.mc-thumb-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin:2px 0}
+.mc-thumb-tier{font-size:10px}
+
+/* Bronze thumb */
+.mc-thumb.th-bronze .mc-thumb-bg{background:linear-gradient(160deg,#2A1F0E,#4A3520)}
+.mc-thumb.th-bronze .mc-thumb-glow{box-shadow:0 4px 16px rgba(139,105,20,.2)}
+.mc-thumb.th-bronze .mc-thumb-ovr{color:#CD7F32}
+.mc-thumb.th-bronze .mc-thumb-avatar{background:rgba(205,127,50,.15);color:rgba(205,127,50,.5)}
+.mc-thumb.th-bronze::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(205,127,50,.15)}
+
+/* Silver thumb */
+.mc-thumb.th-silver .mc-thumb-bg{background:linear-gradient(160deg,#1A1A24,#2A2A3A)}
+.mc-thumb.th-silver .mc-thumb-glow{box-shadow:0 4px 16px rgba(192,192,192,.12)}
+.mc-thumb.th-silver .mc-thumb-ovr{color:#D0D0E0}
+.mc-thumb.th-silver .mc-thumb-avatar{background:rgba(192,192,192,.12);color:rgba(192,192,220,.5)}
+.mc-thumb.th-silver::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(192,192,192,.1)}
+
+/* Platine thumb */
+.mc-thumb.th-platine .mc-thumb-bg{background:linear-gradient(160deg,#12102A,#2A2050)}
+.mc-thumb.th-platine .mc-thumb-glow{box-shadow:0 4px 20px rgba(108,92,231,.25)}
+.mc-thumb.th-platine .mc-thumb-ovr{background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc-thumb.th-platine .mc-thumb-avatar{background:rgba(108,92,231,.15);color:rgba(162,155,254,.5)}
+.mc-thumb.th-platine::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(108,92,231,.2)}
+
+/* Diamant thumb */
+.mc-thumb.th-diamant .mc-thumb-bg{background:linear-gradient(160deg,#0A1520,#102A40)}
+.mc-thumb.th-diamant .mc-thumb-glow{box-shadow:0 4px 24px rgba(0,245,212,.2);animation:thDiamGlow 3s ease-in-out infinite}
+.mc-thumb.th-diamant .mc-thumb-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc-thumb.th-diamant .mc-thumb-avatar{background:rgba(0,245,212,.12);color:rgba(0,245,212,.5)}
+.mc-thumb.th-diamant::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(0,245,212,.15)}
+@keyframes thDiamGlow{0%,100%{box-shadow:0 4px 24px rgba(0,245,212,.2)}50%{box-shadow:0 6px 32px rgba(0,245,212,.35)}}
+
+/* Legende thumb */
+.mc-thumb.th-legende .mc-thumb-bg{background:linear-gradient(160deg,#1A1005,#3A2510)}
+.mc-thumb.th-legende .mc-thumb-glow{box-shadow:0 4px 28px rgba(253,203,110,.25);animation:thLegGlow 4s ease-in-out infinite}
+.mc-thumb.th-legende .mc-thumb-ovr{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc-thumb.th-legende .mc-thumb-avatar{background:rgba(253,203,110,.15);color:rgba(253,203,110,.5)}
+.mc-thumb.th-legende::after{content:'';position:absolute;inset:0;border-radius:10px;border:2px solid transparent;background:linear-gradient(135deg,rgba(253,203,110,.3),rgba(255,107,107,.2),rgba(108,92,231,.2)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@keyframes thLegGlow{0%,100%{box-shadow:0 4px 28px rgba(253,203,110,.25)}50%{box-shadow:0 8px 40px rgba(253,203,110,.45)}}
+
+/* Widget info (right side of thumb) */
+.mc-info{flex:1;min-width:0}
+.mc-info-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.mc-info-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-info-spec{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+
+/* Progress to next tier */
+.mc-progress{margin-top:8px}
+.mc-progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mc-progress-text{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.mc-progress-val{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700}
+
+.mc-progress-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden;position:relative}
+.mc-progress-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.mc-progress-fill.fill-bronze{background:linear-gradient(90deg,#8B6914,#CD7F32)}
+.mc-progress-fill.fill-silver{background:linear-gradient(90deg,#808098,#C0C0D0)}
+.mc-progress-fill.fill-platine{background:var(--gp)}
+.mc-progress-fill.fill-diamant{background:var(--gf)}
+.mc-progress-fill.fill-legende{background:var(--ge)}
+
+/* Mini stats row */
+.mc-stats{display:flex;gap:4px;margin-top:8px}
+.mc-stat-pill{
+  flex:1;text-align:center;padding:4px 2px;
+  background:rgba(255,255,255,.03);
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.04);
+}
+.mc-stat-val{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;line-height:1}
+.mc-stat-label{font-family:'JetBrains Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)}
+
+/* Widget share button */
+.mc-share{
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:28px;height:28px;
+  border-radius:8px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:default;
+}
+
+/* ═══════════════════════════════════════
+   BENTO STATS (simplified from phase 3)
+   ═══════════════════════════════════════ */
+.bento-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 20px 12px}
+.bento-cell{
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:12px;
+  padding:12px;text-align:center;
+}
+.bento-val{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.5px}
+.bento-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.bento-trend{font-size:10px;margin-top:2px}
+.trend-up{color:var(--mint)}
+.trend-down{color:var(--coral)}
+
+/* Streak bar */
+.streak-bar{
+  margin:0 20px 12px;
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:12px;
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.streak-flame{font-size:20px}
+.streak-info{flex:1}
+.streak-count{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700}
+.streak-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)}
+.streak-dots{display:flex;gap:3px}
+.streak-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.08)}
+.streak-dot.active{background:var(--coral)}
+.streak-dot.today{background:var(--mint);box-shadow:0 0 6px rgba(0,245,212,.4)}
+
+/* CTA ride button */
+.ride-cta{
+  margin:0 20px 12px;
+  padding:14px;
+  border-radius:16px;
+  background:var(--gp);
+  text-align:center;
+  cursor:default;
+}
+.ride-cta-text{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700}
+.ride-cta-sub{font-size:10px;opacity:.7;margin-top:2px}
+
+/* Challenge preview */
+.challenge-mini{
+  margin:0 20px 12px;
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:12px;
+  padding:12px;display:flex;gap:10px;align-items:center;
+}
+.challenge-icon{font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(253,203,110,.08);border-radius:10px}
+.challenge-info{flex:1}
+.challenge-name{font-size:12px;font-weight:600}
+.challenge-prog{display:flex;align-items:center;gap:6px;margin-top:4px}
+.challenge-prog-bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
+.challenge-prog-fill{height:100%;border-radius:2px;background:var(--ge)}
+.challenge-prog-text{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)}
+
+/* Section header inside phone */
+.ph-section-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 20px;margin-bottom:8px;margin-top:16px;
+}
+.ph-sh-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:-.3px}
+.ph-sh-link{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent-l)}
+
+/* Spec panels */
+.spec-panel{
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);
+  padding:32px;margin-bottom:24px;
+}
+.spec-panel-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.spec-panel-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.spec-row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.spec-row:last-child{border-bottom:none}
+.spec-row-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1px}
+.spec-row-value{font-size:13px;color:var(--t2);line-height:1.6}
+.spec-row-value strong{color:var(--t1);font-weight:600}
+.spec-row-value code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(108,92,231,.1);padding:2px 6px;border-radius:4px;color:var(--accent-l)}
+
+/* Variant comparison */
+.variant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:32px}
+.variant-card{
+  background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--r);
+  padding:20px;position:relative;overflow:hidden;
+}
+.variant-card.recommended{border-color:rgba(0,245,212,.2)}
+.variant-card.recommended::before{content:'RECOMMANDÉ';position:absolute;top:12px;right:12px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mint);background:rgba(0,245,212,.08);padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:1px}
+.variant-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.variant-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.variant-desc{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px}
+.variant-pros{font-size:11px;color:var(--t2);line-height:1.8}
+.variant-pros span{color:var(--mint);margin-right:4px}
+
+/* Animation spec */
+.anim-timeline{display:flex;gap:2px;margin-top:16px}
+.anim-step{flex:1;text-align:center}
+.anim-step-bar{height:6px;border-radius:3px;margin-bottom:4px}
+.anim-step-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3)}
+.anim-step-dur{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);opacity:.6}
+
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .screen-layout,.screen-layout.reverse{grid-template-columns:1fr;gap:32px}
+  .phone-wrap{position:relative;top:0;display:flex;justify-content:center}
+  .screen-layout.reverse .phone-wrap{order:0}
+  .spec-row{grid-template-columns:1fr;gap:4px}
+  .variant-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 3.2 / 04</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🏠 Intégration Dashboard Home</div>
+    <h1>Ta Carte sur<br>le <span class="gt">Dashboard</span></h1>
+    <p class="hero-sub">Le widget carte est le premier élément visible au lancement de l'app. Il résume l'identité du cycliste en un coup d'œil : OVR, tier, progression, et stats clés. Un tap ouvre la carte complète.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — PHONE MOCKUP PLATINE
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Maquette Complète</div>
+    <h2 class="s-title reveal">Home Dashboard — Profil Platine</h2>
+    <p class="s-desc reveal">Le widget carte occupe la position hero du dashboard, juste après le header. C'est le premier contenu scrollable — l'ancrage identitaire de l'utilisateur.</p>
+
+    <div class="screen-layout reveal">
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>⚡ 87%</span>
+          </div>
+          <div class="phone-screen">
+
+            <!-- Header -->
+            <div class="ps" style="padding-top:12px;margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-size:12px;color:var(--t3)">Bonjour,</div>
+                  <div class="ps-header" style="margin-bottom:0">Thomas 👋</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <div style="width:32px;height:32px;border-radius:10px;background:var(--bg-el);display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--b1)">🔔</div>
+                  <div style="width:32px;height:32px;border-radius:10px;background:var(--bg-el);display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--b1)">⚙️</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ★ CARD WIDGET — PLATINE ★ -->
+            <div class="mc-widget mc-platine">
+              <div class="mc-share">↗</div>
+              <div class="mc-widget-inner">
+                <div class="mc-thumb th-platine">
+                  <div class="mc-thumb-bg"></div>
+                  <div class="mc-thumb-glow"></div>
+                  <div class="mc-thumb-inner">
+                    <div class="mc-thumb-ovr">74</div>
+                    <div class="mc-thumb-avatar">T</div>
+                    <div class="mc-thumb-tier">💎</div>
+                  </div>
+                </div>
+                <div class="mc-info">
+                  <div class="mc-info-top">
+                    <div class="mc-info-name">Thomas Berg</div>
+                    <div style="font-size:10px">🇧🇪</div>
+                  </div>
+                  <div class="mc-info-spec">Puncheur · Platine</div>
+                  <div class="mc-progress">
+                    <div class="mc-progress-label">
+                      <div class="mc-progress-text">Prochain tier : Diamant</div>
+                      <div class="mc-progress-val" style="color:var(--accent-l)">74 / 80</div>
+                    </div>
+                    <div class="mc-progress-bar">
+                      <div class="mc-progress-fill fill-platine" style="width:75%"></div>
+                    </div>
+                  </div>
+                  <div class="mc-stats">
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">72</div><div class="mc-stat-label">PLA</div></div>
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">70</div><div class="mc-stat-label">MON</div></div>
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">78</div><div class="mc-stat-label">VAL</div></div>
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">68</div><div class="mc-stat-label">SPR</div></div>
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">72</div><div class="mc-stat-label">END</div></div>
+                    <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--accent-l)">76</div><div class="mc-stat-label">RES</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Streak -->
+            <div class="streak-bar">
+              <div class="streak-flame">🔥</div>
+              <div class="streak-info">
+                <div class="streak-count">12 jours · <span style="color:var(--mint)">×1.5 XP</span></div>
+                <div class="streak-sub">Continue demain pour garder ton streak</div>
+              </div>
+              <div class="streak-dots">
+                <div class="streak-dot active"></div>
+                <div class="streak-dot active"></div>
+                <div class="streak-dot active"></div>
+                <div class="streak-dot active"></div>
+                <div class="streak-dot active"></div>
+                <div class="streak-dot active"></div>
+                <div class="streak-dot today"></div>
+              </div>
+            </div>
+
+            <!-- Ride CTA -->
+            <div class="ride-cta">
+              <div class="ride-cta-text">🚴 Lancer une Sortie</div>
+              <div class="ride-cta-sub">GPS activé · Météo 18°C ☀️</div>
+            </div>
+
+            <!-- Stats bento -->
+            <div class="ph-section-header">
+              <div class="ph-sh-title">Cette Semaine</div>
+              <div class="ph-sh-link">Voir tout →</div>
+            </div>
+            <div class="bento-row">
+              <div class="bento-cell">
+                <div class="bento-val">247 <span style="font-size:12px;color:var(--t3)">km</span></div>
+                <div class="bento-label">Distance</div>
+                <div class="bento-trend trend-up">↑ +18%</div>
+              </div>
+              <div class="bento-cell">
+                <div class="bento-val">3 420 <span style="font-size:12px;color:var(--t3)">m</span></div>
+                <div class="bento-label">Dénivelé</div>
+                <div class="bento-trend trend-up">↑ +7%</div>
+              </div>
+            </div>
+            <div class="bento-row">
+              <div class="bento-cell">
+                <div class="bento-val">8h12</div>
+                <div class="bento-label">Temps selle</div>
+                <div class="bento-trend trend-down">↓ -3%</div>
+              </div>
+              <div class="bento-cell">
+                <div class="bento-val">242 <span style="font-size:12px;color:var(--t3)">W</span></div>
+                <div class="bento-label">FTP estimé</div>
+                <div class="bento-trend trend-up">↑ +4W</div>
+              </div>
+            </div>
+
+            <!-- Challenge mini -->
+            <div class="ph-section-header">
+              <div class="ph-sh-title">Défi en Cours</div>
+              <div class="ph-sh-link">Tous les défis →</div>
+            </div>
+            <div class="challenge-mini">
+              <div class="challenge-icon">🏔️</div>
+              <div class="challenge-info">
+                <div class="challenge-name">Roi de la Montagne</div>
+                <div class="challenge-prog">
+                  <div class="challenge-prog-bar"><div class="challenge-prog-fill" style="width:68%"></div></div>
+                  <div class="challenge-prog-text">6 800 / 10 000 m</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="phone-bottom-nav">
+            <div class="bnav-i active"><div class="bnav-ic">🏠</div><div class="bnav-lb">Home</div></div>
+            <div class="bnav-i"><div class="bnav-ic">🏆</div><div class="bnav-lb">Classement</div></div>
+            <div class="bnav-i bnav-ride"><div class="bnav-ic">🚴</div><div class="bnav-lb">Ride</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👥</div><div class="bnav-lb">Club</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👤</div><div class="bnav-lb">Profil</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-specs">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent-l);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Specs — Widget Carte</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px">Le Hero Component</div>
+        <div style="font-size:14px;color:var(--accent-l);font-weight:500;margin-bottom:20px;font-style:italic">"Ma carte, ma fierté, mon identité"</div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Position & Layout</div>
+          <div class="spec-row"><div class="spec-row-label">Position</div><div class="spec-row-value"><strong>1er élément</strong> après le header "Bonjour, [Nom]". Au-dessus du streak et du CTA ride</div></div>
+          <div class="spec-row"><div class="spec-row-label">Hauteur</div><div class="spec-row-value"><strong>Auto (≈ 120px)</strong> — s'adapte au contenu. Padding 16px, border-radius 20px</div></div>
+          <div class="spec-row"><div class="spec-row-label">Layout</div><div class="spec-row-value"><strong>Flex row</strong> — Mini-carte (64×92) à gauche + infos/progress à droite</div></div>
+          <div class="spec-row"><div class="spec-row-label">Halo</div><div class="spec-row-value"><strong>Radial gradient tier-colored</strong> en haut-droite du widget. Intensité et animation varient par tier</div></div>
+        </div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Contenu du Widget</div>
+          <div class="spec-row"><div class="spec-row-label">Mini-Carte</div><div class="spec-row-value"><strong>64×92px</strong> — Thumbnail de la carte : OVR (22px), avatar circulaire (24px), icône tier. Même gradients que les cartes full-size</div></div>
+          <div class="spec-row"><div class="spec-row-label">Identité</div><div class="spec-row-value"><strong>Nom + Flag + Spécialité</strong> — Space Grotesk 14px bold + JetBrains Mono 9px</div></div>
+          <div class="spec-row"><div class="spec-row-label">Progression</div><div class="spec-row-value"><strong>Barre vers le prochain tier</strong> — Label "Prochain : [Tier]" + OVR actuel/cible + barre 4px avec fill gradient tier</div></div>
+          <div class="spec-row"><div class="spec-row-label">Mini Stats</div><div class="spec-row-value"><strong>6 pills</strong> — PLA, MON, VAL, SPR, END, RES. Font 12px bold. Couleur tier-matched. Background 3% white</div></div>
+          <div class="spec-row"><div class="spec-row-label">Share CTA</div><div class="spec-row-value"><strong>Icône ↗</strong> en haut-droite. Tap → ouvre l'éditeur Story (Étape 3.1)</div></div>
+        </div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Interactions</div>
+          <div class="spec-row"><div class="spec-row-label">Tap Widget</div><div class="spec-row-value"><strong>→ Écran Profil</strong> avec la carte en plein. Transition shared-element : la mini-carte s'agrandit en carte complète (500ms spring)</div></div>
+          <div class="spec-row"><div class="spec-row-label">Tap Share</div><div class="spec-row-value"><strong>→ Éditeur Story</strong> — Ouvre le flow de partage Instagram Story directement</div></div>
+          <div class="spec-row"><div class="spec-row-label">Long Press</div><div class="spec-row-value"><strong>→ Quick Actions</strong> — Menu contextuel : "Voir la carte", "Partager", "Comparer avec un ami"</div></div>
+          <div class="spec-row"><div class="spec-row-label">Haptic</div><div class="spec-row-value"><strong>Light impact</strong> au tap, <strong>Medium impact</strong> au long press. <code>impactOccurred(.light)</code></div></div>
+        </div>
+
+        <div class="spec-panel">
+          <div class="spec-panel-title" style="font-size:16px">Animation d'Entrée</div>
+          <div class="spec-row"><div class="spec-row-label">Séquence</div><div class="spec-row-value"><strong>Staggered reveal</strong> — Mini-carte glisse de la gauche (300ms) → Nom fade-in (150ms delay) → Progress bar remplit (400ms delay, spring) → Stats pills fade-in staggeré (50ms chacun)</div></div>
+          <div class="spec-row"><div class="spec-row-label">Durée Total</div><div class="spec-row-value"><strong>800ms</strong> du début à la fin. Curve: <code>spring(damping:15,stiffness:120)</code></div></div>
+          <div class="spec-row"><div class="spec-row-label">OVR Update</div><div class="spec-row-value"><strong>Count-up animation</strong> si OVR a changé depuis la dernière visite. De l'ancienne valeur à la nouvelle en 600ms avec easing. Haptic à chaque +1</div></div>
+
+          <div class="anim-timeline">
+            <div class="anim-step"><div class="anim-step-bar" style="background:var(--gp)"></div><div class="anim-step-label">Carte</div><div class="anim-step-dur">0–300ms</div></div>
+            <div class="anim-step"><div class="anim-step-bar" style="background:rgba(255,255,255,.15)"></div><div class="anim-step-label">Nom</div><div class="anim-step-dur">150–350ms</div></div>
+            <div class="anim-step"><div class="anim-step-bar" style="background:var(--gf)"></div><div class="anim-step-label">Progress</div><div class="anim-step-dur">400–700ms</div></div>
+            <div class="anim-step"><div class="anim-step-bar" style="background:var(--ge)"></div><div class="anim-step-label">Stats</div><div class="anim-step-dur">500–800ms</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — ALL 5 TIERS WIDGETS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Les 5 Variantes</div>
+    <h2 class="s-title reveal">Widget par Tier</h2>
+    <p class="s-desc reveal">Chaque tier change le halo du widget, les couleurs des stats, et l'intensité visuelle de la mini-carte. L'escalade est subtile mais perceptible.</p>
+
+    <!-- BRONZE -->
+    <div class="mc-widget mc-bronze reveal" style="max-width:340px;margin-bottom:16px">
+      <div class="mc-share">↗</div>
+      <div class="mc-widget-inner">
+        <div class="mc-thumb th-bronze">
+          <div class="mc-thumb-bg"></div>
+          <div class="mc-thumb-glow"></div>
+          <div class="mc-thumb-inner">
+            <div class="mc-thumb-ovr">42</div>
+            <div class="mc-thumb-avatar">L</div>
+            <div class="mc-thumb-tier">🥉</div>
+          </div>
+        </div>
+        <div class="mc-info">
+          <div class="mc-info-top"><div class="mc-info-name">Lucas Petit</div><div style="font-size:10px">🇫🇷</div></div>
+          <div class="mc-info-spec">Endurant · Bronze</div>
+          <div class="mc-progress">
+            <div class="mc-progress-label"><div class="mc-progress-text">Prochain : Argent</div><div class="mc-progress-val" style="color:#CD7F32">42 / 50</div></div>
+            <div class="mc-progress-bar"><div class="mc-progress-fill fill-bronze" style="width:60%"></div></div>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">38</div><div class="mc-stat-label">PLA</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">35</div><div class="mc-stat-label">MON</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">40</div><div class="mc-stat-label">VAL</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">30</div><div class="mc-stat-label">SPR</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">52</div><div class="mc-stat-label">END</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#CD7F32">45</div><div class="mc-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SILVER -->
+    <div class="mc-widget mc-silver reveal" style="max-width:340px;margin-bottom:16px">
+      <div class="mc-share">↗</div>
+      <div class="mc-widget-inner">
+        <div class="mc-thumb th-silver">
+          <div class="mc-thumb-bg"></div>
+          <div class="mc-thumb-glow"></div>
+          <div class="mc-thumb-inner">
+            <div class="mc-thumb-ovr">58</div>
+            <div class="mc-thumb-avatar">M</div>
+            <div class="mc-thumb-tier">🥈</div>
+          </div>
+        </div>
+        <div class="mc-info">
+          <div class="mc-info-top"><div class="mc-info-name">Marie Duval</div><div style="font-size:10px">🇫🇷</div></div>
+          <div class="mc-info-spec">Grimpeuse · Argent</div>
+          <div class="mc-progress">
+            <div class="mc-progress-label"><div class="mc-progress-text">Prochain : Platine</div><div class="mc-progress-val" style="color:#C0C0D0">58 / 65</div></div>
+            <div class="mc-progress-bar"><div class="mc-progress-fill fill-silver" style="width:62%"></div></div>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">52</div><div class="mc-stat-label">PLA</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">65</div><div class="mc-stat-label">MON</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">55</div><div class="mc-stat-label">VAL</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">42</div><div class="mc-stat-label">SPR</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">60</div><div class="mc-stat-label">END</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:#C0C0D0">58</div><div class="mc-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAMANT -->
+    <div class="mc-widget mc-diamant reveal" style="max-width:340px;margin-bottom:16px">
+      <div class="mc-share">↗</div>
+      <div class="mc-widget-inner">
+        <div class="mc-thumb th-diamant">
+          <div class="mc-thumb-bg"></div>
+          <div class="mc-thumb-glow"></div>
+          <div class="mc-thumb-inner">
+            <div class="mc-thumb-ovr">86</div>
+            <div class="mc-thumb-avatar">A</div>
+            <div class="mc-thumb-tier">💠</div>
+          </div>
+        </div>
+        <div class="mc-info">
+          <div class="mc-info-top"><div class="mc-info-name">Alex Moreau</div><div style="font-size:10px">🇫🇷</div></div>
+          <div class="mc-info-spec">Rouleur · Diamant</div>
+          <div class="mc-progress">
+            <div class="mc-progress-label"><div class="mc-progress-text">Prochain : Légende</div><div class="mc-progress-val" style="color:var(--mint)">86 / 90</div></div>
+            <div class="mc-progress-bar"><div class="mc-progress-fill fill-diamant" style="width:60%"></div></div>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">88</div><div class="mc-stat-label">PLA</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">78</div><div class="mc-stat-label">MON</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">82</div><div class="mc-stat-label">VAL</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">75</div><div class="mc-stat-label">SPR</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">90</div><div class="mc-stat-label">END</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="color:var(--mint)">88</div><div class="mc-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LÉGENDE -->
+    <div class="mc-widget mc-legende reveal" style="max-width:340px;margin-bottom:16px">
+      <div class="mc-share">↗</div>
+      <div class="mc-widget-inner">
+        <div class="mc-thumb th-legende">
+          <div class="mc-thumb-bg"></div>
+          <div class="mc-thumb-glow"></div>
+          <div class="mc-thumb-inner">
+            <div class="mc-thumb-ovr">95</div>
+            <div class="mc-thumb-avatar">J</div>
+            <div class="mc-thumb-tier">👑</div>
+          </div>
+        </div>
+        <div class="mc-info">
+          <div class="mc-info-top"><div class="mc-info-name">J. Alaphilippe</div><div style="font-size:10px">🇫🇷</div></div>
+          <div class="mc-info-spec">Puncheur · Légende</div>
+          <div class="mc-progress">
+            <div class="mc-progress-label"><div class="mc-progress-text">Tier maximum atteint</div><div class="mc-progress-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">95 / 99</div></div>
+            <div class="mc-progress-bar"><div class="mc-progress-fill fill-legende" style="width:95%"></div></div>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">92</div><div class="mc-stat-label">PLA</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">95</div><div class="mc-stat-label">MON</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">97</div><div class="mc-stat-label">VAL</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">88</div><div class="mc-stat-label">SPR</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">91</div><div class="mc-stat-label">END</div></div>
+            <div class="mc-stat-pill"><div class="mc-stat-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">96</div><div class="mc-stat-label">RES</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — VARIANT DESIGNS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Variantes de Layout</div>
+    <h2 class="s-title reveal">3 Tailles Possibles</h2>
+    <p class="s-desc reveal">Le widget carte peut s'adapter selon le contexte et les préférences utilisateur.</p>
+
+    <div class="variant-grid">
+      <div class="variant-card recommended reveal">
+        <div class="variant-label">Variante A</div>
+        <div class="variant-title">Full Widget (défaut)</div>
+        <div class="variant-desc">Mini-carte + nom + progression + 6 stats. Le format le plus complet, celui montré dans la maquette ci-dessus.</div>
+        <div class="variant-pros">
+          <div><span>✦</span> Montre toute l'identité en un coup d'œil</div>
+          <div><span>✦</span> Barre de progression = motivation quotidienne</div>
+          <div><span>✦</span> 6 stats visibles = engagement avec le système</div>
+          <div><span>✦</span> Hauteur ≈ 120px — reste compact</div>
+        </div>
+      </div>
+
+      <div class="variant-card reveal">
+        <div class="variant-label">Variante B</div>
+        <div class="variant-title">Compact Widget</div>
+        <div class="variant-desc">Mini-carte + OVR + nom + progression. Sans les 6 stats individuelles — pour les écrans où le scroll vertical est précieux.</div>
+        <div class="variant-pros">
+          <div><span>✦</span> Plus compact (≈ 80px hauteur)</div>
+          <div><span>✦</span> Focus sur la progression tier uniquement</div>
+          <div><span>✦</span> Idéal pour les utilisateurs qui ont déjà internalisé le système</div>
+          <div><span>✦</span> Option dans les Settings : "Widget compact"</div>
+        </div>
+      </div>
+
+      <div class="variant-card reveal">
+        <div class="variant-label">Variante C</div>
+        <div class="variant-title">Banner Widget</div>
+        <div class="variant-desc">Juste l'OVR en grand + tier icon + barre de progression. Format ultra-minimal, type "score badge" en haut de page.</div>
+        <div class="variant-pros">
+          <div><span>✦</span> Minimaliste (≈ 48px hauteur)</div>
+          <div><span>✦</span> Peut être sticky sous le header</div>
+          <div><span>✦</span> Focus KPI unique : l'OVR</div>
+          <div><span>✦</span> Utilisable aussi sur d'autres écrans (Feed, Club)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — STATES & EDGE CASES
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">États & Edge Cases</div>
+    <h2 class="s-title reveal">Tous les Scénarios</h2>
+    <p class="s-desc reveal">Le widget doit gérer plusieurs états selon le contexte de l'utilisateur.</p>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">États du Widget</div>
+      <div class="spec-row"><div class="spec-row-label">Nouveau User</div><div class="spec-row-value"><strong>Carte "vierge"</strong> — OVR affiché "—", avatar placeholder, message "Fais ta première sortie pour générer ta carte". CTA proéminent : "Lancer mon premier ride". Progression à 0%</div></div>
+      <div class="spec-row"><div class="spec-row-label">1ère Sortie</div><div class="spec-row-value"><strong>Carte "reveal"</strong> — Après la 1ère sortie, animation spéciale : les stats se remplissent une par une avec des confettis. Notification : "Ta première carte est prête !"</div></div>
+      <div class="spec-row"><div class="spec-row-label">OVR en Hausse</div><div class="spec-row-value"><strong>Badge "+X"</strong> — Petit badge vert mint <code>↑ +3</code> à côté de l'OVR. Visible pendant 24h après un changement positif. Pulse subtil</div></div>
+      <div class="spec-row"><div class="spec-row-label">OVR en Baisse</div><div class="spec-row-value"><strong>Pas de badge négatif visible</strong> — On ne punit pas visuellement. L'OVR change discrètement. Seul l'écran détail montre la tendance</div></div>
+      <div class="spec-row"><div class="spec-row-label">Level Up !</div><div class="spec-row-value"><strong>Animation spéciale</strong> — Flash blanc 200ms → nouvelle couleur tier pulse → confettis tier-colored → banner "Tu es maintenant [Tier] !" pendant 3s</div></div>
+      <div class="spec-row"><div class="spec-row-label">Inactivité</div><div class="spec-row-value"><strong>14+ jours</strong> — Widget légèrement dimmed (opacity .7). Message sous la progression : "Tes stats baissent, reprends le vélo !". Pas de halo</div></div>
+      <div class="spec-row"><div class="spec-row-label">Sync Error</div><div class="spec-row-value"><strong>Skeleton loader</strong> — Si les données ne chargent pas, afficher un skeleton du widget (pulse gris). Retry automatique toutes les 30s. Pas de message d'erreur agressif</div></div>
+      <div class="spec-row"><div class="spec-row-label">Tier Max</div><div class="spec-row-value"><strong>Légende (90-99)</strong> — La barre de progression montre "Tier maximum atteint" au lieu de "Prochain : X". La barre montre la progression vers 99 (le score parfait)</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 5 — IMPLEMENTATION
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Implémentation</div>
+    <h2 class="s-title reveal">Notes Techniques</h2>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Component Architecture</div>
+      <div class="spec-row"><div class="spec-row-label">Composant</div><div class="spec-row-value"><code>&lt;CardWidget tier={tier} ovr={ovr} stats={stats} /&gt;</code> — Props typées, Reanimated pour les animations</div></div>
+      <div class="spec-row"><div class="spec-row-label">State</div><div class="spec-row-value"><strong>Zustand store</strong> <code>useCardStore</code> — OVR, stats, tier, previousOvr (pour delta), lastUpdated, isNewTier flag</div></div>
+      <div class="spec-row"><div class="spec-row-label">Shared Element</div><div class="spec-row-value"><strong>React Navigation 7 Shared Transitions</strong> — <code>sharedTransitionTag="athlete-card"</code> entre Home et Profil. La mini-carte morph vers la carte complète</div></div>
+      <div class="spec-row"><div class="spec-row-label">Refresh</div><div class="spec-row-value"><strong>SWR pattern</strong> — Données mises en cache + revalidation au focus. Pull-to-refresh sur le Home trigger un recalcul. Background fetch post-Strava sync</div></div>
+      <div class="spec-row"><div class="spec-row-label">A11y</div><div class="spec-row-value"><code>accessibilityLabel="Ta carte VeloCard : OVR 74, tier Platine, spécialité Puncheur. 75% vers le tier Diamant"</code></div></div>
+      <div class="spec-row"><div class="spec-row-label">Perf</div><div class="spec-row-value"><strong>Memoized</strong> — Re-render uniquement si OVR ou tier change. Halo animated via <code>useAnimatedStyle</code> sur le UI thread. Target: <strong>< 2ms render</strong></div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NEXT -->
+<section class="next-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px">Prochaine étape</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:12px">Étape 3.3 — Intégration Profil</div>
+      <div style="font-size:14px;color:var(--t2);max-width:480px;margin:0 auto">Carte complète en vedette + flip card verso avec historique + bouton partage Story intégré.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>VELOCARD FUT Edition — Étape 3.2 / Phase 4 — Intégration Home Dashboard</p>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50)});
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

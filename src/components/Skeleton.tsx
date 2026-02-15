@@ -7,7 +7,7 @@ interface SkeletonProps {
 export default function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-lg bg-neutral-800 ${className}`}
+      className={`animate-pulse rounded-lg bg-[#1A1A2E] ${className}`}
     />
   );
 }
@@ -17,7 +17,7 @@ export default function Skeleton({ className = "" }: SkeletonProps) {
 /** Skeleton that mimics the VeloCard shape */
 export function VeloCardSkeleton() {
   return (
-    <div className="relative w-[400px] h-[711px] rounded-2xl border border-neutral-700/50 bg-neutral-900 overflow-hidden">
+    <div className="relative w-[400px] h-[711px] rounded-2xl border border-white/[0.06] bg-[#111827] overflow-hidden">
       <div className="flex h-full flex-col items-center px-6 pt-6 pb-5">
         {/* Top bar */}
         <div className="flex w-full items-center justify-between">
@@ -68,6 +68,80 @@ export function VeloCardWithButtonSkeleton() {
   );
 }
 
+/** Skeleton for clubs page */
+export function ClubsSkeleton() {
+  return (
+    <div className="w-full max-w-2xl">
+      <Skeleton className="mb-6 h-8 w-32" />
+      <Skeleton className="mb-6 h-32 w-full rounded-xl" />
+      <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      <div className="mb-4 flex gap-2">
+        <Skeleton className="h-10 flex-1 rounded-lg" />
+        <Skeleton className="h-10 w-24 rounded-lg" />
+      </div>
+      <Skeleton className="mb-3 h-4 w-24" />
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} className="mb-3 h-16 w-full rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton for wars page */
+export function WarsSkeleton() {
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-4">
+      <Skeleton className="h-8 w-48" />
+      <div className="flex w-full items-center justify-center gap-4">
+        <Skeleton className="h-16 w-16 rounded-full" />
+        <Skeleton className="h-10 w-20" />
+        <Skeleton className="h-16 w-16 rounded-full" />
+      </div>
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} className="h-24 w-full rounded-xl" />
+      ))}
+      <Skeleton className="mt-2 h-4 w-40" />
+      {[0, 1, 2, 3].map((i) => (
+        <Skeleton key={i} className="h-12 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton for leaderboard page */
+export function LeaderboardSkeleton() {
+  return (
+    <div className="w-full max-w-2xl">
+      <Skeleton className="mb-6 h-8 w-56" />
+      <Skeleton className="mb-4 h-4 w-20" />
+      <Skeleton className="mb-4 h-10 w-full rounded-lg" />
+      <div className="mb-4 flex gap-2">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} className="h-9 flex-1 rounded-lg" />
+        ))}
+      </div>
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+        <Skeleton key={i} className="mb-2 h-14 w-full rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton for races page */
+export function RacesSkeleton() {
+  return (
+    <div className="w-full max-w-2xl">
+      <Skeleton className="mb-6 h-8 w-32" />
+      <Skeleton className="mb-6 h-48 w-full rounded-xl" />
+      <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      <Skeleton className="mb-4 h-4 w-32" />
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} className="mb-3 h-20 w-full rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
 /** Skeleton for the full page loading state — matches real dashboard layout */
 export function DashboardSkeleton() {
   return (
@@ -78,14 +152,14 @@ export function DashboardSkeleton() {
 
       {/* Phase 2: Analyse de parcours skeleton */}
       <section className="mt-8 w-full max-w-2xl">
-        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         <Skeleton className="mx-auto mb-4 h-6 w-48" />
         <Skeleton className="h-32 w-full rounded-xl" />
       </section>
 
       {/* Phase 3: Communauté skeleton */}
       <section className="mt-8 w-full max-w-2xl">
-        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         <Skeleton className="mx-auto mb-4 h-6 w-36" />
         <Skeleton className="mb-5 h-10 w-48" />
         <div className="grid grid-cols-2 gap-4">

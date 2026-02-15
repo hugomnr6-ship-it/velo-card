@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 1 : Recherche & Logique de Calcul</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(253,203,110,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(253,203,110,.2)}
+
+/* HERO */
+.hero{min-height:60vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(253,203,110,.1),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:32px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+/* SECTIONS */
+section{padding:100px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* CARDS */
+.info-card{background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;transition:all .3s ease}
+.info-card:hover{border-color:var(--ba);box-shadow:0 0 40px rgba(108,92,231,.1)}
+.info-card-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.info-card-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+
+/* TABLES */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);text-align:left;padding:12px 16px;border-bottom:2px solid var(--b2);background:var(--bg-1)}
+.data-table td{font-size:13px;color:var(--t2);padding:12px 16px;border-bottom:1px solid var(--b1)}
+.data-table td:first-child{color:var(--t1);font-weight:600}
+.data-table tr:hover td{background:rgba(108,92,231,.03)}
+.data-table .highlight td{background:rgba(108,92,231,.06);border-left:3px solid var(--accent)}
+
+/* ATTRIBUTE CARDS */
+.attr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.attr-card{background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:24px;position:relative;overflow:hidden;transition:all .3s ease}
+.attr-card:hover{border-color:var(--ba);transform:translateY(-4px);box-shadow:0 0 40px rgba(108,92,231,.15)}
+.attr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0}
+.attr-abbr{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;line-height:1;margin-bottom:4px}
+.attr-name{font-size:14px;font-weight:600;margin-bottom:8px}
+.attr-desc{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.attr-source{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);line-height:1.5}
+.attr-bar{height:6px;background:var(--bg-0);border-radius:100px;overflow:hidden;margin-top:12px}
+.attr-bar-fill{height:100%;border-radius:100px}
+
+/* FORMULA */
+.formula-box{background:var(--bg-1);border:1px solid var(--b2);border-radius:var(--rl);padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mint);line-height:2;overflow-x:auto}
+.formula-comment{color:var(--t3)}
+.formula-keyword{color:var(--accent-l)}
+.formula-number{color:var(--gold)}
+.formula-string{color:var(--coral)}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+.flow-step{background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:16px 20px;text-align:center;flex:1;min-width:140px}
+.flow-step-icon{font-size:28px;margin-bottom:8px}
+.flow-step-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.flow-step-desc{font-size:11px;color:var(--t3)}
+.flow-arrow{font-size:20px;color:var(--accent-l);flex-shrink:0}
+
+/* COMPARISON */
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.comp-box{background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:28px;position:relative}
+.comp-badge{position:absolute;top:16px;right:16px;font-size:10px;font-weight:600;padding:4px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:1px}
+
+/* TIER PREVIEW */
+.tier-row{display:flex;gap:12px;margin-bottom:16px;align-items:center}
+.tier-chip{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--r);border:1px solid var(--b1);font-size:13px;font-weight:600;min-width:140px}
+.tier-range{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);min-width:80px}
+.tier-bar{flex:1;height:8px;background:var(--bg-0);border-radius:100px;overflow:hidden}
+
+/* NEXT */
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:768px){
+  .container{padding:0 20px}
+  .attr-grid{grid-template-columns:1fr}
+  .comparison-grid{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 01 / 04</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🃏 Module Cartes d'Athlètes — Recherche & Logique</div>
+    <h1>De la Data GPS<br>à une <span class="gt">Note de 99</span></h1>
+    <p class="hero-sub">Recherche sur les systèmes FIFA FUT et Pro Cycling Manager, définition des 6 attributs VeloCard, et logique de calcul complète pour transformer les données Strava/Garmin/Wahoo en cartes d'athlètes jouables.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     1. RECHERCHE — PCM & FUT
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">01 — Recherche concurrentielle</div>
+    <h2 class="s-title reveal">Systèmes de Référence Analysés</h2>
+    <p class="s-desc reveal">Deux modèles de gamification par cartes dominent le marché du jeu vidéo sportif. Nous prenons le meilleur de chacun pour créer un système unique adapté au cyclisme réel.</p>
+
+    <div class="comparison-grid">
+
+      <!-- PCM -->
+      <div class="comp-box reveal">
+        <div class="comp-badge" style="background:rgba(0,245,212,.1);color:var(--mint)">Attributs</div>
+        <div style="font-size:28px;margin-bottom:12px">🎮</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px">Pro Cycling Manager</div>
+        <div style="font-size:12px;color:var(--t3);margin-bottom:20px">Cyanide Studio · PCM 25</div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--mint)">Système d'attributs (13 stats)</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px">
+          Chaque coureur a 13 attributs allant de 50 à 85 : Flat, Mountain, Downhill, Cobblestones, Time Trial, Prologue, Sprint, Acceleration, Endurance, Resistance, Recovery, Hill et Baroudeur.
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--mint)">7 spécialisations</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px">
+          Time-Trial, Climber, Puncher, Northern Classics, Baroudeur, Stage Races et Sprinter. Chaque coureur est catégorisé selon ses attributs dominants.
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--accent-l)">Ce qu'on garde pour VeloCard</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7">
+          ✓ Les catégories Flat, Mountain, Hill/Puncher, Sprint, Endurance sont pertinentes et mesurables par GPS/capteurs. On les simplifie à 6 attributs.<br>
+          ✓ La spécialisation automatique selon les attributs dominants.<br>
+          ✗ On supprime Downhill, Cobblestones, Recovery — non mesurables par données GPS. On remplace par "Résultats" (data compétition).
+        </div>
+      </div>
+
+      <!-- FUT -->
+      <div class="comp-box reveal">
+        <div class="comp-badge" style="background:rgba(253,203,110,.1);color:var(--gold)">Visuel</div>
+        <div style="font-size:28px;margin-bottom:12px">⚽</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px">FIFA Ultimate Team</div>
+        <div style="font-size:12px;color:var(--t3);margin-bottom:20px">EA Sports · FC 25/26</div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--gold)">Hiérarchie de cartes</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px">
+          Base : Bronze (< 65 OVR), Silver (65-75), Gold (76+), chacun en Common ou Rare. Spéciales : TOTW, Heroes, Icons (Debut + Champion). Chaque tier a un design de carte visuellement distinct et des effets croissants.
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--gold)">Effets visuels par tier</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px">
+          Pas d'animation < 80 OVR. "Boards" (éclats dorés) pour 81-85. "Walkout" (apparition dramatique, lumière, feux d'artifice) pour 86+. Tunnels de couleur spécifiques par type de carte (violet pour Heroes, blanc pour Icons).
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--accent-l)">Ce qu'on garde pour VeloCard</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7">
+          ✓ La note globale OVR en gros sur la carte (lisibilité immédiate).<br>
+          ✓ Les 6 stats affichées sur la face (accessible et comparatif).<br>
+          ✓ Les effets visuels croissants par tier (glow, particules, holographique).<br>
+          ✓ Le côté "collectionnable" et shareable des cartes.<br>
+          ✗ On remplace la logique "pack opening" par une progression basée sur la DATA RÉELLE.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     2. LES 6 ATTRIBUTS VELOCARD
+     ═══════════════════════════════════════ -->
+<section style="background:linear-gradient(180deg,rgba(108,92,231,.04),transparent)">
+  <div class="container">
+    <div class="s-label reveal">02 — Les 6 attributs</div>
+    <h2 class="s-title reveal">Système d'Attributs VeloCard</h2>
+    <p class="s-desc reveal">6 attributs mesurables par GPS et capteurs, inspirés de PCM mais adaptés aux données réelles. Chaque attribut est noté de 1 à 99 et calculé à partir des données Strava, Garmin ou Wahoo.</p>
+
+    <div class="attr-grid">
+
+      <!-- PLA -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--sky)">
+        <div class="attr-abbr" style="color:var(--sky)">PLA</div>
+        <div class="attr-name">Plaine</div>
+        <div class="attr-desc">Capacité à maintenir une puissance élevée sur le plat. Mesure la vitesse moyenne sur des segments plats (< 1% de pente) et la puissance normalisée sur des durées de 20-60 min.</div>
+        <div class="attr-source">
+          Sources : Vitesse moy. sur segments plats · NP 20-60 min · W/kg en Zone 3+ sur terrain plat · Ratio vitesse/puissance (aérodynamisme)
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:78%;background:var(--sky)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky);margin-top:4px">Exemple : 78</div>
+      </div>
+
+      <!-- MON -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--coral)">
+        <div class="attr-abbr" style="color:var(--coral)">MON</div>
+        <div class="attr-name">Montagne</div>
+        <div class="attr-desc">Performance sur les longues ascensions (> 15 min). Mesure la capacité à soutenir un effort élevé sur des cols et montées prolongées. L'attribut roi du cycliste complet.</div>
+        <div class="attr-source">
+          Sources : W/kg moy. sur efforts > 15 min · VAM (vitesse ascensionnelle) · Meilleur temps sur cols Strava · Puissance au seuil sur pente > 6%
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:85%;background:var(--coral)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--coral);margin-top:4px">Exemple : 85</div>
+      </div>
+
+      <!-- VAL -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--accent-l)">
+        <div class="attr-abbr" style="color:var(--accent-l)">VAL</div>
+        <div class="attr-name">Vallon</div>
+        <div class="attr-desc">Explosivité sur des bosses courtes et raides (1-5 min). Capacité à "puncher" — accélérer violemment en côte puis relancer. Le profil classique des puncheurs.</div>
+        <div class="attr-source">
+          Sources : W/kg moy. sur efforts 1-5 min · Puissance max 3 min · Ratio pic/moy. de puissance · Performance sur segments vallonnés
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:72%;background:var(--accent-l)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent-l);margin-top:4px">Exemple : 72</div>
+      </div>
+
+      <!-- SPR -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--gold)">
+        <div class="attr-abbr" style="color:var(--gold)">SPR</div>
+        <div class="attr-name">Sprint</div>
+        <div class="attr-desc">Puissance maximale sur 10-15 secondes. Capacité explosive pure. La stat qui domine les arrivées au sprint et les segments courts Strava.</div>
+        <div class="attr-source">
+          Sources : Puissance max 5s, 10s, 15s · Watts absolus (pas W/kg) · Record sur segments < 30s · Accélération peak
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:65%;background:var(--gold)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px">Exemple : 65</div>
+      </div>
+
+      <!-- END -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--mint)">
+        <div class="attr-abbr" style="color:var(--mint)">END</div>
+        <div class="attr-name">Endurance</div>
+        <div class="attr-desc">Volume kilométrique et résistance à la fatigue. Mesure la capacité à enchaîner les heures de selle sans dégradation de performance. Le socle de tout cycliste sérieux.</div>
+        <div class="attr-source">
+          Sources : Km total / mois · Heures / semaine · Ratio performance début/fin de sortie (decoupling) · Nb de sorties > 100 km · TSS hebdomadaire
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:82%;background:var(--mint)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);margin-top:4px">Exemple : 82</div>
+      </div>
+
+      <!-- RES -->
+      <div class="attr-card reveal" style="border-top:3px solid var(--ge)">
+        <div class="attr-abbr" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">RES</div>
+        <div class="attr-name">Résultats</div>
+        <div class="attr-desc">Score basé sur les classements en courses réelles ("Hot Races"). L'attribut le plus impactant sur la note globale. Seul moyen d'atteindre un OVR > 85 : performer en compétition.</div>
+        <div class="attr-source">
+          Sources : Classement en événements "Hot Race" · Ratio top 10% / total · Régularité des podiums · Niveau de l'épreuve (local → national → international)
+        </div>
+        <div class="attr-bar"><div class="attr-bar-fill" style="width:70%;background:var(--ge)"></div></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px">Exemple : 70</div>
+      </div>
+    </div>
+
+    <!-- Spécialisations auto -->
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;margin-top:32px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Spécialisation Automatique</div>
+      <div style="font-size:14px;color:var(--t2);margin-bottom:20px">Comme dans PCM, chaque cycliste reçoit une spécialisation basée sur son attribut dominant. Affichée sous le nom sur la carte.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+        <div style="padding:14px;background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.15);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🏔️</div>
+          <div style="font-weight:600;font-size:13px">Grimpeur</div>
+          <div style="font-size:11px;color:var(--t3)">MON dominant</div>
+        </div>
+        <div style="padding:14px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">⚡</div>
+          <div style="font-weight:600;font-size:13px">Sprinter</div>
+          <div style="font-size:11px;color:var(--t3)">SPR dominant</div>
+        </div>
+        <div style="padding:14px;background:rgba(162,155,254,.06);border:1px solid rgba(162,155,254,.15);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">💥</div>
+          <div style="font-weight:600;font-size:13px">Puncheur</div>
+          <div style="font-size:11px;color:var(--t3)">VAL dominant</div>
+        </div>
+        <div style="padding:14px;background:rgba(116,185,255,.06);border:1px solid rgba(116,185,255,.15);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🛤️</div>
+          <div style="font-weight:600;font-size:13px">Rouleur</div>
+          <div style="font-size:11px;color:var(--t3)">PLA dominant</div>
+        </div>
+        <div style="padding:14px;background:rgba(0,245,212,.06);border:1px solid rgba(0,245,212,.15);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🔋</div>
+          <div style="font-weight:600;font-size:13px">Endurant</div>
+          <div style="font-size:11px;color:var(--t3)">END dominant</div>
+        </div>
+        <div style="padding:14px;background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.2);border-radius:var(--r);text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🏆</div>
+          <div style="font-weight:600;font-size:13px">Complet</div>
+          <div style="font-size:11px;color:var(--t3)">Équilibré (écart < 10)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     3. DATA PIPELINE
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">03 — Data Pipeline</div>
+    <h2 class="s-title reveal">De la Sortie Vélo à la Carte</h2>
+    <p class="s-desc reveal">Le flux complet de transformation des données GPS/capteurs en notes 1-99. Chaque sortie fait évoluer la carte en temps quasi-réel.</p>
+
+    <!-- Flow diagram -->
+    <div class="flow reveal">
+      <div class="flow-step">
+        <div class="flow-step-icon">📡</div>
+        <div class="flow-step-title">Captation</div>
+        <div class="flow-step-desc">Strava / Garmin / Wahoo API</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-icon">🧮</div>
+        <div class="flow-step-title">Extraction</div>
+        <div class="flow-step-desc">Métriques brutes par sortie</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-icon">📊</div>
+        <div class="flow-step-title">Percentile</div>
+        <div class="flow-step-desc">Rang vs. population globale</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-icon">⚖️</div>
+        <div class="flow-step-title">Normalisation</div>
+        <div class="flow-step-desc">Mapping 1-99 + decay</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-icon">🃏</div>
+        <div class="flow-step-title">Carte</div>
+        <div class="flow-step-desc">OVR + 6 attributs + Tier</div>
+      </div>
+    </div>
+
+    <!-- Detailed logic -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <!-- Source data -->
+      <div class="info-card reveal">
+        <div class="info-card-label" style="color:var(--mint)">Source des données</div>
+        <div class="info-card-title">APIs & Métriques Extraites</div>
+        <div style="margin-top:16px">
+          <table class="data-table">
+            <tr><th>Source</th><th>Données extraites</th></tr>
+            <tr><td>Strava API</td><td>GPS, vitesse, altitude, HR, puissance (si capteur), segments, durée, cadence</td></tr>
+            <tr><td>Garmin Connect</td><td>FIT files : puissance, HR zones, VO2max estimé, Training Effect, Body Battery</td></tr>
+            <tr><td>Wahoo API</td><td>Puissance (KICKR/ELEMNT), cadence, HR, GPS haute précision</td></tr>
+            <tr><td>Calculs dérivés</td><td>NP, IF, TSS, W/kg, VAM, decoupling, puissance critique (CP), W'</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Percentile system -->
+      <div class="info-card reveal">
+        <div class="info-card-label" style="color:var(--gold)">Système de percentiles</div>
+        <div class="info-card-title">Classement Global Dynamique</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-top:16px;margin-bottom:16px">
+          Chaque métrique brute est convertie en percentile vs. l'ensemble des utilisateurs VeloCard du même genre et tranche d'âge. Le percentile est ensuite mappé sur l'échelle 1-99.
+        </div>
+        <table class="data-table">
+          <tr><th>Percentile</th><th>Note</th><th>Interprétation</th></tr>
+          <tr><td>0-10%</td><td>1-30</td><td>Débutant</td></tr>
+          <tr><td>10-30%</td><td>30-50</td><td>Intermédiaire</td></tr>
+          <tr><td>30-60%</td><td>50-65</td><td>Confirmé</td></tr>
+          <tr><td>60-80%</td><td>65-75</td><td>Avancé</td></tr>
+          <tr><td>80-90%</td><td>75-82</td><td>Expert</td></tr>
+          <tr><td>90-95%</td><td>82-88</td><td>Élite amateur</td></tr>
+          <tr><td>95-99%</td><td>88-95</td><td>Compétiteur haut niveau</td></tr>
+          <tr class="highlight"><td>Top 1%</td><td>95-99</td><td>Pro / semi-pro confirmé</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Formulas -->
+    <div style="margin-top:32px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Formule de calcul de chaque attribut</div>
+
+      <div class="formula-box" style="margin-bottom:16px">
+        <span class="formula-comment">// MONTAGNE (MON) — Exemple de calcul</span><br>
+        <span class="formula-keyword">const</span> raw_data = {<br>
+        &nbsp;&nbsp;wkg_20min_best: <span class="formula-number">4.2</span>, <span class="formula-comment">// W/kg meilleur effort 20 min (rolling 90 jours)</span><br>
+        &nbsp;&nbsp;vam_best: <span class="formula-number">1320</span>, <span class="formula-comment">// VAM max sur col > 5km</span><br>
+        &nbsp;&nbsp;climb_volume: <span class="formula-number">28500</span>, <span class="formula-comment">// D+ total sur 90 jours</span><br>
+        &nbsp;&nbsp;col_segments_top10: <span class="formula-number">12</span> <span class="formula-comment">// Nb de segments col dans le top 10%</span><br>
+        }<br><br>
+        <span class="formula-comment">// Chaque métrique → percentile vs. population</span><br>
+        <span class="formula-keyword">const</span> percentiles = {<br>
+        &nbsp;&nbsp;wkg: <span class="formula-number">92</span>, <span class="formula-comment">// 92e percentile pour 4.2 W/kg 20min (H, 25-34 ans)</span><br>
+        &nbsp;&nbsp;vam: <span class="formula-number">88</span>,<br>
+        &nbsp;&nbsp;volume: <span class="formula-number">85</span>,<br>
+        &nbsp;&nbsp;segments: <span class="formula-number">90</span><br>
+        }<br><br>
+        <span class="formula-comment">// Pondération → note finale</span><br>
+        <span class="formula-keyword">const</span> MON = Math.round(<br>
+        &nbsp;&nbsp;percentiles.wkg * <span class="formula-number">0.40</span> + <span class="formula-comment">// W/kg = 40% du poids</span><br>
+        &nbsp;&nbsp;percentiles.vam * <span class="formula-number">0.25</span> + <span class="formula-comment">// VAM = 25%</span><br>
+        &nbsp;&nbsp;percentiles.volume * <span class="formula-number">0.15</span> + <span class="formula-comment">// Volume D+ = 15%</span><br>
+        &nbsp;&nbsp;percentiles.segments * <span class="formula-number">0.20</span> <span class="formula-comment">// Performance segments = 20%</span><br>
+        )<br>
+        <span class="formula-comment">// → percentile_score = 89.35</span><br>
+        <span class="formula-comment">// → map_to_99(89.35) = <span style="color:var(--coral);font-weight:700">85</span></span>
+      </div>
+
+      <div class="formula-box">
+        <span class="formula-comment">// NOTE GLOBALE (OVR) — Pondération stratégique</span><br>
+        <span class="formula-keyword">const</span> OVR = Math.round(<br>
+        &nbsp;&nbsp;PLA * <span class="formula-number">0.15</span> +<br>
+        &nbsp;&nbsp;MON * <span class="formula-number">0.20</span> +<br>
+        &nbsp;&nbsp;VAL * <span class="formula-number">0.10</span> +<br>
+        &nbsp;&nbsp;SPR * <span class="formula-number">0.10</span> +<br>
+        &nbsp;&nbsp;END * <span class="formula-number">0.15</span> +<br>
+        &nbsp;&nbsp;RES * <span class="formula-number">0.30</span> <span class="formula-comment">// Résultats = 30% de l'OVR → incite à la compétition</span><br>
+        )<br><br>
+        <span class="formula-comment">// Exemple : 78×.15 + 85×.20 + 72×.10 + 65×.10 + 82×.15 + 70×.30</span><br>
+        <span class="formula-comment">// = 11.7 + 17.0 + 7.2 + 6.5 + 12.3 + 21.0 = <span style="color:var(--gold);font-weight:700">75.7 → OVR 76</span></span>
+      </div>
+    </div>
+
+    <!-- Weight table per attribute -->
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;margin-top:32px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Pondération détaillée par attribut</div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <tr>
+            <th>Attribut</th>
+            <th>Métrique 1 (poids)</th>
+            <th>Métrique 2 (poids)</th>
+            <th>Métrique 3 (poids)</th>
+            <th>Métrique 4 (poids)</th>
+          </tr>
+          <tr>
+            <td style="color:var(--sky)">PLA</td>
+            <td>NP 20-60min sur plat (35%)</td>
+            <td>Vitesse moy. segments plats (30%)</td>
+            <td>W/kg Zone 3+ terrain plat (20%)</td>
+            <td>Volume km plat / mois (15%)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--coral)">MON</td>
+            <td>W/kg efforts > 15min (40%)</td>
+            <td>VAM max col > 5km (25%)</td>
+            <td>Perf. segments cols (20%)</td>
+            <td>Volume D+ / 90j (15%)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-l)">VAL</td>
+            <td>W/kg efforts 1-5min (40%)</td>
+            <td>Puissance max 3min (25%)</td>
+            <td>Ratio pic/moy puissance (20%)</td>
+            <td>Perf. segments vallonnés (15%)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--gold)">SPR</td>
+            <td>Puissance max 5-15s (45%)</td>
+            <td>Watts absolus peak (25%)</td>
+            <td>Perf. segments < 30s (20%)</td>
+            <td>Accélération peak (10%)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--mint)">END</td>
+            <td>TSS hebdo moy. (30%)</td>
+            <td>Km total / mois (25%)</td>
+            <td>Decoupling % (25%)</td>
+            <td>Nb sorties > 100km (20%)</td>
+          </tr>
+          <tr>
+            <td style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">RES</td>
+            <td>Classement Hot Races (40%)</td>
+            <td>Ratio top 10% events (25%)</td>
+            <td>Régularité podiums (20%)</td>
+            <td>Niveau épreuve coefficient (15%)</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     4. BARÈME ENTRAÎNEMENT vs. COMPÉTITION
+     ═══════════════════════════════════════ -->
+<section style="background:linear-gradient(180deg,rgba(253,203,110,.04),transparent)">
+  <div class="container">
+    <div class="s-label reveal">04 — Barème stratégique</div>
+    <h2 class="s-title reveal">Entraînement vs. Compétition</h2>
+    <p class="s-desc reveal">L'équilibre clé : les sorties d'entraînement font progresser les stats de base, mais seules les courses officielles ("Hot Races") permettent d'atteindre les notes maximales et de booster l'OVR.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <div class="info-card reveal" style="border-top:3px solid var(--mint)">
+        <div style="font-size:28px;margin-bottom:12px">🚴</div>
+        <div class="info-card-title">Sorties d'Entraînement</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-top:12px;margin-bottom:16px">
+          Chaque sortie enregistrée fait évoluer les attributs PLA, MON, VAL, SPR et END. Les données sont agrégées sur une fenêtre glissante de 90 jours pour refléter la forme actuelle.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;font-size:12px">
+            <span>Plafond attribut via entraînement seul</span>
+            <span style="font-weight:700;color:var(--mint)">max 80 / 99</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;font-size:12px">
+            <span>Plafond OVR via entraînement seul</span>
+            <span style="font-weight:700;color:var(--mint)">max 72 / 99</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;font-size:12px">
+            <span>Attribut RES via entraînement</span>
+            <span style="font-weight:700;color:var(--t3)">0 (non impacté)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;font-size:12px">
+            <span>Fenêtre de calcul (rolling)</span>
+            <span style="font-weight:700;color:var(--mint)">90 jours</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;font-size:12px">
+            <span>Decay si inactivité > 14 jours</span>
+            <span style="font-weight:700;color:var(--coral)">-1 pt / semaine</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card reveal" style="border-top:3px solid var(--gold)">
+        <div style="font-size:28px;margin-bottom:12px">🏁</div>
+        <div class="info-card-title">Courses "Hot Races"</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-top:12px;margin-bottom:16px">
+          Les courses tagguées "Hot Race" (cyclosportives, courses UFOLEP/FFC, granfondos, etc.) débloquent le plein potentiel. Elles alimentent l'attribut RES (30% de l'OVR) et lèvent le plafond des autres stats.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:8px;font-size:12px">
+            <span>Plafond attribut avec compétition</span>
+            <span style="font-weight:700;color:var(--gold)">99 / 99</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:8px;font-size:12px">
+            <span>Plafond OVR avec compétition</span>
+            <span style="font-weight:700;color:var(--gold)">99 / 99</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:8px;font-size:12px">
+            <span>Boost RES par course (top 10%)</span>
+            <span style="font-weight:700;color:var(--gold)">+5 à +15 pts</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:8px;font-size:12px">
+            <span>Coefficient épreuve nationale</span>
+            <span style="font-weight:700;color:var(--gold)">×1.5</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.15);border-radius:8px;font-size:12px">
+            <span>Coefficient épreuve internationale</span>
+            <span style="font-weight:700;color:var(--gold)">×2.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier mapping -->
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;margin-top:32px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px">Mapping OVR → Tier de Carte</div>
+
+      <div class="tier-row">
+        <div class="tier-chip" style="background:rgba(205,127,50,.1);border-color:rgba(205,127,50,.3)"><span style="font-size:14px">🥉</span> <span style="color:#CD7F32">Bronze</span></div>
+        <div class="tier-range">OVR 1-49</div>
+        <div class="tier-bar"><div style="width:49%;height:100%;background:linear-gradient(90deg,#8B6914,#CD7F32);border-radius:100px"></div></div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-chip" style="background:rgba(192,192,192,.08);border-color:rgba(192,192,192,.2)"><span style="font-size:14px">🥈</span> <span style="color:#C0C0C0">Argent</span></div>
+        <div class="tier-range">OVR 50-64</div>
+        <div class="tier-bar"><div style="width:64%;height:100%;background:linear-gradient(90deg,#808080,#C0C0C0);border-radius:100px"></div></div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-chip" style="background:rgba(108,92,231,.08);border-color:var(--ba)"><span style="font-size:14px">💎</span> <span style="color:var(--accent-l)">Platine</span></div>
+        <div class="tier-range">OVR 65-79</div>
+        <div class="tier-bar"><div style="width:79%;height:100%;background:var(--gp);border-radius:100px"></div></div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-chip" style="background:rgba(0,245,212,.06);border-color:rgba(0,245,212,.2)"><span style="font-size:14px">🔮</span> <span style="color:var(--mint)">Diamant</span></div>
+        <div class="tier-range">OVR 80-89</div>
+        <div class="tier-bar"><div style="width:89%;height:100%;background:var(--gf);border-radius:100px"></div></div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-chip" style="background:rgba(253,203,110,.1);border-color:rgba(253,203,110,.3)"><span style="font-size:14px">👑</span> <span style="color:var(--gold)">Légende</span></div>
+        <div class="tier-range">OVR 90-99</div>
+        <div class="tier-bar"><div style="width:99%;height:100%;background:var(--gg);border-radius:100px"></div></div>
+      </div>
+
+      <div style="margin-top:20px;font-size:13px;color:var(--t2);line-height:1.8">
+        <strong style="color:var(--t1)">Distribution estimée :</strong> Bronze ~30% des utilisateurs · Argent ~35% · Platine ~25% · Diamant ~8% · Légende ~2% (compétiteurs actifs avec résultats). Cette répartition est recalibrée trimestriellement pour maintenir la rareté des tiers élevés.
+      </div>
+    </div>
+
+    <!-- Hot Race detection -->
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;margin-top:24px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">🏁 Détection des "Hot Races"</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+        Comment l'app identifie une course officielle vs. un entraînement ? Trois mécanismes complémentaires :
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-size:20px;margin-bottom:8px">📋</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Catalogue officiel</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">Base de données des cyclosportives, courses FFC/UFOLEP, granfondos. L'utilisateur tag sa sortie comme "Course" et l'app valide via le calendrier.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-size:20px;margin-bottom:8px">🤖</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Détection IA</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">Pattern recognition : IF > 0.85 + groupe > 10 riders + parcours dans le catalogue = course probable. Soumis à validation utilisateur.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-size:20px;margin-bottom:8px">👥</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Validation communautaire</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">Si > 20 utilisateurs VeloCard taguent la même sortie comme "Course" le même jour sur le même parcours → Hot Race validée automatiquement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     5. DECAY & ÉVOLUTION
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">05 — Évolution dynamique</div>
+    <h2 class="s-title reveal">Decay, Progression & Saisonnalité</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px" class="reveal">
+      <div class="info-card">
+        <div style="font-size:24px;margin-bottom:8px">📈</div>
+        <div class="info-card-title">Progression</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-top:8px">
+          Chaque sortie recalcule les attributs en temps quasi-réel. Rolling window de 90 jours pondéré (les sorties récentes pèsent plus). Un cycliste actif voit sa carte évoluer chaque semaine.
+        </div>
+      </div>
+      <div class="info-card">
+        <div style="font-size:24px;margin-bottom:8px">📉</div>
+        <div class="info-card-title">Decay (régression)</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-top:8px">
+          Si inactivité > 14 jours : -1 point par semaine sur les attributs physiques (PLA, MON, VAL, SPR, END). RES ne decay qu'après 6 mois sans course. L'OVR baisse en conséquence. Incitation forte à la régularité.
+        </div>
+      </div>
+      <div class="info-card">
+        <div style="font-size:24px;margin-bottom:8px">🔄</div>
+        <div class="info-card-title">Saisonnalité</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-top:8px">
+          Reset partiel au 1er janvier : les attributs sont réduits de 15% pour créer un "nouveau départ" de saison. RES est reset à 50% de la valeur précédente. Crée de la motivation de début d'année et relance la boucle de progression.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section class="next-section">
+  <div class="container">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:24px" class="reveal">Étape 1 complète — En attente de validation</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:16px" class="reveal">Prochaine étape</h2>
+    <p style="font-size:16px;color:var(--t2);max-width:520px;margin:0 auto 32px" class="reveal">
+      Valide la logique de calcul et les 6 attributs pour que je passe à l'Étape 2 :
+      les maquettes visuelles des 5 niveaux de cartes (Bronze → Légende).
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:900px;margin:0 auto" class="reveal">
+      <div style="background:var(--bg-card);border:1px solid rgba(253,203,110,.3);border-radius:var(--rl);padding:20px;text-align:left;opacity:.6">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:6px">Étape 01 ✓</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:2px">Recherche & Logique</div>
+        <div style="font-size:11px;color:var(--t3)">PCM, FUT, attributs, formules</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--rl);padding:20px;text-align:left">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:6px">Étape 02 →</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:2px">5 Cartes Visuelles</div>
+        <div style="font-size:11px;color:var(--t3)">Bronze → Légende, effets</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:20px;text-align:left">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px">Étape 03</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:2px">Format Insta Story</div>
+        <div style="font-size:11px;color:var(--t3)">Partage social premium</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:20px;text-align:left">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px">Étape 04</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:2px">Intégration Écrans</div>
+        <div style="font-size:11px;color:var(--t3)">Home, Profil, Classements</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer"><div class="container"><p>VeloCard FUT — Étape 1 : Recherche & Logique de Calcul · Confidentiel · Février 2026</p></div></div>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
+const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

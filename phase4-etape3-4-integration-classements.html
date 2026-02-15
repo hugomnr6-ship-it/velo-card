@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 3.4 : Intégration Classements</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-hover:#1E1E38;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(253,203,110,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(253,203,110,.2)}
+
+.hero{min-height:50vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(253,203,110,.08),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:32px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+section{padding:80px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   PHONE MOCKUP
+   ═══════════════════════════════════════ */
+.screen-layout{display:grid;grid-template-columns:380px 1fr;gap:48px;align-items:start;margin-bottom:80px}
+.screen-layout.reverse{grid-template-columns:1fr 380px}
+.screen-layout.reverse .phone-wrap{order:2}
+.screen-layout.reverse .screen-specs{order:1}
+
+.phone-wrap{position:sticky;top:120px}
+.phone{
+  width:375px;min-height:780px;
+  background:var(--bg-0);
+  border:2px solid var(--b2);
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:140px;height:28px;background:var(--bg-0);border-radius:0 0 20px 20px;z-index:20;border:1px solid var(--b1);border-top:none}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--t2);position:relative;z-index:10}
+.phone-screen{padding:0 0 90px}
+.phone-bottom-nav{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;align-items:center;padding:8px 12px 24px;background:linear-gradient(transparent,var(--bg-0) 20%);z-index:10}
+.bnav-i{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border-radius:12px;cursor:default}
+.bnav-i.active{background:rgba(108,92,231,.12)}
+.bnav-ic{font-size:18px;opacity:.4}
+.bnav-i.active .bnav-ic{opacity:1}
+.bnav-lb{font-size:9px;font-weight:500;color:var(--t3)}
+.bnav-i.active .bnav-lb{color:var(--accent-l)}
+.bnav-ride{background:var(--gp);padding:12px 18px;border-radius:16px}
+.bnav-ride .bnav-ic{opacity:1;font-size:22px}
+.bnav-ride .bnav-lb{color:rgba(255,255,255,.8);font-weight:600}
+
+.ps{padding:0 20px}
+
+/* ═══════════════════════════════════════
+   CLASSEMENT HEADER
+   ═══════════════════════════════════════ */
+.cls-header{padding:12px 20px 0}
+.cls-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+
+/* Tabs */
+.cls-tabs{display:flex;gap:4px;padding:0 20px;margin-bottom:12px}
+.cls-tab{
+  padding:6px 14px;border-radius:10px;
+  font-size:11px;font-weight:600;
+  cursor:default;
+  background:rgba(255,255,255,.04);
+  color:var(--t3);
+  border:1px solid transparent;
+}
+.cls-tab.active{background:rgba(108,92,231,.12);color:var(--accent-l);border-color:rgba(108,92,231,.2)}
+
+/* Filter pills */
+.cls-filters{display:flex;gap:6px;padding:0 20px;margin-bottom:14px;overflow-x:auto}
+.cls-filter{
+  padding:4px 10px;border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  white-space:nowrap;cursor:default;
+  background:rgba(255,255,255,.03);color:var(--t3);
+  border:1px solid var(--b1);
+}
+.cls-filter.active{background:rgba(0,245,212,.08);color:var(--mint);border-color:rgba(0,245,212,.15)}
+
+/* ═══════════════════════════════════════
+   PODIUM — TOP 3
+   ═══════════════════════════════════════ */
+.podium{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:8px;padding:0 20px;margin-bottom:16px;
+  height:200px;
+}
+.podium-slot{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;position:relative;
+}
+.podium-slot.p1{order:2}
+.podium-slot.p2{order:1}
+.podium-slot.p3{order:3}
+
+/* Mini card for podium */
+.pod-card{
+  width:72px;height:104px;
+  border-radius:10px;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+.pod-card-bg{position:absolute;inset:0;border-radius:10px}
+.pod-card-glow{position:absolute;inset:-1px;border-radius:11px}
+.pod-card-inner{
+  position:absolute;inset:0;border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px;z-index:1;
+}
+.pod-ovr{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;line-height:1}
+.pod-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:2px 0}
+.pod-tier{font-size:10px}
+
+/* Podium #1 card bigger */
+.podium-slot.p1 .pod-card{width:88px;height:128px}
+.podium-slot.p1 .pod-ovr{font-size:30px}
+.podium-slot.p1 .pod-avatar{width:34px;height:34px;font-size:14px}
+
+/* Tier styles on podium cards */
+.pod-card.pc-legende .pod-card-bg{background:linear-gradient(160deg,#1A1005,#3A2510)}
+.pod-card.pc-legende .pod-card-glow{box-shadow:0 4px 24px rgba(253,203,110,.3);animation:podLegGlow 4s ease-in-out infinite}
+.pod-card.pc-legende .pod-ovr{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pod-card.pc-legende .pod-avatar{background:rgba(253,203,110,.15);color:rgba(253,203,110,.5)}
+.pod-card.pc-legende::after{content:'';position:absolute;inset:0;border-radius:10px;border:1.5px solid transparent;background:linear-gradient(135deg,rgba(253,203,110,.3),rgba(255,107,107,.2),rgba(108,92,231,.2)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@keyframes podLegGlow{0%,100%{box-shadow:0 4px 24px rgba(253,203,110,.3)}50%{box-shadow:0 6px 36px rgba(253,203,110,.5)}}
+
+.pod-card.pc-diamant .pod-card-bg{background:linear-gradient(160deg,#0A1520,#102A40)}
+.pod-card.pc-diamant .pod-card-glow{box-shadow:0 4px 20px rgba(0,245,212,.2);animation:podDiamGlow 3s ease-in-out infinite}
+.pod-card.pc-diamant .pod-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pod-card.pc-diamant .pod-avatar{background:rgba(0,245,212,.12);color:rgba(0,245,212,.5)}
+.pod-card.pc-diamant::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(0,245,212,.15)}
+@keyframes podDiamGlow{0%,100%{box-shadow:0 4px 20px rgba(0,245,212,.2)}50%{box-shadow:0 6px 28px rgba(0,245,212,.35)}}
+
+.pod-card.pc-platine .pod-card-bg{background:linear-gradient(160deg,#12102A,#2A2050)}
+.pod-card.pc-platine .pod-card-glow{box-shadow:0 4px 18px rgba(108,92,231,.25)}
+.pod-card.pc-platine .pod-ovr{background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pod-card.pc-platine .pod-avatar{background:rgba(108,92,231,.15);color:rgba(162,155,254,.5)}
+.pod-card.pc-platine::after{content:'';position:absolute;inset:0;border-radius:10px;border:1px solid rgba(108,92,231,.2)}
+
+.pod-name{font-size:10px;font-weight:600;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis}
+.pod-spec{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);text-transform:uppercase}
+.pod-rank{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:4px;
+}
+.pod-rank.r1{background:var(--ge);color:#0A0A12}
+.pod-rank.r2{background:rgba(192,192,220,.15);color:#D0D0E0;border:1px solid rgba(192,192,220,.2)}
+.pod-rank.r3{background:rgba(205,127,50,.12);color:#CD7F32;border:1px solid rgba(205,127,50,.2)}
+
+/* Podium pedestals */
+.podium-slot.p1::after{content:'';position:absolute;bottom:0;width:88px;height:60px;background:linear-gradient(180deg,rgba(253,203,110,.06),transparent);border-radius:12px 12px 0 0;z-index:-1}
+.podium-slot.p2::after{content:'';position:absolute;bottom:0;width:72px;height:40px;background:linear-gradient(180deg,rgba(192,192,220,.04),transparent);border-radius:12px 12px 0 0;z-index:-1}
+.podium-slot.p3::after{content:'';position:absolute;bottom:0;width:72px;height:28px;background:linear-gradient(180deg,rgba(205,127,50,.04),transparent);border-radius:12px 12px 0 0;z-index:-1}
+
+/* ═══════════════════════════════════════
+   LEADERBOARD ROWS
+   ═══════════════════════════════════════ */
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  cursor:default;
+  transition:background .2s;
+}
+.lb-row:hover,.lb-row.lb-me{background:rgba(108,92,231,.04)}
+.lb-row.lb-me{border-left:2px solid var(--accent);padding-left:18px}
+
+.lb-rank{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  width:28px;text-align:center;color:var(--t3);flex-shrink:0;
+}
+.lb-rank.top{color:var(--gold)}
+
+/* Inline mini-card (tiny) */
+.lb-mini-card{
+  width:36px;height:52px;border-radius:6px;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.lb-mc-bg{position:absolute;inset:0;border-radius:6px}
+.lb-mc-inner{position:absolute;inset:0;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;z-index:1}
+.lb-mc-ovr{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;line-height:1}
+.lb-mc-avatar{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;margin:1px 0}
+.lb-mc-tier{font-size:6px}
+
+/* Tier colors for lb-mini */
+.lb-mini-card.lmc-bronze .lb-mc-bg{background:linear-gradient(160deg,#2A1F0E,#4A3520)}
+.lb-mini-card.lmc-bronze .lb-mc-ovr{color:#CD7F32}
+.lb-mini-card.lmc-bronze .lb-mc-avatar{background:rgba(205,127,50,.15);color:rgba(205,127,50,.4)}
+.lb-mini-card.lmc-bronze::after{content:'';position:absolute;inset:0;border-radius:6px;border:1px solid rgba(205,127,50,.12)}
+
+.lb-mini-card.lmc-silver .lb-mc-bg{background:linear-gradient(160deg,#1A1A24,#2A2A3A)}
+.lb-mini-card.lmc-silver .lb-mc-ovr{color:#D0D0E0}
+.lb-mini-card.lmc-silver .lb-mc-avatar{background:rgba(192,192,192,.1);color:rgba(192,192,220,.4)}
+.lb-mini-card.lmc-silver::after{content:'';position:absolute;inset:0;border-radius:6px;border:1px solid rgba(192,192,192,.08)}
+
+.lb-mini-card.lmc-platine .lb-mc-bg{background:linear-gradient(160deg,#12102A,#2A2050)}
+.lb-mini-card.lmc-platine .lb-mc-ovr{background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lb-mini-card.lmc-platine .lb-mc-avatar{background:rgba(108,92,231,.15);color:rgba(162,155,254,.4)}
+.lb-mini-card.lmc-platine::after{content:'';position:absolute;inset:0;border-radius:6px;border:1px solid rgba(108,92,231,.15)}
+
+.lb-mini-card.lmc-diamant .lb-mc-bg{background:linear-gradient(160deg,#0A1520,#102A40)}
+.lb-mini-card.lmc-diamant .lb-mc-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lb-mini-card.lmc-diamant .lb-mc-avatar{background:rgba(0,245,212,.1);color:rgba(0,245,212,.4)}
+.lb-mini-card.lmc-diamant::after{content:'';position:absolute;inset:0;border-radius:6px;border:1px solid rgba(0,245,212,.1)}
+
+.lb-mini-card.lmc-legende .lb-mc-bg{background:linear-gradient(160deg,#1A1005,#3A2510)}
+.lb-mini-card.lmc-legende .lb-mc-ovr{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lb-mini-card.lmc-legende .lb-mc-avatar{background:rgba(253,203,110,.15);color:rgba(253,203,110,.4)}
+.lb-mini-card.lmc-legende::after{content:'';position:absolute;inset:0;border-radius:6px;border:1px solid rgba(253,203,110,.15)}
+
+/* Leaderboard info */
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)}
+
+.lb-ovr-col{text-align:right;flex-shrink:0}
+.lb-ovr-val{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700}
+.lb-ovr-delta{font-family:'JetBrains Mono',monospace;font-size:9px}
+.lb-ovr-delta.up{color:var(--mint)}
+.lb-ovr-delta.down{color:var(--coral)}
+.lb-ovr-delta.neu{color:var(--t3)}
+
+/* Your position indicator */
+.lb-separator{
+  padding:6px 20px;
+  display:flex;align-items:center;gap:8px;
+}
+.lb-sep-line{flex:1;height:1px;background:var(--b1)}
+.lb-sep-text{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+
+/* ═══════════════════════════════════════
+   CARD PREVIEW OVERLAY (on tap)
+   ═══════════════════════════════════════ */
+.preview-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(10,10,18,.85);
+  backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+.preview-overlay.show{opacity:1;pointer-events:auto}
+
+/* Preview card (medium) */
+.prev-card{
+  width:200px;height:292px;border-radius:16px;
+  position:relative;overflow:hidden;
+  transform:scale(.9);transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.preview-overlay.show .prev-card{transform:scale(1)}
+.prev-card-bg{position:absolute;inset:0;border-radius:16px;z-index:0}
+.prev-card-glow{position:absolute;inset:-2px;border-radius:18px;z-index:-1}
+.prev-card-particles{position:absolute;inset:0;border-radius:16px;z-index:3;pointer-events:none;overflow:hidden}
+.prev-card-texture{position:absolute;inset:0;border-radius:16px;z-index:1;opacity:.3}
+.prev-card-inner{position:absolute;inset:0;border-radius:16px;padding:14px;display:flex;flex-direction:column;z-index:2}
+.prev-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.prev-ovr{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700;line-height:1;letter-spacing:-1.5px}
+.prev-pos{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:2px}
+.prev-tier-icon{font-size:22px}
+.prev-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;position:relative}
+.prev-avatar::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12)}
+.prev-name{text-align:center;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:1px}
+.prev-spec{text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5;margin-bottom:3px}
+.prev-flag{text-align:center;font-size:13px;margin-bottom:10px}
+.prev-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:auto}
+.prev-stat{text-align:center;padding:5px 2px;border-radius:6px;background:rgba(0,0,0,.25)}
+.prev-stat-val{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;line-height:1.2}
+.prev-stat-label{font-family:'JetBrains Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:.8px;opacity:.5}
+
+.prev-card.prc-diamant .prev-card-bg{background:linear-gradient(160deg,#0A1520,#0E2535 30%,#102A40 60%,#081A28)}
+.prev-card.prc-diamant .prev-card-glow{box-shadow:0 8px 48px rgba(0,245,212,.3);animation:prevDiamGlow 3s ease-in-out infinite}
+.prev-card.prc-diamant .prev-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.prev-card.prc-diamant .prev-avatar{background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(116,185,255,.15));color:rgba(0,245,212,.5)}
+.prev-card.prc-diamant .prev-stat-val{color:var(--mint)}
+.prev-card.prc-diamant::after{content:'';position:absolute;inset:0;border-radius:16px;border:1px solid rgba(0,245,212,.2)}
+.prev-card.prc-diamant .prev-card-texture{background:linear-gradient(180deg,transparent 0%,rgba(0,245,212,.06) 45%,rgba(116,185,255,.08) 50%,rgba(0,245,212,.06) 55%,transparent 100%);background-size:100% 300%;animation:prevHoloScan 4s ease-in-out infinite;opacity:1}
+.prev-card.prc-diamant .prev-card-particles{background:radial-gradient(1px 1px at 20% 30%,rgba(0,245,212,.6),transparent),radial-gradient(1px 1px at 70% 20%,rgba(116,185,255,.5),transparent),radial-gradient(1px 1px at 40% 70%,rgba(0,245,212,.4),transparent),radial-gradient(1px 1px at 80% 60%,rgba(116,185,255,.3),transparent);animation:prevPartFloat 6s ease-in-out infinite}
+@keyframes prevDiamGlow{0%,100%{box-shadow:0 8px 48px rgba(0,245,212,.3)}50%{box-shadow:0 12px 60px rgba(0,245,212,.45)}}
+@keyframes prevHoloScan{0%{background-position:0% 0%}100%{background-position:0% 100%}}
+@keyframes prevPartFloat{0%,100%{transform:translateY(0)}33%{transform:translateY(-3px)}66%{transform:translateY(2px)}}
+
+.prev-actions{display:flex;gap:8px}
+.prev-btn{
+  padding:8px 16px;border-radius:10px;font-size:11px;font-weight:600;
+  border:none;cursor:default;display:flex;align-items:center;gap:4px;
+}
+.prev-btn-profile{background:var(--gp);color:white}
+.prev-btn-compare{background:rgba(255,255,255,.06);border:1px solid var(--b1);color:var(--t2)}
+.prev-btn-close{background:rgba(255,255,255,.06);border:1px solid var(--b1);color:var(--t2);padding:8px 12px}
+
+/* ═══════════════════════════════════════
+   SPECS
+   ═══════════════════════════════════════ */
+.spec-panel{background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);padding:32px;margin-bottom:24px}
+.spec-panel-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.spec-panel-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.spec-row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.spec-row:last-child{border-bottom:none}
+.spec-row-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1px}
+.spec-row-value{font-size:13px;color:var(--t2);line-height:1.6}
+.spec-row-value strong{color:var(--t1);font-weight:600}
+.spec-row-value code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(108,92,231,.1);padding:2px 6px;border-radius:4px;color:var(--accent-l)}
+
+/* Comp table */
+.comp-table{width:100%;border-collapse:collapse;margin-top:12px}
+.comp-table th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:10px 8px;text-align:left;border-bottom:1px solid var(--b1)}
+.comp-table td{font-size:12px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2)}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table .check{color:var(--mint);font-weight:700}
+
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .screen-layout,.screen-layout.reverse{grid-template-columns:1fr;gap:32px}
+  .phone-wrap{position:relative;top:0;display:flex;justify-content:center}
+  .screen-layout.reverse .phone-wrap{order:0}
+  .spec-row{grid-template-columns:1fr;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 3.4 / 04</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🏆 Intégration Écran Classements</div>
+    <h1>Qui a la Meilleure<br><span class="gt">Carte ?</span></h1>
+    <p class="hero-sub">Le leaderboard intègre les mini-cartes à chaque rang. Le podium met en scène les 3 meilleures cartes. Un tap sur n'importe quel cycliste ouvre un preview de sa carte complète.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — PHONE MOCKUP
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Maquette Complète</div>
+    <h2 class="s-title reveal">Classements — OVR Global</h2>
+    <p class="s-desc reveal">Le classement par OVR est le classement par défaut. Tabs pour switcher entre Global, Amis, Club, et par Attribut. Filters pour le scope géographique.</p>
+
+    <div class="screen-layout reveal">
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>⚡ 87%</span></div>
+          <div class="phone-screen">
+
+            <!-- Header -->
+            <div class="cls-header">
+              <div class="cls-title">Classements 🏆</div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="cls-tabs">
+              <div class="cls-tab active">OVR Global</div>
+              <div class="cls-tab">Amis</div>
+              <div class="cls-tab">Club</div>
+              <div class="cls-tab">Par Attribut</div>
+            </div>
+
+            <!-- Filters -->
+            <div class="cls-filters">
+              <div class="cls-filter active">🌍 Mondial</div>
+              <div class="cls-filter">🇫🇷 France</div>
+              <div class="cls-filter">📍 Région</div>
+              <div class="cls-filter">🏔️ Grimpeurs</div>
+              <div class="cls-filter">🚴 Rouleurs</div>
+            </div>
+
+            <!-- Podium Top 3 -->
+            <div class="podium">
+              <!-- 2nd -->
+              <div class="podium-slot p2">
+                <div class="pod-card pc-diamant">
+                  <div class="pod-card-bg"></div>
+                  <div class="pod-card-glow"></div>
+                  <div class="pod-card-inner">
+                    <div class="pod-ovr">88</div>
+                    <div class="pod-avatar">A</div>
+                    <div class="pod-tier">💠</div>
+                  </div>
+                </div>
+                <div class="pod-name">Alex Moreau</div>
+                <div class="pod-spec">Rouleur · 🇫🇷</div>
+                <div class="pod-rank r2">2</div>
+              </div>
+
+              <!-- 1st -->
+              <div class="podium-slot p1">
+                <div class="pod-card pc-legende">
+                  <div class="pod-card-bg"></div>
+                  <div class="pod-card-glow"></div>
+                  <div class="pod-card-inner">
+                    <div class="pod-ovr">95</div>
+                    <div class="pod-avatar">J</div>
+                    <div class="pod-tier">👑</div>
+                  </div>
+                </div>
+                <div class="pod-name">J. Alaphilippe</div>
+                <div class="pod-spec">Puncheur · 🇫🇷</div>
+                <div class="pod-rank r1">1</div>
+              </div>
+
+              <!-- 3rd -->
+              <div class="podium-slot p3">
+                <div class="pod-card pc-diamant">
+                  <div class="pod-card-bg"></div>
+                  <div class="pod-card-glow"></div>
+                  <div class="pod-card-inner">
+                    <div class="pod-ovr">85</div>
+                    <div class="pod-avatar">S</div>
+                    <div class="pod-tier">💠</div>
+                  </div>
+                </div>
+                <div class="pod-name">Sofia Chen</div>
+                <div class="pod-spec">Grimpeuse · 🇨🇭</div>
+                <div class="pod-rank r3">3</div>
+              </div>
+            </div>
+
+            <!-- Leaderboard rows -->
+            <div class="lb-row">
+              <div class="lb-rank top">4</div>
+              <div class="lb-mini-card lmc-diamant">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">83</div><div class="lb-mc-avatar">M</div><div class="lb-mc-tier">💠</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Marc Dubois</div><div class="lb-meta">Sprinter · 🇧🇪</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">83</div><div class="lb-ovr-delta up">↑ 2</div></div>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-rank top">5</div>
+              <div class="lb-mini-card lmc-diamant">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">81</div><div class="lb-mc-avatar">E</div><div class="lb-mc-tier">💠</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Emma Laurent</div><div class="lb-meta">Endurante · 🇫🇷</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">81</div><div class="lb-ovr-delta neu">—</div></div>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-rank">6</div>
+              <div class="lb-mini-card lmc-platine">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">78</div><div class="lb-mc-avatar">L</div><div class="lb-mc-tier">💎</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Luca Rossi</div><div class="lb-meta">Puncheur · 🇮🇹</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="color:var(--accent-l)">78</div><div class="lb-ovr-delta up">↑ 1</div></div>
+            </div>
+
+            <!-- Separator -->
+            <div class="lb-separator">
+              <div class="lb-sep-line"></div>
+              <div class="lb-sep-text">· · · Ta position · · ·</div>
+              <div class="lb-sep-line"></div>
+            </div>
+
+            <!-- Your row (highlighted) -->
+            <div class="lb-row lb-me">
+              <div class="lb-rank">24</div>
+              <div class="lb-mini-card lmc-platine">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">74</div><div class="lb-mc-avatar">T</div><div class="lb-mc-tier">💎</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Thomas Berg <span style="font-size:9px;color:var(--accent-l)">(toi)</span></div><div class="lb-meta">Puncheur · 🇧🇪</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="color:var(--accent-l)">74</div><div class="lb-ovr-delta up">↑ 3</div></div>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-rank">25</div>
+              <div class="lb-mini-card lmc-platine">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">73</div><div class="lb-mc-avatar">P</div><div class="lb-mc-tier">💎</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Pierre Martin</div><div class="lb-meta">Grimpeur · 🇫🇷</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="color:var(--accent-l)">73</div><div class="lb-ovr-delta down">↓ 1</div></div>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-rank">26</div>
+              <div class="lb-mini-card lmc-silver">
+                <div class="lb-mc-bg"></div>
+                <div class="lb-mc-inner"><div class="lb-mc-ovr">64</div><div class="lb-mc-avatar">K</div><div class="lb-mc-tier">🥈</div></div>
+              </div>
+              <div class="lb-info"><div class="lb-name">Karim Benali</div><div class="lb-meta">Rouleur · 🇲🇦</div></div>
+              <div class="lb-ovr-col"><div class="lb-ovr-val" style="color:#C0C0D0">64</div><div class="lb-ovr-delta up">↑ 5</div></div>
+            </div>
+
+          </div>
+
+          <div class="phone-bottom-nav">
+            <div class="bnav-i"><div class="bnav-ic">🏠</div><div class="bnav-lb">Home</div></div>
+            <div class="bnav-i active"><div class="bnav-ic">🏆</div><div class="bnav-lb">Classement</div></div>
+            <div class="bnav-i bnav-ride"><div class="bnav-ic">🚴</div><div class="bnav-lb">Ride</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👥</div><div class="bnav-lb">Club</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👤</div><div class="bnav-lb">Profil</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-specs">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent-l);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Specs — Écran Classements</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px">Le Leaderboard FUT</div>
+        <div style="font-size:14px;color:var(--gold);font-weight:500;margin-bottom:20px;font-style:italic">"Je veux monter, je veux la meilleure carte"</div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Podium Top 3</div>
+          <div class="spec-row"><div class="spec-row-label">Layout</div><div class="spec-row-value"><strong>3 colonnes flex</strong> — #2 à gauche (72×104px card), #1 au centre plus grand (88×128px), #3 à droite. Piédestaux en gradient subtil</div></div>
+          <div class="spec-row"><div class="spec-row-label">Cartes</div><div class="spec-row-value"><strong>Mini-cartes tier-colored</strong> — OVR, avatar, icône tier. Les cartes Diamant/Légende conservent leur glow animé même en mini</div></div>
+          <div class="spec-row"><div class="spec-row-label">Badges</div><div class="spec-row-value"><strong>Cercles numérotés</strong> — #1 gold gradient, #2 silver border, #3 bronze border. Font Space Grotesk 14px bold</div></div>
+          <div class="spec-row"><div class="spec-row-label">Animation</div><div class="spec-row-value"><strong>Reveal séquentiel</strong> : #3 slide-up (200ms) → #2 slide-up (200ms) → #1 scale-bounce (400ms) + confetti burst</div></div>
+        </div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Rows du Leaderboard</div>
+          <div class="spec-row"><div class="spec-row-label">Composant</div><div class="spec-row-value"><strong>Flex row</strong> — Rang + mini-card (36×52px) + nom/meta + OVR/delta. Height ~60px. Border-bottom 3% white</div></div>
+          <div class="spec-row"><div class="spec-row-label">Mini-Card</div><div class="spec-row-value"><strong>36×52px</strong> — Version ultra-compacte : OVR (14px) + avatar (16px) + tier emoji. Gradient tier-colored. Border tier-colored</div></div>
+          <div class="spec-row"><div class="spec-row-label">Ta Position</div><div class="spec-row-value"><strong>Highlighted row</strong> — Background accent 4% + border-left 2px accent. Séparateur "· · · Ta position · · ·" avant ta row si tu n'es pas visible</div></div>
+          <div class="spec-row"><div class="spec-row-label">Delta</div><div class="spec-row-value"><strong>Variation depuis la semaine</strong> — ↑ vert mint, ↓ coral, — neutre. Donne un sens de dynamisme au classement</div></div>
+          <div class="spec-row"><div class="spec-row-label">Tap</div><div class="spec-row-value"><strong>→ Preview overlay</strong> — Carte medium (200×292px) sur fond blur + boutons "Voir profil" / "Comparer". Haptic light</div></div>
+        </div>
+
+        <div class="spec-panel" style="margin-bottom:16px">
+          <div class="spec-panel-title" style="font-size:16px">Tabs & Filtres</div>
+          <div class="spec-row"><div class="spec-row-label">Tabs</div><div class="spec-row-value"><strong>4 onglets</strong> — OVR Global (défaut), Amis (graph social), Club (ton club), Par Attribut (PLA/MON/VAL/SPR/END/RES)</div></div>
+          <div class="spec-row"><div class="spec-row-label">Filtres</div><div class="spec-row-value"><strong>Pills scrollables</strong> — Scope : Mondial / Pays / Région. Spécialité : Grimpeurs / Rouleurs / Sprinters / etc. Combinables</div></div>
+          <div class="spec-row"><div class="spec-row-label">Par Attribut</div><div class="spec-row-value"><strong>Tab spéciale</strong> — Sélecteur de l'attribut (PLA, MON, etc.) en haut. Le classement se refait sur cet attribut seul. Titre : "Top Grimpeurs (MON)"</div></div>
+          <div class="spec-row"><div class="spec-row-label">Refresh</div><div class="spec-row-value"><strong>Pull-to-refresh</strong> — Recalcul temps réel. Les rangs changent avec animation <code>LayoutAnimation.configureNext()</code></div></div>
+        </div>
+
+        <div class="spec-panel">
+          <div class="spec-panel-title" style="font-size:16px">Preview Overlay</div>
+          <div class="spec-row"><div class="spec-row-label">Trigger</div><div class="spec-row-value"><strong>Tap sur n'importe quelle row</strong> — Overlay fullscreen blur 85% + carte medium centrée</div></div>
+          <div class="spec-row"><div class="spec-row-label">Carte</div><div class="spec-row-value"><strong>200×292px</strong> — Taille intermédiaire entre la mini-card du leaderboard et la full-size du profil. Toutes les animations tier conservées</div></div>
+          <div class="spec-row"><div class="spec-row-label">Actions</div><div class="spec-row-value"><strong>"Voir profil"</strong> (CTA primary) + <strong>"Comparer"</strong> (ghost) + <strong>"✕" fermer</strong>. Swipe-down pour fermer aussi</div></div>
+          <div class="spec-row"><div class="spec-row-label">Animation</div><div class="spec-row-value"><strong>Scale bounce</strong> — Carte entre de .9 à 1 en 400ms spring. Background fade 300ms. Close = inverse</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — BY ATTRIBUTE TAB
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Classement par Attribut</div>
+    <h2 class="s-title reveal">Qui est le Meilleur Grimpeur ?</h2>
+    <p class="s-desc reveal">L'onglet "Par Attribut" permet de classer les cyclistes sur un seul des 6 attributs. Ça crée des classements de niche où même un Bronze peut briller.</p>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Tab "Par Attribut"</div>
+      <div class="spec-panel-sub">6 sous-classements spécialisés</div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Attribut</th>
+            <th>Titre du Classement</th>
+            <th>Profil Typique en Tête</th>
+            <th>Engagement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700">🚴 PLA</td>
+            <td>Top Rouleurs</td>
+            <td>FTP élevé, gros volumes plat</td>
+            <td class="check">Fort — identité de spécialiste</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">🏔️ MON</td>
+            <td>Top Grimpeurs</td>
+            <td>W/kg élevé, cols fréquents</td>
+            <td class="check">Très fort — fierté des grimpeurs</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">⚡ VAL</td>
+            <td>Top Vallonnés</td>
+            <td>VAM élevée, micro-dénivelé</td>
+            <td>Moyen — niche technique</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">💨 SPR</td>
+            <td>Top Sprinters</td>
+            <td>Puissance pic élevée, efforts courts</td>
+            <td class="check">Fort — compétitif et viral</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">🔋 END</td>
+            <td>Top Endurants</td>
+            <td>Gros volumes, sorties 150km+</td>
+            <td>Moyen — récompense la régularité</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">📊 RES</td>
+            <td>Top Réguliers</td>
+            <td>Streaks longs, fréquence haute</td>
+            <td class="check">Très fort — gamification pure</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">UX de l'Onglet Attribut</div>
+      <div class="spec-row"><div class="spec-row-label">Sélecteur</div><div class="spec-row-value"><strong>6 pills horizontales</strong> — PLA, MON, VAL, SPR, END, RES. Pill active = gradient tier + icône. Animation slide sur le changement</div></div>
+      <div class="spec-row"><div class="spec-row-label">Podium</div><div class="spec-row-value"><strong>Même layout Top 3</strong> mais l'OVR affiché est <strong>la note de l'attribut sélectionné</strong> (pas l'OVR global). La carte reste tier-colored par OVR global</div></div>
+      <div class="spec-row"><div class="spec-row-label">Rows</div><div class="spec-row-value"><strong>L'OVR est remplacé par la note attribut</strong> — Ex: "MON 95" au lieu de "OVR 86". Le delta aussi est sur l'attribut</div></div>
+      <div class="spec-row"><div class="spec-row-label">Surprise</div><div class="spec-row-value"><strong>Un Bronze peut être top 10 en RES</strong> — Ça démocratise le classement et motive les petits niveaux. Message : "Même Bronze, tu peux être #1 quelque part"</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — FRIENDS & CLUB TABS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Classements Sociaux</div>
+    <h2 class="s-title reveal">Amis & Club</h2>
+    <p class="s-desc reveal">Les classements les plus engageants — la compétition entre proches crée 3× plus de rétention que le classement global.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+      <div class="spec-panel reveal" style="margin-bottom:0">
+        <div class="spec-panel-title" style="font-size:18px">👥 Tab Amis</div>
+        <div class="spec-row"><div class="spec-row-label">Source</div><div class="spec-row-value"><strong>Followers VeloCard</strong> + contacts Strava importés. Graph social bi-directionnel</div></div>
+        <div class="spec-row"><div class="spec-row-label">Layout</div><div class="spec-row-value"><strong>Même podium + rows</strong> mais limité à tes amis. Plus intime, plus compétitif</div></div>
+        <div class="spec-row"><div class="spec-row-label">Notif</div><div class="spec-row-value"><strong>"Marc t'a dépassé !"</strong> — Push quand un ami passe devant toi. Lien direct → classement amis</div></div>
+        <div class="spec-row"><div class="spec-row-label">Viral</div><div class="spec-row-value"><strong>"Invite un ami"</strong> — CTA si < 5 amis. "Plus d'amis = plus de fun". Deep link invitation</div></div>
+      </div>
+
+      <div class="spec-panel reveal" style="margin-bottom:0">
+        <div class="spec-panel-title" style="font-size:18px">🏘️ Tab Club</div>
+        <div class="spec-row"><div class="spec-row-label">Source</div><div class="spec-row-value"><strong>Membres du club</strong> VeloCard. Si pas de club : CTA "Rejoins ou crée un club"</div></div>
+        <div class="spec-row"><div class="spec-row-label">OVR Club</div><div class="spec-row-value"><strong>Moyenne OVR des 10 meilleurs</strong> — Affiché en haut : "Vélo Club Bruxelles — OVR 68". Ranking inter-clubs à venir</div></div>
+        <div class="spec-row"><div class="spec-row-label">Special</div><div class="spec-row-value"><strong>"Meilleur grimpeur du club"</strong> — Badge hebdomadaire par attribut. Notification push le lundi</div></div>
+        <div class="spec-row"><div class="spec-row-label">Compétition</div><div class="spec-row-value"><strong>Inter-clubs</strong> (futur) — Classement club vs club par OVR moyen. Matchs hebdo automatiques</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — PREVIEW OVERLAY DEMO
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Preview au Tap</div>
+    <h2 class="s-title reveal">Overlay de Carte</h2>
+    <p class="s-desc reveal">Un tap sur n'importe quel cycliste dans le leaderboard ouvre un overlay avec sa carte en taille medium et des actions rapides.</p>
+
+    <div style="display:flex;justify-content:center;margin-bottom:40px">
+      <div class="reveal" style="width:340px;height:440px;border-radius:24px;background:rgba(10,10,18,.9);backdrop-filter:blur(20px);border:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;position:relative">
+        <!-- Close button -->
+        <div style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:default">✕</div>
+
+        <!-- Preview Card — Diamant -->
+        <div class="prev-card prc-diamant">
+          <div class="prev-card-bg"></div>
+          <div class="prev-card-texture"></div>
+          <div class="prev-card-glow"></div>
+          <div class="prev-card-particles"></div>
+          <div class="prev-card-inner">
+            <div class="prev-top">
+              <div><div class="prev-ovr">86</div><div class="prev-pos">Élite</div></div>
+              <div class="prev-tier-icon">💠</div>
+            </div>
+            <div class="prev-avatar">A</div>
+            <div class="prev-name">Alex Moreau</div>
+            <div class="prev-spec">Rouleur</div>
+            <div class="prev-flag">🇫🇷</div>
+            <div class="prev-stats">
+              <div class="prev-stat"><div class="prev-stat-val">88</div><div class="prev-stat-label">PLA</div></div>
+              <div class="prev-stat"><div class="prev-stat-val">78</div><div class="prev-stat-label">MON</div></div>
+              <div class="prev-stat"><div class="prev-stat-val">82</div><div class="prev-stat-label">VAL</div></div>
+              <div class="prev-stat"><div class="prev-stat-val">75</div><div class="prev-stat-label">SPR</div></div>
+              <div class="prev-stat"><div class="prev-stat-val">90</div><div class="prev-stat-label">END</div></div>
+              <div class="prev-stat"><div class="prev-stat-val">88</div><div class="prev-stat-label">RES</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="prev-actions">
+          <div class="prev-btn prev-btn-profile">👤 Voir profil</div>
+          <div class="prev-btn prev-btn-compare">⚔️ Comparer</div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">#2 · Classement Global</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 5 — IMPLEMENTATION
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Implémentation</div>
+    <h2 class="s-title reveal">Notes Techniques</h2>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Architecture Classements</div>
+      <div class="spec-row"><div class="spec-row-label">Data</div><div class="spec-row-value"><strong>API paginée</strong> — <code>GET /leaderboard?scope=global&sort=ovr&limit=50&offset=0</code>. Cache 5min côté client. Invalidation push quand ton rang change</div></div>
+      <div class="spec-row"><div class="spec-row-label">Virtualisation</div><div class="spec-row-value"><strong>FlashList (Shopify)</strong> — Render < 8ms per item. Recycling des mini-cards. Estimated item size 60px. Pas de FlatList standard</div></div>
+      <div class="spec-row"><div class="spec-row-label">Ma Position</div><div class="spec-row-value"><strong>API séparée</strong> — <code>GET /leaderboard/me</code> retourne ton rang + les 2 voisins. Affiché via le séparateur "Ta position" si tu n'es pas dans le viewport</div></div>
+      <div class="spec-row"><div class="spec-row-label">Overlay</div><div class="spec-row-value"><strong>Bottom Sheet Reanimated</strong> — <code>@gorhom/bottom-sheet</code> avec snap points [0, 80%]. Backdrop blur via <code>BlurView</code>. Shared element pour la mini-card → preview</div></div>
+      <div class="spec-row"><div class="spec-row-label">Animations</div><div class="spec-row-value"><strong>LayoutAnimation</strong> pour les changements de rang au refresh. <code>entering={FadeInUp.delay(index*50)}</code> pour le stagger initial. Podium : <code>BounceIn</code></div></div>
+      <div class="spec-row"><div class="spec-row-label">Perf</div><div class="spec-row-value"><strong>< 16ms per frame</strong> pendant le scroll. Mini-cards memoized par tier (5 variants pré-rendu). Les glow animations sont sur le UI thread via <code>useAnimatedStyle</code></div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NEXT -->
+<section class="next-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px">Prochaine étape</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:12px">Étape 3.5 — Synthèse</div>
+      <div style="font-size:14px;color:var(--t2);max-width:480px;margin:0 auto">Récap visuel de toutes les intégrations + tableau des specs techniques cross-screen.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>VELOCARD FUT Edition — Étape 3.4 / Phase 4 — Intégration Classements</p>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50)});
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

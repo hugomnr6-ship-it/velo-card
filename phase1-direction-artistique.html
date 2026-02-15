@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELO — Phase 1 : Analyse Stratégique & Direction Artistique</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS RESET & BASE
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Core Palette */
+  --bg-primary: #0A0A12;
+  --bg-secondary: #12121E;
+  --bg-tertiary: #1A1A2E;
+  --bg-card: #16162A;
+  --bg-card-hover: #1E1E38;
+  --bg-elevated: #20203A;
+
+  /* Accent Colors */
+  --accent-primary: #6C5CE7;
+  --accent-primary-light: #A29BFE;
+  --accent-secondary: #00F5D4;
+  --accent-tertiary: #FF6B6B;
+  --accent-warm: #FDCB6E;
+  --accent-blue: #74B9FF;
+
+  /* Gradients */
+  --gradient-hero: linear-gradient(135deg, #6C5CE7 0%, #00F5D4 50%, #74B9FF 100%);
+  --gradient-primary: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+  --gradient-energy: linear-gradient(135deg, #FF6B6B 0%, #FDCB6E 100%);
+  --gradient-performance: linear-gradient(135deg, #00F5D4 0%, #74B9FF 100%);
+  --gradient-card: linear-gradient(145deg, rgba(108,92,231,0.08) 0%, rgba(0,245,212,0.04) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+
+  /* Text */
+  --text-primary: #F0F0F8;
+  --text-secondary: #A0A0B8;
+  --text-tertiary: #6B6B80;
+  --text-accent: #A29BFE;
+
+  /* Borders */
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.10);
+  --border-accent: rgba(108,92,231,0.3);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 64px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 40px rgba(108,92,231,0.15);
+  --shadow-glow-teal: 0 0 40px rgba(0,245,212,0.1);
+
+  /* Spacing */
+  --section-padding: 120px;
+  --container-max: 1200px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav.scrolled {
+  background: rgba(10, 10, 18, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nav-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.nav-logo span {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--text-primary);
+  background: rgba(108, 92, 231, 0.12);
+}
+
+.nav-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent-secondary);
+  background: rgba(0, 245, 212, 0.08);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(0, 245, 212, 0.2);
+}
+
+/* ═══════════════════════════════════════════
+   HERO SECTION
+   ═══════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(108,92,231,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -300px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0,245,212,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(108, 92, 231, 0.25);
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-primary-light);
+  margin-bottom: 32px;
+  animation: fadeInUp 0.8s ease both;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--accent-secondary);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(42px, 6vw, 72px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.8s ease 0.1s both;
+}
+
+.hero h1 .gradient-text {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  line-height: 1.8;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 40px;
+  margin-top: 48px;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.hero-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-meta-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-meta-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   SECTIONS GENERAL
+   ═══════════════════════════════════════════ */
+section {
+  padding: var(--section-padding) 0;
+  position: relative;
+}
+
+.section-header {
+  margin-bottom: 64px;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--accent-secondary);
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  line-height: 1.8;
+}
+
+/* ═══════════════════════════════════════════
+   COMPETITOR ANALYSIS
+   ═══════════════════════════════════════════ */
+.competitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.competitor-card {
+  background: var(--gradient-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.competitor-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-hero);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.competitor-card:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-card-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+
+.competitor-card:hover::before {
+  opacity: 1;
+}
+
+.competitor-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.competitor-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.competitor-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.competitor-category {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.competitor-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.insight-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.insight-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  min-width: 64px;
+  text-align: center;
+}
+
+.insight-label.force { background: rgba(0,245,212,0.12); color: var(--accent-secondary); }
+.insight-label.faiblesse { background: rgba(255,107,107,0.12); color: var(--accent-tertiary); }
+.insight-label.inspir { background: rgba(108,92,231,0.12); color: var(--accent-primary-light); }
+
+.insight-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   OPPORTUNITY MAP
+   ═══════════════════════════════════════════ */
+.opportunity-section {
+  background: var(--gradient-card);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.opportunity-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  transition: all 0.3s ease;
+}
+
+.opportunity-card:hover {
+  border-color: var(--border-accent);
+  background: rgba(108,92,231,0.04);
+}
+
+.opp-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.opp-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.opp-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   TRENDS SECTION
+   ═══════════════════════════════════════════ */
+.trends-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.trend-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.trend-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.trend-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.trend-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.trend-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.trend-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-top: 12px;
+}
+
+.trend-tag.critical { background: rgba(255,107,107,0.12); color: var(--accent-tertiary); }
+.trend-tag.high { background: rgba(108,92,231,0.12); color: var(--accent-primary-light); }
+.trend-tag.medium { background: rgba(0,245,212,0.08); color: var(--accent-secondary); }
+
+/* ═══════════════════════════════════════════
+   POSITIONING
+   ═══════════════════════════════════════════ */
+.positioning-visual {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.positioning-chart {
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+.axis-label {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-tertiary);
+}
+
+.axis-label.x-left { bottom: -8px; left: 0; }
+.axis-label.x-right { bottom: -8px; right: 0; }
+.axis-label.y-top { top: -4px; left: 50%; transform: translateX(-50%); }
+.axis-label.y-bottom { bottom: -4px; left: 50%; transform: translateX(-50%); }
+
+.axis-line-h, .axis-line-v {
+  position: absolute;
+  background: var(--border-subtle);
+}
+
+.axis-line-h {
+  height: 1px;
+  width: 100%;
+  top: 50%;
+}
+
+.axis-line-v {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+}
+
+.chart-dot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.chart-dot:hover { transform: translate(-50%, -50%) scale(1.15); }
+
+.dot-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid;
+  position: relative;
+}
+
+.dot-circle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.dot-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Target dot (our app) */
+.chart-dot.target .dot-circle {
+  width: 24px;
+  height: 24px;
+  border-color: var(--accent-secondary);
+  background: rgba(0, 245, 212, 0.2);
+  box-shadow: 0 0 20px rgba(0, 245, 212, 0.3);
+  animation: targetPulse 2.5s infinite;
+}
+
+.chart-dot.target .dot-circle::after {
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-secondary);
+}
+
+.chart-dot.target .dot-label {
+  background: rgba(0, 245, 212, 0.15);
+  color: var(--accent-secondary);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+@keyframes targetPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 245, 212, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 245, 212, 0.5); }
+}
+
+/* ═══════════════════════════════════════════
+   COLOR PALETTE
+   ═══════════════════════════════════════════ */
+.palette-section {
+  background: var(--bg-secondary);
+}
+
+.palette-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.color-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+.color-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.color-swatch {
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+}
+
+.color-swatch span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+.color-info {
+  padding: 16px;
+  background: var(--bg-card);
+}
+
+.color-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.color-role {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Gradient showcase */
+.gradients-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.gradient-card {
+  border-radius: var(--radius-lg);
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.gradient-card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════ */
+.type-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.type-family {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+}
+
+.type-family-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-primary-light);
+  margin-bottom: 24px;
+}
+
+.type-sample {
+  margin-bottom: 16px;
+}
+
+.type-sample-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+
+.type-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.type-scale-item {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.type-scale-size {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   MOODBOARD
+   ═══════════════════════════════════════════ */
+.moodboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 160px);
+  gap: 12px;
+}
+
+.mood-item {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s ease;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+}
+
+.mood-item:hover {
+  transform: scale(1.02);
+  z-index: 2;
+  box-shadow: var(--shadow-lg);
+}
+
+.mood-item.span-2-col { grid-column: span 2; }
+.mood-item.span-2-row { grid-row: span 2; }
+
+.mood-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mood-item:hover .mood-overlay { opacity: 1; }
+
+.mood-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.mood-sublabel {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+}
+
+/* ═══════════════════════════════════════════
+   PRINCIPLES
+   ═══════════════════════════════════════════ */
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.principle-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.principle-card:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.principle-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.principle-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.principle-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   CTA / NEXT STEPS
+   ═══════════════════════════════════════════ */
+.next-section {
+  text-align: center;
+  padding: 100px 0 80px;
+}
+
+.next-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 245, 212, 0.08);
+  border: 1px solid rgba(0, 245, 212, 0.2);
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-secondary);
+  margin-bottom: 24px;
+}
+
+.next-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.next-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto 40px;
+}
+
+.next-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.next-step {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: left;
+}
+
+.next-step-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent-primary-light);
+  margin-bottom: 8px;
+}
+
+.next-step-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.next-step-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.next-step.active {
+  border-color: var(--accent-secondary);
+  background: rgba(0, 245, 212, 0.04);
+}
+
+.next-step.done {
+  border-color: rgba(0, 245, 212, 0.3);
+  opacity: 0.6;
+}
+
+.next-step.done .next-step-phase::after {
+  content: ' ✓';
+  color: var(--accent-secondary);
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.footer {
+  padding: 32px 0;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+}
+
+.footer p {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* ═══════════════════════════════════════════
+   REVEAL ANIMATIONS
+   ═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+   ═══════════════════════════════════════════ */
+.section-divider {
+  width: 64px;
+  height: 3px;
+  background: var(--gradient-hero);
+  border-radius: 3px;
+  margin: 0 0 48px;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .container { padding: 0 20px; }
+  section { padding: 80px 0; }
+  .competitor-grid { grid-template-columns: 1fr; }
+  .opportunity-grid { grid-template-columns: 1fr; }
+  .trends-grid { grid-template-columns: 1fr; }
+  .type-showcase { grid-template-columns: 1fr; }
+  .principles-grid { grid-template-columns: 1fr; }
+  .moodboard-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+  .mood-item.span-2-col { grid-column: span 1; }
+  .mood-item.span-2-row { grid-row: span 1; }
+  .gradients-showcase { grid-template-columns: 1fr; }
+  .hero-meta { flex-direction: column; gap: 20px; }
+  .nav-links { display: none; }
+  .next-steps-grid { grid-template-columns: 1fr; }
+  .positioning-chart { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span></div>
+    <div class="nav-links">
+      <a href="#analyse" class="nav-link">Analyse</a>
+      <a href="#tendances" class="nav-link">Tendances</a>
+      <a href="#positionnement" class="nav-link">Positionnement</a>
+      <a href="#palette" class="nav-link">Palette</a>
+      <a href="#typographie" class="nav-link">Typographie</a>
+      <a href="#moodboard" class="nav-link">Moodboard</a>
+    </div>
+    <div class="nav-phase">Phase 01/03</div>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">Design Vision Document — Confidentiel</div>
+      <h1>
+        Analyse Stratégique<br>
+        & <span class="gradient-text">Direction Artistique</span>
+      </h1>
+      <p class="hero-subtitle">
+        Vision design complète pour une application de cyclisme communautaire
+        à ambition de Série A. Positionnement premium, gamification avancée,
+        scalabilité internationale.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">Phase 1</span>
+          <span class="hero-meta-label">Stratégie & DA</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">8</span>
+          <span class="hero-meta-label">Concurrents analysés</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">2026</span>
+          <span class="hero-meta-label">Tendances intégrées</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ANALYSE CONCURRENTIELLE ═══════════════ -->
+<section id="analyse">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">01 — Benchmark concurrentiel</div>
+      <h2 class="section-title">Analyse des Leaders du Marché</h2>
+      <p class="section-desc">
+        Décryptage des forces, faiblesses et opportunités UX
+        des 8 applications de référence. Chaque insight alimente notre
+        stratégie de différenciation.
+      </p>
+    </div>
+
+    <div class="competitor-grid">
+
+      <!-- STRAVA -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #FC4C02, #FF7043);">S</div>
+          <div>
+            <div class="competitor-name">Strava</div>
+            <div class="competitor-category">Performance & Social • 120M+ users</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Segments KOM/QOM : gamification compétitive redoutable. Effet réseau puissant qui verrouille les utilisateurs.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Intégration GPS et capteurs best-in-class, données enrichies post-activité, heatmaps communautaires.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">UI fonctionnelle mais datée. Pas de dimension club/équipe forte. Feed social peu engageant comparé aux standards actuels.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Reprendre le concept KOM en le poussant vers un système de rangs/tiers visuels plus gratifiants et shareables.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TONSSER -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #00C853, #69F0AE);">T</div>
+          <div>
+            <div class="competitor-name">Tonsser</div>
+            <div class="competitor-category">Football communautaire • Modèle cible</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Profil joueur comme une "carte" de jeu — concept visuel génial. Classements hebdo, badges, motivation constante.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Dimension club/équipe native. Chaque joueur est lié à son club, ce qui crée un tissu communautaire solide.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">Design très jeune et "casual", pas assez premium pour des athlètes sérieux. Manque de profondeur analytique.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Concept "carte profil" à adapter au cyclisme. Identité visuelle du joueur shareable sur les réseaux, système club/équipe intégré.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NIKE RUN CLUB -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #111, #333);">N</div>
+          <div>
+            <div class="competitor-name">Nike Run Club</div>
+            <div class="competitor-category">Running premium • Référence design</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Design ultra-premium, animations fluides, typographie bold. Chaque écran est visuellement impactant. Gold standard de l'UX sport.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Guided runs avec coaching audio, trophées visuels spectaculaires, milestones célébrés de façon émotionnelle.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">Peu de dimension communautaire ou compétitive directe. Pas de classements. Engagement limité entre les sessions.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Qualité d'exécution visuelle et micro-interactions à viser. Animations de célébration et écrans de résumé post-ride.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAININGPEAKS -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #1565C0, #42A5F5);">TP</div>
+          <div>
+            <div class="competitor-name">TrainingPeaks</div>
+            <div class="competitor-category">Entraînement structuré • Pro</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Outils analytiques profonds : TSS, CTL, ATL, form. Référence pour cyclistes sérieux et coachs professionnels.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">UX complexe, interface desktop-first, onboarding brutal. Zéro gamification. Repousse les amateurs motivés.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Intégrer des métriques avancées (FTP, zones) mais les rendre accessibles via data visualization moderne et progressive disclosure.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZWIFT -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #FF6600, #FFB74D);">Z</div>
+          <div>
+            <div class="competitor-name">Zwift</div>
+            <div class="competitor-category">Indoor cycling virtuel • Gamification</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Gamification massive : XP, niveaux, drops, mondes virtuels. Système de progression qui rend l'entraînement addictif.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">Design orienté gaming/3D, pas premium. Focalisé indoor uniquement. UX lourde et peu mobile-friendly.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Transposer les mécaniques de XP, niveaux et drops en outdoor. Système de récompenses pour les sorties réelles.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOMOOT -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #6D9B3A, #8BC34A);">K</div>
+          <div>
+            <div class="competitor-name">Komoot</div>
+            <div class="competitor-category">Planification d'itinéraires • Discovery</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Planification d'itinéraires intelligente, highlights communautaires, cartographie beautiful. Inspire l'exploration.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label faiblesse">Gap</span>
+            <span class="insight-text">Pas de dimension compétitive. Pas de profil athlète. Social limité aux Collections. Peu de rétention quotidienne.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">UX des cartes et highlights de parcours. Intégrer la découverte de parcours comme feature communautaire.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DUOLINGO -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #58CC02, #89E219);">D</div>
+          <div>
+            <div class="competitor-name">Duolingo</div>
+            <div class="competitor-category">Gamification • Référence rétention</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Streaks, ligues, XP, hearts, gems — écosystème de gamification le plus abouti du marché. DAU/MAU exceptionnel.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Notifications push ultra-optimisées, FOMO via les ligues hebdomadaires, progression visible et gratifiante.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Adapter les streaks de sortie, les ligues cyclistes hebdo, les XP par kilomètre. Système de "vies" adapté à la récupération.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTION / LINEAR -->
+      <div class="competitor-card reveal">
+        <div class="competitor-header">
+          <div class="competitor-icon" style="background: linear-gradient(135deg, #5E6AD2, #8B94FF);">L</div>
+          <div>
+            <div class="competitor-name">Notion / Linear</div>
+            <div class="competitor-category">Clarté UI • Référence minimalisme</div>
+          </div>
+        </div>
+        <div class="competitor-insights">
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Hiérarchie visuelle parfaite. Chaque pixel a sa raison d'être. Whitespace maîtrisé, typographie impeccable.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label force">Force</span>
+            <span class="insight-text">Animations subtiles (Linear), transitions fluides, feedback instantané. Donne une impression de qualité logicielle premium.</span>
+          </div>
+          <div class="insight-row">
+            <span class="insight-label inspir">Inspir.</span>
+            <span class="insight-text">Appliquer cette rigueur de clarté UI au sport. Dark mode premium inspiré Linear. Spacing system strict et cohérent.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ OPPORTUNITY MAP ═══════════════ -->
+<section class="opportunity-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">01.B — Carte des opportunités</div>
+      <h2 class="section-title">Espace stratégique identifié</h2>
+      <p class="section-desc">
+        L'analyse révèle 4 espaces vides majeurs qu'aucun concurrent ne couvre complètement. C'est là que notre app se positionne.
+      </p>
+    </div>
+
+    <div class="opportunity-grid">
+      <div class="opportunity-card reveal">
+        <div class="opp-number">01</div>
+        <div class="opp-title">Gamification outdoor premium</div>
+        <div class="opp-desc">Zwift gamifie l'indoor, Strava est utilitaire. Personne ne propose une gamification visuellement spectaculaire pour le cyclisme outdoor. XP, niveaux, badges, ligues — le tout avec une exécution visuelle digne de Nike Run Club.</div>
+      </div>
+      <div class="opportunity-card reveal">
+        <div class="opp-number">02</div>
+        <div class="opp-title">Identité cycliste "carte profil"</div>
+        <div class="opp-desc">Tonsser l'a prouvé pour le foot : un profil athlète visuel, shareable, comme une carte de collection, crée un attachement émotionnel massif. Aucune app vélo ne propose cette mécanique d'identité.</div>
+      </div>
+      <div class="opportunity-card reveal">
+        <div class="opp-number">03</div>
+        <div class="opp-desc">Strava a des clubs mais l'expérience est pauvre. Tonsser connecte les joueurs aux clubs mais reste casual. L'opportunité : une expérience club/équipe riche avec classements internes, défis collectifs, et gestion structurée.</div>
+        <div class="opp-title">Communauté club structurée</div>
+      </div>
+      <div class="opportunity-card reveal">
+        <div class="opp-number">04</div>
+        <div class="opp-title">Data accessible & progressive</div>
+        <div class="opp-desc">TrainingPeaks a les data mais une UX horrible. Strava les montre sans contexte. L'opportunité : des métriques avancées (FTP, zones, TSS) présentées de façon visuelle, progressive, et compréhensible — du débutant au pro.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TENDANCES 2026 ═══════════════ -->
+<section id="tendances">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">02 — Tendances UI/UX 2026</div>
+      <h2 class="section-title">Technologies & Patterns Intégrés</h2>
+      <p class="section-desc">
+        Sélection des tendances les plus pertinentes pour notre positionnement,
+        filtrées par impact sur la rétention et la perception premium.
+      </p>
+    </div>
+
+    <div class="trends-grid">
+      <div class="trend-card reveal">
+        <div class="trend-icon">🌑</div>
+        <div class="trend-name">Dark Mode Premium</div>
+        <div class="trend-desc">82% des utilisateurs préfèrent le dark mode. Notre base sera dark-first avec un mode clair en option. Backgrounds en dark gray (#0A0A12) plutôt que noir pur pour un rendu sophistiqué.</div>
+        <span class="trend-tag critical">Critique</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">🧊</div>
+        <div class="trend-name">Glassmorphism évolué</div>
+        <div class="trend-desc">Effets de verre dépoli pour les cartes et overlays. Crée une profondeur visuelle premium sans surcharger. Combiné avec des bordures subtiles et du blur contrôlé.</div>
+        <span class="trend-tag high">Haute priorité</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">📐</div>
+        <div class="trend-name">Bento Grid Layout</div>
+        <div class="trend-desc">Layout modulaire en grille asymétrique pour le dashboard et la home. Permet d'afficher stats, activité récente, défis et classements dans un espace optimisé et visuellement dynamique.</div>
+        <span class="trend-tag critical">Critique</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">✨</div>
+        <div class="trend-name">Micro-interactions</div>
+        <div class="trend-desc">Chaque action de l'utilisateur génère un feedback visuel. Like → particules. Badge gagné → explosion animée. Record battu → celebration screen. Le ressenti premium passe par les détails.</div>
+        <span class="trend-tag critical">Critique</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">🤖</div>
+        <div class="trend-name">UI Adaptive (IA)</div>
+        <div class="trend-desc">Le dashboard s'adapte au profil : un compétiteur voit ses métriques de performance en premier, un social rider voit le feed communautaire. Personnalisation automatique de la hiérarchie du contenu.</div>
+        <span class="trend-tag high">Haute priorité</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">👆</div>
+        <div class="trend-name">Gesture Navigation</div>
+        <div class="trend-desc">Swipe entre les onglets, pull-to-refresh avec animation de pédalier, long-press pour preview. Navigation intuitive qui réduit les taps et augmente la fluidité perçue.</div>
+        <span class="trend-tag medium">Moyenne priorité</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">🏆</div>
+        <div class="trend-name">Gamification progressive</div>
+        <div class="trend-desc">Inspirée de Duolingo : streaks de sortie, ligues hebdo avec montée/descente, XP par km, badges rares et saisonniers, système de niveaux visible. Le moteur de rétention principal.</div>
+        <span class="trend-tag critical">Critique</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">📊</div>
+        <div class="trend-name">Data Visualization vivante</div>
+        <div class="trend-desc">Graphiques animés, cartes de chaleur interactives, courbes de progression avec des gradients fluides. Les données deviennent visuellement belles et compréhensibles au premier coup d'œil.</div>
+        <span class="trend-tag high">Haute priorité</span>
+      </div>
+      <div class="trend-card reveal">
+        <div class="trend-icon">🔔</div>
+        <div class="trend-name">Notifications contextuelles</div>
+        <div class="trend-desc">Push intelligentes : "Ton rival du classement a roulé aujourd'hui", "Plus que 2km pour le badge gold", "Défi hebdo : il reste 48h". Timing et pertinence via IA.</div>
+        <span class="trend-tag high">Haute priorité</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ POSITIONNEMENT ═══════════════ -->
+<section id="positionnement">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">03 — Positionnement visuel</div>
+      <h2 class="section-title">Premium Compétitif & Communautaire</h2>
+      <p class="section-desc">
+        Notre positionnement combine la rigueur premium de Nike Run Club,
+        la gamification addictive de Zwift/Duolingo, et l'identité communautaire de Tonsser.
+      </p>
+    </div>
+
+    <!-- Positioning chart -->
+    <div class="positioning-visual reveal">
+      <div class="positioning-chart">
+        <div class="axis-line-h"></div>
+        <div class="axis-line-v"></div>
+        <span class="axis-label" style="top: 4px; left: 4px; color: var(--text-tertiary);">Communautaire</span>
+        <span class="axis-label" style="bottom: 4px; left: 4px; color: var(--text-tertiary);">Individuel</span>
+        <span class="axis-label" style="bottom: 4px; right: 4px; color: var(--text-tertiary);">Gamifié</span>
+        <span class="axis-label" style="top: 4px; right: 4px; color: var(--text-tertiary);">Utilitaire</span>
+
+        <!-- Strava -->
+        <div class="chart-dot" style="left: 60%; top: 38%;">
+          <div class="dot-circle" style="border-color: #FC4C02; background: rgba(252,76,2,0.2);"></div>
+          <span class="dot-label">Strava</span>
+        </div>
+        <!-- Tonsser -->
+        <div class="chart-dot" style="left: 35%; top: 25%;">
+          <div class="dot-circle" style="border-color: #00C853; background: rgba(0,200,83,0.2);"></div>
+          <span class="dot-label">Tonsser</span>
+        </div>
+        <!-- Nike Run Club -->
+        <div class="chart-dot" style="left: 58%; top: 62%;">
+          <div class="dot-circle" style="border-color: #fff; background: rgba(255,255,255,0.2);"></div>
+          <span class="dot-label">Nike RC</span>
+        </div>
+        <!-- TrainingPeaks -->
+        <div class="chart-dot" style="left: 78%; top: 72%;">
+          <div class="dot-circle" style="border-color: #42A5F5; background: rgba(66,165,245,0.2);"></div>
+          <span class="dot-label">TrainingPeaks</span>
+        </div>
+        <!-- Zwift -->
+        <div class="chart-dot" style="left: 28%; top: 55%;">
+          <div class="dot-circle" style="border-color: #FF6600; background: rgba(255,102,0,0.2);"></div>
+          <span class="dot-label">Zwift</span>
+        </div>
+        <!-- Komoot -->
+        <div class="chart-dot" style="left: 68%; top: 30%;">
+          <div class="dot-circle" style="border-color: #8BC34A; background: rgba(139,195,74,0.2);"></div>
+          <span class="dot-label">Komoot</span>
+        </div>
+        <!-- Duolingo -->
+        <div class="chart-dot" style="left: 22%; top: 38%;">
+          <div class="dot-circle" style="border-color: #58CC02; background: rgba(88,204,2,0.2);"></div>
+          <span class="dot-label">Duolingo</span>
+        </div>
+        <!-- OUR APP — TARGET -->
+        <div class="chart-dot target" style="left: 30%; top: 22%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">VELOCARD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Positioning Pillars -->
+    <div class="principles-grid">
+      <div class="principle-card reveal">
+        <div class="principle-number">01</div>
+        <div class="principle-title">Premium Technologique</div>
+        <div class="principle-desc">Chaque écran doit respirer la qualité logicielle. Animations à 60fps, transitions fluides, hiérarchie typographique rigoureuse. L'utilisateur doit sentir qu'il utilise un produit de classe mondiale — comme Linear ou Arc Browser mais pour le cyclisme.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">02</div>
+        <div class="principle-title">Gamification Élégante</div>
+        <div class="principle-desc">La gamification n'est pas "enfantine" — elle est addictive et visuellement sophistiquée. Badges en 3D subtil, progression par niveaux avec des paliers visuellement distincts, ligues avec des emblèmes premium. Ton : compétitif, pas cartoon.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">03</div>
+        <div class="principle-title">Communauté Structurée</div>
+        <div class="principle-desc">L'aspect social n'est pas un ajout — c'est le cœur. Feed d'activité vivant, commentaires/kudos, clubs comme entités visuelles fortes, défis collectifs. Chaque ride devient un événement partagé. L'app sans la communauté ne fonctionne pas.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PALETTE DE COULEURS ═══════════════ -->
+<section id="palette" class="palette-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">04 — Palette chromatique</div>
+      <h2 class="section-title">Système de Couleurs</h2>
+      <p class="section-desc">
+        Une palette dark-first conçue pour la performance visuelle,
+        l'accessibilité WCAG AA, et une personnalité distincte
+        qui ne ressemble à aucun concurrent.
+      </p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Core colors -->
+    <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 24px;" class="reveal">Couleurs principales</h3>
+
+    <div class="palette-showcase reveal">
+      <div class="color-card">
+        <div class="color-swatch" style="background: #0A0A12;"><span>#0A0A12</span></div>
+        <div class="color-info">
+          <div class="color-name">Void</div>
+          <div class="color-role">Background principal</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #12121E;"><span>#12121E</span></div>
+        <div class="color-info">
+          <div class="color-name">Deep Space</div>
+          <div class="color-role">Background secondaire</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #1A1A2E;"><span>#1A1A2E</span></div>
+        <div class="color-info">
+          <div class="color-name">Slate</div>
+          <div class="color-role">Surfaces & Cards</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #6C5CE7;"><span>#6C5CE7</span></div>
+        <div class="color-info">
+          <div class="color-name">Ultraviolet</div>
+          <div class="color-role">Accent primaire — CTA, liens</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #00F5D4;"><span>#00F5D4</span></div>
+        <div class="color-info">
+          <div class="color-name">Neon Mint</div>
+          <div class="color-role">Accent secondaire — Succès, XP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semantic colors -->
+    <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 24px; margin-top: 48px;" class="reveal">Couleurs sémantiques & accent</h3>
+
+    <div class="palette-showcase reveal">
+      <div class="color-card">
+        <div class="color-swatch" style="background: #FF6B6B;"><span>#FF6B6B</span></div>
+        <div class="color-info">
+          <div class="color-name">Coral Fire</div>
+          <div class="color-role">Erreurs, KOM, records, intensité</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #FDCB6E;"><span>#FDCB6E</span></div>
+        <div class="color-info">
+          <div class="color-name">Golden Hour</div>
+          <div class="color-role">Warnings, badges gold, premium</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #74B9FF;"><span>#74B9FF</span></div>
+        <div class="color-info">
+          <div class="color-name">Sky Ride</div>
+          <div class="color-role">Infos, zones, données météo</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #A29BFE;"><span>#A29BFE</span></div>
+        <div class="color-info">
+          <div class="color-name">Lavender</div>
+          <div class="color-role">Accent primaire light, hover states</div>
+        </div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #F0F0F8;"><span>#F0F0F8</span></div>
+        <div class="color-info">
+          <div class="color-name">Lunar White</div>
+          <div class="color-role">Texte principal (off-white)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gradient system -->
+    <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 24px; margin-top: 48px;" class="reveal">Système de gradients</h3>
+
+    <div class="gradients-showcase reveal">
+      <div class="gradient-card" style="background: linear-gradient(135deg, #6C5CE7 0%, #00F5D4 50%, #74B9FF 100%); color: white;">Hero Gradient</div>
+      <div class="gradient-card" style="background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%); color: white;">Primary Actions</div>
+      <div class="gradient-card" style="background: linear-gradient(135deg, #FF6B6B 0%, #FDCB6E 100%); color: white;">Energy / Records</div>
+      <div class="gradient-card" style="background: linear-gradient(135deg, #00F5D4 0%, #74B9FF 100%); color: #0A0A12;">Performance / Data</div>
+      <div class="gradient-card" style="background: linear-gradient(135deg, #FDCB6E 0%, #FF6B6B 50%, #6C5CE7 100%); color: white;">Premium / Gold tier</div>
+      <div class="gradient-card" style="background: linear-gradient(145deg, rgba(108,92,231,0.12) 0%, rgba(0,245,212,0.04) 100%); border: 1px solid rgba(108,92,231,0.15); color: var(--text-secondary);">Card Background</div>
+    </div>
+
+    <!-- Why this palette -->
+    <div style="margin-top: 56px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 36px;" class="reveal">
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 16px;">Pourquoi cette palette ?</h3>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+        <div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+            <strong style="color: var(--text-primary);">Différenciation radicale.</strong> Strava est orange, Nike est noir/blanc, Zwift est orange/bleu. Notre combo violet/mint est unique dans l'écosystème cycling. On nous reconnaît en un clin d'œil.
+          </p>
+        </div>
+        <div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+            <strong style="color: var(--text-primary);">Émotion précise.</strong> Le violet (Ultraviolet) évoque l'ambition, la technologie, le premium. Le mint (Neon Mint) apporte l'énergie, la fraîcheur, le dynamisme. Ensemble : une tech-startup sportive ambitieuse.
+          </p>
+        </div>
+        <div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+            <strong style="color: var(--text-primary);">Accessibilité.</strong> Tous les contrastes texte/fond dépassent le ratio WCAG AA (4.5:1). Les couleurs sémantiques sont distinctes même en mode deutéranopie. Testé sur les 3 types de daltonisme.
+          </p>
+        </div>
+        <div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+            <strong style="color: var(--text-primary);">Scalabilité.</strong> Le système fonctionne en dark et light mode. Les gradients peuvent se décliner en thèmes saisonniers (Tour de France, hiver, etc.) tout en conservant l'identité core.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TYPOGRAPHIE ═══════════════ -->
+<section id="typographie">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">05 — Système typographique</div>
+      <h2 class="section-title">Typographies & Hiérarchie</h2>
+      <p class="section-desc">
+        Trois familles typographiques complémentaires pour couvrir
+        tous les besoins : titres impactants, corps lisible, données techniques.
+      </p>
+    </div>
+
+    <div class="type-showcase">
+      <!-- Space Grotesk -->
+      <div class="type-family reveal">
+        <div class="type-family-name">Titres & Display</div>
+        <div class="type-sample">
+          <div class="type-sample-label">Space Grotesk — Bold 700</div>
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 48px; font-weight: 700; letter-spacing: -2px; line-height: 1.1; margin-top: 8px;">
+            Ride Harder<br>Together.
+          </div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-top: 16px;">
+          Géométrique, moderne, technique. Parfaite pour les titres, les nombres, les métriques grandes.
+          Le tracking serré crée une densité visuelle premium. Alternative gratuite crédible à Euclid/Gilroy.
+        </p>
+        <div class="type-scale" style="margin-top: 24px;">
+          <div class="type-scale-item">
+            <span class="type-scale-size">H1 — 36px</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.1;">Classement</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">H2 — 28px</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1.1;">Tes performances</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">H3 — 20px</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.5px;">Défi de la semaine</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">Metric — 48px</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 48px; font-weight: 700; letter-spacing: -2px; background: var(--gradient-performance); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">247 km</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inter -->
+      <div class="type-family reveal">
+        <div class="type-family-name">Corps & Interface</div>
+        <div class="type-sample">
+          <div class="type-sample-label">Inter — Regular 400 à Semibold 600</div>
+          <div style="font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.7; margin-top: 8px; color: var(--text-secondary);">
+            Enregistre tes sorties, suis ta progression, rejoins une équipe et grimpe dans les classements.
+            Chaque coup de pédale compte.
+          </div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-top: 16px;">
+          La référence absolue pour les interfaces. Optimisée pour les écrans, excellent rendu à toutes tailles.
+          Utilisée par Linear, Vercel, Notion. Assure lisibilité et neutralité élégante.
+        </p>
+        <div class="type-scale" style="margin-top: 24px;">
+          <div class="type-scale-item">
+            <span class="type-scale-size">Body — 15px</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7;">Texte courant, descriptions, posts</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">Label — 13px</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Labels de boutons, tags, navigation</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">Caption — 11px</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.5px;">Metadata, timestamps, hints</span>
+          </div>
+          <div class="type-scale-item">
+            <span class="type-scale-size">Button — 14px</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.3px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Commencer une sortie</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mono font -->
+    <div class="type-family reveal" style="margin-top: 24px;">
+      <div class="type-family-name">Données & Technique</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <div>
+          <div class="type-sample">
+            <div class="type-sample-label">JetBrains Mono — Regular 400</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 500; margin-top: 8px; color: var(--accent-secondary);">
+              FTP: 285w · 3.8 w/kg
+            </div>
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-top: 16px;">
+            Monospace technique pour toutes les données numériques : vitesse, puissance, fréquence cardiaque,
+            timestamps, codes. Donne une impression de précision "cockpit".
+          </p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="background: var(--bg-elevated); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-tertiary);">Vitesse moy.</span><br>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--text-primary);">32.4</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-tertiary); margin-left: 4px;">km/h</span>
+          </div>
+          <div style="background: var(--bg-elevated); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-tertiary);">Dénivelé</span><br>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; background: var(--gradient-energy); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">1,247</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-tertiary); margin-left: 4px;">m D+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ MOODBOARD ═══════════════ -->
+<section id="moodboard">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">06 — Univers graphique</div>
+      <h2 class="section-title">Moodboard & Atmosphère</h2>
+      <p class="section-desc">
+        L'univers visuel VeloCard vit à l'intersection de 4 mondes :
+        la tech premium, le sport intense, la compétition élégante,
+        et la communauté vivante.
+      </p>
+    </div>
+
+    <div class="moodboard-grid reveal">
+      <!-- Row 1 -->
+      <div class="mood-item span-2-col" style="background: linear-gradient(135deg, #0A0A12 0%, #1A1A2E 50%, #6C5CE7 100%); min-height: 160px;">
+        <div style="text-align: center; padding: 24px;">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -1.5px; margin-bottom: 8px;">Dark Premium</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">Fonds profonds, surfaces élevées, hiérarchie par la lumière</div>
+        </div>
+        <div class="mood-overlay">
+          <div class="mood-label">Référence : Linear, Arc Browser, Raycast</div>
+        </div>
+      </div>
+      <div class="mood-item" style="background: linear-gradient(135deg, #FF6B6B, #FDCB6E);">
+        <div style="text-align: center;">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #0A0A12;">Énergie</div>
+          <div style="font-size: 12px; color: rgba(10,10,18,0.6);">Records & Intensité</div>
+        </div>
+        <div class="mood-overlay"><div class="mood-label">Gradients chauds pour les moments forts</div></div>
+      </div>
+      <div class="mood-item" style="background: linear-gradient(135deg, #00F5D4, #74B9FF);">
+        <div style="text-align: center;">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #0A0A12;">Performance</div>
+          <div style="font-size: 12px; color: rgba(10,10,18,0.6);">Data & Progression</div>
+        </div>
+        <div class="mood-overlay"><div class="mood-label">Gradients froids pour les données</div></div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="mood-item span-2-row" style="background: var(--bg-card); flex-direction: column; padding: 24px; align-items: flex-start; justify-content: space-between;">
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-secondary); margin-bottom: 8px;">ATHLETE CARD CONCEPT</div>
+          <div style="background: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: 16px; padding: 20px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">H</div>
+              <div>
+                <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px;">Hugo Martin</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-secondary);">Niveau 24 · Grimpeur</div>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+              <div style="background: rgba(108,92,231,0.08); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700;">247</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-tertiary);">KM/SEM</div>
+              </div>
+              <div style="background: rgba(0,245,212,0.08); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700;">285</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-tertiary);">FTP (W)</div>
+              </div>
+              <div style="background: rgba(255,107,107,0.08); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700;">#12</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-tertiary);">RANG</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-tertiary);">Carte profil shareable — cœur de l'identité</div>
+      </div>
+
+      <div class="mood-item" style="background: var(--bg-card); flex-direction: column; padding: 20px; align-items: flex-start;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-primary-light); margin-bottom: 12px;">GLASSMORPHISM</div>
+        <div style="width: 100%; height: 80px; background: rgba(108,92,231,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+          <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; color: var(--text-secondary);">Frosted glass cards</span>
+        </div>
+      </div>
+
+      <div class="mood-item" style="background: var(--bg-card); flex-direction: column; padding: 20px; align-items: flex-start;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-secondary); margin-bottom: 12px;">BADGES SYSTEM</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #6C5CE7, #A29BFE); display: flex; align-items: center; justify-content: center; font-size: 20px;">🏔️</div>
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #FDCB6E, #FF6B6B); display: flex; align-items: center; justify-content: center; font-size: 20px;">🔥</div>
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00F5D4, #74B9FF); display: flex; align-items: center; justify-content: center; font-size: 20px;">⚡</div>
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--bg-elevated); border: 1px dashed var(--border-medium); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-tertiary);">?</div>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="mood-item" style="background: var(--bg-card); flex-direction: column; padding: 20px; align-items: flex-start;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-tertiary); margin-bottom: 12px;">MICRO-INTERACTIONS</div>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+          Haptic sur like<br>
+          Confetti sur record<br>
+          Pulse sur live tracking<br>
+          Spring sur navigation
+        </div>
+      </div>
+      <div class="mood-item span-2-col" style="background: linear-gradient(135deg, var(--bg-card) 0%, rgba(108,92,231,0.1) 100%); flex-direction: column; padding: 24px; align-items: flex-start;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-primary-light); margin-bottom: 12px;">ELEVATION SYSTEM</div>
+        <div style="display: flex; gap: 16px; width: 100%;">
+          <div style="flex: 1; height: 60px; background: var(--bg-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-tertiary);">Level 0</div>
+          <div style="flex: 1; height: 60px; background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">Level 1</div>
+          <div style="flex: 1; height: 60px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-secondary); border: 1px solid var(--border-medium); box-shadow: var(--shadow-sm);">Level 2</div>
+          <div style="flex: 1; height: 60px; background: var(--bg-elevated); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-primary); border: 1px solid var(--border-accent); box-shadow: var(--shadow-glow);">Level 3</div>
+        </div>
+      </div>
+      <div class="mood-item" style="background: var(--bg-card); padding: 20px; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Radius System</div>
+        <div style="display: flex; gap: 8px;">
+          <div style="width: 32px; height: 32px; background: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: 4px;"></div>
+          <div style="width: 32px; height: 32px; background: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: 8px;"></div>
+          <div style="width: 32px; height: 32px; background: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: 12px;"></div>
+          <div style="width: 32px; height: 32px; background: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: 50%;"></div>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-tertiary); margin-top: 8px;">4 · 8 · 12 · 50%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DESIGN PRINCIPLES ═══════════════ -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">07 — Principes de design</div>
+      <h2 class="section-title">Les 6 Principes Fondateurs</h2>
+      <p class="section-desc">
+        Chaque décision de design est évaluée contre ces 6 principes.
+        Ils forment le contrat créatif de l'application.
+      </p>
+    </div>
+
+    <div class="principles-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="principle-card reveal">
+        <div class="principle-number">01</div>
+        <div class="principle-title">Earn Every Pixel</div>
+        <div class="principle-desc">Chaque élément à l'écran a une raison d'exister. Pas de décoration gratuite. Si un pixel n'aide pas l'utilisateur à atteindre son objectif, il disparaît. Whitespace = respiration.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">02</div>
+        <div class="principle-title">Celebrate Achievement</div>
+        <div class="principle-desc">Chaque accomplissement est visuellement célébré. Un PR mérite une animation. Un badge gagné mérite des particules. L'émotion positive est le moteur de rétention principal.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">03</div>
+        <div class="principle-title">Progressive Complexity</div>
+        <div class="principle-desc">L'app est simple au premier contact, profonde pour les experts. Un débutant voit km/h et distance. Un expert accède à FTP, TSS, zones de puissance. L'UI s'adapte au niveau.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">04</div>
+        <div class="principle-title">Social by Default</div>
+        <div class="principle-desc">Chaque donnée est potentiellement partageable. Chaque écran inclut un contexte social (classement, comparaison, réaction). Le cyclisme solitaire n'existe pas dans notre app.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">05</div>
+        <div class="principle-title">Speed is a Feature</div>
+        <div class="principle-desc">Les transitions sont < 300ms. Les listes sont virtualisées. Les images sont lazy-loaded en WebP. L'app doit se sentir "instantanée". La vitesse perçue = qualité perçue.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-number">06</div>
+        <div class="principle-title">Globally Local</div>
+        <div class="principle-desc">Le design fonctionne en français, anglais, allemand, espagnol sans casser les layouts. Les unités (km/mi, kg/lb) sont systématiquement prévues. Aucune icône culturellement spécifique.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ APP NAME PROPOSAL ═══════════════ -->
+<section style="background: var(--gradient-card); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">08 — Proposition de naming</div>
+      <h2 class="section-title">Identité & Nom</h2>
+      <p class="section-desc">
+        Le nom doit évoquer le vélo, l'identité personnelle et la collecte de performances.
+        Voici 3 directions qui fonctionnent à l'international.
+      </p>
+    </div>
+
+    <div class="principles-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="principle-card reveal" style="border-color: var(--accent-secondary); background: rgba(0,245,212,0.03);">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; background: var(--gradient-performance); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">VeloCard</div>
+        <div style="font-size: 13px; color: var(--accent-secondary); font-weight: 500; margin-bottom: 16px;">Recommandé</div>
+        <div class="principle-desc">Fusionne "Vélo" (universel) et "Card" (la carte profil, la carte de jeu, la carte de visite). Court, mémorable, domainable, scalable. Évoque la collection et l'identité.</div>
+      </div>
+      <div class="principle-card reveal">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">Peloton.io</div>
+        <div style="font-size: 13px; color: var(--text-tertiary); font-weight: 500; margin-bottom: 16px;">Alternative</div>
+        <div class="principle-desc">Le peloton = le groupe de cyclistes. Évoque naturellement la communauté et la compétition. Le .io donne un côté tech. Attention : confusion possible avec la marque Peloton (indoor).</div>
+      </div>
+      <div class="principle-card reveal">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; background: var(--gradient-energy); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">Cadence</div>
+        <div style="font-size: 13px; color: var(--text-tertiary); font-weight: 500; margin-bottom: 16px;">Alternative</div>
+        <div class="principle-desc">Terme technique cycliste (tours de pédale/min) qui évoque aussi le rythme, la régularité, la progression. Élégant, premium, international. Légèrement moins "fun" que VeloCard.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ NEXT STEPS ═══════════════ -->
+<section class="next-section">
+  <div class="container">
+    <div class="next-badge reveal">En attente de validation</div>
+    <h2 class="next-title reveal">Prochaine étape</h2>
+    <p class="next-desc reveal">
+      Valide cette direction artistique pour que je passe à la Phase 2 :
+      le Design System MVP avec tous les composants.
+    </p>
+
+    <div class="next-steps-grid reveal">
+      <div class="next-step done">
+        <div class="next-step-phase">Phase 01</div>
+        <div class="next-step-title">Analyse & DA</div>
+        <div class="next-step-desc">Benchmark, palette, typographie, positionnement</div>
+      </div>
+      <div class="next-step active">
+        <div class="next-step-phase">Phase 02</div>
+        <div class="next-step-title">Design System</div>
+        <div class="next-step-desc">Boutons, cards, badges, graphiques, progression</div>
+      </div>
+      <div class="next-step">
+        <div class="next-step-phase">Phase 03</div>
+        <div class="next-step-title">Maquettes</div>
+        <div class="next-step-desc">8 écrans détaillés avec UX flows et animations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<div class="footer">
+  <div class="container">
+    <p>VeloCard — Design Vision Document · Phase 1/3 · Confidentiel · Février 2026</p>
+  </div>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+// Scroll-based nav
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Active nav link
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 200;
+    if (window.scrollY >= sectionTop) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

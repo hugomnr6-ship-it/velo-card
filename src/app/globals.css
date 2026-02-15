@@ -1,71 +1,78 @@
 @import "tailwindcss";
 
 /* ========================================
-   VELOCARD PREMIUM DESIGN SYSTEM
+   VELOCARD — PREMIUM DESIGN SYSTEM v2
+   Inspired by top 1M+ user apps:
+   Strava, Nike Run Club, Duolingo, Spotify
    ======================================== */
 
 /* ——— Design Tokens ——— */
 :root {
-  /* Fond */
-  --bg-primary: #0A0A12;
-  --bg-secondary: #12121E;
-  --bg-card: #1A1A2E;
-  --bg-elevated: #22223A;
+  /* Fond — Deep navy, NOT pure black */
+  --bg-primary: #0B1120;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 25, 45, 0.65);
+  --bg-elevated: rgba(30, 41, 70, 0.55);
 
   /* Couleurs signature */
-  --violet: #6C5CE7;
-  --mint: #00F5D4;
+  --accent-primary: #00F5D4;     /* Emerald-mint — the signature color */
+  --accent-secondary: #6366F1;    /* Indigo */
+  --accent-warm: #FF6B35;         /* Orange energy */
+  --accent-gold: #FFD700;         /* Gold prestige */
 
   /* Texte */
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0B8;
-  --text-muted: #5A5A72;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
 
   /* Tier Bronze */
   --tier-bronze: #CD7F32;
-  --tier-bronze-bg: linear-gradient(135deg, #1A1208 0%, #2D1F0E 100%);
+  --tier-bronze-light: #E8A854;
 
-  /* Tier Argent */
-  --tier-argent: #C0C0C0;
-  --tier-argent-bg: linear-gradient(135deg, #14141E 0%, #1E1E2E 100%);
+  /* Tier Argent — Silver-lavender (NOT blue) */
+  --tier-argent: #B8A0D8;
+  --tier-argent-light: #C8D0E0;
+  --tier-argent-accent: #B8A0D8;
 
   /* Tier Platine */
   --tier-platine: #E5E4E2;
-  --tier-platine-bg: linear-gradient(135deg, #1A1A2E 0%, #2A2A42 100%);
-  --tier-platine-accent: #A8D8EA;
+  --tier-platine-accent: #E0E8F0;
 
   /* Tier Diamant */
   --tier-diamant: #B9F2FF;
-  --tier-diamant-bg: linear-gradient(135deg, #0A1628 0%, #162040 100%);
+  --tier-diamant-accent: #00D4FF;
 
   /* Tier Legende */
-  --tier-legende-bg: linear-gradient(135deg, #1A0A2E 0%, #2E1A0A 50%, #0A2E1A 100%);
+  --tier-legende: #FFD700;
+  --tier-legende-accent: #FF9500;
 
   /* Typographie */
   --font-title: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-data: 'JetBrains Mono', monospace;
 
-  /* Spacing */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* Spacing & Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
   --radius-xl: 24px;
 }
 
 /* ——— Tailwind v4 theme extensions ——— */
 @theme {
-  --color-bg-primary: #0A0A12;
-  --color-bg-secondary: #12121E;
-  --color-bg-card: #1A1A2E;
-  --color-bg-elevated: #22223A;
-  --color-violet: #6C5CE7;
+  --color-bg-primary: #0B1120;
+  --color-bg-secondary: #111827;
+  --color-bg-card: #11192D;
+  --color-bg-elevated: #1E2946;
+  --color-accent: #00F5D4;
+  --color-accent-secondary: #6366F1;
+  --color-violet: #6366F1;
   --color-mint: #00F5D4;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A0A0B8;
-  --color-text-muted: #5A5A72;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #475569;
   --color-tier-bronze: #CD7F32;
-  --color-tier-argent: #C0C0C0;
+  --color-tier-argent: #B8A0D8;
   --color-tier-platine: #E5E4E2;
   --color-tier-diamant: #B9F2FF;
   --color-tier-legende: #FFD700;
@@ -75,72 +82,104 @@
 }
 
 /* ========================================
-   TIER GLOW EFFECTS (card outer glow)
+   GLASSMORPHISM UTILITIES
    ======================================== */
-.card-glow-bronze {
-  box-shadow:
-    0 0 45px rgba(205, 127, 50, 0.35),
-    0 0 90px rgba(205, 127, 50, 0.12),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 200, 120, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+.glass {
+  background: rgba(15, 23, 42, 0.60);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.card-glow-argent {
-  box-shadow:
-    0 0 45px rgba(192, 192, 192, 0.35),
-    0 0 90px rgba(192, 192, 192, 0.12),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+.glass-light {
+  background: rgba(30, 41, 70, 0.40);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.card-glow-platine {
-  box-shadow:
-    0 0 50px rgba(229, 228, 226, 0.3),
-    0 0 100px rgba(168, 216, 234, 0.15),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(168, 216, 234, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-}
-.card-glow-diamant {
-  box-shadow:
-    0 0 55px rgba(185, 242, 255, 0.4),
-    0 0 110px rgba(185, 242, 255, 0.15),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(185, 242, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-}
-.card-glow-legende {
-  box-shadow:
-    0 0 60px rgba(255, 215, 0, 0.45),
-    0 0 120px rgba(255, 215, 0, 0.2),
-    0 0 80px rgba(108, 92, 231, 0.15),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 240, 100, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+.glass-accent {
+  background: rgba(0, 245, 212, 0.06);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 245, 212, 0.12);
 }
 
 /* ========================================
-   TIER BACKGROUND TEXTURES (brushed metal)
+   ELEVATION SHADOW SYSTEM (5 levels)
+   ======================================== */
+.elevation-1 {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.24), 0 1px 2px rgba(0,0,0,0.36);
+}
+.elevation-2 {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.28), 0 3px 6px rgba(0,0,0,0.36);
+}
+.elevation-3 {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.30), 0 6px 6px rgba(0,0,0,0.36);
+}
+.elevation-4 {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.35), 0 10px 10px rgba(0,0,0,0.30);
+}
+.elevation-5 {
+  box-shadow: 0 19px 38px rgba(0,0,0,0.40), 0 15px 12px rgba(0,0,0,0.28);
+}
+
+/* ========================================
+   TIER GLOW EFFECTS (card outer glow)
+   Much more vivid — premium feel
+   ======================================== */
+.card-glow-bronze {
+  box-shadow:
+    0 0 50px rgba(205, 127, 50, 0.30),
+    0 0 100px rgba(205, 127, 50, 0.10),
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(232, 168, 84, 0.20),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+}
+.card-glow-argent {
+  box-shadow:
+    0 0 45px rgba(168, 180, 200, 0.30),
+    0 0 90px rgba(168, 180, 200, 0.12),
+    0 0 130px rgba(168, 180, 200, 0.06),
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(200, 210, 228, 0.20),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+}
+.card-glow-platine {
+  box-shadow:
+    0 0 55px rgba(168, 216, 234, 0.30),
+    0 0 110px rgba(168, 216, 234, 0.12),
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(168, 216, 234, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+}
+.card-glow-diamant {
+  box-shadow:
+    0 0 60px rgba(0, 212, 255, 0.40),
+    0 0 120px rgba(185, 242, 255, 0.15),
+    0 0 180px rgba(0, 212, 255, 0.06),
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(185, 242, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+}
+.card-glow-legende {
+  box-shadow:
+    0 0 65px rgba(255, 215, 0, 0.45),
+    0 0 130px rgba(255, 215, 0, 0.18),
+    0 0 90px rgba(255, 149, 0, 0.12),
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 240, 100, 0.30),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+}
+
+/* ========================================
+   TIER BACKGROUND TEXTURES
+   Richer patterns — more visible on silver
    ======================================== */
 .texture-bronze {
   background-image:
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 3px,
-      rgba(205, 127, 50, 0.03) 3px, rgba(205, 127, 50, 0.03) 4px
-    ),
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      transparent 0px, transparent 7px,
-      rgba(255, 255, 255, 0.015) 7px, rgba(255, 255, 255, 0.015) 8px
-    );
-}
-.texture-argent {
-  background-image:
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      transparent 0px, transparent 3px,
-      rgba(192, 192, 192, 0.04) 3px, rgba(192, 192, 192, 0.04) 4px
+      rgba(205, 127, 50, 0.04) 3px, rgba(205, 127, 50, 0.04) 4px
     ),
     repeating-radial-gradient(
       circle at 50% 50%,
@@ -148,12 +187,26 @@
       rgba(255, 255, 255, 0.02) 7px, rgba(255, 255, 255, 0.02) 8px
     );
 }
+.texture-argent {
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 2px,
+      rgba(168, 180, 200, 0.05) 2px, rgba(168, 180, 200, 0.05) 3px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 5px,
+      rgba(200, 210, 228, 0.03) 5px, rgba(200, 210, 228, 0.03) 6px
+    ),
+    linear-gradient(135deg, rgba(184,160,216,0.02) 0%, transparent 50%, rgba(184,160,216,0.02) 100%);
+}
 .texture-platine {
   background-image:
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 3px,
-      rgba(168, 216, 234, 0.03) 3px, rgba(168, 216, 234, 0.03) 4px
+      rgba(168, 216, 234, 0.04) 3px, rgba(168, 216, 234, 0.04) 4px
     ),
     repeating-radial-gradient(
       circle at 50% 50%,
@@ -166,12 +219,12 @@
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 3px,
-      rgba(185, 242, 255, 0.03) 3px, rgba(185, 242, 255, 0.03) 4px
+      rgba(0, 212, 255, 0.04) 3px, rgba(0, 212, 255, 0.04) 4px
     ),
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 7px,
-      rgba(255, 255, 255, 0.02) 7px, rgba(255, 255, 255, 0.02) 8px
+      rgba(185, 242, 255, 0.025) 7px, rgba(185, 242, 255, 0.025) 8px
     );
 }
 .texture-legende {
@@ -179,32 +232,32 @@
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 3px,
-      rgba(255, 215, 0, 0.03) 3px, rgba(255, 215, 0, 0.03) 4px
+      rgba(255, 215, 0, 0.04) 3px, rgba(255, 215, 0, 0.04) 4px
     ),
     repeating-radial-gradient(
       circle at 50% 50%,
       transparent 0px, transparent 7px,
-      rgba(255, 255, 255, 0.02) 7px, rgba(255, 255, 255, 0.02) 8px
+      rgba(255, 149, 0, 0.02) 7px, rgba(255, 149, 0, 0.02) 8px
     );
 }
 
 /* ========================================
-   AVATAR GLOW per tier
+   AVATAR GLOW per tier — intensified
    ======================================== */
 .avatar-glow-bronze {
-  box-shadow: 0 0 24px rgba(205, 127, 50, 0.55), 0 0 48px rgba(205, 127, 50, 0.2);
+  box-shadow: 0 0 28px rgba(205, 127, 50, 0.55), 0 0 56px rgba(205, 127, 50, 0.20);
 }
 .avatar-glow-argent {
-  box-shadow: 0 0 24px rgba(192, 192, 192, 0.55), 0 0 48px rgba(192, 192, 192, 0.2);
+  box-shadow: 0 0 28px rgba(168, 180, 200, 0.50), 0 0 56px rgba(168, 180, 200, 0.20), 0 0 40px rgba(200, 210, 228, 0.12);
 }
 .avatar-glow-platine {
-  box-shadow: 0 0 28px rgba(168, 216, 234, 0.55), 0 0 56px rgba(168, 216, 234, 0.25);
+  box-shadow: 0 0 32px rgba(168, 216, 234, 0.55), 0 0 64px rgba(168, 216, 234, 0.25);
 }
 .avatar-glow-diamant {
-  box-shadow: 0 0 30px rgba(185, 242, 255, 0.6), 0 0 60px rgba(185, 242, 255, 0.3);
+  box-shadow: 0 0 36px rgba(0, 212, 255, 0.60), 0 0 72px rgba(185, 242, 255, 0.30);
 }
 .avatar-glow-legende {
-  box-shadow: 0 0 35px rgba(255, 215, 0, 0.65), 0 0 70px rgba(255, 215, 0, 0.3), 0 0 50px rgba(108, 92, 231, 0.2);
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.65), 0 0 80px rgba(255, 215, 0, 0.30), 0 0 60px rgba(255, 149, 0, 0.15);
 }
 
 /* ========================================
@@ -222,13 +275,13 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(255, 255, 255, 0.015) 2px,
-    rgba(255, 255, 255, 0.015) 4px
+    rgba(255, 255, 255, 0.012) 2px,
+    rgba(255, 255, 255, 0.012) 4px
   );
 }
 
 /* ========================================
-   SHIMMER animation
+   SHIMMER animation — faster, smoother
    ======================================== */
 @keyframes shimmer {
   0% { background-position: -200% center; }
@@ -236,12 +289,47 @@
 }
 .shimmer {
   background-size: 200% 100%;
-  animation: shimmer 3s ease-in-out infinite;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ========================================
+   ARGENT PREMIUM SHIMMER
+   Extra sweep effect for silver cards
+   ======================================== */
+@keyframes argent-sweep {
+  0% { transform: translateX(-120%) rotate(15deg); }
+  100% { transform: translateX(220%) rotate(15deg); }
+}
+.argent-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 35%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(168, 180, 200, 0.08) 30%,
+    rgba(200, 210, 228, 0.16) 50%,
+    rgba(168, 180, 200, 0.08) 70%,
+    transparent 100%
+  );
+  animation: argent-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 16;
+}
+
+/* ========================================
+   SHIMMER SWEEP — Design B card animation
+   ======================================== */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) rotate(20deg); }
+  100% { transform: translateX(400%) rotate(20deg); }
 }
 
 /* ========================================
    HOLOGRAPHIC SCAN (Diamant + Legende)
-   Bar of light that descends slowly
    ======================================== */
 @keyframes holo-scan {
   0% { top: -20%; }
@@ -273,7 +361,6 @@
 
 /* ========================================
    RAINBOW HOLOGRAPHIC (Legende only)
-   Rotating rainbow gradient overlay
    ======================================== */
 @keyframes rainbow-rotate {
   0% { filter: hue-rotate(0deg); }
@@ -285,13 +372,13 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    rgba(255, 0, 0, 0.06) 0%,
-    rgba(255, 165, 0, 0.06) 16%,
-    rgba(255, 255, 0, 0.06) 33%,
-    rgba(0, 255, 0, 0.06) 50%,
-    rgba(0, 0, 255, 0.06) 66%,
-    rgba(75, 0, 130, 0.06) 83%,
-    rgba(238, 130, 238, 0.06) 100%
+    rgba(255, 0, 0, 0.07) 0%,
+    rgba(255, 165, 0, 0.07) 16%,
+    rgba(255, 255, 0, 0.07) 33%,
+    rgba(0, 255, 0, 0.07) 50%,
+    rgba(0, 0, 255, 0.07) 66%,
+    rgba(75, 0, 130, 0.07) 83%,
+    rgba(238, 130, 238, 0.07) 100%
   );
   animation: rainbow-rotate 6s linear infinite;
   pointer-events: none;
@@ -331,7 +418,7 @@
 }
 
 /* ========================================
-   GLOW PULSE (Diamant + Legende cards)
+   GLOW PULSE (Premium cards)
    ======================================== */
 @keyframes glow-pulse {
   0%, 100% { opacity: 1; }
@@ -342,20 +429,35 @@
 }
 
 /* ========================================
-   GPX DROP ZONE
+   AMBIENT GLOW — Background radial
+   Used on pages behind content
    ======================================== */
-.drop-zone-active {
-  border-color: rgba(108, 92, 231, 0.6) !important;
-  background: rgba(108, 92, 231, 0.05) !important;
+.ambient-glow {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  background: radial-gradient(
+    ellipse 50% 60% at 50% 0%,
+    rgba(0, 245, 212, 0.06) 0%,
+    rgba(99, 102, 241, 0.03) 40%,
+    transparent 80%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ========================================
-   PAGE HEADER GLOW
+   PAGE HEADER GLOW — More vibrant
    ======================================== */
 .page-glow {
   background: radial-gradient(
-    ellipse 300px 100px at center,
-    rgba(108, 92, 231, 0.06) 0%,
+    ellipse 350px 120px at center,
+    rgba(0, 245, 212, 0.08) 0%,
+    rgba(99, 102, 241, 0.04) 40%,
     transparent 70%
   );
 }
@@ -391,4 +493,198 @@
 }
 .ghost-card-filter:hover {
   filter: grayscale(0.6) brightness(0.8);
+}
+
+/* ========================================
+   GPX DROP ZONE
+   ======================================== */
+.drop-zone-active {
+  border-color: rgba(0, 245, 212, 0.5) !important;
+  background: rgba(0, 245, 212, 0.04) !important;
+}
+
+/* ========================================
+   SPECIAL CARDS — L'ÉCHAPPÉE DE LA SEMAINE
+   Black & Gold premium design
+   ======================================== */
+.card-glow-totw {
+  box-shadow:
+    0 0 65px rgba(255, 215, 0, 0.50),
+    0 0 130px rgba(255, 215, 0, 0.25),
+    0 0 200px rgba(255, 170, 0, 0.10),
+    0 24px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 240, 100, 0.30),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.50);
+}
+.avatar-glow-totw {
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.70),
+    0 0 80px rgba(255, 215, 0, 0.35);
+}
+.texture-totw {
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(255, 215, 0, 0.04) 3px, rgba(255, 215, 0, 0.04) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(255, 255, 255, 0.02) 7px, rgba(255, 255, 255, 0.02) 8px
+    );
+}
+@keyframes totw-sweep {
+  0% { transform: translateX(-100%) rotate(25deg); }
+  100% { transform: translateX(200%) rotate(25deg); }
+}
+.totw-sweep::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 215, 0, 0.08) 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 215, 0, 0.08) 70%,
+    transparent 100%
+  );
+  animation: totw-sweep 3s ease-in-out infinite;
+}
+.holo-scan-totw::after {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 215, 0, 0.08) 30%,
+    rgba(255, 215, 0, 0.15) 50%,
+    rgba(255, 215, 0, 0.08) 70%,
+    transparent 100%
+  ) !important;
+}
+
+/* ========================================
+   SPECIAL CARDS — IN-FORM
+   Fire & Orange explosive energy
+   ======================================== */
+.card-glow-inform {
+  box-shadow:
+    0 0 60px rgba(255, 107, 53, 0.50),
+    0 0 120px rgba(255, 107, 53, 0.20),
+    0 0 70px rgba(255, 60, 0, 0.15),
+    0 24px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 150, 80, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.50);
+}
+.avatar-glow-inform {
+  box-shadow:
+    0 0 35px rgba(255, 107, 53, 0.70),
+    0 0 70px rgba(255, 60, 0, 0.35);
+}
+.texture-inform {
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(255, 107, 53, 0.04) 3px, rgba(255, 107, 53, 0.04) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(255, 60, 0, 0.02) 7px, rgba(255, 60, 0, 0.02) 8px
+    );
+}
+@keyframes fire-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+.inform-fire-glow {
+  animation: fire-pulse 2s ease-in-out infinite;
+}
+
+/* ========================================
+   SPECIAL CARDS — LEGEND MOMENT
+   Cosmic purple & cyan
+   ======================================== */
+.card-glow-legend-moment {
+  box-shadow:
+    0 0 65px rgba(185, 242, 255, 0.40),
+    0 0 130px rgba(99, 102, 241, 0.25),
+    0 0 90px rgba(185, 242, 255, 0.15),
+    0 24px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(185, 242, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.50);
+}
+.avatar-glow-legend-moment {
+  box-shadow:
+    0 0 40px rgba(185, 242, 255, 0.60),
+    0 0 80px rgba(99, 102, 241, 0.35);
+}
+.texture-legend-moment {
+  background-image:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 3px,
+      rgba(99, 102, 241, 0.04) 3px, rgba(99, 102, 241, 0.04) 4px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0px, transparent 7px,
+      rgba(185, 242, 255, 0.02) 7px, rgba(185, 242, 255, 0.02) 8px
+    );
+}
+.holo-scan-legend_moment::after {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.08) 25%,
+    rgba(185, 242, 255, 0.12) 50%,
+    rgba(99, 102, 241, 0.08) 75%,
+    transparent 100%
+  ) !important;
+}
+
+/* ========================================
+   INTERACTIVE HOVER — for glass cards
+   ======================================== */
+.glass-hover {
+  transition: all 0.25s ease;
+}
+.glass-hover:hover {
+  background: rgba(30, 41, 70, 0.55);
+  border-color: rgba(255, 255, 255, 0.10);
+  transform: translateY(-1px);
+}
+.glass-hover:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   ACCENT GRADIENT TEXT
+   ======================================== */
+.text-gradient-accent {
+  background: linear-gradient(135deg, #00F5D4 0%, #6366F1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
 }

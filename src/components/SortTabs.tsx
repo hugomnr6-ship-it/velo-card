@@ -17,12 +17,12 @@ const mainTabs: { key: LeaderboardSort; label: string }[] = [
 ];
 
 const attrTabs: { key: LeaderboardSort; label: string }[] = [
-  { key: "pac", label: "PAC" },
+  { key: "pac", label: "VIT" },
   { key: "mon", label: "MON" },
-  { key: "val", label: "VAL" },
+  { key: "val", label: "TEC" },
   { key: "spr", label: "SPR" },
   { key: "end", label: "END" },
-  { key: "res", label: "RES" },
+  { key: "res", label: "PUI" },
 ];
 
 export default function SortTabs({ active, onChange }: SortTabsProps) {
@@ -32,7 +32,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
   return (
     <div className="flex flex-col gap-2">
       {/* Main tabs */}
-      <div className="flex gap-1 rounded-lg border border-neutral-700/50 bg-neutral-800/50 p-1">
+      <div className="flex gap-1 rounded-lg border border-white/[0.06] bg-[#1A1A2E]/60 p-1">
         {mainTabs.map((t) => (
           <button
             key={t.key}
@@ -53,7 +53,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
               className={`relative z-10 ${
                 active === t.key && !isAttr
                   ? "text-black"
-                  : "text-neutral-400 hover:text-white"
+                  : "text-[#94A3B8] hover:text-white"
               }`}
             >
               {t.label}
@@ -66,7 +66,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
           className={`relative rounded-md px-3 py-1.5 text-xs font-semibold transition ${
             isAttr || showAttrs
               ? "bg-white/10 text-white"
-              : "text-neutral-400 hover:text-white"
+              : "text-[#94A3B8] hover:text-white"
           }`}
         >
           Par Attribut
@@ -75,7 +75,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
 
       {/* Attribute sub-tabs */}
       {(showAttrs || isAttr) && (
-        <div className="flex gap-1 rounded-lg border border-neutral-700/50 bg-neutral-800/50 p-1">
+        <div className="flex gap-1 rounded-lg border border-white/[0.06] bg-[#1A1A2E]/60 p-1">
           {attrTabs.map((t) => (
             <button
               key={t.key}
@@ -93,7 +93,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
                 className={`relative z-10 ${
                   active === t.key
                     ? "text-black"
-                    : "text-neutral-400 hover:text-white"
+                    : "text-[#94A3B8] hover:text-white"
                 }`}
               >
                 {t.label}

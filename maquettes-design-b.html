@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloCard — Design B Shield + Circular Gauges — Toutes Cartes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #08090E;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #FFD700, #FF6B35, #00D4FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 50px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.35);
+    margin: 50px 0 30px;
+  }
+
+  .cards-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ═══════ CARD ═══════ */
+  .card {
+    position: relative;
+    width: 280px;
+    height: 470px;
+    border-radius: 18px;
+    overflow: hidden;
+    isolation: isolate;
+    flex-shrink: 0;
+  }
+
+  /* Scan lines */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    border-radius: 18px;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
+    pointer-events: none;
+  }
+
+  /* Shimmer sweep */
+  .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    overflow: hidden;
+    border-radius: 18px;
+    pointer-events: none;
+  }
+  .shimmer-overlay::before {
+    content: '';
+    position: absolute;
+    left: -50%;
+    top: -50%;
+    width: 25%;
+    height: 200%;
+    transform: rotate(20deg);
+    animation: shimmer-sweep 5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer-sweep {
+    0%   { transform: translateX(-100%) rotate(20deg); }
+    100% { transform: translateX(400%) rotate(20deg); }
+  }
+
+  /* Holo scan */
+  .holo-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 14;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%);
+    background-size: 100% 200%;
+    animation: holo-scan-anim 3s ease-in-out infinite;
+  }
+  @keyframes holo-scan-anim {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 0% 100%; }
+  }
+
+  /* Rainbow overlay */
+  .rainbow-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 16;
+    pointer-events: none;
+    opacity: 0.12;
+    background: linear-gradient(135deg, #ff000030, #ff800030, #ffff0030, #00ff0030, #0080ff30, #8000ff30, #ff000030);
+    background-size: 200% 200%;
+    animation: rainbow-shift 6s linear infinite;
+  }
+  @keyframes rainbow-shift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  /* Particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    z-index: 18;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particle-float var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+    left: var(--left);
+    bottom: -10px;
+    width: var(--size);
+    height: var(--size);
+    opacity: 0.6;
+  }
+  @keyframes particle-float {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-480px); opacity: 0; }
+  }
+
+  /* Silver sweep (Argent) */
+  .silver-sweep {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .silver-sweep::before {
+    content: '';
+    position: absolute;
+    left: -50%;
+    top: -50%;
+    width: 30%;
+    height: 200%;
+    transform: rotate(12deg);
+    background: linear-gradient(90deg, transparent, rgba(200,210,228,0.12) 30%, rgba(255,255,255,0.16) 50%, rgba(200,210,228,0.12) 70%, transparent);
+    animation: shimmer-sweep 5s ease-in-out infinite;
+  }
+
+  /* TOTW sweep */
+  .totw-sweep {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .totw-sweep::before {
+    content: '';
+    position: absolute;
+    left: -50%;
+    top: -50%;
+    width: 25%;
+    height: 200%;
+    transform: rotate(20deg);
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent);
+    animation: shimmer-sweep 4s ease-in-out infinite;
+  }
+
+  /* Fire glow (In-Form) */
+  .fire-glow {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 40%;
+    z-index: 4;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(255,60,0,0.15) 0%, rgba(255,107,53,0.06) 40%, transparent 100%);
+    border-radius: 0 0 18px 18px;
+  }
+
+  /* Content */
+  .card-content {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  /* Crest */
+  .crest {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 46px;
+    z-index: 25;
+    clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 50% 80%, 15% 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 7px;
+  }
+  .crest span {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+  }
+
+  /* Vertical lines */
+  .vline {
+    position: absolute;
+    width: 1px;
+    top: 50px;
+    bottom: 50px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .vline.left { left: 12px; }
+  .vline.right { right: 12px; }
+
+  /* Special pill */
+  .special-pill {
+    position: absolute;
+    right: 14px;
+    top: 50px;
+    z-index: 25;
+    border-radius: 10px;
+    padding: 3px 8px;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  /* OVR score */
+  .ovr-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1;
+    margin-top: 50px;
+    margin-bottom: 2px;
+  }
+  .ovr-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* Hex avatar */
+  .hex-avatar {
+    width: 72px;
+    height: 72px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0 8px;
+  }
+  .hex-avatar-inner {
+    width: 66px;
+    height: 66px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: #0E1828;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hex-avatar-inner .initials {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  /* Username */
+  .username {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+
+  /* Country */
+  .country-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+  .flag-fr {
+    width: 15px;
+    height: 11px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #002395 0% 33.33%, #fff 33.33% 66.67%, #ED2939 66.67% 100%);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+  .country-name {
+    font-size: 8px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.04em;
+  }
+
+  /* Tier label */
+  .tier-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    margin-top: 3px;
+    opacity: 0.4;
+  }
+
+  /* Divider */
+  .divider {
+    width: 50%;
+    height: 1px;
+    margin: 10px auto 6px;
+  }
+
+  /* Circular gauges grid */
+  .gauges-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    width: 100%;
+    padding: 0 14px;
+  }
+
+  .gauge-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .gauge-svg-wrap {
+    position: relative;
+    width: 56px;
+    height: 56px;
+  }
+  .gauge-svg-wrap svg {
+    transform: rotate(-90deg);
+  }
+  .gauge-value-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .gauge-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .gauge-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.28);
+    margin-top: 1px;
+  }
+
+  /* Footer */
+  .card-footer {
+    margin-top: auto;
+  }
+  .footer-divider {
+    width: 50%;
+    height: 1px;
+    margin: 0 auto 4px;
+    opacity: 0.5;
+  }
+  .footer-text {
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.08);
+    padding-bottom: 12px;
+    text-align: center;
+  }
+
+  /* Spotlight */
+  .spotlight {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+  }
+
+  /* Glow pulse for animated cards */
+  .glow-pulse {
+    animation: glow-pulse-anim 4s ease-in-out infinite;
+  }
+  @keyframes glow-pulse-anim {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.03); }
+  }
+
+  /* Labels under cards */
+  .card-label {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+  }
+</style>
+</head>
+<body>
+
+<h1>VELOCARD — DESIGN B</h1>
+<p class="subtitle">SHIELD + CIRCULAR GAUGES — TOUTES LES CARTES</p>
+
+<!-- ═══ SECTION 1: 5 TIERS ═══ -->
+<div class="section-title">── 5 TIERS ──</div>
+
+<div class="cards-row" id="tier-cards"></div>
+
+<!-- ═══ SECTION 2: 3 SPECIAL CARDS ═══ -->
+<div class="section-title">── 3 CARTES SPÉCIALES ──</div>
+
+<div class="cards-row" id="special-cards"></div>
+
+<script>
+const CIRCUMFERENCE = 2 * Math.PI * 24;
+
+const tiers = {
+  bronze: {
+    accent: "#E8A854",
+    bg: "linear-gradient(170deg, #1A1208, #241A0D 50%, #1A1208)",
+    crestGrad: "linear-gradient(180deg, #E8A854, #CD7F32)",
+    crestTextColor: "#1A1208",
+    ringGrad: "linear-gradient(180deg, #E8A854, #8B6830)",
+    statColor: "#E8A854",
+    glow: "rgba(232,168,84,0.3)",
+    border: "rgba(232,168,84,0.2)",
+    divider: "rgba(232,168,84,0.2)",
+    gaugeBg: "rgba(255,255,255,0.04)",
+    shimmer: "rgba(232,168,84,0.1)",
+    spotlight: "linear-gradient(135deg, transparent 20%, rgba(232,168,84,0.08) 35%, rgba(255,255,255,0.12) 50%, rgba(232,168,84,0.08) 65%, transparent 80%)",
+    label: "BRONZE",
+    hasSilverSweep: false, hasParticles: false, hasHoloScan: false, hasRainbow: false,
+    particleCount: 0, particleColors: ["#E8A854"],
+    stats: { ovr: 42, pac: 38, mon: 35, val: 44, spr: 50, end: 40, res: 36 },
+    username: "CycloDébutant",
+  },
+  argent: {
+    accent: "#B8A0D8",
+    bg: "linear-gradient(170deg, #14101E, #1E1430 50%, #14101E)",
+    crestGrad: "linear-gradient(180deg, #C8B0E8, #9880B8)",
+    crestTextColor: "#14101E",
+    ringGrad: "linear-gradient(180deg, #C8B0E8, #8870A8)",
+    statColor: "#D0C0E8",
+    glow: "rgba(184,160,216,0.25)",
+    border: "rgba(184,160,216,0.2)",
+    divider: "rgba(184,160,216,0.2)",
+    gaugeBg: "rgba(184,160,216,0.06)",
+    shimmer: "rgba(184,160,216,0.14)",
+    spotlight: "linear-gradient(135deg, transparent 15%, rgba(184,160,216,0.10) 30%, rgba(208,192,232,0.18) 50%, rgba(184,160,216,0.10) 70%, transparent 85%)",
+    label: "ARGENT",
+    hasSilverSweep: true, hasParticles: false, hasHoloScan: false, hasRainbow: false,
+    particleCount: 0, particleColors: ["#B8A0D8"],
+    stats: { ovr: 58, pac: 55, mon: 62, val: 54, spr: 60, end: 59, res: 56 },
+    username: "RiderArgent",
+  },
+  platine: {
+    accent: "#E0E8F0",
+    bg: "linear-gradient(170deg, #101820, #1A2838 50%, #101820)",
+    crestGrad: "linear-gradient(180deg, #E0E8F0, #B0B8C8)",
+    crestTextColor: "#101820",
+    ringGrad: "linear-gradient(180deg, #E0E8F0, #A8B4C4)",
+    statColor: "#E0E8F0",
+    glow: "rgba(224,232,240,0.3)",
+    border: "rgba(224,232,240,0.18)",
+    divider: "rgba(224,232,240,0.18)",
+    gaugeBg: "rgba(224,232,240,0.05)",
+    shimmer: "rgba(224,232,240,0.14)",
+    spotlight: "linear-gradient(135deg, transparent 20%, rgba(224,232,240,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(224,232,240,0.10) 65%, transparent 80%)",
+    label: "PLATINE",
+    hasSilverSweep: false, hasParticles: false, hasHoloScan: false, hasRainbow: false,
+    particleCount: 0, particleColors: ["#E0E8F0"],
+    stats: { ovr: 72, pac: 70, mon: 75, val: 68, spr: 74, end: 73, res: 71 },
+    username: "ProPlatine",
+  },
+  diamant: {
+    accent: "#00D4FF",
+    bg: "linear-gradient(170deg, #041018, #0C2038 50%, #041018)",
+    crestGrad: "linear-gradient(180deg, #00D4FF, #0088AA)",
+    crestTextColor: "#041018",
+    ringGrad: "linear-gradient(180deg, #00D4FF, #0098CC)",
+    statColor: "#00D4FF",
+    glow: "rgba(0,212,255,0.35)",
+    border: "rgba(0,212,255,0.22)",
+    divider: "rgba(0,212,255,0.22)",
+    gaugeBg: "rgba(0,212,255,0.06)",
+    shimmer: "rgba(0,212,255,0.12)",
+    spotlight: "linear-gradient(135deg, transparent 15%, rgba(0,212,255,0.12) 30%, rgba(185,242,255,0.20) 50%, rgba(0,212,255,0.12) 70%, transparent 85%)",
+    label: "DIAMANT",
+    hasSilverSweep: false, hasParticles: true, hasHoloScan: true, hasRainbow: false,
+    particleCount: 12, particleColors: ["#00D4FF", "#B9F2FF"],
+    stats: { ovr: 85, pac: 88, mon: 82, val: 84, spr: 91, end: 80, res: 86 },
+    username: "EliteDiamant",
+  },
+  legende: {
+    accent: "#FFD700",
+    bg: "linear-gradient(170deg, #1A0A28, #2A1040 30%, #201808 60%, #1A0A28)",
+    crestGrad: "linear-gradient(180deg, #FFD700, #FF9500)",
+    crestTextColor: "#1A0A28",
+    ringGrad: "linear-gradient(180deg, #FFD700, #CC8800)",
+    statColor: "#FFE44D",
+    glow: "rgba(255,215,0,0.5)",
+    border: "rgba(255,215,0,0.30)",
+    divider: "rgba(255,215,0,0.30)",
+    gaugeBg: "rgba(255,255,255,0.04)",
+    shimmer: "rgba(255,215,0,0.18)",
+    spotlight: "linear-gradient(135deg, transparent 20%, rgba(255,215,0,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(255,215,0,0.10) 65%, transparent 80%)",
+    label: "LEGENDE",
+    hasSilverSweep: false, hasParticles: true, hasHoloScan: true, hasRainbow: true,
+    particleCount: 30, particleColors: ["#FFD700", "#FFE44D", "#FFC000", "#A78BFA", "#FF9500"],
+    stats: { ovr: 94, pac: 95, mon: 92, val: 93, spr: 96, end: 91, res: 94 },
+    username: "LégendeDuVélo",
+  }
+};
+
+const specials = {
+  totw: {
+    accent: "#00F5A0",
+    bg: "linear-gradient(170deg, #040A08, #0A1A12 50%, #040A08)",
+    crestGrad: "linear-gradient(180deg, #00F5A0, #00A868)",
+    crestTextColor: "#040A08",
+    ringGrad: "linear-gradient(180deg, rgba(0,245,160,0.9), rgba(0,168,104,0.5))",
+    statColor: "#40FFB8",
+    glow: "rgba(0,245,160,0.45)",
+    border: "rgba(0,245,160,0.3)",
+    divider: "rgba(0,245,160,0.3)",
+    gaugeBg: "rgba(255,255,255,0.04)",
+    shimmer: "rgba(0,245,160,0.15)",
+    spotlight: "linear-gradient(135deg, transparent 20%, rgba(0,245,160,0.10) 35%, rgba(255,255,255,0.12) 50%, rgba(0,245,160,0.10) 65%, transparent 80%)",
+    label: "DIAMANT",
+    pillLabel: "ÉCHAPPÉE",
+    hasSilverSweep: false, hasParticles: true, hasHoloScan: true, hasRainbow: false, hasTOTWSweep: true,
+    particleCount: 20, particleColors: ["#00F5A0", "#40FFB8", "#00D888", "#80FFD0"],
+    stats: { ovr: 88, pac: 92, mon: 85, val: 87, spr: 90, end: 84, res: 86 },
+    username: "RoiDuSprint",
+    displayLabel: "ÉCHAPPÉE · DIAMANT",
+  },
+  in_form: {
+    accent: "#FF6B35",
+    bg: "linear-gradient(170deg, #1A0800, #2D1208 50%, #1A0500)",
+    crestGrad: "linear-gradient(180deg, #FF6B35, #CC4400)",
+    crestTextColor: "#1A0800",
+    ringGrad: "linear-gradient(180deg, rgba(255,107,53,0.9), rgba(255,60,0,0.5))",
+    statColor: "#FF8C5A",
+    glow: "rgba(255,107,53,0.4)",
+    border: "rgba(255,107,53,0.25)",
+    divider: "rgba(255,107,53,0.25)",
+    gaugeBg: "rgba(255,255,255,0.04)",
+    shimmer: "rgba(255,107,53,0.12)",
+    spotlight: "linear-gradient(135deg, transparent 20%, rgba(255,107,53,0.10) 35%, rgba(255,255,255,0.12) 50%, rgba(255,107,53,0.10) 65%, transparent 80%)",
+    label: "PLATINE",
+    pillLabel: "IN FORM",
+    hasSilverSweep: false, hasParticles: true, hasHoloScan: false, hasRainbow: false, hasFireGlow: true,
+    particleCount: 18, particleColors: ["#FF6B35", "#FF4500", "#FF8C00", "#FFD700"],
+    stats: { ovr: 76, pac: 78, mon: 70, val: 74, spr: 80, end: 72, res: 75 },
+    username: "FlammeCycliste",
+    displayLabel: "IN FORM · PLATINE",
+  },
+  legend_moment: {
+    accent: "#B9F2FF",
+    bg: "linear-gradient(170deg, #0A0020, #1A0A40 50%, #000A20)",
+    crestGrad: "linear-gradient(180deg, #B9F2FF, #6366F1)",
+    crestTextColor: "#0A0020",
+    ringGrad: "linear-gradient(180deg, rgba(185,242,255,0.9), rgba(99,102,241,0.6))",
+    statColor: "#B9F2FF",
+    glow: "rgba(185,242,255,0.35)",
+    border: "rgba(185,242,255,0.25)",
+    divider: "rgba(185,242,255,0.25)",
+    gaugeBg: "rgba(255,255,255,0.04)",
+    shimmer: "rgba(185,242,255,0.12)",
+    spotlight: "linear-gradient(135deg, transparent 15%, rgba(185,242,255,0.10) 30%, rgba(255,255,255,0.15) 50%, rgba(185,242,255,0.10) 70%, transparent 85%)",
+    label: "LEGENDE",
+    pillLabel: "LÉGENDE",
+    hasSilverSweep: false, hasParticles: true, hasHoloScan: true, hasRainbow: true,
+    particleCount: 30, particleColors: ["#B9F2FF", "#6366F1", "#A78BFA", "#818CF8"],
+    stats: { ovr: 96, pac: 97, mon: 94, val: 95, spr: 98, end: 93, res: 95 },
+    username: "MomentLégende",
+    displayLabel: "LÉGENDE · LEGENDE",
+  }
+};
+
+function createGaugeSVG(label, value, accent, glow, statColor, gaugeBg) {
+  const offset = CIRCUMFERENCE * (1 - value / 100);
+  const isElite = value >= 90;
+  const strokeW = isElite ? 3.5 : 3;
+  const filterStr = isElite ? `drop-shadow(0 0 8px ${glow})` : `drop-shadow(0 0 4px ${glow})`;
+  const textShadow = isElite ? `0 0 12px ${glow}` : 'none';
+
+  return `
+    <div class="gauge-cell">
+      <div class="gauge-svg-wrap">
+        <svg viewBox="0 0 56 56" width="56" height="56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="${gaugeBg}" stroke-width="3"/>
+          <circle cx="28" cy="28" r="24" fill="none" stroke="${accent}" stroke-width="${strokeW}" stroke-linecap="round"
+            stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="${offset}"
+            style="filter:${filterStr}; transition:stroke-dashoffset 1s ease"/>
+        </svg>
+        <div class="gauge-value-wrap">
+          <span class="gauge-value" style="color:${statColor};text-shadow:${textShadow}">${value}</span>
+          <span class="gauge-label">${label}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function createCard(cfg, isSpecial = false) {
+  const s = cfg.stats;
+  const hasAnim = cfg.hasHoloScan || cfg.hasRainbow || cfg.hasParticles;
+
+  let extras = '';
+
+  // Shimmer sweep
+  extras += `<div class="shimmer-overlay"><div style="position:absolute;left:-50%;top:-50%;width:25%;height:200%;transform:rotate(20deg);background:linear-gradient(90deg,transparent,${cfg.shimmer},transparent);animation:shimmer-sweep 5s ease-in-out infinite"></div></div>`;
+
+  // Silver sweep (Argent only)
+  if (cfg.hasSilverSweep) {
+    extras += '<div class="silver-sweep"></div>';
+  }
+
+  // TOTW sweep
+  if (cfg.hasTOTWSweep) {
+    extras += '<div class="totw-sweep"></div>';
+  }
+
+  // Fire glow
+  if (cfg.hasFireGlow) {
+    extras += '<div class="fire-glow"></div>';
+  }
+
+  // Holo scan
+  if (cfg.hasHoloScan) {
+    extras += '<div class="holo-scan"></div>';
+  }
+
+  // Rainbow
+  if (cfg.hasRainbow) {
+    extras += '<div class="rainbow-overlay"></div>';
+  }
+
+  // Particles
+  if (cfg.hasParticles && cfg.particleCount > 0) {
+    let parts = '<div class="particles">';
+    for (let i = 0; i < cfg.particleCount; i++) {
+      const c = cfg.particleColors[i % cfg.particleColors.length];
+      const left = Math.random() * 100;
+      const dur = 3 + Math.random() * 4;
+      const delay = Math.random() * 5;
+      const size = 2 + Math.random() * 2;
+      parts += `<div class="particle" style="--left:${left}%;--dur:${dur}s;--delay:${delay}s;--size:${size}px;background:${c}"></div>`;
+    }
+    parts += '</div>';
+    extras += parts;
+  }
+
+  // Spotlight
+  extras += `<div class="spotlight" style="background:${cfg.spotlight}"></div>`;
+
+  // Special pill
+  let pillHtml = '';
+  if (isSpecial && cfg.pillLabel) {
+    pillHtml = `<div class="special-pill" style="color:${cfg.accent};background:${cfg.bg};border:1px solid ${cfg.border}">${cfg.pillLabel}</div>`;
+  }
+
+  // Vertical lines
+  const vlines = `
+    <div class="vline left" style="background:linear-gradient(180deg,transparent,${cfg.border},transparent)"></div>
+    <div class="vline right" style="background:linear-gradient(180deg,transparent,${cfg.border},transparent)"></div>
+  `;
+
+  // Gauges
+  const gauges = [
+    createGaugeSVG("VIT", s.pac, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+    createGaugeSVG("MON", s.mon, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+    createGaugeSVG("TEC", s.val, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+    createGaugeSVG("SPR", s.spr, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+    createGaugeSVG("END", s.end, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+    createGaugeSVG("PUI", s.res, cfg.accent, cfg.glow, cfg.statColor, cfg.gaugeBg),
+  ].join('');
+
+  const tierDisplay = isSpecial ? cfg.displayLabel : cfg.label;
+
+  return `
+    <div>
+      <div class="card ${hasAnim ? 'glow-pulse' : ''}" style="border:1.5px solid ${cfg.border};background:${cfg.bg}">
+        ${extras}
+        ${vlines}
+        ${pillHtml}
+
+        <div class="card-content">
+          <!-- Crest -->
+          <div class="crest" style="background:${cfg.crestGrad}">
+            <span style="color:${cfg.crestTextColor}">VELOCARD</span>
+          </div>
+
+          <!-- Top section -->
+          <div class="ovr-score" style="color:${cfg.accent};text-shadow:0 0 35px ${cfg.glow}">${s.ovr}</div>
+          <div class="ovr-label">OVERALL</div>
+
+          <!-- Hex avatar -->
+          <div class="hex-avatar" style="background:${cfg.ringGrad};filter:drop-shadow(0 0 16px ${cfg.glow})">
+            <div class="hex-avatar-inner">
+              <span class="initials" style="color:${cfg.accent}">${cfg.username.charAt(0).toUpperCase()}</span>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="username">${cfg.username}</div>
+
+          <!-- Country -->
+          <div class="country-row">
+            <div class="flag-fr"></div>
+            <span class="country-name">France</span>
+          </div>
+
+          <!-- Tier label -->
+          <div class="tier-label" style="color:${cfg.accent}">${tierDisplay}</div>
+
+          <!-- Divider -->
+          <div class="divider" style="background:linear-gradient(90deg,transparent,${cfg.divider},transparent)"></div>
+
+          <!-- Gauges -->
+          <div class="gauges-grid">${gauges}</div>
+
+          <!-- Footer -->
+          <div class="card-footer">
+            <div class="footer-divider" style="background:linear-gradient(90deg,transparent,${cfg.divider},transparent)"></div>
+            <div class="footer-text">VELOCARD.APP</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-label">${isSpecial ? cfg.pillLabel : cfg.label}</div>
+    </div>
+  `;
+}
+
+// Render tier cards
+document.getElementById('tier-cards').innerHTML = Object.values(tiers).map(t => createCard(t)).join('');
+
+// Render special cards
+document.getElementById('special-cards').innerHTML = Object.values(specials).map(s => createCard(s, true)).join('');
+</script>
+
+</body>
+</html>

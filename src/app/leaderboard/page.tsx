@@ -82,7 +82,7 @@ export default function LeaderboardPage() {
         <PageHeader icon={<TrophyIcon size={28} />} title="Classement hebdomadaire" />
 
         <div className="mb-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-500">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">
             Region
           </p>
           <RegionSelector value={region} onChange={handleRegionChange} />

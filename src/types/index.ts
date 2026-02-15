@@ -60,6 +60,64 @@ export interface UserStats {
   ovr: number;
   tier: CardTier;
   last_synced_at: string;
+  // Monday Update deltas
+  prev_pac: number;
+  prev_end: number;
+  prev_mon: number;
+  prev_res: number;
+  prev_spr: number;
+  prev_val: number;
+  prev_ovr: number;
+  prev_tier: CardTier;
+  last_activity_date: string | null;
+  active_weeks_streak: number;
+  special_card: SpecialCardType | null;
+}
+
+// ——— Special Card Types ———
+export type SpecialCardType = "totw" | "in_form" | "legend_moment";
+
+// ——— Stat Deltas (computed client-side) ———
+export interface StatDeltas {
+  pac: number;
+  end: number;
+  mon: number;
+  res: number;
+  spr: number;
+  val: number;
+  ovr: number;
+  tierChanged: boolean;
+  previousTier: CardTier;
+}
+
+// ——— Stats History (weekly snapshot) ———
+export interface StatsHistoryEntry {
+  week_label: string;
+  pac: number;
+  end: number;
+  mon: number;
+  res: number;
+  spr: number;
+  val: number;
+  ovr: number;
+  tier: CardTier;
+  special_card: SpecialCardType | null;
+  weekly_km: number;
+  weekly_dplus: number;
+  weekly_rides: number;
+}
+
+// ——— L'Échappée de la Semaine (sélection hebdo des meilleurs) ———
+export type EchappeeCategory = "ovr" | "pac" | "mon" | "spr" | "end" | "res" | "val" | "progression";
+
+export interface EchappeeEntry {
+  week_label: string;
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  category: EchappeeCategory;
+  stat_value: number;
+  tier: CardTier;
 }
 
 // ——— Phase 2: GPX & Route types ———
@@ -288,6 +346,63 @@ export interface WarHistoryEntry {
   result: "win" | "loss" | "draw";
   ended_at: string;
 }
+
+// ——— Phase 2: Duels Head-to-Head ———
+
+export type DuelCategory = "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res" | "weekly_km" | "weekly_dplus" | "weekly_rides";
+export type DuelType = "instant" | "weekly";
+export type DuelStatus = "pending" | "accepted" | "resolved" | "declined" | "expired";
+
+export interface Duel {
+  id: string;
+  challenger_id: string;
+  opponent_id: string;
+  category: DuelCategory;
+  duel_type: DuelType;
+  stake: number;
+  status: DuelStatus;
+  challenger_value: number | null;
+  opponent_value: number | null;
+  winner_id: string | null;
+  is_draw: boolean;
+  week_label: string | null;
+  created_at: string;
+  accepted_at: string | null;
+  resolved_at: string | null;
+  expires_at: string;
+}
+
+export interface DuelWithPlayers extends Duel {
+  challenger: { username: string; avatar_url: string | null; ovr: number; tier: CardTier };
+  opponent: { username: string; avatar_url: string | null; ovr: number; tier: CardTier };
+}
+
+export interface DuelStats {
+  wins: number;
+  losses: number;
+  draws: number;
+  ego_points: number;
+}
+
+export interface CreateDuelInput {
+  opponent_id: string;
+  category: DuelCategory;
+  duel_type: DuelType;
+  stake: number;
+}
+
+export const DUEL_CATEGORY_LABELS: Record<DuelCategory, { label: string; emoji: string; short: string }> = {
+  ovr: { label: "Overall", emoji: "ovr", short: "OVR" },
+  pac: { label: "Vitesse", emoji: "pac", short: "VIT" },
+  mon: { label: "Grimpeur", emoji: "mon", short: "MON" },
+  val: { label: "Technique", emoji: "val", short: "TEC" },
+  spr: { label: "Sprint", emoji: "spr", short: "SPR" },
+  end: { label: "Endurance", emoji: "end", short: "END" },
+  res: { label: "Puissance", emoji: "res", short: "PUI" },
+  weekly_km: { label: "KM Hebdo", emoji: "weekly_km", short: "KM" },
+  weekly_dplus: { label: "D+ Hebdo", emoji: "weekly_dplus", short: "D+" },
+  weekly_rides: { label: "Sorties Hebdo", emoji: "weekly_rides", short: "×" },
+};
 
 // ——— Phase: Ghost Cards (Growth Hack) ———
 

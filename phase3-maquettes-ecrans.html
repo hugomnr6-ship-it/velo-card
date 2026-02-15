@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD — Phase 3 : Maquettes Écrans Détaillées</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-hover:#1E1E38;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);background:rgba(0,245,212,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(0,245,212,.2)}
+
+/* HERO */
+.hero{min-height:60vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(108,92,231,.12),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--accent-l);margin-bottom:32px}
+.hero-badge::before{content:'';width:8px;height:8px;background:var(--mint);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+/* SECTIONS */
+section{padding:100px 0;position:relative}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:600px;line-height:1.8;margin-bottom:48px}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════ PHONE MOCKUP ═══════ */
+.screen-section{display:grid;grid-template-columns:380px 1fr;gap:48px;align-items:start;margin-bottom:120px}
+.screen-section.reverse{grid-template-columns:1fr 380px}
+.screen-section.reverse .phone-wrap{order:2}
+.screen-section.reverse .screen-details{order:1}
+
+.phone-wrap{position:sticky;top:120px}
+.phone{width:375px;min-height:720px;background:var(--bg-0);border:2px solid var(--b2);border-radius:44px;overflow:hidden;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03)}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:140px;height:28px;background:var(--bg-0);border-radius:0 0 20px 20px;z-index:20;border:1px solid var(--b1);border-top:none}
+
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--t2);position:relative;z-index:10}
+.phone-screen{padding:0 0 80px}
+.phone-bottom-nav{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;align-items:center;padding:8px 12px 24px;background:linear-gradient(transparent,var(--bg-0) 20%);z-index:10}
+.bnav-i{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border-radius:12px;cursor:default}
+.bnav-i.active{background:rgba(108,92,231,.12)}
+.bnav-ic{font-size:18px;opacity:.4}
+.bnav-i.active .bnav-ic{opacity:1}
+.bnav-lb{font-size:9px;font-weight:500;color:var(--t3)}
+.bnav-i.active .bnav-lb{color:var(--accent-l)}
+.bnav-ride{background:var(--gp);padding:12px 18px;border-radius:16px}
+.bnav-ride .bnav-ic{opacity:1;font-size:22px}
+.bnav-ride .bnav-lb{color:rgba(255,255,255,.8);font-weight:600}
+
+/* Screen inner components */
+.ps{padding:0 20px} /* phone section padding */
+.ps-header{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.ps-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
+.ps-card{background:var(--bg-card);border:1px solid var(--b1);border-radius:16px;padding:16px;margin-bottom:12px}
+.ps-mini-stat{text-align:center;padding:8px 4px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid var(--b1)}
+.ps-mini-val{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700}
+.ps-mini-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.ps-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;border:none;cursor:default}
+.ps-btn-pri{background:var(--gp);color:white}
+.ps-btn-sec{background:rgba(108,92,231,.12);color:var(--accent-l);border:1px solid rgba(108,92,231,.2)}
+.ps-btn-mint{background:linear-gradient(135deg,#00F5D4,#74B9FF);color:#0A0A12}
+.ps-btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b2)}
+.ps-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0}
+.ps-badge-row{display:flex;gap:4px}
+.ps-badge-mini{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.ps-tag{display:inline-flex;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:500}
+
+/* Screen details panel */
+.screen-details{}
+.sd-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.sd-emotion{font-size:14px;color:var(--accent-l);font-weight:500;margin-bottom:20px;font-style:italic}
+
+.sd-block{margin-bottom:28px}
+.sd-block-title{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sd-block-title.hierarchy{color:var(--mint)}
+.sd-block-title.ux{color:var(--accent-l)}
+.sd-block-title.anim{color:var(--coral)}
+.sd-block-title.micro{color:var(--gold)}
+.sd-block-content{font-size:13px;color:var(--t2);line-height:1.8}
+.sd-list{display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2);line-height:1.6}
+.sd-item{display:flex;gap:8px;align-items:flex-start}
+.sd-item::before{content:'→';color:var(--accent-l);flex-shrink:0;font-weight:600}
+.sd-divider{height:1px;background:var(--b1);margin:32px 0}
+
+/* SPEC TABLE */
+.spec-table{width:100%;border-collapse:collapse;margin-top:12px}
+.spec-table th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--b1)}
+.spec-table td{font-size:12px;color:var(--t2);padding:8px 12px;border-bottom:1px solid var(--b1)}
+.spec-table td:first-child{color:var(--t1);font-weight:500}
+
+/* FOOTER / NEXT */
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .screen-section,.screen-section.reverse{grid-template-columns:1fr;gap:32px}
+  .phone-wrap{position:relative;top:0;justify-self:center}
+  .screen-section.reverse .phone-wrap{order:0}
+  .screen-section.reverse .screen-details{order:0}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span></div>
+    <div class="nav-phase">Phase 03/03</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Maquettes Détaillées — Confidentiel</div>
+    <h1>8 Écrans Clés,<br><span class="gt">Pixel par Pixel</span></h1>
+    <p class="hero-sub">Chaque écran est documenté avec sa hiérarchie visuelle, ses interactions UX, ses animations recommandées, ses micro-interactions et l'émotion recherchée.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRAN 1 — ONBOARDING
+     ═══════════════════════════════════════════════════ -->
+<section id="onboarding">
+  <div class="container">
+    <div class="s-label reveal">Écran 01/08</div>
+    <h2 class="s-title reveal">Onboarding</h2>
+    <p class="s-desc reveal">Première impression = tout. L'onboarding doit communiquer : premium, communauté, progression. 4 étapes max. Objectif : activation en moins de 90 secondes.</p>
+
+    <div class="screen-section">
+      <!-- PHONE -->
+      <div class="phone-wrap reveal">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-screen">
+            <!-- Onboarding Step 3/4 -->
+            <div style="padding:40px 24px 24px;text-align:center">
+              <!-- Progress dots -->
+              <div style="display:flex;justify-content:center;gap:8px;margin-bottom:40px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.3"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.3"></div>
+                <div style="width:24px;height:8px;border-radius:100px;background:var(--gp)"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1)"></div>
+              </div>
+
+              <!-- Illustration placeholder -->
+              <div style="width:200px;height:200px;margin:0 auto 32px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,.2) 0%,rgba(0,245,212,.08) 60%,transparent 100%);display:flex;align-items:center;justify-content:center;font-size:72px">
+                🚴
+              </div>
+
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;line-height:1.2">
+                Quel type de<br>cycliste es-tu ?
+              </div>
+              <div style="font-size:14px;color:var(--t2);margin-bottom:32px;line-height:1.6">
+                On adapte ton expérience à ton profil.
+              </div>
+
+              <!-- Profile type cards -->
+              <div style="display:flex;flex-direction:column;gap:10px;text-align:left">
+                <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(108,92,231,.08);border:2px solid var(--accent);border-radius:14px">
+                  <span style="font-size:24px">🏔️</span>
+                  <div>
+                    <div style="font-weight:600;font-size:14px">Grimpeur</div>
+                    <div style="font-size:11px;color:var(--t2)">J'aime les cols et le dénivelé</div>
+                  </div>
+                  <div style="margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;color:white">✓</div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid var(--b2);border-radius:14px">
+                  <span style="font-size:24px">⚡</span>
+                  <div>
+                    <div style="font-weight:600;font-size:14px">Sprinter</div>
+                    <div style="font-size:11px;color:var(--t2)">Vitesse et puissance</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid var(--b2);border-radius:14px">
+                  <span style="font-size:24px">🛤️</span>
+                  <div>
+                    <div style="font-weight:600;font-size:14px">Endurant</div>
+                    <div style="font-size:11px;color:var(--t2)">Longues distances, régularité</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid var(--b2);border-radius:14px">
+                  <span style="font-size:24px">🌿</span>
+                  <div>
+                    <div style="font-weight:600;font-size:14px">Loisir</div>
+                    <div style="font-size:11px;color:var(--t2)">Plaisir, découverte, social</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:28px">
+                <div class="ps-btn ps-btn-pri" style="width:100%;height:48px;border-radius:14px;font-size:15px">Continuer</div>
+              </div>
+              <div style="margin-top:12px;font-size:12px;color:var(--t3)">Tu pourras changer plus tard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="screen-details reveal">
+        <div class="sd-title">Onboarding — Étape 3/4</div>
+        <div class="sd-emotion">"Je me sens compris, cette app est faite pour moi."</div>
+
+        <div class="sd-block">
+          <div class="sd-block-title hierarchy">Hiérarchie visuelle</div>
+          <div class="sd-list">
+            <div class="sd-item">Progress dots en haut — orientation spatiale immédiate. L'étape active est un pill allongé avec gradient pour indiquer la progression.</div>
+            <div class="sd-item">Illustration émotionnelle en centre — gros emoji/Lottie animé dans un halo radial qui pulse doucement. Capture l'attention avant le texte.</div>
+            <div class="sd-item">Question bold en Space Grotesk 28px — directe, personnelle ("tu"). Sous-texte en Inter 14px gris doux.</div>
+            <div class="sd-item">Options de profil = composant le plus interactif — cartes sélectionnables avec icône, titre, sous-titre. L'option choisie a un border accent + checkmark animé.</div>
+            <div class="sd-item">CTA "Continuer" pleine largeur en bas — ancrage stable, toujours visible.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title ux">Interactions UX</div>
+          <div class="sd-list">
+            <div class="sd-item">Swipe horizontal entre les 4 étapes (comme un carrousel). Chaque swipe met à jour les dots et anime la transition.</div>
+            <div class="sd-item">Tap sur une option = sélection exclusive (radio). L'option sélectionnée scale(1.02) avec spring ease + border morphing vers accent color.</div>
+            <div class="sd-item">Skip possible via "Passer" en haut à droite (texte discret). L'app assigne un profil "Loisir" par défaut.</div>
+            <div class="sd-item">Les 4 étapes : 1) Bienvenue + valeur prop, 2) Connecter Strava (optionnel), 3) Type de cycliste, 4) Rejoindre un club ou inviter.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title anim">Animations recommandées</div>
+          <div class="sd-list">
+            <div class="sd-item">Page transition : slide horizontal 400ms avec ease-in-out. L'illustration entre avec un léger bounce (spring curve).</div>
+            <div class="sd-item">Halo radial derrière l'illustration pulse lentement (scale 0.95→1.05, 3s, infinite).</div>
+            <div class="sd-item">Les options de profil apparaissent en stagger (50ms delay chacune) du haut vers le bas avec fadeInUp.</div>
+            <div class="sd-item">Checkmark de sélection : morph circle→check avec Lottie (200ms, spring ease).</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title micro">Micro-interactions</div>
+          <div class="sd-list">
+            <div class="sd-item">Haptic "light" sur sélection d'option (iOS Taptic, Android vibration 10ms).</div>
+            <div class="sd-item">Le CTA "Continuer" a un gradient shimmer subtil (highlight qui glisse sur le bouton, 2s interval).</div>
+            <div class="sd-item">Progress dots : transition morphing fluide quand on passe à l'étape suivante (dot → pill → dot).</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <table class="spec-table">
+            <tr><th>Propriété</th><th>Valeur</th></tr>
+            <tr><td>Nombre d'étapes</td><td>4 max (< 90 sec total)</td></tr>
+            <tr><td>Taux cible</td><td>> 85% completion rate</td></tr>
+            <tr><td>Skip autorisé</td><td>Oui (defaults intelligents)</td></tr>
+            <tr><td>Strava connect</td><td>OAuth2, optionnel étape 2</td></tr>
+            <tr><td>Animation lib</td><td>Lottie (illustrations) + Reanimated</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRAN 2 — HOME
+     ═══════════════════════════════════════════════════ -->
+    <div class="sd-divider"></div>
+    <div class="s-label reveal">Écran 02/08</div>
+    <h2 class="s-title reveal">Home Dashboard</h2>
+    <p class="s-desc reveal">Le hub central. Bento grid adaptative qui affiche les informations les plus pertinentes selon le profil. Premier écran vu à chaque ouverture — doit donner envie de rouler.</p>
+
+    <div class="screen-section reverse">
+      <div class="screen-details reveal">
+        <div class="sd-title">Home — Dashboard Bento</div>
+        <div class="sd-emotion">"J'ai toutes mes infos en un coup d'œil, ça me motive à sortir."</div>
+
+        <div class="sd-block">
+          <div class="sd-block-title hierarchy">Hiérarchie visuelle</div>
+          <div class="sd-list">
+            <div class="sd-item">Header : greeting personnalisé ("Salut Hugo 👋") + avatar + notification bell avec badge count. Ancrage identitaire immédiat.</div>
+            <div class="sd-item">Streak card en premier — élément motivationnel principal. Grand chiffre doré + flamme animée. Positionnée en haut car c'est le hook de rétention #1.</div>
+            <div class="sd-item">CTA "Démarrer une sortie" — bouton mint pleine largeur juste sous le streak. Position stratégique = conversion maximale.</div>
+            <div class="sd-item">Bento grid 2×2 : Stats semaine (km, D+, sorties), Défi en cours (progress bar), Classement (position + tendance), Activité récente du feed.</div>
+            <div class="sd-item">Section "Club" en bas si membre d'un club — preview de l'activité collective.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title ux">Interactions UX</div>
+          <div class="sd-list">
+            <div class="sd-item">Pull-to-refresh avec animation de roue de vélo qui tourne (custom). Satisfaisant et on-brand.</div>
+            <div class="sd-item">Chaque cellule bento est tappable → deep link vers la section complète (stats, classement, défi, feed).</div>
+            <div class="sd-item">Long press sur la streak card → affiche l'historique du streak dans une bottom sheet.</div>
+            <div class="sd-item">Le layout bento s'adapte au profil : un compétiteur voit classement + FTP en premier ; un social rider voit feed + club.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title anim">Animations</div>
+          <div class="sd-list">
+            <div class="sd-item">Entrée : les cellules bento apparaissent en stagger (80ms delay) avec scale(0.95→1) + fadeIn. Spring ease.</div>
+            <div class="sd-item">Streak flamme : animation Lottie loop (flamme qui danse, 2s cycle).</div>
+            <div class="sd-item">Compteurs numériques : count-up animation de 0 à la valeur réelle (600ms, ease-out).</div>
+            <div class="sd-item">Progress bar du défi : fill animé de 0% → valeur actuelle (1s, ease-in-out) avec glow trailing.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title micro">Micro-interactions</div>
+          <div class="sd-list">
+            <div class="sd-item">Notification bell : shake subtil quand il y a des non-lues (2 oscillations, 300ms).</div>
+            <div class="sd-item">Les chiffres de stat pulsent brièvement en vert quand ils sont en hausse vs semaine dernière.</div>
+            <div class="sd-item">Le bouton "Démarrer" a un gradient qui shift lentement (hue rotation 10s, très subtil) — attire l'œil.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap reveal">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-screen">
+            <div class="ps" style="padding-top:8px">
+              <!-- Header -->
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <div>
+                  <div style="font-size:13px;color:var(--t3)">Bonjour</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700">Hugo 👋</div>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center">
+                  <div style="position:relative;width:36px;height:36px;background:var(--bg-card);border:1px solid var(--b1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">🔔<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:var(--coral);border-radius:50%;border:2px solid var(--bg-0);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">3</div></div>
+                  <div class="ps-avatar" style="background:var(--gp);color:white;font-size:14px">H</div>
+                </div>
+              </div>
+
+              <!-- Streak -->
+              <div style="background:linear-gradient(135deg,rgba(253,203,110,.08),rgba(255,107,107,.06));border:1px solid rgba(253,203,110,.15);border-radius:16px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:14px">
+                <div style="font-size:32px">🔥</div>
+                <div style="flex:1">
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1">14</div>
+                  <div style="font-size:11px;color:var(--t2)">jours de streak · Record : 23</div>
+                </div>
+                <div style="display:flex;gap:3px">
+                  <div style="width:6px;height:18px;background:var(--gold);border-radius:3px;opacity:.3"></div>
+                  <div style="width:6px;height:18px;background:var(--gold);border-radius:3px;opacity:.5"></div>
+                  <div style="width:6px;height:18px;background:var(--gold);border-radius:3px;opacity:.7"></div>
+                  <div style="width:6px;height:18px;background:var(--gold);border-radius:3px"></div>
+                  <div style="width:6px;height:18px;background:var(--gold);border-radius:3px"></div>
+                  <div style="width:6px;height:18px;background:rgba(253,203,110,.15);border-radius:3px"></div>
+                  <div style="width:6px;height:18px;background:rgba(253,203,110,.15);border-radius:3px"></div>
+                </div>
+              </div>
+
+              <!-- CTA Ride -->
+              <div class="ps-btn ps-btn-mint" style="width:100%;height:48px;border-radius:14px;font-size:15px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,245,212,.2)">🚴 Démarrer une sortie</div>
+
+              <!-- Bento Grid -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <!-- Stats semaine -->
+                <div class="ps-card">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Cette semaine</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;line-height:1">247</div>
+                  <div style="font-size:11px;color:var(--t3);margin-bottom:8px">kilomètres</div>
+                  <div style="display:flex;gap:4px;align-items:flex-end;height:24px">
+                    <div style="flex:1;height:8px;background:rgba(108,92,231,.3);border-radius:2px"></div>
+                    <div style="flex:1;height:16px;background:rgba(108,92,231,.5);border-radius:2px"></div>
+                    <div style="flex:1;height:6px;background:rgba(108,92,231,.2);border-radius:2px"></div>
+                    <div style="flex:1;height:20px;background:rgba(108,92,231,.6);border-radius:2px"></div>
+                    <div style="flex:1;height:24px;background:var(--gp);border-radius:2px"></div>
+                    <div style="flex:1;height:14px;background:rgba(108,92,231,.4);border-radius:2px"></div>
+                    <div style="flex:1;height:4px;background:rgba(108,92,231,.1);border-radius:2px"></div>
+                  </div>
+                </div>
+
+                <!-- Classement -->
+                <div class="ps-card">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Ligue Platine</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--coral);line-height:1">#12</div>
+                  <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mint);margin-top:4px">↑ 3 places</div>
+                  <div style="margin-top:8px;display:flex;gap:-4px">
+                    <div style="width:20px;height:20px;border-radius:50%;background:var(--ge);font-size:8px;display:flex;align-items:center;justify-content:center">M</div>
+                    <div style="width:20px;height:20px;border-radius:50%;background:var(--gf);font-size:8px;display:flex;align-items:center;justify-content:center;margin-left:-4px">T</div>
+                    <div style="width:20px;height:20px;border-radius:50%;background:var(--bg-el);font-size:8px;display:flex;align-items:center;justify-content:center;margin-left:-4px;color:var(--t3)">+245</div>
+                  </div>
+                </div>
+
+                <!-- Défi en cours -->
+                <div class="ps-card" style="grid-column:span 2">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:14px">⚡</span>
+                      <span style="font-size:12px;font-weight:600">Défi : 200km cette semaine</span>
+                    </div>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coral)">2j 14h</span>
+                  </div>
+                  <div style="height:6px;background:var(--bg-0);border-radius:100px;overflow:hidden;margin-bottom:4px"><div style="width:68%;height:100%;background:var(--gp);border-radius:100px"></div></div>
+                  <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3)"><span>136 km</span><span>200 km</span></div>
+                </div>
+              </div>
+
+              <!-- Recent activity mini -->
+              <div style="margin-top:14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                  <span style="font-size:13px;font-weight:600">Activité récente</span>
+                  <span style="font-size:11px;color:var(--accent-l)">Voir tout →</span>
+                </div>
+                <div class="ps-card" style="display:flex;gap:10px;align-items:center">
+                  <div class="ps-avatar" style="background:var(--ge);color:white;font-size:12px">A</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Alex a terminé Col d'Aubisque</div>
+                    <div style="font-size:10px;color:var(--t3)">54.2 km · 1,230 D+ · il y a 45 min</div>
+                  </div>
+                  <span style="font-size:12px">❤️</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-bottom-nav">
+            <div class="bnav-i active"><div class="bnav-ic">🏠</div><div class="bnav-lb">Home</div></div>
+            <div class="bnav-i"><div class="bnav-ic">🏆</div><div class="bnav-lb">Rang</div></div>
+            <div class="bnav-i bnav-ride"><div class="bnav-ic">🚴</div><div class="bnav-lb">Ride</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👥</div><div class="bnav-lb">Social</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👤</div><div class="bnav-lb">Profil</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRAN 3 — PROFIL
+     ═══════════════════════════════════════════════════ -->
+    <div class="sd-divider"></div>
+    <div class="s-label reveal">Écran 03/08</div>
+    <h2 class="s-title reveal">Profil Utilisateur</h2>
+    <p class="s-desc reveal">La "carte de visite" cycliste. Le profil doit être digne d'être screenshoté et partagé. C'est l'élément de viralité organique principal de l'app.</p>
+
+    <div class="screen-section">
+      <div class="phone-wrap reveal">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-screen">
+            <!-- Profile banner -->
+            <div style="height:110px;background:var(--gh);position:relative">
+              <div style="position:absolute;top:12px;right:16px;display:flex;gap:8px">
+                <div style="width:32px;height:32px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px">✏️</div>
+                <div style="width:32px;height:32px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px">↗️</div>
+              </div>
+            </div>
+            <div class="ps" style="margin-top:-32px;position:relative;z-index:2">
+              <!-- Avatar -->
+              <div style="width:68px;height:68px;border-radius:20px;background:var(--gp);border:3px solid var(--bg-0);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;margin-bottom:10px">H</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:2px">Hugo Martin</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-bottom:4px">@hugo_rides</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+                <span style="font-size:11px;color:var(--accent-l);font-weight:500">⚡ Niv. 24 · Grimpeur</span>
+                <span style="font-size:11px;color:var(--gold);background:rgba(253,203,110,.1);padding:2px 8px;border-radius:100px">💎 Platine</span>
+              </div>
+
+              <!-- Stats row -->
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
+                <div class="ps-mini-stat"><div class="ps-mini-val">4,287</div><div class="ps-mini-label">km</div></div>
+                <div class="ps-mini-stat"><div class="ps-mini-val" style="color:var(--coral)">68,420</div><div class="ps-mini-label">D+ m</div></div>
+                <div class="ps-mini-stat"><div class="ps-mini-val" style="background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">285</div><div class="ps-mini-label">FTP w</div></div>
+                <div class="ps-mini-stat"><div class="ps-mini-val">142</div><div class="ps-mini-label">sorties</div></div>
+              </div>
+
+              <!-- Level bar -->
+              <div style="margin-bottom:14px">
+                <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:4px"><span>Niv. 24</span><span>8,420 / 10,000 XP</span></div>
+                <div style="height:6px;background:var(--bg-0);border-radius:100px;overflow:hidden"><div style="width:84%;height:100%;background:var(--gp);border-radius:100px"></div></div>
+              </div>
+
+              <!-- Badges -->
+              <div style="margin-bottom:14px">
+                <div style="font-size:12px;font-weight:600;margin-bottom:8px">Badges <span style="color:var(--t3);font-weight:400">(13/42)</span></div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(108,92,231,.2),rgba(162,155,254,.15));display:flex;align-items:center;justify-content:center;font-size:18px">🏔️</div>
+                  <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(253,203,110,.15));display:flex;align-items:center;justify-content:center;font-size:18px">🔥</div>
+                  <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(116,185,255,.15));display:flex;align-items:center;justify-content:center;font-size:18px">⚡</div>
+                  <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(253,203,110,.2),rgba(255,107,107,.15));display:flex;align-items:center;justify-content:center;font-size:18px">🏆</div>
+                  <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(0,245,212,.1));display:flex;align-items:center;justify-content:center;font-size:18px">💯</div>
+                  <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-el);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t3)">+8</div>
+                </div>
+              </div>
+
+              <!-- Club -->
+              <div class="ps-card" style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+                <div style="width:36px;height:36px;border-radius:10px;background:var(--ge);display:flex;align-items:center;justify-content:center;font-size:16px">🏔️</div>
+                <div style="flex:1">
+                  <div style="font-size:12px;font-weight:600">Pyrénées Cycling Team</div>
+                  <div style="font-size:10px;color:var(--t3)">47 membres · #3 régional</div>
+                </div>
+                <span style="font-size:11px;color:var(--accent-l)">→</span>
+              </div>
+
+              <!-- Recent rides -->
+              <div style="font-size:12px;font-weight:600;margin-bottom:8px">Dernières sorties</div>
+              <div class="ps-card" style="margin-bottom:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <span style="font-size:13px;font-weight:600">Col du Tourmalet</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3)">Aujourd'hui</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px">
+                  <div class="ps-mini-stat"><div class="ps-mini-val" style="font-size:14px">87.3</div><div class="ps-mini-label">km</div></div>
+                  <div class="ps-mini-stat"><div class="ps-mini-val" style="font-size:14px;color:var(--coral)">1,847</div><div class="ps-mini-label">D+</div></div>
+                  <div class="ps-mini-stat"><div class="ps-mini-val" style="font-size:14px">3:14</div><div class="ps-mini-label">durée</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-bottom-nav">
+            <div class="bnav-i"><div class="bnav-ic">🏠</div><div class="bnav-lb">Home</div></div>
+            <div class="bnav-i"><div class="bnav-ic">🏆</div><div class="bnav-lb">Rang</div></div>
+            <div class="bnav-i bnav-ride"><div class="bnav-ic">🚴</div><div class="bnav-lb">Ride</div></div>
+            <div class="bnav-i"><div class="bnav-ic">👥</div><div class="bnav-lb">Social</div></div>
+            <div class="bnav-i active"><div class="bnav-ic">👤</div><div class="bnav-lb">Profil</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-details reveal">
+        <div class="sd-title">Profil — Athlete Card</div>
+        <div class="sd-emotion">"C'est ma carte de cycliste, je veux la montrer à tout le monde."</div>
+
+        <div class="sd-block">
+          <div class="sd-block-title hierarchy">Hiérarchie visuelle</div>
+          <div class="sd-list">
+            <div class="sd-item">Banner gradient hero en haut — immédiatement reconnaissable. L'avatar déborde sur le banner (overlap -32px) pour créer de la profondeur.</div>
+            <div class="sd-item">Nom + handle + niveau/tier = zone d'identité primaire. Le tier badge (Platine) est un chip doré qui attire l'œil.</div>
+            <div class="sd-item">Stats row 4 colonnes — les métriques clés qui définissent le cycliste. Les valeurs remarquables (FTP élevé) utilisent le gradient performance.</div>
+            <div class="sd-item">Barre XP — progrès vers le niveau suivant. Toujours visible pour maintenir la motivation de progression.</div>
+            <div class="sd-item">Badges collection — vitrine des accomplissements. Le "+8" encourage à explorer pour débloquer les manquants.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title ux">Interactions UX</div>
+          <div class="sd-list">
+            <div class="sd-item">Share button (↗️) en haut à droite → génère une image de la carte profil optimisée pour Instagram Stories (9:16) ou post (1:1).</div>
+            <div class="sd-item">Tap sur un badge → bottom sheet avec description du badge, date d'obtention, rareté, et % des utilisateurs qui l'ont.</div>
+            <div class="sd-item">Tap sur le club → navigation vers la page club complète.</div>
+            <div class="sd-item">Scroll parallax sur le banner — le banner scrolle 30% plus lentement que le contenu pour un effet de profondeur.</div>
+            <div class="sd-item">Tap sur une sortie → navigation vers le détail de la sortie.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title anim">Animations</div>
+          <div class="sd-list">
+            <div class="sd-item">Entrée du profil : avatar scale(0→1) avec spring bounce, puis les stats count-up en stagger (100ms delay chacune).</div>
+            <div class="sd-item">Badges : apparition en cascade (30ms delay chacun) avec scale bounce micro.</div>
+            <div class="sd-item">Barre XP : fill animé smooth (800ms, ease-out) avec un glow qui suit la progression.</div>
+            <div class="sd-item">Share image : animation de "capture" (flash blanc subtil) puis preview de l'image générée.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title micro">Micro-interactions</div>
+          <div class="sd-list">
+            <div class="sd-item">Haptic "medium" quand le share image est générée.</div>
+            <div class="sd-item">Les badges non débloqués tremblent légèrement au scroll (incitation à la curiosité).</div>
+            <div class="sd-item">Le chip tier pulse subtilement avec un glow doré (si Platine+).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRAN 4 — RIDE DETAIL
+     ═══════════════════════════════════════════════════ -->
+    <div class="sd-divider"></div>
+    <div class="s-label reveal">Écran 04/08</div>
+    <h2 class="s-title reveal">Page Sortie Vélo</h2>
+    <p class="s-desc reveal">Le résumé post-ride. C'est l'écran qu'on veut partager. Il doit être beau, informatif et donner un sentiment d'accomplissement — peu importe la distance parcourue.</p>
+
+    <div class="screen-section reverse">
+      <div class="screen-details reveal">
+        <div class="sd-title">Ride Summary — Post-Activity</div>
+        <div class="sd-emotion">"Je suis fier de ma sortie, je veux la partager tout de suite."</div>
+
+        <div class="sd-block">
+          <div class="sd-block-title hierarchy">Hiérarchie visuelle</div>
+          <div class="sd-list">
+            <div class="sd-item">Carte GPS full-width en haut avec le tracé en gradient (violet→mint). C'est l'élément visuel principal — le "hero" de la sortie.</div>
+            <div class="sd-item">Titre de la sortie + date/heure juste sous la carte. Le titre est éditable (tap to edit).</div>
+            <div class="sd-item">4 métriques primaires en grille : Distance, D+, Durée, Vitesse moy. Grande typo Space Grotesk pour impact.</div>
+            <div class="sd-item">Achievements gagnés pendant la ride = section célébrée. Badges débloqués, records battus, XP gagnés — dans un card avec gradient energy.</div>
+            <div class="sd-item">Données avancées en tabs : Puissance, Cardio, Segments, Splits. Progressive disclosure pour ne pas surcharger.</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title ux">Interactions UX</div>
+          <div class="sd-list">
+            <div class="sd-item">Swipe horizontal sur la carte GPS → bascule entre vue carte, vue profil d'élévation et vue satellite.</div>
+            <div class="sd-item">Pinch-to-zoom sur la carte avec les données qui s'adaptent (zoom → détails des segments).</div>
+            <div class="sd-item">Bouton Share flottant en bas → options : Story Instagram, Post feed, Copier lien, Télécharger image.</div>
+            <div class="sd-item">Tap sur un segment dans l'onglet Segments → comparison avec les temps précédents et le KOM.</div>
+            <div class="sd-item">Long press sur une métrique → affiche le contexte (moyenne vs record perso, % de la moyenne globale).</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title anim">Animations</div>
+          <div class="sd-list">
+            <div class="sd-item">Entrée post-ride : celebration screen full-screen pendant 2s (particules confetti si record, glow doux sinon) puis transition vers le résumé.</div>
+            <div class="sd-item">Le tracé GPS s'anime en draw-on (stroke-dashoffset) sur 1.5s, comme si on retraçait la route.</div>
+            <div class="sd-item">Stats count-up synchronisé (toutes les valeurs montent de 0 en parallèle, 800ms).</div>
+            <div class="sd-item">Badges débloqués : apparition avec bounce + particules dorées (Lottie, 600ms).</div>
+          </div>
+        </div>
+
+        <div class="sd-block">
+          <div class="sd-block-title micro">Micro-interactions</div>
+          <div class="sd-list">
+            <div class="sd-item">Haptic "success" triple burst quand l'écran de célébration apparaît.</div>
+            <div class="sd-item">Les particules confetti sont colorées selon le type de record (gold = distance, coral = D+, mint = vitesse).</div>
+            <div class="sd-item">Le bouton Share pulse une fois après 3s (rappel non intrusif pour encourager le partage).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap reveal">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-screen">
+            <!-- Map -->
+            <div style="height:200px;background:linear-gradient(135deg,var(--bg-2) 0%,rgba(108,92,231,.12) 40%,rgba(0,245,212,.08) 70%,var(--bg-2) 100%);position:relative">
+              <svg viewBox="0 0 375 200" style="width:100%;height:100%" preserveAspectRatio="none">
+                <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#6C5CE7"/><stop offset="100%" style="stop-color:#00F5D4"/></linearGradient></defs>
+                <path d="M30,160 C60,140 80,180 120,130 S180,80 220,110 S280,60 340,90" stroke="url(#rg)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <circle cx="30" cy="160" r="5" fill="#6C5CE7"/><circle cx="340" cy="90" r="5" fill="#00F5D4"/>
+              </svg>
+              <div style="position:absolute;top:12px;left:16px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);border-radius:8px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2)">🗺 Carte · Élévation · Satellite</div>
+            </div>
+            <div class="ps" style="padding-top:16px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+                <div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700">Col du Tourmalet</div>
+                  <div style="font-size:11px;color:var(--t3)">14 fév. 2026 · 07:30 - 10:44</div>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <div class="ps-btn ps-btn-sec" style="padding:6px 12px;font-size:11px">✏️</div>
+                  <div class="ps-btn ps-btn-pri" style="padding:6px 14px;font-size:11px">↗️ Share</div>
+                </div>
+              </div>
+
+              <!-- Main stats -->
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px">
+                <div class="ps-mini-stat" style="padding:14px 8px"><div class="ps-mini-val" style="font-size:24px">87.3</div><div class="ps-mini-label">km</div></div>
+                <div class="ps-mini-stat" style="padding:14px 8px"><div class="ps-mini-val" style="font-size:24px;color:var(--coral)">1,847</div><div class="ps-mini-label">D+ mètres</div></div>
+                <div class="ps-mini-stat" style="padding:14px 8px"><div class="ps-mini-val" style="font-size:24px">3h14</div><div class="ps-mini-label">durée</div></div>
+                <div class="ps-mini-stat" style="padding:14px 8px"><div class="ps-mini-val" style="font-size:24px;background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">27.0</div><div class="ps-mini-label">km/h moy</div></div>
+              </div>
+
+              <!-- Achievements -->
+              <div style="background:linear-gradient(135deg,rgba(253,203,110,.08),rgba(255,107,107,.06));border:1px solid rgba(253,203,110,.15);border-radius:14px;padding:14px;margin-bottom:14px">
+                <div style="font-size:12px;font-weight:600;margin-bottom:8px">🎉 Accomplissements</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <div style="display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.2);padding:4px 10px;border-radius:100px;font-size:11px">🏅 Badge "Iron Legs"</div>
+                  <div style="display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.2);padding:4px 10px;border-radius:100px;font-size:11px">🔥 Record distance</div>
+                  <div style="display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.2);padding:4px 10px;border-radius:100px;font-size:11px">⚡ +873 XP</div>
+                </div>
+              </div>
+
+              <!-- Data tabs -->
+              <div style="display:flex;gap:2px;background:var(--bg-0);border:1px solid var(--b1);border-radius:10px;padding:3px;margin-bottom:12px">
+                <div style="padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;background:rgba(108,92,231,.15);color:var(--accent-l)">Puissance</div>
+                <div style="padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;color:var(--t3)">Cardio</div>
+                <div style="padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;color:var(--t3)">Segments</div>
+                <div style="padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;color:var(--t3)">Splits</div>
+              </div>
+
+              <!-- Power zones mini -->
+              <div class="ps-card">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:8px">ZONES DE PUISSANCE</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--t3);width:28px">Z1</span><div style="flex:1;height:8px;background:var(--bg-0);border-radius:4px;overflow:hidden"><div style="width:15%;height:100%;background:var(--sky);border-radius:4px"></div></div></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--t3);width:28px">Z2</span><div style="flex:1;height:8px;background:var(--bg-0);border-radius:4px;overflow:hidden"><div style="width:30%;height:100%;background:var(--mint);border-radius:4px"></div></div></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--t3);width:28px">Z3</span><div style="flex:1;height:8px;background:var(--bg-0);border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--accent-l);border-radius:4px"></div></div></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--t3);width:28px">Z4</span><div style="flex:1;height:8px;background:var(--bg-0);border-radius:4px;overflow:hidden"><div style="width:20%;height:100%;background:var(--gold);border-radius:4px"></div></div></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--t3);width:28px">Z5</span><div style="flex:1;height:8px;background:var(--bg-0);border-radius:4px;overflow:hidden"><div style="width:10%;height:100%;background:var(--coral);border-radius:4px"></div></div></div>
+                </div>
+              </div>
+
+              <!-- Social actions -->
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <div class="ps-btn ps-btn-sec" style="flex:1;font-size:12px">❤️ 24</div>
+                <div class="ps-btn ps-btn-ghost" style="flex:1;font-size:12px">💬 8</div>
+                <div class="ps-btn ps-btn-ghost" style="flex:1;font-size:12px">🔥 Kudos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRANS 5-8 — SPECS DÉTAILLÉES
+     ═══════════════════════════════════════════════════ -->
+    <div class="sd-divider"></div>
+    <div class="s-label reveal">Écrans 05-08</div>
+    <h2 class="s-title reveal">Classements, Défis, Club & Feed</h2>
+    <p class="s-desc reveal">Les 4 derniers écrans détaillés avec spécifications complètes pour chaque interaction, animation et émotion.</p>
+
+    <!-- CLASSEMENT -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:64px" class="reveal">
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">05 — Classements</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">Leaderboard</div>
+        <div style="font-size:13px;color:var(--accent-l);font-style:italic;margin-bottom:16px">"Je veux monter, dépasser le joueur au-dessus de moi."</div>
+
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Hiérarchie :</strong> Tabs en haut (Ligue · Régional · National · Club). Podium top 3 en visuel special (médailles or/argent/bronze). L'utilisateur est toujours affiché avec un highlight accent même s'il est hors-écran. Countdown du temps restant en rouge.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">UX clés :</strong> Pull-to-refresh actualise le classement. Tap sur un rider → profil. Les changements de position sont animés (rows qui glissent ↑↓ avec smooth reorder). Zone de promotion/relégation colorée (vert en haut = montée, rouge en bas = descente).
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Animations :</strong> Entrée stagger des rows (30ms delay). Le podium top 3 a une animation dorée de couronnement. Les flèches de changement pulsent en vert/rouge.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8">
+          <strong style="color:var(--t1)">Micro :</strong> Haptic quand on scroll past son propre rang. Confetti si l'utilisateur est dans le top 3.
+        </div>
+      </div>
+
+      <!-- DÉFIS -->
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">06 — Défis</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">Challenges Hub</div>
+        <div style="font-size:13px;color:var(--accent-l);font-style:italic;margin-bottom:16px">"Il y a toujours un objectif à atteindre, je ne peux pas m'arrêter."</div>
+
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Hiérarchie :</strong> Défi en cours = hero card en haut avec progress bar animée, timer countdown et reward preview. En dessous : grille de défis disponibles (hebdo, mensuels, saisonniers). Section "Completed" avec badges gagnés.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">UX clés :</strong> Tap "Rejoindre" → animation d'acceptation du défi (card qui s'agrandit, checkmark animé). Les défis expirant bientôt ont un timer rouge clignotant. Défis collectifs montrent l'avancement de l'équipe vs individuel. Défis saisonniers (ex: "L'Étape du Tour") avec identité visuelle custom.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Animations :</strong> Progress bar fill smooth avec trailing glow. Quand un défi est complété : explosion de confetti spécifique au défi (montagne pour grimpeur, éclair pour sprinter). Badge unlock animation Lottie (1.2s).
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8">
+          <strong style="color:var(--t1)">Micro :</strong> Les cartes de défi ont un léger parallax tilt au scroll. Haptic "success" triple quand un défi est complété.
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px" class="reveal">
+      <!-- CLUB -->
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">07 — Équipe / Club</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">Club Page</div>
+        <div style="font-size:13px;color:var(--accent-l);font-style:italic;margin-bottom:16px">"Mon club, mon équipe, ma fierté. On roule ensemble."</div>
+
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Hiérarchie :</strong> Banner club avec emblème + gradient custom (chaque club peut choisir ses couleurs). Stats du club (membres, km total mois, rang régional). Classement interne des membres. Feed d'activité du club. Défis collectifs en cours.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">UX clés :</strong> Tabs : Activité · Membres · Classement · Défis. Le classement interne crée une compétition saine. Bouton "Inviter" génère un deep link partageable. Section "Records du club" (plus longue sortie collective, meilleur D+, etc.). Rôles : Admin, Capitaine, Membre. L'admin peut créer des événements (sorties groupées).
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Animations :</strong> Banner parallax scroll. Membres avatars en cascade stagger. Classement interne avec les mêmes animations de reorder que le leaderboard global.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8">
+          <strong style="color:var(--t1)">Micro :</strong> L'emblème du club a un reflet lumineux qui suit l'inclinaison du téléphone (gyroscope). Compteur de km collectifs anime un count-up au premier affichage.
+        </div>
+      </div>
+
+      <!-- FEED -->
+      <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">08 — Feed Social</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">Social Feed</div>
+        <div style="font-size:13px;color:var(--accent-l);font-style:italic;margin-bottom:16px">"Je vois ce que font les autres, ça me pousse à sortir."</div>
+
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Hiérarchie :</strong> Feed vertical infini. Chaque post = Ride Card (carte de Phase 2) avec avatar, nom, tracé GPS miniature, 4 stats, actions sociales. Les posts avec records ont un badge spécial doré. Section "Highlights" en stories horizontales en haut (sorties remarquables de la journée).
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">UX clés :</strong> Double-tap sur une ride card = kudos (❤️) avec animation de cœur volant (comme Instagram). Commentaires en bottom sheet (pas de navigation away). Bouton "Filtre" : Tous · Club · Amis · Suivis. Infinite scroll avec lazy loading et skeleton placeholders. Pull-to-refresh avec animation roue vélo.
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--t1)">Animations :</strong> Cards apparaissent en fadeInUp stagger au scroll (via Intersection Observer). Double-tap kudos → cœur qui scale(0→2→1) avec particules roses. Les stories highlights auto-scroll avec progress bar en haut (comme Insta stories).
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8">
+          <strong style="color:var(--t1)">Micro :</strong> Haptic "light" sur kudos. Le nombre de kudos fait un count-up (+1) animé. Swipe gauche sur un post → quick actions (save, share, hide). Le feed se souvient de la position de scroll quand on revient.
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════════
+     SPEC SUMMARY TABLE
+     ═══════════════════════════════════════════════════ -->
+    <div class="sd-divider"></div>
+    <div class="s-label reveal">Récapitulatif technique</div>
+    <h2 class="s-title reveal">Spécifications Cross-Screen</h2>
+
+    <div style="background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rx);padding:32px;overflow-x:auto" class="reveal">
+      <table class="spec-table" style="min-width:700px">
+        <tr>
+          <th>Écran</th>
+          <th>Émotion cible</th>
+          <th>Transition entrée</th>
+          <th>Durée max anim.</th>
+          <th>Haptic</th>
+          <th>Metric clé</th>
+        </tr>
+        <tr>
+          <td>Onboarding</td>
+          <td>Curiosité, appartenance</td>
+          <td>Slide horizontal</td>
+          <td>400ms</td>
+          <td>Light sur sélection</td>
+          <td>Completion rate > 85%</td>
+        </tr>
+        <tr>
+          <td>Home</td>
+          <td>Motivation, clarté</td>
+          <td>FadeIn + scale stagger</td>
+          <td>300ms par cell</td>
+          <td>Bell shake</td>
+          <td>Time to ride CTA < 3s</td>
+        </tr>
+        <tr>
+          <td>Profil</td>
+          <td>Fierté, identité</td>
+          <td>Spring bounce avatar</td>
+          <td>500ms total</td>
+          <td>Medium sur share</td>
+          <td>Share rate > 15%</td>
+        </tr>
+        <tr>
+          <td>Ride Detail</td>
+          <td>Accomplissement</td>
+          <td>Celebration → summary</td>
+          <td>2s celebration</td>
+          <td>Triple success</td>
+          <td>Share rate > 25%</td>
+        </tr>
+        <tr>
+          <td>Classements</td>
+          <td>Compétition, ambition</td>
+          <td>Row stagger 30ms</td>
+          <td>250ms par row</td>
+          <td>Sur own rank scroll</td>
+          <td>Daily return > 60%</td>
+        </tr>
+        <tr>
+          <td>Défis</td>
+          <td>Challenge, récompense</td>
+          <td>Card scale-in</td>
+          <td>600ms completion</td>
+          <td>Triple sur complete</td>
+          <td>Join rate > 40%</td>
+        </tr>
+        <tr>
+          <td>Club</td>
+          <td>Appartenance, fierté</td>
+          <td>Parallax banner</td>
+          <td>400ms stagger</td>
+          <td>Gyro sur emblème</td>
+          <td>Club join > 30%</td>
+        </tr>
+        <tr>
+          <td>Feed</td>
+          <td>Connexion, inspiration</td>
+          <td>FadeInUp on scroll</td>
+          <td>300ms par card</td>
+          <td>Light sur kudos</td>
+          <td>Scroll depth > 8 posts</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Tech stack recommendation -->
+    <div style="background:linear-gradient(145deg,rgba(108,92,231,.06),rgba(0,245,212,.03));border:1px solid var(--b1);border-radius:var(--rx);padding:32px;margin-top:32px" class="reveal">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Stack technique recommandé</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">FRAMEWORK</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">React Native + Expo</div>
+          <div style="font-size:11px;color:var(--t3)">Cross-platform, hot reload, OTA updates. Mature pour les startups early-stage.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">ANIMATIONS</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Reanimated 3 + Lottie</div>
+          <div style="font-size:11px;color:var(--t3)">60fps garanti. Worklets pour les gestures. Lottie pour les célébrations complexes.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">NAVIGATION</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">React Navigation 7</div>
+          <div style="font-size:11px;color:var(--t3)">Shared element transitions, bottom tabs, stack + modal patterns.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">CARTES / GPS</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Mapbox GL + turf.js</div>
+          <div style="font-size:11px;color:var(--t3)">Custom styling dark mode, animations de tracé, 3D terrain. Plus flexible que Google Maps.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">DESIGN TOKENS</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Style Dictionary + Figma</div>
+          <div style="font-size:11px;color:var(--t3)">Source unique de vérité. Tokens exportés en JS/TS depuis Figma automatiquement.</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--rl)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);margin-bottom:6px">GRAPHIQUES</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Victory Native + SVG</div>
+          <div style="font-size:11px;color:var(--t3)">Charts natifs animés. Intégration Reanimated. Gradients et interactions touch.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="next-section">
+  <div class="container">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--mint);margin-bottom:24px" class="reveal">✓ Les 3 phases sont complètes</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;letter-spacing:-1px;margin-bottom:16px" class="reveal">Vision Design Livrée</h2>
+    <p style="font-size:16px;color:var(--t2);max-width:560px;margin:0 auto 40px" class="reveal">
+      3 documents, 1 vision cohérente. Direction artistique, design system complet, et 8 écrans détaillés — prêts pour le prototypage Figma et le développement.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:800px;margin:0 auto" class="reveal">
+      <div style="background:var(--bg-card);border:1px solid rgba(0,245,212,.3);border-radius:var(--rl);padding:24px;text-align:left;opacity:.7">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);margin-bottom:8px">Phase 01 ✓</div>
+        <div style="font-weight:600;font-size:15px;margin-bottom:4px">Analyse & DA</div>
+        <div style="font-size:12px;color:var(--t3)">8 concurrents, palette, typo, positionnement</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,245,212,.3);border-radius:var(--rl);padding:24px;text-align:left;opacity:.7">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);margin-bottom:8px">Phase 02 ✓</div>
+        <div style="font-weight:600;font-size:15px;margin-bottom:4px">Design System</div>
+        <div style="font-size:12px;color:var(--t3)">Tokens, 9 catégories de composants</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,245,212,.3);border-radius:var(--rl);padding:24px;text-align:left;opacity:.7">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);margin-bottom:8px">Phase 03 ✓</div>
+        <div style="font-weight:600;font-size:15px;margin-bottom:4px">Maquettes</div>
+        <div style="font-size:12px;color:var(--t3)">8 écrans, UX flows, animations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer"><div class="container"><p>VeloCard — Maquettes Écrans · Phase 3/3 · Confidentiel · Février 2026</p></div></div>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
+const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

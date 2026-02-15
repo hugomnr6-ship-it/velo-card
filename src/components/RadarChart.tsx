@@ -10,13 +10,13 @@ interface RadarChartProps {
 
 const tierAccent: Record<CardTier, { stroke: string; fill: string }> = {
   bronze: { stroke: "#cd7f32", fill: "rgba(205,127,50,0.25)" },
-  argent: { stroke: "#C0C0C0", fill: "rgba(192,192,192,0.20)" },
-  platine: { stroke: "#A8D8EA", fill: "rgba(168,216,234,0.25)" },
+  argent: { stroke: "#B8A0D8", fill: "rgba(192,192,192,0.20)" },
+  platine: { stroke: "#E0E8F0", fill: "rgba(224,232,240,0.25)" },
   diamant: { stroke: "#B9F2FF", fill: "rgba(185,242,255,0.25)" },
   legende: { stroke: "#FFD700", fill: "rgba(255,215,0,0.25)" },
 };
 
-const LABELS = ["PAC", "MON", "VAL", "SPR", "END", "RES"] as const;
+const LABELS = ["VIT", "MON", "TEC", "SPR", "END", "PUI"] as const;
 
 function getHexPoint(centerX: number, centerY: number, radius: number, index: number): [number, number] {
   const angle = (Math.PI / 3) * index - Math.PI / 2;

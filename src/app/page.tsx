@@ -15,14 +15,14 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0A0A12]">
-        <p className="text-[#A0A0B8]">Chargement...</p>
+      <main className="flex min-h-screen items-center justify-center bg-[#0B1120]">
+        <p className="text-[#94A3B8]">Chargement...</p>
       </main>
     );
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden bg-[#0A0A12] p-8">
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden bg-[#0B1120] p-8">
       {/* Animated gradient bg */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -36,7 +36,7 @@ export default function Home() {
         <h1 className="text-5xl font-black tracking-tight text-white font-['Space_Grotesk']">
           VeloCard
         </h1>
-        <p className="mt-3 text-lg text-[#A0A0B8]">
+        <p className="mt-3 text-lg text-[#94A3B8]">
           Ta carte de cycliste. Tes stats. Ton style.
         </p>
       </div>

@@ -10,7 +10,7 @@ interface ParticipantRowProps {
 const tierColors: Record<CardTier, string> = {
   bronze: "text-amber-500 bg-amber-500/10 border-amber-800/50",
   argent: "text-slate-300 bg-slate-300/10 border-slate-600/50",
-  platine: "text-[#A8D8EA] bg-[#A8D8EA]/10 border-[#A8D8EA]/30",
+  platine: "text-[#E0E8F0] bg-[#E0E8F0]/10 border-[#E0E8F0]/30",
   diamant: "text-[#B9F2FF] bg-[#B9F2FF]/10 border-[#B9F2FF]/30",
   legende: "text-yellow-400 bg-yellow-400/10 border-yellow-600/50",
 };
@@ -18,7 +18,7 @@ const tierColors: Record<CardTier, string> = {
 const tierRing: Record<CardTier, string> = {
   bronze: "border-amber-600",
   argent: "border-slate-400",
-  platine: "border-[#A8D8EA]",
+  platine: "border-[#E0E8F0]",
   diamant: "border-[#B9F2FF]",
   legende: "border-yellow-500",
 };
@@ -26,7 +26,7 @@ const tierRing: Record<CardTier, string> = {
 const statColors: Record<CardTier, string> = {
   bronze: "text-amber-400",
   argent: "text-slate-200",
-  platine: "text-[#A8D8EA]",
+  platine: "text-[#E0E8F0]",
   diamant: "text-[#B9F2FF]",
   legende: "text-yellow-300",
 };
@@ -38,9 +38,9 @@ export default function ParticipantRow({
   const tier = participant.tier as CardTier;
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-3">
+    <div className="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3">
       {/* Index */}
-      <span className="w-6 text-center text-sm font-bold text-neutral-600">
+      <span className="w-6 text-center text-sm font-bold text-[#475569]">
         {index + 1}
       </span>
 
@@ -53,7 +53,7 @@ export default function ParticipantRow({
         />
       ) : (
         <div
-          className={`h-9 w-9 rounded-full border-2 bg-neutral-700 ${tierRing[tier]}`}
+          className={`h-9 w-9 rounded-full border-2 bg-[#6366F1] ${tierRing[tier]}`}
         />
       )}
 
@@ -73,15 +73,15 @@ export default function ParticipantRow({
       <div className="flex gap-3 text-xs">
         <div className="text-center">
           <p className={`font-bold ${statColors[tier]}`}>{participant.pac}</p>
-          <p className="text-neutral-600">PAC</p>
+          <p className="text-[#475569]">PAC</p>
         </div>
         <div className="text-center">
           <p className={`font-bold ${statColors[tier]}`}>{participant.end}</p>
-          <p className="text-neutral-600">END</p>
+          <p className="text-[#475569]">END</p>
         </div>
         <div className="text-center">
           <p className={`font-bold ${statColors[tier]}`}>{participant.mon}</p>
-          <p className="text-neutral-600">MON</p>
+          <p className="text-[#475569]">MON</p>
         </div>
       </div>
     </div>

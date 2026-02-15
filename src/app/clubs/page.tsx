@@ -121,7 +121,7 @@ export default function ClubsPage() {
 
         {/* Club detail modal */}
         {selectedClubId && (
-          <div className="mb-6 rounded-xl border border-neutral-700/50 bg-neutral-800/80 p-5">
+          <div className="mb-6 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/80 p-5">
             {detailLoading ? (
               <div className="flex flex-col gap-3">
                 <Skeleton className="h-12 w-full rounded-lg" />
@@ -138,12 +138,12 @@ export default function ClubsPage() {
                       <img
                         src={clubDetail.logo_url}
                         alt={clubDetail.name}
-                        className="h-12 w-12 rounded-full border border-neutral-600 object-cover"
+                        className="h-12 w-12 rounded-full border border-white/[0.10] object-cover"
                       />
                     )}
                     <div>
                       <p className="font-bold text-white">{clubDetail.name}</p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-[#94A3B8]">
                         Cree par {clubDetail.creator?.username}
                       </p>
                     </div>
@@ -153,7 +153,7 @@ export default function ClubsPage() {
                       setSelectedClubId(null);
                       setClubDetail(null);
                     }}
-                    className="text-sm text-neutral-500 hover:text-neutral-300"
+                    className="text-sm text-[#94A3B8] hover:text-white/80"
                   >
                     Fermer
                   </button>
@@ -174,20 +174,20 @@ export default function ClubsPage() {
                     <button
                       onClick={() => handleJoin(selectedClubId)}
                       disabled={actionLoading}
-                      className="rounded-lg bg-white px-4 py-1.5 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                      className="rounded-lg bg-[#6366F1] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50"
                     >
                       {actionLoading ? "..." : "Rejoindre"}
                     </button>
                   )}
                 </div>
 
-                <p className="mt-5 mb-3 text-xs font-bold uppercase tracking-widest text-neutral-500">
+                <p className="mt-5 mb-3 text-xs font-bold uppercase tracking-widest text-[#94A3B8]">
                   Membres ({clubDetail.members?.length || 0})
                 </p>
                 <AnimatedList className="flex flex-col gap-2">
                   {(clubDetail.members || []).map((m: ClubMember) => (
                     <AnimatedListItem key={m.user_id}>
-                      <div className="flex items-center gap-3 rounded-lg bg-neutral-900/50 px-3 py-2">
+                      <div className="flex items-center gap-3 rounded-lg bg-[#111827]/50 px-3 py-2">
                         {m.avatar_url ? (
                           <img
                             src={m.avatar_url}
@@ -195,13 +195,13 @@ export default function ClubsPage() {
                             className="h-8 w-8 rounded-full"
                           />
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-neutral-700" />
+                          <div className="h-8 w-8 rounded-full bg-[#22223A]" />
                         )}
                         <div className="flex-1">
                           <p className="text-sm font-medium text-white">
                             {m.username}
                           </p>
-                          <p className="text-[10px] text-neutral-500">
+                          <p className="text-[10px] text-[#94A3B8] font-[family-name:var(--font-family-data)]">
                             PAC {m.pac} / END {m.end} / MON {m.mon}
                           </p>
                         </div>
@@ -212,7 +212,7 @@ export default function ClubsPage() {
                               : m.tier === "diamant"
                                 ? "bg-cyan-900/30 text-[#B9F2FF]"
                                 : m.tier === "platine"
-                                  ? "bg-sky-900/30 text-[#A8D8EA]"
+                                  ? "bg-sky-900/30 text-[#E0E8F0]"
                                   : m.tier === "argent"
                                     ? "bg-slate-700/30 text-slate-300"
                                     : "bg-amber-900/30 text-amber-500"
@@ -231,7 +231,7 @@ export default function ClubsPage() {
 
         <CreateClubForm onCreated={() => fetchClubs()} />
 
-        <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+        <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <form onSubmit={handleSearch} className="mb-4 flex gap-2">
           <input
@@ -239,11 +239,11 @@ export default function ClubsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher un club..."
-            className="flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-white/[0.08] bg-[#111827] px-3 py-2 text-sm text-white placeholder-[#475569] focus:border-[#6366F1]/50 focus:outline-none"
           />
           <button
             type="submit"
-            className="rounded-lg bg-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-neutral-600"
+            className="rounded-lg bg-[#6366F1] px-4 py-2 text-sm text-white transition hover:bg-[#6366F1]/80"
           >
             Chercher
           </button>
@@ -251,7 +251,7 @@ export default function ClubsPage() {
 
         {myClubs.length > 0 && (
           <>
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-[#94A3B8]">
               Mes clubs
             </h2>
             <AnimatedList className="mb-6 flex flex-col gap-3">
@@ -268,7 +268,7 @@ export default function ClubsPage() {
           </>
         )}
 
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-[#94A3B8]">
           {myClubs.length > 0 ? "Autres clubs" : "Clubs disponibles"}
         </h2>
 
@@ -319,33 +319,33 @@ function ClubCard({
   return (
     <button
       onClick={onOpen}
-      className="block w-full rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-4 text-left transition hover:border-neutral-500 hover:bg-neutral-700/50"
+      className="block w-full rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-4 text-left transition hover:border-[#6366F1]/30 hover:bg-[#22223A]/60"
     >
       <div className="flex items-center gap-3">
         {club.logo_url ? (
           <img
             src={club.logo_url}
             alt={club.name}
-            className="h-10 w-10 rounded-full border border-neutral-600 object-cover"
+            className="h-10 w-10 rounded-full border border-white/[0.10] object-cover"
           />
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22223A]">
             <ShieldIcon size={20} />
           </div>
         )}
         <div className="flex-1">
           <p className="font-bold text-white">{club.name}</p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[#94A3B8]">
             {club.creator?.username && `Cree par ${club.creator.username}`}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {isMember && (
-            <span className="rounded-full bg-green-900/30 px-2 py-0.5 text-[10px] font-bold text-green-400">
+            <span className="rounded-full bg-[#00F5D4]/15 px-2 py-0.5 text-[10px] font-bold text-[#00F5D4]">
               MEMBRE
             </span>
           )}
-          <span className="rounded-full bg-neutral-700/50 px-2.5 py-0.5 text-xs text-neutral-300">
+          <span className="rounded-full bg-[#22223A]/60 px-2.5 py-0.5 text-xs text-white/80">
             {club.member_count} membre{club.member_count !== 1 ? "s" : ""}
           </span>
         </div>

@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 3.1 : Format Story Instagram</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--ba:rgba(108,92,231,.3);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);background:rgba(253,203,110,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(253,203,110,.2)}
+
+.hero{min-height:50vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(253,203,110,.08),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--gold);margin-bottom:32px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+section{padding:80px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   STORY MOCKUP — 1080×1920 RATIO
+   ═══════════════════════════════════════ */
+.stories-row{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;margin-bottom:64px;perspective:1200px}
+
+.story-frame{
+  width:270px;height:480px;
+  border-radius:20px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);
+  cursor:default;
+  transition:all .5s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+}
+.story-frame:hover{transform:translateY(-8px) scale(1.02);z-index:10}
+
+/* Story backgrounds per tier */
+.story-bg{position:absolute;inset:0;z-index:0}
+
+.story-frame.bronze .story-bg{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 35%,rgba(205,127,50,.18),transparent),
+    radial-gradient(ellipse 80% 50% at 30% 80%,rgba(139,105,20,.12),transparent),
+    linear-gradient(180deg,#0D0A06 0%,#1A1208 30%,#120E08 70%,#0A0804 100%);
+}
+
+.story-frame.silver .story-bg{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 35%,rgba(192,192,220,.15),transparent),
+    radial-gradient(ellipse 80% 50% at 30% 80%,rgba(160,160,200,.08),transparent),
+    linear-gradient(180deg,#08080E 0%,#10101A 30%,#0E0E18 70%,#08080E 100%);
+}
+
+.story-frame.platine .story-bg{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 35%,rgba(108,92,231,.2),transparent),
+    radial-gradient(ellipse 80% 50% at 70% 75%,rgba(162,155,254,.1),transparent),
+    linear-gradient(180deg,#06051A 0%,#100E28 30%,#0C0A20 70%,#06051A 100%);
+}
+
+.story-frame.diamant .story-bg{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 35%,rgba(0,245,212,.15),transparent),
+    radial-gradient(ellipse 80% 50% at 70% 75%,rgba(116,185,255,.1),transparent),
+    linear-gradient(180deg,#040E14 0%,#081A24 30%,#061420 70%,#040E14 100%);
+}
+
+.story-frame.legende .story-bg{
+  background:
+    radial-gradient(ellipse 50% 35% at 50% 35%,rgba(253,203,110,.22),transparent),
+    radial-gradient(ellipse 60% 40% at 30% 70%,rgba(255,107,107,.12),transparent),
+    radial-gradient(ellipse 40% 30% at 75% 80%,rgba(108,92,231,.1),transparent),
+    linear-gradient(180deg,#0A0804 0%,#1A1208 25%,#140E08 60%,#0A0804 100%);
+}
+
+/* Story ambient particles layer */
+.story-particles{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+
+.story-frame.bronze .story-particles{
+  background:
+    radial-gradient(1px 1px at 15% 20%,rgba(205,127,50,.3),transparent),
+    radial-gradient(1px 1px at 80% 15%,rgba(205,127,50,.2),transparent),
+    radial-gradient(1px 1px at 45% 85%,rgba(139,105,20,.25),transparent);
+}
+
+.story-frame.silver .story-particles{
+  background:
+    radial-gradient(1px 1px at 20% 25%,rgba(192,192,220,.3),transparent),
+    radial-gradient(1px 1px at 75% 18%,rgba(160,160,200,.2),transparent),
+    radial-gradient(1px 1px at 50% 80%,rgba(192,192,220,.15),transparent);
+}
+
+.story-frame.platine .story-particles{
+  background:
+    radial-gradient(1.5px 1.5px at 10% 15%,rgba(108,92,231,.4),transparent),
+    radial-gradient(1px 1px at 85% 25%,rgba(162,155,254,.3),transparent),
+    radial-gradient(1.5px 1.5px at 40% 90%,rgba(108,92,231,.35),transparent),
+    radial-gradient(1px 1px at 70% 70%,rgba(162,155,254,.2),transparent);
+  animation:particleDrift 8s ease-in-out infinite;
+}
+
+.story-frame.diamant .story-particles{
+  background:
+    radial-gradient(1.5px 1.5px at 12% 18%,rgba(0,245,212,.5),transparent),
+    radial-gradient(1px 1px at 88% 22%,rgba(116,185,255,.4),transparent),
+    radial-gradient(1.5px 1.5px at 35% 88%,rgba(0,245,212,.4),transparent),
+    radial-gradient(1px 1px at 65% 65%,rgba(116,185,255,.3),transparent),
+    radial-gradient(2px 2px at 50% 12%,rgba(0,245,212,.6),transparent),
+    radial-gradient(1px 1px at 20% 75%,rgba(116,185,255,.35),transparent);
+  animation:particleDrift 6s ease-in-out infinite;
+}
+
+.story-frame.legende .story-particles{
+  background:
+    radial-gradient(2px 2px at 8% 12%,rgba(253,203,110,.7),transparent),
+    radial-gradient(1.5px 1.5px at 92% 18%,rgba(255,107,107,.5),transparent),
+    radial-gradient(2px 2px at 30% 85%,rgba(253,203,110,.6),transparent),
+    radial-gradient(1.5px 1.5px at 70% 75%,rgba(108,92,231,.4),transparent),
+    radial-gradient(2.5px 2.5px at 50% 8%,rgba(253,203,110,.8),transparent),
+    radial-gradient(1.5px 1.5px at 15% 60%,rgba(255,107,107,.5),transparent),
+    radial-gradient(2px 2px at 85% 50%,rgba(253,203,110,.5),transparent),
+    radial-gradient(1px 1px at 60% 40%,rgba(108,92,231,.3),transparent);
+  animation:particleDrift 5s ease-in-out infinite;
+}
+
+@keyframes particleDrift{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+
+/* Story light rays (top tier only) */
+.story-rays{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0}
+.story-frame.diamant .story-rays{
+  opacity:1;
+  background:
+    linear-gradient(170deg,transparent 30%,rgba(0,245,212,.03) 45%,transparent 50%),
+    linear-gradient(190deg,transparent 35%,rgba(116,185,255,.02) 48%,transparent 55%);
+}
+.story-frame.legende .story-rays{
+  opacity:1;
+  background:
+    linear-gradient(165deg,transparent 20%,rgba(253,203,110,.05) 38%,transparent 45%),
+    linear-gradient(195deg,transparent 30%,rgba(255,107,107,.03) 45%,transparent 52%),
+    linear-gradient(180deg,transparent 25%,rgba(108,92,231,.03) 42%,transparent 50%);
+  animation:raysShift 8s ease-in-out infinite;
+}
+@keyframes raysShift{
+  0%,100%{opacity:1}
+  50%{opacity:.7}
+}
+
+/* Story content layout (z-index: 2) */
+.story-content{
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;
+  padding:16px;
+}
+
+/* Top bar — IG-style */
+.story-top{display:flex;align-items:center;gap:8px;margin-bottom:auto}
+.story-top-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1.5px solid var(--accent)}
+.story-top-avatar.bronze-av{border-color:rgba(205,127,50,.6);background:rgba(205,127,50,.15);color:#CD7F32}
+.story-top-avatar.silver-av{border-color:rgba(192,192,220,.5);background:rgba(192,192,220,.12);color:#D0D0E0}
+.story-top-avatar.platine-av{border-color:rgba(108,92,231,.6);background:rgba(108,92,231,.15);color:var(--accent-l)}
+.story-top-avatar.diamant-av{border-color:rgba(0,245,212,.6);background:rgba(0,245,212,.12);color:var(--mint)}
+.story-top-avatar.legende-av{border-color:rgba(253,203,110,.6);background:rgba(253,203,110,.15);color:var(--gold)}
+.story-top-name{font-size:11px;font-weight:600}
+.story-top-time{font-size:10px;color:var(--t3)}
+
+/* Card zone — centered */
+.story-card-zone{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+/* Mini athlete card inside story */
+.story-ath-card{
+  width:180px;height:262px;
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+  transform-style:preserve-3d;
+}
+
+.story-ath-card-bg{position:absolute;inset:0;border-radius:14px;z-index:0}
+.story-ath-card-texture{position:absolute;inset:0;border-radius:14px;z-index:1;opacity:.3}
+.story-ath-card-glow{position:absolute;inset:-2px;border-radius:16px;z-index:-1}
+.story-ath-card-particles{position:absolute;inset:0;border-radius:14px;z-index:3;pointer-events:none;overflow:hidden}
+.story-ath-card-inner{
+  position:absolute;inset:0;border-radius:14px;
+  padding:12px;display:flex;flex-direction:column;
+  z-index:2;
+}
+.sac-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.sac-ovr{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:700;line-height:1;letter-spacing:-1px}
+.sac-pos{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:2px}
+.sac-tier-icon{font-size:18px}
+.sac-avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;position:relative}
+.sac-avatar::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12)}
+.sac-name{text-align:center;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:-.2px;margin-bottom:1px}
+.sac-spec{text-align:center;font-family:'JetBrains Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5;margin-bottom:2px}
+.sac-flag{text-align:center;font-size:11px;margin-bottom:8px}
+.sac-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:auto}
+.sac-stat{text-align:center;padding:4px 2px;border-radius:5px;background:rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.sac-stat-val{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;line-height:1.2}
+.sac-stat-label{font-family:'JetBrains Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:.8px;opacity:.5}
+
+/* Card tier styles inside story (reuse color logic) */
+.story-ath-card.s-bronze .story-ath-card-bg{background:linear-gradient(160deg,#2A1F0E 0%,#4A3520 40%,#3D2A15 100%)}
+.story-ath-card.s-bronze .story-ath-card-glow{box-shadow:0 6px 30px rgba(139,105,20,.3)}
+.story-ath-card.s-bronze .sac-ovr{color:#CD7F32}
+.story-ath-card.s-bronze .sac-avatar{background:linear-gradient(135deg,rgba(205,127,50,.2),rgba(139,105,20,.3));color:rgba(205,127,50,.5)}
+.story-ath-card.s-bronze .sac-stat-val{color:#CD7F32}
+.story-ath-card.s-bronze::after{content:'';position:absolute;inset:0;border-radius:14px;border:1px solid rgba(205,127,50,.2)}
+
+.story-ath-card.s-silver .story-ath-card-bg{background:linear-gradient(160deg,#1A1A24 0%,#2A2A3A 40%,#1E1E2E 100%)}
+.story-ath-card.s-silver .story-ath-card-glow{box-shadow:0 6px 30px rgba(192,192,192,.18)}
+.story-ath-card.s-silver .sac-ovr{color:#D0D0E0}
+.story-ath-card.s-silver .sac-avatar{background:linear-gradient(135deg,rgba(192,192,192,.15),rgba(160,160,180,.2));color:rgba(192,192,220,.5)}
+.story-ath-card.s-silver .sac-stat-val{color:#C0C0D0}
+.story-ath-card.s-silver::after{content:'';position:absolute;inset:0;border-radius:14px;border:1px solid rgba(192,192,192,.15)}
+
+.story-ath-card.s-platine .story-ath-card-bg{background:linear-gradient(160deg,#12102A 0%,#1E1840 40%,#2A2050 80%,#1A1535 100%)}
+.story-ath-card.s-platine .story-ath-card-glow{box-shadow:0 6px 36px rgba(108,92,231,.35),0 0 0 1px rgba(108,92,231,.2)}
+.story-ath-card.s-platine .sac-ovr{background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-ath-card.s-platine .sac-avatar{background:linear-gradient(135deg,rgba(108,92,231,.2),rgba(162,155,254,.15));color:rgba(162,155,254,.5)}
+.story-ath-card.s-platine .sac-stat-val{color:var(--accent-l)}
+.story-ath-card.s-platine::after{content:'';position:absolute;inset:0;border-radius:14px;border:1px solid rgba(108,92,231,.3)}
+
+.story-ath-card.s-diamant .story-ath-card-bg{background:linear-gradient(160deg,#0A1520 0%,#0E2535 30%,#102A40 60%,#081A28 100%)}
+.story-ath-card.s-diamant .story-ath-card-glow{box-shadow:0 6px 44px rgba(0,245,212,.25),0 0 0 1px rgba(0,245,212,.15);animation:sgDiamant 3s ease-in-out infinite}
+.story-ath-card.s-diamant .sac-ovr{background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-ath-card.s-diamant .sac-avatar{background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(116,185,255,.15));color:rgba(0,245,212,.5)}
+.story-ath-card.s-diamant .sac-stat-val{color:var(--mint)}
+.story-ath-card.s-diamant::after{content:'';position:absolute;inset:0;border-radius:14px;border:1px solid rgba(0,245,212,.2)}
+.story-ath-card.s-diamant .story-ath-card-texture{
+  background:linear-gradient(180deg,transparent 0%,rgba(0,245,212,.06) 45%,rgba(116,185,255,.08) 50%,rgba(0,245,212,.06) 55%,transparent 100%);
+  background-size:100% 300%;animation:holoScan 4s ease-in-out infinite;opacity:1;
+}
+.story-ath-card.s-diamant .story-ath-card-particles{
+  background:
+    radial-gradient(1px 1px at 20% 30%,rgba(0,245,212,.6),transparent),
+    radial-gradient(1px 1px at 70% 20%,rgba(116,185,255,.5),transparent),
+    radial-gradient(1px 1px at 40% 70%,rgba(0,245,212,.4),transparent),
+    radial-gradient(1px 1px at 80% 60%,rgba(116,185,255,.3),transparent);
+  animation:particleFloat 6s ease-in-out infinite;
+}
+@keyframes sgDiamant{0%,100%{box-shadow:0 6px 44px rgba(0,245,212,.25),0 0 0 1px rgba(0,245,212,.15)}50%{box-shadow:0 10px 56px rgba(0,245,212,.4),0 0 0 1px rgba(0,245,212,.25)}}
+@keyframes holoScan{0%{background-position:0% 0%}100%{background-position:0% 100%}}
+@keyframes particleFloat{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-3px) rotate(.5deg)}66%{transform:translateY(2px) rotate(-.5deg)}}
+
+.story-ath-card.s-legende .story-ath-card-bg{background:linear-gradient(160deg,#1A1005 0%,#2A1A08 25%,#3A2510 50%,#2A1808 75%,#1A1005 100%)}
+.story-ath-card.s-legende .story-ath-card-glow{box-shadow:0 6px 52px rgba(253,203,110,.35),0 0 0 1px rgba(253,203,110,.25),0 0 100px rgba(255,107,107,.1);animation:sgLegende 4s ease-in-out infinite}
+.story-ath-card.s-legende .sac-ovr{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-ath-card.s-legende .sac-avatar{background:linear-gradient(135deg,rgba(253,203,110,.2),rgba(255,107,107,.15));color:rgba(253,203,110,.5)}
+.story-ath-card.s-legende .sac-stat-val{background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-ath-card.s-legende::after{content:'';position:absolute;inset:0;border-radius:14px;border:2px solid transparent;background:linear-gradient(135deg,rgba(253,203,110,.4),rgba(255,107,107,.3),rgba(108,92,231,.3)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.story-ath-card.s-legende .story-ath-card-texture{
+  background:linear-gradient(135deg,rgba(253,203,110,.08) 0%,rgba(255,107,107,.06) 20%,rgba(108,92,231,.08) 40%,rgba(0,245,212,.06) 60%,rgba(116,185,255,.08) 80%,rgba(253,203,110,.08) 100%);
+  background-size:200% 200%;animation:holoRainbow 6s ease-in-out infinite;opacity:1;
+}
+.story-ath-card.s-legende .story-ath-card-particles{
+  background:
+    radial-gradient(2px 2px at 10% 20%,rgba(253,203,110,.8),transparent),
+    radial-gradient(1.5px 1.5px at 25% 45%,rgba(255,107,107,.6),transparent),
+    radial-gradient(2px 2px at 50% 15%,rgba(253,203,110,.7),transparent),
+    radial-gradient(1px 1px at 75% 35%,rgba(108,92,231,.5),transparent),
+    radial-gradient(1.5px 1.5px at 85% 65%,rgba(253,203,110,.6),transparent),
+    radial-gradient(2px 2px at 35% 80%,rgba(255,107,107,.5),transparent);
+  animation:legendParticles 5s ease-in-out infinite;
+}
+@keyframes sgLegende{0%,100%{box-shadow:0 6px 52px rgba(253,203,110,.35),0 0 0 1px rgba(253,203,110,.25),0 0 100px rgba(255,107,107,.1)}50%{box-shadow:0 12px 64px rgba(253,203,110,.55),0 0 0 2px rgba(253,203,110,.4),0 0 140px rgba(255,107,107,.2)}}
+@keyframes holoRainbow{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
+@keyframes legendParticles{0%,100%{transform:translateY(0);opacity:.8}25%{transform:translateY(-4px);opacity:1}50%{transform:translateY(-2px);opacity:.9}75%{transform:translateY(3px);opacity:1}}
+
+/* Story bottom zone */
+.story-bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+
+/* Story ride recap bar */
+.story-ride-recap{
+  display:flex;gap:3px;
+  padding:6px 8px;
+  background:rgba(0,0,0,.4);
+  backdrop-filter:blur(12px);
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.srr-item{flex:1;text-align:center;padding:4px 2px}
+.srr-val{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;line-height:1}
+.srr-label{font-family:'JetBrains Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)}
+
+/* Story CTA bar */
+.story-cta{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 10px;
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(12px);
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.story-cta-logo{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:-.2px}
+.story-cta-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-cta-text{flex:1;font-size:8px;color:var(--t3);text-align:center}
+.story-cta-qr{width:28px;height:28px;background:white;border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.story-cta-qr::before{content:'';position:absolute;inset:3px;background:
+  linear-gradient(90deg,#0A0A12 2px,transparent 2px),
+  linear-gradient(#0A0A12 2px,transparent 2px);
+  background-size:4px 4px;opacity:.7;
+}
+.story-cta-qr::after{content:'';position:absolute;inset:2px;border:2px solid var(--accent);border-radius:2px}
+
+/* Level up variant */
+.story-levelup-banner{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:5;text-align:center;width:100%;padding:0 16px;
+}
+.slb-pre{font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:3px;color:var(--mint);margin-bottom:4px}
+.slb-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:4px}
+.slb-title .slb-tier{display:block;font-size:32px}
+.slb-sub{font-size:10px;color:var(--t2)}
+
+/* Arrow animation between tiers */
+.story-arrow{
+  position:absolute;top:50%;left:50%;z-index:4;
+  width:40px;height:40px;
+  transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;
+}
+.story-arrow::before{
+  content:'↑';font-size:20px;color:var(--mint);
+  animation:arrowPulse 1.5s ease-in-out infinite;
+}
+@keyframes arrowPulse{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(-4px);opacity:1}}
+
+/* Specs section */
+.spec-panel{
+  background:var(--bg-card);
+  border:1px solid var(--b1);
+  border-radius:var(--rl);
+  padding:32px;
+  margin-bottom:24px;
+}
+.spec-panel-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.spec-panel-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+
+.spec-row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.spec-row:last-child{border-bottom:none}
+.spec-row-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:1px}
+.spec-row-value{font-size:13px;color:var(--t2);line-height:1.6}
+.spec-row-value strong{color:var(--t1);font-weight:600}
+
+/* Comparison table */
+.comp-table{width:100%;border-collapse:collapse;margin-top:12px}
+.comp-table th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:10px 8px;text-align:left;border-bottom:1px solid var(--b1)}
+.comp-table td{font-size:12px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2)}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table .tier-cell{font-weight:700;font-size:13px;color:var(--t1)}
+.comp-table .check{color:var(--mint);font-weight:700}
+.comp-table .cross{color:var(--t3);opacity:.4}
+
+/* UX flow section */
+.flow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:32px}
+.flow-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--b1);
+  border-radius:var(--r);
+  padding:20px;
+}
+.flow-card-step{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-l);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.flow-card-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px}
+.flow-card-desc{font-size:12px;color:var(--t2);line-height:1.7}
+
+/* Next step CTA */
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .stories-row{gap:16px}
+  .story-frame{width:220px;height:390px}
+  .story-ath-card{width:150px;height:218px}
+  .sac-ovr{font-size:28px!important}
+  .sac-avatar{width:50px;height:50px;font-size:22px}
+  .spec-row{grid-template-columns:1fr;gap:4px}
+  .flow-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 3.1 / 04</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">📱 Format Story Instagram — Le Money Shot Viral</div>
+    <h1>Partage ta Carte<br>en <span class="gt">Story</span></h1>
+    <p class="hero-sub">Un format 9:16 conçu pour Instagram, Snapchat et TikTok. Chaque tier a son ambiance unique. L'objectif : que chaque partage devienne une publicité organique pour VeloCard.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — 5 STORY VARIANTS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Les 5 Stories par Tier</div>
+    <h2 class="s-title reveal">Chaque Niveau, son Ambiance</h2>
+    <p class="s-desc reveal">Le fond, les particules, la lumière — tout change selon le tier de l'athlète. Du sobre au spectaculaire, chaque story donne envie de progresser.</p>
+
+    <div class="stories-row">
+
+      <!-- BRONZE STORY -->
+      <div class="story-frame bronze reveal">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content">
+          <div class="story-top">
+            <div class="story-top-avatar bronze-av">L</div>
+            <div>
+              <div class="story-top-name">lucas_petit</div>
+              <div class="story-top-time">Il y a 2h</div>
+            </div>
+          </div>
+          <div class="story-card-zone">
+            <div class="story-ath-card s-bronze">
+              <div class="story-ath-card-bg"></div>
+              <div class="story-ath-card-texture"></div>
+              <div class="story-ath-card-glow"></div>
+              <div class="story-ath-card-inner">
+                <div class="sac-top">
+                  <div><div class="sac-ovr">42</div><div class="sac-pos">Loisir</div></div>
+                  <div class="sac-tier-icon">🥉</div>
+                </div>
+                <div class="sac-avatar">L</div>
+                <div class="sac-name">Lucas Petit</div>
+                <div class="sac-spec">Endurant</div>
+                <div class="sac-flag">🇫🇷</div>
+                <div class="sac-stats">
+                  <div class="sac-stat"><div class="sac-stat-val">38</div><div class="sac-stat-label">PLA</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">35</div><div class="sac-stat-label">MON</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">40</div><div class="sac-stat-label">VAL</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">30</div><div class="sac-stat-label">SPR</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">52</div><div class="sac-stat-label">END</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">45</div><div class="sac-stat-label">RES</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-bottom">
+            <div class="story-ride-recap">
+              <div class="srr-item"><div class="srr-val">42 km</div><div class="srr-label">Distance</div></div>
+              <div class="srr-item"><div class="srr-val">380 m</div><div class="srr-label">Dénivelé</div></div>
+              <div class="srr-item"><div class="srr-val">1h32</div><div class="srr-label">Durée</div></div>
+              <div class="srr-item"><div class="srr-val">27.4</div><div class="srr-label">km/h</div></div>
+            </div>
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Découvre ta carte cycliste</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SILVER STORY -->
+      <div class="story-frame silver reveal">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content">
+          <div class="story-top">
+            <div class="story-top-avatar silver-av">M</div>
+            <div>
+              <div class="story-top-name">marie_duval</div>
+              <div class="story-top-time">Il y a 45min</div>
+            </div>
+          </div>
+          <div class="story-card-zone">
+            <div class="story-ath-card s-silver">
+              <div class="story-ath-card-bg"></div>
+              <div class="story-ath-card-texture"></div>
+              <div class="story-ath-card-glow"></div>
+              <div class="story-ath-card-inner">
+                <div class="sac-top">
+                  <div><div class="sac-ovr">58</div><div class="sac-pos">Cycliste</div></div>
+                  <div class="sac-tier-icon">🥈</div>
+                </div>
+                <div class="sac-avatar">M</div>
+                <div class="sac-name">Marie Duval</div>
+                <div class="sac-spec">Grimpeuse</div>
+                <div class="sac-flag">🇫🇷</div>
+                <div class="sac-stats">
+                  <div class="sac-stat"><div class="sac-stat-val">52</div><div class="sac-stat-label">PLA</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">65</div><div class="sac-stat-label">MON</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">55</div><div class="sac-stat-label">VAL</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">42</div><div class="sac-stat-label">SPR</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">60</div><div class="sac-stat-label">END</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">58</div><div class="sac-stat-label">RES</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-bottom">
+            <div class="story-ride-recap">
+              <div class="srr-item"><div class="srr-val">68 km</div><div class="srr-label">Distance</div></div>
+              <div class="srr-item"><div class="srr-val">920 m</div><div class="srr-label">Dénivelé</div></div>
+              <div class="srr-item"><div class="srr-val">2h18</div><div class="srr-label">Durée</div></div>
+              <div class="srr-item"><div class="srr-val">29.5</div><div class="srr-label">km/h</div></div>
+            </div>
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Découvre ta carte cycliste</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATINE STORY -->
+      <div class="story-frame platine reveal">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content">
+          <div class="story-top">
+            <div class="story-top-avatar platine-av">T</div>
+            <div>
+              <div class="story-top-name">thomas_berg</div>
+              <div class="story-top-time">Il y a 20min</div>
+            </div>
+          </div>
+          <div class="story-card-zone">
+            <div class="story-ath-card s-platine">
+              <div class="story-ath-card-bg"></div>
+              <div class="story-ath-card-texture"></div>
+              <div class="story-ath-card-glow"></div>
+              <div class="story-ath-card-inner">
+                <div class="sac-top">
+                  <div><div class="sac-ovr">74</div><div class="sac-pos">Expert</div></div>
+                  <div class="sac-tier-icon">💎</div>
+                </div>
+                <div class="sac-avatar">T</div>
+                <div class="sac-name">Thomas Berg</div>
+                <div class="sac-spec">Puncheur</div>
+                <div class="sac-flag">🇧🇪</div>
+                <div class="sac-stats">
+                  <div class="sac-stat"><div class="sac-stat-val">72</div><div class="sac-stat-label">PLA</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">70</div><div class="sac-stat-label">MON</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">78</div><div class="sac-stat-label">VAL</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">68</div><div class="sac-stat-label">SPR</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">72</div><div class="sac-stat-label">END</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">76</div><div class="sac-stat-label">RES</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-bottom">
+            <div class="story-ride-recap">
+              <div class="srr-item"><div class="srr-val">95 km</div><div class="srr-label">Distance</div></div>
+              <div class="srr-item"><div class="srr-val">1 540 m</div><div class="srr-label">Dénivelé</div></div>
+              <div class="srr-item"><div class="srr-val">3h12</div><div class="srr-label">Durée</div></div>
+              <div class="srr-item"><div class="srr-val">29.7</div><div class="srr-label">km/h</div></div>
+            </div>
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Découvre ta carte cycliste</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIAMANT STORY -->
+      <div class="story-frame diamant reveal">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content">
+          <div class="story-top">
+            <div class="story-top-avatar diamant-av">A</div>
+            <div>
+              <div class="story-top-name">alex_moreau</div>
+              <div class="story-top-time">À l'instant</div>
+            </div>
+          </div>
+          <div class="story-card-zone">
+            <div class="story-ath-card s-diamant">
+              <div class="story-ath-card-bg"></div>
+              <div class="story-ath-card-texture"></div>
+              <div class="story-ath-card-glow"></div>
+              <div class="story-ath-card-particles"></div>
+              <div class="story-ath-card-inner">
+                <div class="sac-top">
+                  <div><div class="sac-ovr">86</div><div class="sac-pos">Élite</div></div>
+                  <div class="sac-tier-icon">💠</div>
+                </div>
+                <div class="sac-avatar">A</div>
+                <div class="sac-name">Alex Moreau</div>
+                <div class="sac-spec">Rouleur</div>
+                <div class="sac-flag">🇫🇷</div>
+                <div class="sac-stats">
+                  <div class="sac-stat"><div class="sac-stat-val">88</div><div class="sac-stat-label">PLA</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">78</div><div class="sac-stat-label">MON</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">82</div><div class="sac-stat-label">VAL</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">75</div><div class="sac-stat-label">SPR</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">90</div><div class="sac-stat-label">END</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">88</div><div class="sac-stat-label">RES</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-bottom">
+            <div class="story-ride-recap">
+              <div class="srr-item"><div class="srr-val">142 km</div><div class="srr-label">Distance</div></div>
+              <div class="srr-item"><div class="srr-val">2 350 m</div><div class="srr-label">Dénivelé</div></div>
+              <div class="srr-item"><div class="srr-val">4h48</div><div class="srr-label">Durée</div></div>
+              <div class="srr-item"><div class="srr-val">29.6</div><div class="srr-label">km/h</div></div>
+            </div>
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Découvre ta carte cycliste</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LÉGENDE STORY -->
+      <div class="story-frame legende reveal">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content">
+          <div class="story-top">
+            <div class="story-top-avatar legende-av">J</div>
+            <div>
+              <div class="story-top-name">julien_alaphilippe</div>
+              <div class="story-top-time">À l'instant</div>
+            </div>
+          </div>
+          <div class="story-card-zone">
+            <div class="story-ath-card s-legende">
+              <div class="story-ath-card-bg"></div>
+              <div class="story-ath-card-texture"></div>
+              <div class="story-ath-card-glow"></div>
+              <div class="story-ath-card-particles"></div>
+              <div class="story-ath-card-inner">
+                <div class="sac-top">
+                  <div><div class="sac-ovr">95</div><div class="sac-pos">Légende</div></div>
+                  <div class="sac-tier-icon">👑</div>
+                </div>
+                <div class="sac-avatar">J</div>
+                <div class="sac-name">J. Alaphilippe</div>
+                <div class="sac-spec">Puncheur</div>
+                <div class="sac-flag">🇫🇷</div>
+                <div class="sac-stats">
+                  <div class="sac-stat"><div class="sac-stat-val">92</div><div class="sac-stat-label">PLA</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">95</div><div class="sac-stat-label">MON</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">97</div><div class="sac-stat-label">VAL</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">88</div><div class="sac-stat-label">SPR</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">91</div><div class="sac-stat-label">END</div></div>
+                  <div class="sac-stat"><div class="sac-stat-val">96</div><div class="sac-stat-label">RES</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-bottom">
+            <div class="story-ride-recap">
+              <div class="srr-item"><div class="srr-val">185 km</div><div class="srr-label">Distance</div></div>
+              <div class="srr-item"><div class="srr-val">4 200 m</div><div class="srr-label">Dénivelé</div></div>
+              <div class="srr-item"><div class="srr-val">5h22</div><div class="srr-label">Durée</div></div>
+              <div class="srr-item"><div class="srr-val">34.4</div><div class="srr-label">km/h</div></div>
+            </div>
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Découvre ta carte cycliste</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — LEVEL UP STORY VARIANT
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Variante Spéciale</div>
+    <h2 class="s-title reveal">La Story "Level Up"</h2>
+    <p class="s-desc reveal">Quand un cycliste change de tier, une story spéciale est générée avec un effet "reveal" dramatique. Le format le plus viral — l'émotion du passage de niveau.</p>
+
+    <div class="stories-row">
+
+      <!-- Level Up: Bronze → Argent -->
+      <div class="story-frame silver reveal" style="position:relative">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-content" style="justify-content:center;align-items:center;text-align:center">
+          <div class="story-top" style="position:absolute;top:16px;left:16px;right:16px">
+            <div class="story-top-avatar silver-av">L</div>
+            <div><div class="story-top-name">lucas_petit</div><div class="story-top-time">Nouveau tier !</div></div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:3px;color:var(--t3);margin-bottom:8px">Niveau précédent</div>
+            <div style="display:inline-flex;padding:4px 12px;border-radius:8px;background:rgba(205,127,50,.1);border:1px solid rgba(205,127,50,.2)">
+              <span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#CD7F32">🥉 Bronze</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-size:24px;animation:arrowPulse 1.5s ease-in-out infinite">⬆️</div>
+          </div>
+
+          <div style="margin-bottom:24px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--mint);margin-bottom:6px">Nouveau niveau</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;color:#D0D0E0;letter-spacing:-1px;line-height:1">🥈 Argent</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:6px">OVR 42 → <strong style="color:#D0D0E0">50</strong></div>
+          </div>
+
+          <div class="story-ath-card s-silver" style="margin:0 auto;width:140px;height:204px">
+            <div class="story-ath-card-bg"></div>
+            <div class="story-ath-card-texture"></div>
+            <div class="story-ath-card-glow"></div>
+            <div class="story-ath-card-inner" style="padding:8px">
+              <div class="sac-top" style="margin-bottom:4px">
+                <div><div class="sac-ovr" style="font-size:24px">50</div><div class="sac-pos" style="font-size:6px">Cycliste</div></div>
+                <div class="sac-tier-icon" style="font-size:14px">🥈</div>
+              </div>
+              <div class="sac-avatar" style="width:44px;height:44px;font-size:18px;margin-bottom:4px">L</div>
+              <div class="sac-name" style="font-size:10px">Lucas Petit</div>
+              <div class="sac-spec" style="font-size:6px;margin-bottom:0">Endurant</div>
+              <div class="sac-flag" style="font-size:8px;margin-bottom:4px">🇫🇷</div>
+              <div class="sac-stats" style="gap:2px">
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">45</div><div class="sac-stat-label" style="font-size:5px">PLA</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">42</div><div class="sac-stat-label" style="font-size:5px">MON</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">48</div><div class="sac-stat-label" style="font-size:5px">VAL</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">38</div><div class="sac-stat-label" style="font-size:5px">SPR</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">58</div><div class="sac-stat-label" style="font-size:5px">END</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">52</div><div class="sac-stat-label" style="font-size:5px">RES</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:absolute;bottom:16px;left:16px;right:16px">
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Je viens de monter de niveau !</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Up: Platine → Diamant (more dramatic) -->
+      <div class="story-frame diamant reveal" style="position:relative">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content" style="justify-content:center;align-items:center;text-align:center">
+          <div class="story-top" style="position:absolute;top:16px;left:16px;right:16px">
+            <div class="story-top-avatar diamant-av">A</div>
+            <div><div class="story-top-name">alex_moreau</div><div class="story-top-time">Nouveau tier !</div></div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:3px;color:var(--t3);margin-bottom:8px">Niveau précédent</div>
+            <div style="display:inline-flex;padding:4px 12px;border-radius:8px;background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.2)">
+              <span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--accent-l)">💎 Platine</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-size:28px;animation:arrowPulse 1.2s ease-in-out infinite">⚡</div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--mint);margin-bottom:6px">Nouveau niveau</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">💠 Diamant</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:6px">OVR 79 → <strong style="color:var(--mint)">80</strong></div>
+          </div>
+
+          <div class="story-ath-card s-diamant" style="margin:0 auto;width:140px;height:204px">
+            <div class="story-ath-card-bg"></div>
+            <div class="story-ath-card-texture"></div>
+            <div class="story-ath-card-glow"></div>
+            <div class="story-ath-card-particles"></div>
+            <div class="story-ath-card-inner" style="padding:8px">
+              <div class="sac-top" style="margin-bottom:4px">
+                <div><div class="sac-ovr" style="font-size:24px">80</div><div class="sac-pos" style="font-size:6px">Élite</div></div>
+                <div class="sac-tier-icon" style="font-size:14px">💠</div>
+              </div>
+              <div class="sac-avatar" style="width:44px;height:44px;font-size:18px;margin-bottom:4px">A</div>
+              <div class="sac-name" style="font-size:10px">Alex Moreau</div>
+              <div class="sac-spec" style="font-size:6px;margin-bottom:0">Rouleur</div>
+              <div class="sac-flag" style="font-size:8px;margin-bottom:4px">🇫🇷</div>
+              <div class="sac-stats" style="gap:2px">
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">82</div><div class="sac-stat-label" style="font-size:5px">PLA</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">72</div><div class="sac-stat-label" style="font-size:5px">MON</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">76</div><div class="sac-stat-label" style="font-size:5px">VAL</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">70</div><div class="sac-stat-label" style="font-size:5px">SPR</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">84</div><div class="sac-stat-label" style="font-size:5px">END</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">82</div><div class="sac-stat-label" style="font-size:5px">RES</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:absolute;bottom:16px;left:16px;right:16px">
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Bienvenue chez les Diamants 💠</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Up: Diamant → Légende (ULTIMATE) -->
+      <div class="story-frame legende reveal" style="position:relative">
+        <div class="story-bg"></div>
+        <div class="story-particles"></div>
+        <div class="story-rays"></div>
+        <div class="story-content" style="justify-content:center;align-items:center;text-align:center">
+          <div class="story-top" style="position:absolute;top:16px;left:16px;right:16px">
+            <div class="story-top-avatar legende-av">J</div>
+            <div><div class="story-top-name">julien_alaphilippe</div><div class="story-top-time">Nouveau tier !</div></div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:3px;color:var(--t3);margin-bottom:8px">Niveau précédent</div>
+            <div style="display:inline-flex;padding:4px 12px;border-radius:8px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.15)">
+              <span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--mint)">💠 Diamant</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-size:28px;animation:arrowPulse 1s ease-in-out infinite">🔥</div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:6px">Accès au panthéon</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent">👑 Légende</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:6px">OVR 89 → <strong style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">90</strong></div>
+          </div>
+
+          <div class="story-ath-card s-legende" style="margin:0 auto;width:140px;height:204px">
+            <div class="story-ath-card-bg"></div>
+            <div class="story-ath-card-texture"></div>
+            <div class="story-ath-card-glow"></div>
+            <div class="story-ath-card-particles"></div>
+            <div class="story-ath-card-inner" style="padding:8px">
+              <div class="sac-top" style="margin-bottom:4px">
+                <div><div class="sac-ovr" style="font-size:24px">90</div><div class="sac-pos" style="font-size:6px">Légende</div></div>
+                <div class="sac-tier-icon" style="font-size:14px">👑</div>
+              </div>
+              <div class="sac-avatar" style="width:44px;height:44px;font-size:18px;margin-bottom:4px">J</div>
+              <div class="sac-name" style="font-size:10px">J. Alaphilippe</div>
+              <div class="sac-spec" style="font-size:6px;margin-bottom:0">Puncheur</div>
+              <div class="sac-flag" style="font-size:8px;margin-bottom:4px">🇫🇷</div>
+              <div class="sac-stats" style="gap:2px">
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">90</div><div class="sac-stat-label" style="font-size:5px">PLA</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">93</div><div class="sac-stat-label" style="font-size:5px">MON</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">95</div><div class="sac-stat-label" style="font-size:5px">VAL</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">86</div><div class="sac-stat-label" style="font-size:5px">SPR</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">88</div><div class="sac-stat-label" style="font-size:5px">END</div></div>
+                <div class="sac-stat" style="padding:2px 1px"><div class="sac-stat-val" style="font-size:10px">92</div><div class="sac-stat-label" style="font-size:5px">RES</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:absolute;bottom:16px;left:16px;right:16px">
+            <div class="story-cta">
+              <div class="story-cta-logo">VELO<span>CARD</span></div>
+              <div class="story-cta-text">Je suis une Légende 👑🔥</div>
+              <div class="story-cta-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — STORY SPECS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Spécifications Techniques</div>
+    <h2 class="s-title reveal">Anatomie d'une Story VeloCard</h2>
+    <p class="s-desc reveal">Chaque pixel est pensé pour la viralité. Voici le détail complet du format, zone par zone.</p>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Format & Dimensions</div>
+      <div class="spec-panel-sub">Optimisé pour Instagram Stories, compatible Snapchat et TikTok</div>
+      <div class="spec-row"><div class="spec-row-label">Canvas</div><div class="spec-row-value"><strong>1080 × 1920px</strong> — ratio 9:16, export PNG haute qualité + MP4 pour les tiers animés</div></div>
+      <div class="spec-row"><div class="spec-row-label">Safe Zone</div><div class="spec-row-value"><strong>48px margin top</strong> (barre IG), <strong>160px bottom</strong> (swipe-up / réactions). Contenu critique = zone centrale 1080 × 1560px</div></div>
+      <div class="spec-row"><div class="spec-row-label">Fond</div><div class="spec-row-value"><strong>Radial gradient unique par tier</strong> — jamais noir pur. Halo lumineux centré sur la carte, spread 60% du canvas</div></div>
+      <div class="spec-row"><div class="spec-row-label">Format Fichier</div><div class="spec-row-value"><strong>PNG</strong> pour Bronze/Argent/Platine (statiques) — <strong>MP4 H.264 15fps 4s loop</strong> pour Diamant/Légende (animés)</div></div>
+      <div class="spec-row"><div class="spec-row-label">Poids Max</div><div class="spec-row-value"><strong>< 2 MB</strong> PNG, <strong>< 8 MB</strong> MP4 — compression WebP si nécessaire</div></div>
+    </div>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Zones de la Story</div>
+      <div class="spec-panel-sub">5 zones empilées verticalement dans le canvas</div>
+      <div class="spec-row"><div class="spec-row-label">Zone 1 — Top</div><div class="spec-row-value"><strong>Pseudo IG + Avatar</strong> — Simule la barre story Instagram. Photo de profil ronde 80px + pseudo + timestamp. Opacité 80%, position fixe top:48px</div></div>
+      <div class="spec-row"><div class="spec-row-label">Zone 2 — Hero</div><div class="spec-row-value"><strong>Carte Athlète centrée</strong> — Taille 540×788px sur le canvas. Ombre portée longue (40px blur tier-colored). Légère rotation 3D (-2° Y) pour la profondeur</div></div>
+      <div class="spec-row"><div class="spec-row-label">Zone 3 — Ambiance</div><div class="spec-row-value"><strong>Particules + rayons</strong> — Couche fullscreen derrière la carte. Intensité croissante par tier (3 → 12 particules). Rayons lumineux pour Diamant/Légende uniquement</div></div>
+      <div class="spec-row"><div class="spec-row-label">Zone 4 — Recap</div><div class="spec-row-value"><strong>4 stats de sortie</strong> — Barre glassmorphism : Distance, Dénivelé, Durée, Vitesse. Padding 32px bottom. Font JetBrains Mono 28px</div></div>
+      <div class="spec-row"><div class="spec-row-label">Zone 5 — CTA</div><div class="spec-row-value"><strong>Branding + QR code</strong> — Logo VeloCard + tagline + mini QR code (deep link vers l'app). Barre glassmorphism 80px, position absolute bottom:160px</div></div>
+    </div>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Variante "Level Up"</div>
+      <div class="spec-panel-sub">Story spéciale générée automatiquement lors d'un changement de tier</div>
+      <div class="spec-row"><div class="spec-row-label">Trigger</div><div class="spec-row-value"><strong>OVR franchit un seuil de tier</strong> (50, 65, 80, 90). Détecté côté serveur après calcul post-sortie</div></div>
+      <div class="spec-row"><div class="spec-row-label">Layout</div><div class="spec-row-value"><strong>Centré vertical</strong> — ancien tier (pill badge) → icône animée (flèche/éclair/feu selon gap) → nouveau tier (grand texte) → carte du nouveau tier (taille réduite)</div></div>
+      <div class="spec-row"><div class="spec-row-label">Animation</div><div class="spec-row-value"><strong>MP4 pour tous les level-ups</strong> — Séquence : fondu ancien tier (0.5s) → flash blanc (0.2s) → reveal nouveau tier + carte (0.8s scale bounce) → particules (continu)</div></div>
+      <div class="spec-row"><div class="spec-row-label">Son</div><div class="spec-row-value"><strong>Haptic feedback</strong> au moment du flash. Son optionnel in-app : "FIFA walkout" style. Escalade : *tink* (Argent), *whoosh* (Platine), *boom* (Diamant), *choir+boom* (Légende)</div></div>
+      <div class="spec-row"><div class="spec-row-label">CTA</div><div class="spec-row-value"><strong>"Je viens de monter de niveau !"</strong> ou <strong>"Bienvenue chez les [Tier]"</strong> selon la gravité. Message personnalisé pour Légende</div></div>
+    </div>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Escalade Visuelle par Tier</div>
+      <div class="spec-panel-sub">Comparaison des effets dans le format Story</div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Élément</th>
+            <th>Bronze</th>
+            <th>Argent</th>
+            <th>Platine</th>
+            <th>Diamant</th>
+            <th>Légende</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tier-cell">Fond Ambiance</td>
+            <td>Halo brun discret</td>
+            <td>Halo gris-bleu</td>
+            <td>Halo violet VeloCard</td>
+            <td>Halo mint pulsant</td>
+            <td>Triple halo gold+coral</td>
+          </tr>
+          <tr>
+            <td class="tier-cell">Particules</td>
+            <td>3 statiques</td>
+            <td>3 statiques</td>
+            <td>4 avec drift lent</td>
+            <td>6 animées</td>
+            <td>8 tricolores animées</td>
+          </tr>
+          <tr>
+            <td class="tier-cell">Rayons</td>
+            <td class="cross">—</td>
+            <td class="cross">—</td>
+            <td class="cross">—</td>
+            <td class="check">2 rayons mint</td>
+            <td class="check">3 rayons rainbow shift</td>
+          </tr>
+          <tr>
+            <td class="tier-cell">Format Export</td>
+            <td>PNG statique</td>
+            <td>PNG statique</td>
+            <td>PNG statique</td>
+            <td>MP4 15fps 4s</td>
+            <td>MP4 15fps 4s</td>
+          </tr>
+          <tr>
+            <td class="tier-cell">Ombre Carte</td>
+            <td>25% opacité</td>
+            <td>15% opacité</td>
+            <td>35% + ring</td>
+            <td>Pulsante mint</td>
+            <td>Triple pulsante</td>
+          </tr>
+          <tr>
+            <td class="tier-cell">Rotation 3D</td>
+            <td>-2° Y</td>
+            <td>-2° Y</td>
+            <td>-2° Y</td>
+            <td>-3° Y oscillant</td>
+            <td>-3° Y oscillant</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — UX SHARING FLOW
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">UX Flow</div>
+    <h2 class="s-title reveal">Le Parcours de Partage</h2>
+    <p class="s-desc reveal">Du moment où le cycliste finit sa sortie au moment où ses amis voient la story — chaque étape est optimisée pour la conversion.</p>
+
+    <div class="flow-grid">
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 01</div>
+        <div class="flow-card-title">Fin de Sortie</div>
+        <div class="flow-card-desc">Le cycliste termine son ride. L'app calcule les stats et met à jour les attributs. Si OVR change, notification push "Ta carte a évolué !"</div>
+      </div>
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 02</div>
+        <div class="flow-card-title">Écran Résumé</div>
+        <div class="flow-card-desc">Bouton proéminent "Partager ma Carte" en bas du résumé de sortie. Preview de la story avec le ride du jour. Animation d'entrée : carte glisse du bas.</div>
+      </div>
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 03</div>
+        <div class="flow-card-title">Éditeur Story</div>
+        <div class="flow-card-desc">Preview plein écran 9:16. Choix entre "Story Carte" et "Story Level Up" (si dispo). Toggle pour afficher/masquer les stats de sortie. Bouton "Personnaliser" (futur : stickers, message).</div>
+      </div>
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 04</div>
+        <div class="flow-card-title">Export & Partage</div>
+        <div class="flow-card-desc">Génération côté device (canvas API). Share sheet natif iOS/Android. Raccourcis directs : Instagram Story, Snapchat, WhatsApp, Télécharger. Tracking UTM dans le QR code.</div>
+      </div>
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 05</div>
+        <div class="flow-card-title">Boucle Virale</div>
+        <div class="flow-card-desc">L'ami voit la story → scanne le QR code → deep link vers l'app/store → onboarding avec "Ton ami est Platine, et toi ?" → acquisition gratuite.</div>
+      </div>
+      <div class="flow-card reveal">
+        <div class="flow-card-step">Étape 06</div>
+        <div class="flow-card-title">Tracking & Analytics</div>
+        <div class="flow-card-desc">Métriques : taux de partage par tier, scans QR code, installs via referral, K-factor viral. Objectif : 30% de partage chez Diamant/Légende, 10% chez Bronze.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 5 — IMPLEMENTATION NOTES
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Implémentation</div>
+    <h2 class="s-title reveal">Notes Techniques</h2>
+    <p class="s-desc reveal">Les détails d'implémentation pour les développeurs.</p>
+
+    <div class="spec-panel reveal">
+      <div class="spec-panel-title">Stack Technique Story</div>
+      <div class="spec-row"><div class="spec-row-label">Rendu Statique</div><div class="spec-row-value"><strong>React Native Skia (Shopify)</strong> — Canvas haute perf, shaders custom pour les textures. Export via <code>makeImageSnapshot()</code> → PNG</div></div>
+      <div class="spec-row"><div class="spec-row-label">Rendu Animé</div><div class="spec-row-value"><strong>Lottie + Reanimated 3</strong> — Animations exportées depuis After Effects pour Diamant/Légende. Fallback : enregistrement canvas 15fps → MP4 via FFmpeg WASM</div></div>
+      <div class="spec-row"><div class="spec-row-label">QR Code</div><div class="spec-row-value"><strong>react-native-qrcode-skia</strong> — Génération dynamique avec deep link <code>velocard://card/{userId}</code> + UTM source=story&tier={tier}</div></div>
+      <div class="spec-row"><div class="spec-row-label">Share API</div><div class="spec-row-value"><strong>react-native-share</strong> — Share sheet natif + raccourcis Instagram Story (background image asset), Snapchat (creative kit), WhatsApp (media)</div></div>
+      <div class="spec-row"><div class="spec-row-label">Perf Target</div><div class="spec-row-value"><strong>< 800ms</strong> génération PNG, <strong>< 2s</strong> génération MP4. Pré-calcul au moment du post-ride pendant l'affichage du résumé</div></div>
+      <div class="spec-row"><div class="spec-row-label">Accessibilité</div><div class="spec-row-value">Alt-text automatique : "Carte VeloCard [Tier] de [Nom] — OVR [score], spécialité [type]". Contraste minimum 4.5:1 sur tous les textes</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NEXT -->
+<section class="next-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px">Prochaine étape</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:12px">Étape 3.2 — Intégration Home</div>
+      <div style="font-size:14px;color:var(--t2);max-width:480px;margin:0 auto">Widget carte compact sur le dashboard principal : mini-card, OVR, progression vers le prochain tier.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>VELOCARD FUT Edition — Étape 3.1 / Phase 4 — Format Story Instagram</p>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50)});
+
+// Reveal on scroll
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

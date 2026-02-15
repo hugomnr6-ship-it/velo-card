@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloCard — Design B : Variantes Stats + Pays</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #060D18;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #00F5D4, #6366F1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { text-align: center; color: #64748B; font-size: 12px; margin-bottom: 50px; }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    margin: 60px 0 8px;
+    color: #F8FAFC;
+    letter-spacing: 0.03em;
+  }
+  .section-desc {
+    text-align: center;
+    color: #475569;
+    font-size: 12px;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .cards-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .card-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #475569;
+    margin-top: 14px;
+    text-transform: uppercase;
+  }
+
+  /* ═══ SHARED CARD BASE (Design B "Shield") ═══ */
+  .card {
+    position: relative;
+    width: 300px;
+    height: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .card .bg-layer {
+    position: absolute;
+    inset: 0;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1.5px solid var(--accent-dim);
+  }
+  /* Crest */
+  .card .crest {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 50px;
+    z-index: 10;
+  }
+  .card .crest-shape {
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 50% 80%, 15% 100%);
+    background: var(--crest-gradient);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 8px;
+  }
+  .card .crest-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--crest-text-color);
+  }
+  /* Vertical lines */
+  .card .vl {
+    position: absolute;
+    top: 55px;
+    bottom: 55px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--accent-dim), transparent);
+    z-index: 3;
+  }
+  .card .vl-l { left: 14px; }
+  .card .vl-r { right: 14px; }
+
+  .card .content {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* Shimmer */
+  .card .shimmer-ov {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .card .shimmer-ov::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 25%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, var(--shimmer-color), transparent);
+    transform: rotate(20deg);
+    animation: shim 5s ease-in-out infinite;
+  }
+  @keyframes shim {
+    0% { transform: translateX(-100%) rotate(20deg); }
+    100% { transform: translateX(400%) rotate(20deg); }
+  }
+  /* Scan lines */
+  .card .scan-ov {
+    position: absolute; inset: 0; z-index: 6; pointer-events: none; border-radius: 20px;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.007) 2px, rgba(255,255,255,0.007) 4px);
+  }
+  /* Particles */
+  .particles { position: absolute; inset: 0; z-index: 7; pointer-events: none; overflow: hidden; border-radius: 20px; }
+  .pt {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    animation: fp var(--d) linear infinite; animation-delay: var(--dl); left: var(--x); opacity: 0;
+  }
+  @keyframes fp {
+    0% { transform: translateY(500px); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-20px) translateX(15px); opacity: 0; }
+  }
+  /* Rainbow */
+  .rainbow { position: absolute; inset: 0; z-index: 9; pointer-events: none; border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255,0,0,0.04) 0%, rgba(255,165,0,0.04) 16%, rgba(255,255,0,0.04) 33%, rgba(0,255,0,0.04) 50%, rgba(0,0,255,0.04) 66%, rgba(75,0,130,0.04) 83%, rgba(238,130,238,0.04) 100%);
+    animation: hue 6s linear infinite; }
+  @keyframes hue { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+  /* ═══ SHARED TOP SECTION: OVR + Avatar + Name + Country ═══ */
+  .top-section {
+    padding: 56px 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .ovr-block { text-align: center; margin-bottom: 6px; }
+  .ovr-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    text-shadow: 0 0 40px var(--accent-glow);
+  }
+  .ovr-lbl {
+    font-size: 7px; font-weight: 700; letter-spacing: 0.3em; color: rgba(255,255,255,0.2);
+  }
+  .avatar-hex {
+    width: 80px; height: 80px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: var(--ring-gradient);
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 0 18px var(--accent-glow));
+    margin-bottom: 10px;
+  }
+  .avatar-hex-inner {
+    width: 74px; height: 74px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: #0E1828;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 800; color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .username {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px; font-weight: 700; color: #F8FAFC; margin-bottom: 3px;
+  }
+  /* Country / Region row */
+  .country-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 4px;
+  }
+  .country-flag {
+    width: 16px;
+    height: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Using CSS flag approximation */
+    position: relative;
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+  .flag-fr {
+    background: linear-gradient(90deg, #002395 0% 33%, #fff 33% 66%, #ED2939 66% 100%);
+  }
+  .country-name {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+  }
+  .tier-text {
+    font-size: 8px; font-weight: 700; letter-spacing: 0.25em; color: var(--accent); opacity: 0.45;
+  }
+  .divider {
+    width: 55%; height: 1px; margin: 12px 0;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+  }
+  .footer-text {
+    font-size: 7px; letter-spacing: 0.2em; color: rgba(255,255,255,0.08);
+    padding-bottom: 14px;
+  }
+
+  /* ═══ TIER VARIABLES ═══ */
+  .card.bronze {
+    --accent: #E8A854; --accent-dim: rgba(232,168,84,0.2); --accent-glow: rgba(232,168,84,0.3);
+    --card-bg: linear-gradient(170deg, #1A1208 0%, #241A0D 50%, #1A1208 100%);
+    --crest-gradient: linear-gradient(180deg, #E8A854, #CD7F32);
+    --crest-text-color: #1A1208;
+    --ring-gradient: linear-gradient(180deg, #E8A854, #8B6830);
+    --shimmer-color: rgba(232,168,84,0.1);
+    --stat-accent: #E8A854; --stat-accent-dim: rgba(232,168,84,0.12); --stat-border: rgba(232,168,84,0.18);
+    --stat-bg: rgba(232,168,84,0.04); --stat-bar: linear-gradient(90deg, #8B6830, #E8A854);
+    box-shadow: 0 0 50px rgba(205,127,50,0.2), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card.argent {
+    --accent: #8EC8E8; --accent-dim: rgba(142,200,232,0.2); --accent-glow: rgba(142,200,232,0.3);
+    --card-bg: linear-gradient(170deg, #0C1424 0%, #14203A 50%, #0C1424 100%);
+    --crest-gradient: linear-gradient(180deg, #8EC8E8, #5A9CBC);
+    --crest-text-color: #0C1424;
+    --ring-gradient: linear-gradient(180deg, #8EC8E8, #5A8CAC);
+    --shimmer-color: rgba(212,224,237,0.15);
+    --stat-accent: #B8D8EE; --stat-accent-dim: rgba(142,200,232,0.12); --stat-border: rgba(142,200,232,0.18);
+    --stat-bg: rgba(142,200,232,0.04); --stat-bar: linear-gradient(90deg, #5A9CBC, #B8D8EE);
+    box-shadow: 0 0 60px rgba(142,200,232,0.25), 0 0 120px rgba(142,200,232,0.08), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card.diamant {
+    --accent: #00D4FF; --accent-dim: rgba(0,212,255,0.2); --accent-glow: rgba(0,212,255,0.35);
+    --card-bg: linear-gradient(170deg, #061420 0%, #0E2438 50%, #061420 100%);
+    --crest-gradient: linear-gradient(180deg, #00D4FF, #0088AA);
+    --crest-text-color: #061420;
+    --ring-gradient: linear-gradient(180deg, #00D4FF, #0098CC);
+    --shimmer-color: rgba(0,212,255,0.12);
+    --stat-accent: #00D4FF; --stat-accent-dim: rgba(0,212,255,0.12); --stat-border: rgba(0,212,255,0.22);
+    --stat-bg: rgba(0,212,255,0.04); --stat-bar: linear-gradient(90deg, #0088AA, #00D4FF);
+    box-shadow: 0 0 65px rgba(0,212,255,0.3), 0 0 130px rgba(0,212,255,0.1), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card.legende {
+    --accent: #FFD700; --accent-dim: rgba(255,215,0,0.25); --accent-glow: rgba(255,215,0,0.4);
+    --card-bg: linear-gradient(170deg, #1A0E02 0%, #2A1A08 50%, #0A1A12 70%, #1A0E02 100%);
+    --crest-gradient: linear-gradient(180deg, #FFD700, #FF9500);
+    --crest-text-color: #1A0E02;
+    --ring-gradient: linear-gradient(180deg, #FFD700, #CC8800);
+    --shimmer-color: rgba(255,215,0,0.15);
+    --stat-accent: #FFE44D; --stat-accent-dim: rgba(255,215,0,0.12); --stat-border: rgba(255,215,0,0.22);
+    --stat-bg: rgba(255,215,0,0.04); --stat-bar: linear-gradient(90deg, #CC8800, #FFE44D);
+    box-shadow: 0 0 70px rgba(255,215,0,0.35), 0 0 140px rgba(255,215,0,0.12), 0 25px 50px rgba(0,0,0,0.5);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS VARIANT 1 — "INLINE BARS"
+     Compact horizontal bars, chiffre à droite
+     ═══════════════════════════════════════════ */
+  .stats-v1 {
+    width: 100%;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+  }
+  .sv1-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--stat-bg);
+    border: 1px solid var(--stat-border);
+    transition: background 0.2s;
+  }
+  .sv1-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    width: 30px;
+    flex-shrink: 0;
+  }
+  .sv1-track {
+    flex: 1;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .sv1-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--stat-bar);
+  }
+  .sv1-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--stat-accent);
+    width: 26px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS VARIANT 2 — "GLASS GRID"
+     2 columns, rounded glass cards with glow
+     ═══════════════════════════════════════════ */
+  .stats-v2 {
+    width: 100%;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    flex: 1;
+  }
+  .sv2-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px;
+    border-radius: 14px;
+    background: var(--stat-bg);
+    border: 1px solid var(--stat-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .sv2-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+    border-radius: 14px 14px 0 0;
+    pointer-events: none;
+  }
+  .sv2-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--stat-accent);
+    position: relative;
+    z-index: 1;
+  }
+  .sv2-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  /* Glow dot under the number for high stats */
+  .sv2-item.elite .sv2-val {
+    text-shadow: 0 0 20px var(--accent-glow);
+  }
+  .sv2-item.elite {
+    border-color: var(--accent-dim);
+    animation: sg-pulse 2s ease-in-out infinite;
+  }
+  @keyframes sg-pulse {
+    0%, 100% { box-shadow: 0 0 8px var(--stat-accent-dim); }
+    50% { box-shadow: 0 0 16px var(--accent-dim); }
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS VARIANT 3 — "CIRCULAR GAUGES"
+     Mini circular progress + value inside
+     ═══════════════════════════════════════════ */
+  .stats-v3 {
+    width: 100%;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    flex: 1;
+  }
+  .sv3-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+  }
+  .sv3-ring-wrap {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+  .sv3-ring-wrap svg {
+    width: 60px;
+    height: 60px;
+    transform: rotate(-90deg);
+  }
+  .sv3-ring-bg {
+    fill: none;
+    stroke: rgba(255,255,255,0.05);
+    stroke-width: 3;
+  }
+  .sv3-ring-fill {
+    fill: none;
+    stroke: var(--stat-accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 163;
+    stroke-dashoffset: var(--offset);
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+    transition: stroke-dashoffset 1s ease;
+  }
+  .sv3-val-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .sv3-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--stat-accent);
+    line-height: 1;
+  }
+  .sv3-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+  }
+
+  .sep { height: 1px; width: 100%; max-width: 900px; background: #1E293B; margin: 70px auto 0; }
+</style>
+</head>
+<body>
+
+<h1>Design B "Shield" — Variantes Stats + Pays</h1>
+<p class="subtitle">M&ecirc;me structure (cr&ecirc;te, avatar hex, lignes verticales). 3 fa&ccedil;ons d'afficher les stats.<br>Le drapeau du pays est ajout&eacute; sous le pseudo.</p>
+
+<!-- ═══════════════════════════════════════
+     VARIANTE 1 — INLINE BARS
+     ═══════════════════════════════════════ -->
+<div class="section-title">Variante 1 — "Inline Bars"</div>
+<div class="section-desc">Stats en barres horizontales compactes. Lisible, clean, chaque stat a sa barre de progression color&eacute;e + le chiffre &agrave; droite. Facile &agrave; lire m&ecirc;me en petit.</div>
+
+<div class="cards-row">
+  <!-- Bronze V1 -->
+  <div>
+    <div class="card bronze">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">72</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">BRONZE</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v1">
+          <div class="sv1-item"><span class="sv1-label">PAC</span><div class="sv1-track"><div class="sv1-fill" style="width:68%"></div></div><span class="sv1-val">68</span></div>
+          <div class="sv1-item"><span class="sv1-label">MON</span><div class="sv1-track"><div class="sv1-fill" style="width:74%"></div></div><span class="sv1-val">74</span></div>
+          <div class="sv1-item"><span class="sv1-label">VAL</span><div class="sv1-track"><div class="sv1-fill" style="width:70%"></div></div><span class="sv1-val">70</span></div>
+          <div class="sv1-item"><span class="sv1-label">SPR</span><div class="sv1-track"><div class="sv1-fill" style="width:75%"></div></div><span class="sv1-val">75</span></div>
+          <div class="sv1-item"><span class="sv1-label">END</span><div class="sv1-track"><div class="sv1-fill" style="width:71%"></div></div><span class="sv1-val">71</span></div>
+          <div class="sv1-item"><span class="sv1-label">RES</span><div class="sv1-track"><div class="sv1-fill" style="width:65%"></div></div><span class="sv1-val">65</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Bronze</div>
+  </div>
+
+  <!-- Argent V1 -->
+  <div>
+    <div class="card argent">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">78</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">ARGENT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v1">
+          <div class="sv1-item"><span class="sv1-label">PAC</span><div class="sv1-track"><div class="sv1-fill" style="width:76%"></div></div><span class="sv1-val">76</span></div>
+          <div class="sv1-item"><span class="sv1-label">MON</span><div class="sv1-track"><div class="sv1-fill" style="width:80%"></div></div><span class="sv1-val">80</span></div>
+          <div class="sv1-item"><span class="sv1-label">VAL</span><div class="sv1-track"><div class="sv1-fill" style="width:77%"></div></div><span class="sv1-val">77</span></div>
+          <div class="sv1-item"><span class="sv1-label">SPR</span><div class="sv1-track"><div class="sv1-fill" style="width:82%"></div></div><span class="sv1-val">82</span></div>
+          <div class="sv1-item"><span class="sv1-label">END</span><div class="sv1-track"><div class="sv1-fill" style="width:78%"></div></div><span class="sv1-val">78</span></div>
+          <div class="sv1-item"><span class="sv1-label">RES</span><div class="sv1-track"><div class="sv1-fill" style="width:73%"></div></div><span class="sv1-val">73</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Diamant V1 -->
+  <div>
+    <div class="card diamant">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:15%;--d:4s;--dl:0s;background:#00D4FF;"></div>
+        <div class="pt" style="--x:45%;--d:5s;--dl:1s;background:#B9F2FF;"></div>
+        <div class="pt" style="--x:75%;--d:3.5s;--dl:2s;background:#00D4FF;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">91</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">DIAMANT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v1">
+          <div class="sv1-item"><span class="sv1-label">PAC</span><div class="sv1-track"><div class="sv1-fill" style="width:90%"></div></div><span class="sv1-val">90</span></div>
+          <div class="sv1-item"><span class="sv1-label">MON</span><div class="sv1-track"><div class="sv1-fill" style="width:93%"></div></div><span class="sv1-val">93</span></div>
+          <div class="sv1-item"><span class="sv1-label">VAL</span><div class="sv1-track"><div class="sv1-fill" style="width:89%"></div></div><span class="sv1-val">89</span></div>
+          <div class="sv1-item"><span class="sv1-label">SPR</span><div class="sv1-track"><div class="sv1-fill" style="width:94%"></div></div><span class="sv1-val">94</span></div>
+          <div class="sv1-item"><span class="sv1-label">END</span><div class="sv1-track"><div class="sv1-fill" style="width:91%"></div></div><span class="sv1-val">91</span></div>
+          <div class="sv1-item"><span class="sv1-label">RES</span><div class="sv1-track"><div class="sv1-fill" style="width:88%"></div></div><span class="sv1-val">88</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende V1 -->
+  <div>
+    <div class="card legende">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div><div class="rainbow"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:10%;--d:4s;--dl:0s;background:#FFD700;"></div>
+        <div class="pt" style="--x:30%;--d:5s;--dl:1s;background:#FFE44D;"></div>
+        <div class="pt" style="--x:50%;--d:3.5s;--dl:0.5s;background:#FFAA00;"></div>
+        <div class="pt" style="--x:70%;--d:4.5s;--dl:2s;background:#FFD700;"></div>
+        <div class="pt" style="--x:90%;--d:5.5s;--dl:1.5s;background:#FFE44D;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">96</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">LEGENDE</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v1">
+          <div class="sv1-item"><span class="sv1-label">PAC</span><div class="sv1-track"><div class="sv1-fill" style="width:95%"></div></div><span class="sv1-val">95</span></div>
+          <div class="sv1-item"><span class="sv1-label">MON</span><div class="sv1-track"><div class="sv1-fill" style="width:97%"></div></div><span class="sv1-val">97</span></div>
+          <div class="sv1-item"><span class="sv1-label">VAL</span><div class="sv1-track"><div class="sv1-fill" style="width:94%"></div></div><span class="sv1-val">94</span></div>
+          <div class="sv1-item"><span class="sv1-label">SPR</span><div class="sv1-track"><div class="sv1-fill" style="width:98%"></div></div><span class="sv1-val">98</span></div>
+          <div class="sv1-item"><span class="sv1-label">END</span><div class="sv1-track"><div class="sv1-fill" style="width:96%"></div></div><span class="sv1-val">96</span></div>
+          <div class="sv1-item"><span class="sv1-label">RES</span><div class="sv1-track"><div class="sv1-fill" style="width:93%"></div></div><span class="sv1-val">93</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- ═══════════════════════════════════════
+     VARIANTE 2 — GLASS GRID
+     ═══════════════════════════════════════ -->
+<div class="section-title">Variante 2 — "Glass Grid"</div>
+<div class="section-desc">Stats en grille 3x2 de petites cartes glass avec reflet. Les stats &eacute;lites (90+) pulsent. Plus compact, plus visuel, id&eacute;al pour partage Instagram.</div>
+
+<div class="cards-row">
+  <!-- Argent V2 -->
+  <div>
+    <div class="card argent">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">78</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">ARGENT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v2">
+          <div class="sv2-item"><span class="sv2-val">76</span><span class="sv2-label">PAC</span></div>
+          <div class="sv2-item"><span class="sv2-val">80</span><span class="sv2-label">MON</span></div>
+          <div class="sv2-item"><span class="sv2-val">77</span><span class="sv2-label">VAL</span></div>
+          <div class="sv2-item"><span class="sv2-val">82</span><span class="sv2-label">SPR</span></div>
+          <div class="sv2-item"><span class="sv2-val">78</span><span class="sv2-label">END</span></div>
+          <div class="sv2-item"><span class="sv2-val">73</span><span class="sv2-label">RES</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Diamant V2 -->
+  <div>
+    <div class="card diamant">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:20%;--d:4s;--dl:0s;background:#00D4FF;"></div>
+        <div class="pt" style="--x:50%;--d:5s;--dl:1s;background:#B9F2FF;"></div>
+        <div class="pt" style="--x:80%;--d:3.5s;--dl:2s;background:#00D4FF;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">91</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">DIAMANT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v2">
+          <div class="sv2-item elite"><span class="sv2-val">90</span><span class="sv2-label">PAC</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">93</span><span class="sv2-label">MON</span></div>
+          <div class="sv2-item"><span class="sv2-val">89</span><span class="sv2-label">VAL</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">94</span><span class="sv2-label">SPR</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">91</span><span class="sv2-label">END</span></div>
+          <div class="sv2-item"><span class="sv2-val">88</span><span class="sv2-label">RES</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende V2 -->
+  <div>
+    <div class="card legende">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div><div class="rainbow"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:10%;--d:4s;--dl:0s;background:#FFD700;"></div>
+        <div class="pt" style="--x:35%;--d:5s;--dl:1s;background:#FFE44D;"></div>
+        <div class="pt" style="--x:55%;--d:3.5s;--dl:0.5s;background:#FFAA00;"></div>
+        <div class="pt" style="--x:80%;--d:4.5s;--dl:2s;background:#FFD700;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">96</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">LEGENDE</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v2">
+          <div class="sv2-item elite"><span class="sv2-val">95</span><span class="sv2-label">PAC</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">97</span><span class="sv2-label">MON</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">94</span><span class="sv2-label">VAL</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">98</span><span class="sv2-label">SPR</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">96</span><span class="sv2-label">END</span></div>
+          <div class="sv2-item elite"><span class="sv2-val">93</span><span class="sv2-label">RES</span></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- ═══════════════════════════════════════
+     VARIANTE 3 — CIRCULAR GAUGES
+     ═══════════════════════════════════════ -->
+<div class="section-title">Variante 3 — "Circular Gauges"</div>
+<div class="section-desc">Stats en jauges circulaires. Le cercle se remplit selon la note. Le chiffre est au centre. Tr&egrave;s visuel, effet gaming fort.</div>
+
+<div class="cards-row">
+  <!-- Argent V3 -->
+  <div>
+    <div class="card argent">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">78</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">ARGENT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v3">
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:52"/></svg><div class="sv3-val-center"><span class="sv3-val">76</span><span class="sv3-label">PAC</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:33"/></svg><div class="sv3-val-center"><span class="sv3-val">80</span><span class="sv3-label">MON</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:38"/></svg><div class="sv3-val-center"><span class="sv3-val">77</span><span class="sv3-label">VAL</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:29"/></svg><div class="sv3-val-center"><span class="sv3-val">82</span><span class="sv3-label">SPR</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:36"/></svg><div class="sv3-val-center"><span class="sv3-val">78</span><span class="sv3-label">END</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:44"/></svg><div class="sv3-val-center"><span class="sv3-val">73</span><span class="sv3-label">RES</span></div></div></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Diamant V3 -->
+  <div>
+    <div class="card diamant">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:20%;--d:4s;--dl:0s;background:#00D4FF;"></div>
+        <div class="pt" style="--x:60%;--d:5s;--dl:1s;background:#B9F2FF;"></div>
+        <div class="pt" style="--x:85%;--d:3.5s;--dl:2s;background:#00D4FF;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">91</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">DIAMANT</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v3">
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:16"/></svg><div class="sv3-val-center"><span class="sv3-val">90</span><span class="sv3-label">PAC</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:11"/></svg><div class="sv3-val-center"><span class="sv3-val">93</span><span class="sv3-label">MON</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:18"/></svg><div class="sv3-val-center"><span class="sv3-val">89</span><span class="sv3-label">VAL</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:10"/></svg><div class="sv3-val-center"><span class="sv3-val">94</span><span class="sv3-label">SPR</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:15"/></svg><div class="sv3-val-center"><span class="sv3-val">91</span><span class="sv3-label">END</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:20"/></svg><div class="sv3-val-center"><span class="sv3-val">88</span><span class="sv3-label">RES</span></div></div></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende V3 -->
+  <div>
+    <div class="card legende">
+      <div class="bg-layer"></div><div class="shimmer-ov"></div><div class="scan-ov"></div><div class="rainbow"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vl vl-l"></div><div class="vl vl-r"></div>
+      <div class="particles">
+        <div class="pt" style="--x:10%;--d:4s;--dl:0s;background:#FFD700;"></div>
+        <div class="pt" style="--x:35%;--d:5s;--dl:1s;background:#FFE44D;"></div>
+        <div class="pt" style="--x:55%;--d:3.5s;--dl:0.5s;background:#FFAA00;"></div>
+        <div class="pt" style="--x:80%;--d:4.5s;--dl:2s;background:#FFD700;"></div>
+      </div>
+      <div class="content">
+        <div class="top-section">
+          <div class="ovr-block"><div class="ovr-val">96</div><div class="ovr-lbl">OVERALL</div></div>
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+          <div class="username">HugoMNR</div>
+          <div class="country-row"><div class="country-flag flag-fr"></div><span class="country-name">France</span></div>
+          <div class="tier-text">LEGENDE</div>
+          <div class="divider"></div>
+        </div>
+        <div class="stats-v3">
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:8"/></svg><div class="sv3-val-center"><span class="sv3-val">95</span><span class="sv3-label">PAC</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:5"/></svg><div class="sv3-val-center"><span class="sv3-val">97</span><span class="sv3-label">MON</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:10"/></svg><div class="sv3-val-center"><span class="sv3-val">94</span><span class="sv3-label">VAL</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:3"/></svg><div class="sv3-val-center"><span class="sv3-val">98</span><span class="sv3-label">SPR</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:7"/></svg><div class="sv3-val-center"><span class="sv3-val">96</span><span class="sv3-label">END</span></div></div></div>
+          <div class="sv3-item"><div class="sv3-ring-wrap"><svg viewBox="0 0 60 60"><circle class="sv3-ring-bg" cx="30" cy="30" r="26"/><circle class="sv3-ring-fill" cx="30" cy="30" r="26" style="--offset:11"/></svg><div class="sv3-val-center"><span class="sv3-val">93</span><span class="sv3-label">RES</span></div></div></div>
+        </div>
+        <div class="footer-text">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<div style="text-align:center; color:#334155; font-size:12px; margin:60px 0 20px; padding-top:30px; border-top: 1px solid #1E293B; max-width:700px; margin-left:auto; margin-right:auto; line-height:1.7;">
+  <strong style="color:#94A3B8;">R&eacute;cap :</strong><br>
+  <span style="color:#64748B;">
+    <b>V1 Inline Bars</b> = clean, lisible, style app fitness premium<br>
+    <b>V2 Glass Grid</b> = compact, visuel, id&eacute;al story Instagram<br>
+    <b>V3 Circular Gauges</b> = gaming, dynamique, effet jauge<br><br>
+    Tu peux aussi mixer (ex: Glass Grid mais avec barres en dessous).<br>
+    Dis-moi ta pr&eacute;f&eacute;rence et j'impl&eacute;mente direct.
+  </span>
+</div>
+
+<div style="height:80px"></div>
+</body>
+</html>

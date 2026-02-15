@@ -17,13 +17,13 @@ interface FlipCardProps {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
 };
 
-const STAT_LABELS = ["PAC", "MON", "VAL", "SPR", "END", "RES"] as const;
+const STAT_LABELS = ["VIT", "MON", "TEC", "SPR", "END", "PUI"] as const;
 
 function getStatValues(stats: ComputedStats): number[] {
   return [stats.pac, stats.mon, stats.val, stats.spr, stats.end, stats.res];

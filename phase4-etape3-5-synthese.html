@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCARD FUT — Étape 3.5 : Synthèse des Intégrations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0A0A12;--bg-1:#12121E;--bg-2:#1A1A2E;--bg-card:#16162A;--bg-hover:#1E1E38;--bg-el:#20203A;
+  --accent:#6C5CE7;--accent-l:#A29BFE;--mint:#00F5D4;--coral:#FF6B6B;--gold:#FDCB6E;--sky:#74B9FF;
+  --gp:linear-gradient(135deg,#6C5CE7,#A29BFE);--gh:linear-gradient(135deg,#6C5CE7,#00F5D4 50%,#74B9FF);
+  --ge:linear-gradient(135deg,#FF6B6B,#FDCB6E);--gf:linear-gradient(135deg,#00F5D4,#74B9FF);
+  --gg:linear-gradient(135deg,#FDCB6E,#FF6B6B 50%,#6C5CE7);
+  --t1:#F0F0F8;--t2:#A0A0B8;--t3:#6B6B80;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);
+  --r:12px;--rl:20px;--rx:28px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:var(--t1);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .4s ease}
+.nav.scrolled{background:rgba(10,10,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.nav-logo span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);background:rgba(0,245,212,.08);padding:6px 14px;border-radius:100px;border:1px solid rgba(0,245,212,.2)}
+
+.hero{min-height:50vh;display:flex;align-items:center;padding-top:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(0,245,212,.08),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.25);padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500;color:var(--mint);margin-bottom:32px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:20px}
+.hero h1 .gt{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--t2);max-width:600px;line-height:1.8}
+
+section{padding:80px 0}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--mint);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.s-label::before{content:'';width:24px;height:1px;background:var(--mint)}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.s-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:48px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   RECAP CARDS GRID
+   ═══════════════════════════════════════ */
+.recap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-bottom:48px}
+.recap-card{
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);
+  overflow:hidden;cursor:default;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+.recap-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.1)}
+.rc-header{
+  padding:20px 24px 16px;
+  position:relative;overflow:hidden;
+}
+.rc-header::before{
+  content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;
+  pointer-events:none;opacity:.5;
+}
+.rc-header.rch-story::before{background:radial-gradient(circle,rgba(253,203,110,.15),transparent)}
+.rc-header.rch-home::before{background:radial-gradient(circle,rgba(108,92,231,.15),transparent)}
+.rc-header.rch-profil::before{background:radial-gradient(circle,rgba(0,245,212,.12),transparent)}
+.rc-header.rch-classement::before{background:radial-gradient(circle,rgba(255,107,107,.12),transparent)}
+
+.rc-icon{font-size:28px;margin-bottom:8px}
+.rc-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.rc-sub{font-size:12px;color:var(--t2);line-height:1.6}
+
+.rc-body{padding:16px 24px 20px;border-top:1px solid var(--b1)}
+.rc-stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.rc-stat-row:last-child{border-bottom:none}
+.rc-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.rc-stat-val{font-size:12px;font-weight:600}
+
+.rc-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500}
+.rc-tag-green{background:rgba(0,245,212,.08);color:var(--mint);border:1px solid rgba(0,245,212,.15)}
+.rc-tag-purple{background:rgba(108,92,231,.08);color:var(--accent-l);border:1px solid rgba(108,92,231,.15)}
+.rc-tag-gold{background:rgba(253,203,110,.08);color:var(--gold);border:1px solid rgba(253,203,110,.15)}
+.rc-tag-coral{background:rgba(255,107,107,.08);color:var(--coral);border:1px solid rgba(255,107,107,.15)}
+
+/* ═══════════════════════════════════════
+   CARD SIZES COMPARISON
+   ═══════════════════════════════════════ */
+.sizes-row{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:24px;margin-bottom:48px;flex-wrap:wrap;
+  padding:40px 0;
+}
+.size-item{text-align:center}
+.size-card{
+  border-radius:10px;position:relative;overflow:hidden;
+  margin:0 auto 8px;
+  border:1px solid rgba(108,92,231,.2);
+}
+.size-card-bg{position:absolute;inset:0;background:linear-gradient(160deg,#12102A,#2A2050);border-radius:10px}
+.size-card-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px}
+.size-card-ovr{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1;background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.size-card-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:rgba(108,92,231,.15);color:rgba(162,155,254,.5)}
+.size-label{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px}
+.size-dim{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3)}
+.size-context{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent-l);margin-top:2px}
+
+/* ═══════════════════════════════════════
+   MASTER TABLE
+   ═══════════════════════════════════════ */
+.master-table-wrap{overflow-x:auto;margin-bottom:48px;border:1px solid var(--b1);border-radius:var(--rl)}
+.master-table{width:100%;border-collapse:collapse;min-width:900px}
+.master-table thead{background:rgba(255,255,255,.02)}
+.master-table th{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--t3);padding:14px 12px;text-align:left;
+  border-bottom:1px solid var(--b1);
+  position:sticky;top:0;background:var(--bg-card);
+}
+.master-table th:first-child{padding-left:20px}
+.master-table td{
+  font-size:12px;padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  color:var(--t2);vertical-align:top;
+}
+.master-table td:first-child{padding-left:20px;font-weight:600;color:var(--t1)}
+.master-table tr:last-child td{border-bottom:none}
+.master-table tr:hover td{background:rgba(108,92,231,.03)}
+
+.mt-emoji{font-size:16px;margin-right:4px}
+.mt-bold{font-weight:600;color:var(--t1)}
+.mt-code{font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(108,92,231,.1);padding:2px 6px;border-radius:4px;color:var(--accent-l)}
+.mt-check{color:var(--mint);font-weight:700}
+.mt-cross{color:var(--t3);opacity:.4}
+
+/* ═══════════════════════════════════════
+   FLOW DIAGRAM
+   ═══════════════════════════════════════ */
+.flow-diagram{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;flex-wrap:wrap;margin-bottom:48px;
+  padding:32px;background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--rl);
+}
+.flow-node{
+  padding:12px 16px;border-radius:12px;
+  text-align:center;min-width:100px;
+  position:relative;
+}
+.flow-node-icon{font-size:20px;margin-bottom:4px}
+.flow-node-label{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700}
+.flow-node-sub{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3)}
+
+.flow-node.fn-ride{background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.2)}
+.flow-node.fn-calc{background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.15)}
+.flow-node.fn-card{background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.15)}
+.flow-node.fn-home{background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12)}
+.flow-node.fn-profil{background:rgba(0,245,212,.06);border:1px solid rgba(0,245,212,.1)}
+.flow-node.fn-class{background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.12)}
+.flow-node.fn-story{background:rgba(253,203,110,.06);border:1px solid rgba(253,203,110,.12)}
+.flow-node.fn-viral{background:rgba(116,185,255,.06);border:1px solid rgba(116,185,255,.12)}
+
+.flow-arrow{font-size:16px;color:var(--t3);flex-shrink:0}
+
+/* ═══════════════════════════════════════
+   KPI SECTION
+   ═══════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:48px}
+.kpi-card{
+  background:var(--bg-card);border:1px solid var(--b1);border-radius:var(--r);
+  padding:20px;text-align:center;
+}
+.kpi-val{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:2px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--t2)}
+
+/* ═══════════════════════════════════════
+   TECH STACK
+   ═══════════════════════════════════════ */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:48px}
+.tech-item{
+  padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:var(--r);
+}
+.tech-category{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.tech-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
+.tech-desc{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* ═══════════════════════════════════════
+   DELIVERABLES INDEX
+   ═══════════════════════════════════════ */
+.deliv-list{margin-bottom:48px}
+.deliv-item{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 20px;
+  background:var(--bg-card);border:1px solid var(--b1);
+  border-radius:var(--r);margin-bottom:8px;
+  transition:all .3s;
+}
+.deliv-item:hover{border-color:rgba(108,92,231,.2);background:var(--bg-hover)}
+.deliv-num{
+  font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.deliv-num.dn-done{background:rgba(0,245,212,.08);color:var(--mint);border:1px solid rgba(0,245,212,.15)}
+.deliv-info{flex:1}
+.deliv-title{font-size:14px;font-weight:600;margin-bottom:1px}
+.deliv-desc{font-size:11px;color:var(--t3)}
+.deliv-status{font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 10px;border-radius:6px}
+.deliv-status.ds-done{background:rgba(0,245,212,.08);color:var(--mint);border:1px solid rgba(0,245,212,.15)}
+.deliv-status.ds-next{background:rgba(253,203,110,.08);color:var(--gold);border:1px solid rgba(253,203,110,.15)}
+
+.next-section{text-align:center;padding:80px 0 60px}
+.footer{padding:32px 0;border-top:1px solid var(--b1);text-align:center}
+.footer p{font-size:12px;color:var(--t3)}
+
+@media(max-width:900px){
+  .recap-grid{grid-template-columns:1fr}
+  .sizes-row{gap:16px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .tech-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">VELO<span>CARD</span> <span style="font-size:13px;color:var(--gold);font-weight:500;margin-left:8px">FUT Edition</span></div>
+    <div class="nav-phase">Étape 3.5 / 04 — Synthèse</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">✅ Synthèse Complète — Phase 4 Étape 3</div>
+    <h1>Tout est<br><span class="gt">Connecté</span></h1>
+    <p class="hero-sub">Récap de toutes les intégrations du système de cartes FUT dans l'app VeloCard. 4 points de contact, 5 tailles de carte, 1 système cohérent.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — RECAP DES 4 INTÉGRATIONS
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Vue d'Ensemble</div>
+    <h2 class="s-title reveal">Les 4 Points de Contact</h2>
+    <p class="s-desc reveal">La carte athlète est présente partout dans l'app. Chaque écran a son format adapté et son rôle dans le parcours utilisateur.</p>
+
+    <div class="recap-grid">
+
+      <!-- Story -->
+      <div class="recap-card reveal">
+        <div class="rc-header rch-story">
+          <div class="rc-icon">📱</div>
+          <div class="rc-title">Story Instagram</div>
+          <div class="rc-sub">Format 9:16 spectaculaire pour le partage social. Le "money shot" viral qui fait télécharger l'app.</div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-stat-row"><div class="rc-stat-label">Format</div><div class="rc-stat-val">1080 × 1920px</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Carte</div><div class="rc-stat-val">540 × 788px (centrée)</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Variantes</div><div class="rc-stat-val">5 tiers + 3 level-up</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Export</div><div class="rc-stat-val">PNG / MP4 15fps</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Rôle</div><div class="rc-tag rc-tag-gold">Acquisition virale</div></div>
+        </div>
+      </div>
+
+      <!-- Home -->
+      <div class="recap-card reveal">
+        <div class="rc-header rch-home">
+          <div class="rc-icon">🏠</div>
+          <div class="rc-title">Widget Home</div>
+          <div class="rc-sub">Premier élément visible du dashboard. Identité + progression + stats. Ancrage quotidien.</div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-stat-row"><div class="rc-stat-label">Mini-carte</div><div class="rc-stat-val">64 × 92px</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Widget</div><div class="rc-stat-val">100% × ~120px</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Contenu</div><div class="rc-stat-val">OVR + 6 stats + progress bar</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Tap</div><div class="rc-stat-val">→ Profil (shared element)</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Rôle</div><div class="rc-tag rc-tag-purple">Engagement quotidien</div></div>
+        </div>
+      </div>
+
+      <!-- Profil -->
+      <div class="recap-card reveal">
+        <div class="rc-header rch-profil">
+          <div class="rc-icon">👤</div>
+          <div class="rc-title">Écran Profil</div>
+          <div class="rc-sub">La carte en vedette avec flip card verso. Radar, historique, badges, et bouton partage Story.</div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-stat-row"><div class="rc-stat-label">Carte front</div><div class="rc-stat-val">180 × 262px</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Flip card</div><div class="rc-stat-val">100% × 280px container</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Verso</div><div class="rc-stat-val">Radar + évolution + historique</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Banner</div><div class="rc-stat-val">Tier-colored gradient</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Rôle</div><div class="rc-tag rc-tag-green">Identité & fierté</div></div>
+        </div>
+      </div>
+
+      <!-- Classements -->
+      <div class="recap-card reveal">
+        <div class="rc-header rch-classement">
+          <div class="rc-icon">🏆</div>
+          <div class="rc-title">Classements</div>
+          <div class="rc-sub">Mini-cartes dans le leaderboard + podium Top 3 + preview overlay au tap. Compétition pure.</div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-stat-row"><div class="rc-stat-label">Podium</div><div class="rc-stat-val">88×128 (#1) / 72×104 (#2,3)</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Row</div><div class="rc-stat-val">36 × 52px micro-card</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Preview</div><div class="rc-stat-val">200 × 292px overlay</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Tabs</div><div class="rc-stat-val">Global / Amis / Club / Attribut</div></div>
+          <div class="rc-stat-row"><div class="rc-stat-label">Rôle</div><div class="rc-tag rc-tag-coral">Compétition & rétention</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — CARD SIZES VISUAL
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Système de Tailles</div>
+    <h2 class="s-title reveal">5 Formats, 1 Carte</h2>
+    <p class="s-desc reveal">La même carte athlète déclinée en 5 tailles selon le contexte d'affichage. Chaque format conserve les couleurs, gradients et effets du tier.</p>
+
+    <div class="sizes-row reveal">
+      <!-- XS -->
+      <div class="size-item">
+        <div class="size-card" style="width:36px;height:52px">
+          <div class="size-card-bg"></div>
+          <div class="size-card-inner">
+            <div class="size-card-ovr" style="font-size:12px">74</div>
+            <div class="size-card-avatar" style="width:12px;height:12px;font-size:5px">T</div>
+            <div style="font-size:5px">💎</div>
+          </div>
+        </div>
+        <div class="size-label">XS</div>
+        <div class="size-dim">36 × 52</div>
+        <div class="size-context">Leaderboard row</div>
+      </div>
+
+      <!-- S -->
+      <div class="size-item">
+        <div class="size-card" style="width:64px;height:92px">
+          <div class="size-card-bg"></div>
+          <div class="size-card-inner">
+            <div class="size-card-ovr" style="font-size:20px">74</div>
+            <div class="size-card-avatar" style="width:22px;height:22px;font-size:9px">T</div>
+            <div style="font-size:8px">💎</div>
+          </div>
+        </div>
+        <div class="size-label">S</div>
+        <div class="size-dim">64 × 92</div>
+        <div class="size-context">Widget Home</div>
+      </div>
+
+      <!-- M (Podium) -->
+      <div class="size-item">
+        <div class="size-card" style="width:88px;height:128px">
+          <div class="size-card-bg"></div>
+          <div class="size-card-inner">
+            <div class="size-card-ovr" style="font-size:26px">74</div>
+            <div class="size-card-avatar" style="width:30px;height:30px;font-size:12px">T</div>
+            <div style="font-size:10px">💎</div>
+          </div>
+        </div>
+        <div class="size-label">M</div>
+        <div class="size-dim">88 × 128</div>
+        <div class="size-context">Podium #1</div>
+      </div>
+
+      <!-- L -->
+      <div class="size-item">
+        <div class="size-card" style="width:130px;height:190px;padding:8px">
+          <div class="size-card-bg"></div>
+          <div class="size-card-inner" style="gap:2px">
+            <div class="size-card-ovr" style="font-size:32px">74</div>
+            <div class="size-card-avatar" style="width:40px;height:40px;font-size:16px">T</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700">Thomas B.</div>
+            <div style="font-size:10px">💎</div>
+          </div>
+        </div>
+        <div class="size-label">L</div>
+        <div class="size-dim">180 × 262</div>
+        <div class="size-context">Profil + Story</div>
+      </div>
+
+      <!-- XL (Full, Étape 2) -->
+      <div class="size-item">
+        <div class="size-card" style="width:168px;height:246px;padding:10px">
+          <div class="size-card-bg"></div>
+          <div class="size-card-inner" style="gap:3px">
+            <div class="size-card-ovr" style="font-size:38px">74</div>
+            <div class="size-card-avatar" style="width:52px;height:52px;font-size:22px">T</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">Thomas Berg</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--t3);text-transform:uppercase">Puncheur</div>
+            <div style="font-size:11px">💎 🇧🇪</div>
+          </div>
+        </div>
+        <div class="size-label">XL</div>
+        <div class="size-dim">260 × 380</div>
+        <div class="size-context">Showcase (Étape 2)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — MASTER SPEC TABLE
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Table de Specs Cross-Screen</div>
+    <h2 class="s-title reveal">Matrice Complète</h2>
+    <p class="s-desc reveal">Chaque intégration comparée sur tous les axes : UX, animation, interaction, performance, et rôle business.</p>
+
+    <div class="master-table-wrap reveal">
+      <table class="master-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th><span class="mt-emoji">📱</span> Story</th>
+            <th><span class="mt-emoji">🏠</span> Home</th>
+            <th><span class="mt-emoji">👤</span> Profil</th>
+            <th><span class="mt-emoji">🏆</span> Classements</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Émotion cible</td>
+            <td>"Regarde ma carte !"</td>
+            <td>"Je progresse"</td>
+            <td>"C'est moi"</td>
+            <td>"Je veux monter"</td>
+          </tr>
+          <tr>
+            <td>Taille carte</td>
+            <td class="mt-bold">540×788 (story) / 180×262 (card)</td>
+            <td class="mt-bold">64×92</td>
+            <td class="mt-bold">180×262 (flip)</td>
+            <td class="mt-bold">36×52 (row) / 88×128 (podium)</td>
+          </tr>
+          <tr>
+            <td>Glow animé</td>
+            <td><span class="mt-check">✓</span> Diamant + Légende</td>
+            <td><span class="mt-check">✓</span> Diamant + Légende</td>
+            <td><span class="mt-check">✓</span> Diamant + Légende</td>
+            <td><span class="mt-check">✓</span> Podium uniquement</td>
+          </tr>
+          <tr>
+            <td>Particules</td>
+            <td><span class="mt-check">✓</span> Fond + carte</td>
+            <td><span class="mt-cross">✗</span> Trop petit</td>
+            <td><span class="mt-check">✓</span> Sur la carte</td>
+            <td><span class="mt-cross">✗</span> Perf scroll</td>
+          </tr>
+          <tr>
+            <td>Holographic scan</td>
+            <td><span class="mt-check">✓</span> Diamant + Légende</td>
+            <td><span class="mt-cross">✗</span> Trop petit</td>
+            <td><span class="mt-check">✓</span> Diamant + Légende</td>
+            <td><span class="mt-cross">✗</span> Preview overlay only</td>
+          </tr>
+          <tr>
+            <td>Interaction primaire</td>
+            <td>Share → Instagram</td>
+            <td>Tap → Profil</td>
+            <td>Tap → Flip card</td>
+            <td>Tap → Preview overlay</td>
+          </tr>
+          <tr>
+            <td>Shared Element</td>
+            <td><span class="mt-cross">✗</span> Export image</td>
+            <td><span class="mt-check">✓</span> → Profil card</td>
+            <td><span class="mt-check">✓</span> ← Home widget</td>
+            <td><span class="mt-check">✓</span> Row → Overlay</td>
+          </tr>
+          <tr>
+            <td>Stats visibles</td>
+            <td>6 attrs + ride recap</td>
+            <td>6 attrs (pills)</td>
+            <td>6 attrs + radar (verso)</td>
+            <td>OVR seul (row) / 6 (preview)</td>
+          </tr>
+          <tr>
+            <td>Progression tier</td>
+            <td><span class="mt-cross">✗</span></td>
+            <td><span class="mt-check">✓</span> Barre + label</td>
+            <td><span class="mt-check">✓</span> Via historique verso</td>
+            <td><span class="mt-check">✓</span> Delta hebdo</td>
+          </tr>
+          <tr>
+            <td>Animation entrée</td>
+            <td>N/A (statique/vidéo)</td>
+            <td>Staggered 800ms</td>
+            <td>Shared element + flip</td>
+            <td>Podium bounce + stagger rows</td>
+          </tr>
+          <tr>
+            <td>Haptic feedback</td>
+            <td><span class="mt-cross">✗</span> Export only</td>
+            <td>Light (tap) / Medium (long)</td>
+            <td>Medium (flip)</td>
+            <td>Light (tap row)</td>
+          </tr>
+          <tr>
+            <td>Perf target</td>
+            <td>< 800ms PNG / < 2s MP4</td>
+            <td>< 2ms render</td>
+            <td>< 16ms flip frame</td>
+            <td>< 8ms per row (FlashList)</td>
+          </tr>
+          <tr>
+            <td>KPI principal</td>
+            <td>Taux de partage</td>
+            <td>Taux d'ouverture app</td>
+            <td>Temps sur profil</td>
+            <td>Sessions classement / semaine</td>
+          </tr>
+          <tr>
+            <td>Objectif business</td>
+            <td>K-factor viral > 0.3</td>
+            <td>DAU retention D7 > 40%</td>
+            <td>Partage profil > 15%</td>
+            <td>Sessions > 3/semaine</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — USER FLOW
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Parcours Utilisateur</div>
+    <h2 class="s-title reveal">Le Cycle Vertueux</h2>
+    <p class="s-desc reveal">La carte est au centre d'une boucle d'engagement : rouler → voir sa progression → se comparer → partager → attirer d'autres cyclistes.</p>
+
+    <div class="flow-diagram reveal">
+      <div class="flow-node fn-ride">
+        <div class="flow-node-icon">🚴</div>
+        <div class="flow-node-label">Sortie Vélo</div>
+        <div class="flow-node-sub">GPS + capteurs</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-calc">
+        <div class="flow-node-icon">⚡</div>
+        <div class="flow-node-label">Calcul Stats</div>
+        <div class="flow-node-sub">Pipeline 1-99</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-card">
+        <div class="flow-node-icon">🃏</div>
+        <div class="flow-node-label">Carte MAJ</div>
+        <div class="flow-node-sub">OVR + 6 attrs</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-home">
+        <div class="flow-node-icon">🏠</div>
+        <div class="flow-node-label">Home</div>
+        <div class="flow-node-sub">Widget + progress</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-profil">
+        <div class="flow-node-icon">👤</div>
+        <div class="flow-node-label">Profil</div>
+        <div class="flow-node-sub">Carte complète</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-class">
+        <div class="flow-node-icon">🏆</div>
+        <div class="flow-node-label">Classement</div>
+        <div class="flow-node-sub">Compétition</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-story">
+        <div class="flow-node-icon">📱</div>
+        <div class="flow-node-label">Story</div>
+        <div class="flow-node-sub">Partage social</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node fn-viral">
+        <div class="flow-node-icon">🔄</div>
+        <div class="flow-node-label">Boucle Virale</div>
+        <div class="flow-node-sub">QR → Install</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 5 — KPIs CIBLES
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">KPIs Cibles</div>
+    <h2 class="s-title reveal">Objectifs Mesurables</h2>
+    <p class="s-desc reveal">Les métriques clés pour valider le succès du système de cartes après le lancement.</p>
+
+    <div class="kpi-grid reveal">
+      <div class="kpi-card">
+        <div class="kpi-val" style="background:var(--gf);-webkit-background-clip:text;-webkit-text-fill-color:transparent">30%</div>
+        <div class="kpi-label">Taux de partage Story</div>
+        <div class="kpi-sub">Diamant + Légende après une sortie</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="background:var(--gp);-webkit-background-clip:text;-webkit-text-fill-color:transparent">40%</div>
+        <div class="kpi-label">Rétention D7</div>
+        <div class="kpi-sub">Retour après 7 jours via le widget Home</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">0.3</div>
+        <div class="kpi-label">K-Factor Viral</div>
+        <div class="kpi-sub">Installs générés par chaque utilisateur</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent">3.5×</div>
+        <div class="kpi-label">Sessions / Semaine</div>
+        <div class="kpi-sub">Visites classement comme driver principal</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:var(--mint)">< 2ms</div>
+        <div class="kpi-label">Widget Render</div>
+        <div class="kpi-sub">Performance du composant CardWidget</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:var(--gold)">< 800ms</div>
+        <div class="kpi-label">Story PNG Gen</div>
+        <div class="kpi-sub">Temps de génération de l'image Story</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 6 — TECH STACK RECAP
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Stack Technique</div>
+    <h2 class="s-title reveal">Technologies Recommandées</h2>
+
+    <div class="tech-grid reveal">
+      <div class="tech-item">
+        <div class="tech-category">Framework</div>
+        <div class="tech-name">React Native + Expo</div>
+        <div class="tech-desc">SDK 52+, New Architecture, Fabric renderer pour les animations fluides</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Animations</div>
+        <div class="tech-name">Reanimated 3 + Lottie</div>
+        <div class="tech-desc">UI thread animations pour glow/particules. Lottie pour les séquences level-up</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Rendu Carte</div>
+        <div class="tech-name">React Native Skia</div>
+        <div class="tech-desc">Canvas haute perf pour le rendu des cartes. Shaders custom pour les textures holographiques</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Navigation</div>
+        <div class="tech-name">React Navigation 7</div>
+        <div class="tech-desc">Shared Element Transitions entre Home ↔ Profil ↔ Classements</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Listes</div>
+        <div class="tech-name">FlashList (Shopify)</div>
+        <div class="tech-desc">Recycling des mini-cards dans le leaderboard. < 8ms per item render</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">State</div>
+        <div class="tech-name">Zustand + SWR</div>
+        <div class="tech-desc">Store CardWidget memoized. Cache + revalidation pour les données leaderboard</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Story Export</div>
+        <div class="tech-name">Skia Snapshot + FFmpeg</div>
+        <div class="tech-desc">PNG via makeImageSnapshot(), MP4 via FFmpeg WASM pour Diamant/Légende</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Partage</div>
+        <div class="tech-name">react-native-share</div>
+        <div class="tech-desc">Share sheet natif + deep links Instagram/Snapchat/WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SECTION 7 — DELIVERABLES INDEX
+     ═══════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="s-label reveal">Index des Livrables</div>
+    <h2 class="s-title reveal">Tous les Fichiers Phase 4</h2>
+
+    <div class="deliv-list reveal">
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">1</div>
+        <div class="deliv-info"><div class="deliv-title">Étape 1 — Recherche & Logique</div><div class="deliv-desc">PCM/FUT research, 6 attributs, pipeline data, formules, barèmes, tier mapping</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">2</div>
+        <div class="deliv-info"><div class="deliv-title">Étape 2 — Cartes Visuelles</div><div class="deliv-desc">5 tiers CSS-rendered : Bronze → Légende avec effets croissants</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">3.1</div>
+        <div class="deliv-info"><div class="deliv-title">Story Instagram</div><div class="deliv-desc">Format 9:16, 5 stories par tier, 3 stories level-up, specs & UX flow</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">3.2</div>
+        <div class="deliv-info"><div class="deliv-title">Intégration Home</div><div class="deliv-desc">Widget carte hero, 5 variantes tier, 3 layouts, 8 edge cases</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">3.3</div>
+        <div class="deliv-info"><div class="deliv-title">Intégration Profil</div><div class="deliv-desc">Flip card, banner tier-colored, radar verso, comparaison, profil visiteur</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">3.4</div>
+        <div class="deliv-info"><div class="deliv-title">Intégration Classements</div><div class="deliv-desc">Podium Top 3, leaderboard mini-cards, preview overlay, tabs attributs/amis/club</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-num dn-done">3.5</div>
+        <div class="deliv-info"><div class="deliv-title">Synthèse (ce document)</div><div class="deliv-desc">Récap cross-screen, tailles, matrice specs, flow, KPIs, tech stack</div></div>
+        <div class="deliv-status ds-done">✓ Livré</div>
+      </div>
+      <div class="deliv-item" style="border-color:rgba(253,203,110,.15)">
+        <div class="deliv-num" style="background:rgba(253,203,110,.08);color:var(--gold);border:1px solid rgba(253,203,110,.15)">4</div>
+        <div class="deliv-info"><div class="deliv-title">Étape 4 — Vérification Finale</div><div class="deliv-desc">Contrôle qualité, cohérence cross-screen, checklist investisseur</div></div>
+        <div class="deliv-status ds-next">⏳ Prochaine</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NEXT -->
+<section class="next-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px">Dernière étape</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:12px">Étape 4 — Vérification Finale</div>
+      <div style="font-size:14px;color:var(--t2);max-width:480px;margin:0 auto">Contrôle qualité global, cohérence du design system, et checklist investisseur pour la levée 3-5M€.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>VELOCARD FUT Edition — Étape 3.5 / Phase 4 — Synthèse des Intégrations</p>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50)});
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloCard — Maquettes Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #060D18;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #00F5D4, #6366F1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748B;
+    font-size: 13px;
+    margin-bottom: 50px;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    margin: 60px 0 30px;
+    color: #94A3B8;
+    letter-spacing: 0.05em;
+  }
+  .cards-row {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .card-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #475569;
+    margin-top: 16px;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════
+     DESIGN A — "OBSIDIAN"
+     Angular frame, sharp edges, metallic border
+     ═══════════════════════════════════════ */
+  .card-a {
+    position: relative;
+    width: 320px;
+    height: 520px;
+    border-radius: 20px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .card-a .frame {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    z-index: 1;
+  }
+  .card-a .frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 2px;
+    background: var(--border-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .card-a .inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 28px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    border-radius: 20px;
+  }
+  /* Decorative corner accents */
+  .card-a .corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .card-a .corner-tl { top: 12px; left: 12px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); border-radius: 4px 0 0 0; opacity: 0.5; }
+  .card-a .corner-tr { top: 12px; right: 12px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); border-radius: 0 4px 0 0; opacity: 0.5; }
+  .card-a .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); border-radius: 0 0 0 4px; opacity: 0.5; }
+  .card-a .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); border-radius: 0 0 4px 0; opacity: 0.5; }
+
+  .card-a .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .card-a .brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    color: rgba(255,255,255,0.25);
+  }
+  .card-a .tier-pill {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: var(--accent);
+    background: var(--pill-bg);
+    border: 1px solid var(--accent-dim);
+  }
+  .card-a .avatar-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .card-a .avatar-ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    padding: 3px;
+    background: var(--ring-gradient);
+    box-shadow: var(--avatar-shadow);
+  }
+  .card-a .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1a2235;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+    border: 2px solid rgba(255,255,255,0.08);
+  }
+  .card-a .username {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #F8FAFC;
+    margin-bottom: 4px;
+  }
+  .card-a .tier-sub {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    opacity: 0.6;
+    margin-bottom: 12px;
+  }
+  .card-a .ovr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+    text-shadow: 0 0 40px var(--accent-glow);
+  }
+  .card-a .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+    margin-bottom: 20px;
+  }
+  .card-a .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+  .card-a .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: var(--stat-bg);
+    border: 1px solid var(--stat-border);
+  }
+  .card-a .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--stat-color);
+  }
+  .card-a .stat-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
+  .card-a .footer {
+    margin-top: auto;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.12);
+  }
+
+  /* Shimmer overlay */
+  .card-a .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .card-a .shimmer-overlay::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 30%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, var(--shimmer-color), transparent);
+    transform: rotate(20deg);
+    animation: card-shimmer 4s ease-in-out infinite;
+  }
+  @keyframes card-shimmer {
+    0% { transform: translateX(-100%) rotate(20deg); }
+    100% { transform: translateX(350%) rotate(20deg); }
+  }
+
+  /* Scan lines */
+  .card-a .scan-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    border-radius: 20px;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px);
+  }
+
+  /* ═══ TIER: BRONZE ═══ */
+  .card-a.bronze {
+    --accent: #E8A854;
+    --accent-dim: rgba(232,168,84,0.25);
+    --accent-glow: rgba(232,168,84,0.3);
+    --border-gradient: linear-gradient(180deg, rgba(232,168,84,0.6) 0%, rgba(205,127,50,0.15) 100%);
+    --card-bg: linear-gradient(165deg, #1A1208 0%, #241A0D 40%, #1A1208 100%);
+    --pill-bg: rgba(26,18,8,0.9);
+    --ring-gradient: linear-gradient(180deg, rgba(232,168,84,0.8), rgba(205,127,50,0.3));
+    --avatar-shadow: 0 0 30px rgba(205,127,50,0.4);
+    --shimmer-color: rgba(232,168,84,0.12);
+    --stat-bg: rgba(205,127,50,0.06);
+    --stat-border: rgba(205,127,50,0.12);
+    --stat-color: #E8A854;
+    box-shadow: 0 0 50px rgba(205,127,50,0.2), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  /* ═══ TIER: ARGENT ═══ */
+  .card-a.argent {
+    --accent: #8EC8E8;
+    --accent-dim: rgba(142,200,232,0.25);
+    --accent-glow: rgba(142,200,232,0.3);
+    --border-gradient: linear-gradient(180deg, rgba(142,200,232,0.7) 0%, rgba(184,197,214,0.2) 100%);
+    --card-bg: linear-gradient(165deg, #0C1424 0%, #14203A 40%, #0C1424 100%);
+    --pill-bg: rgba(12,20,36,0.9);
+    --ring-gradient: linear-gradient(180deg, rgba(142,200,232,0.85), rgba(184,197,214,0.35));
+    --avatar-shadow: 0 0 35px rgba(142,200,232,0.45), 0 0 70px rgba(142,200,232,0.15);
+    --shimmer-color: rgba(212,224,237,0.18);
+    --stat-bg: rgba(142,200,232,0.06);
+    --stat-border: rgba(142,200,232,0.12);
+    --stat-color: #B8D8EE;
+    box-shadow: 0 0 60px rgba(142,200,232,0.25), 0 0 120px rgba(142,200,232,0.08), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  /* ═══ TIER: PLATINE ═══ */
+  .card-a.platine {
+    --accent: #A8D8EA;
+    --accent-dim: rgba(168,216,234,0.25);
+    --accent-glow: rgba(168,216,234,0.3);
+    --border-gradient: linear-gradient(180deg, rgba(168,216,234,0.7) 0%, rgba(229,228,226,0.2) 100%);
+    --card-bg: linear-gradient(165deg, #101828 0%, #1A2640 40%, #101828 100%);
+    --pill-bg: rgba(16,24,40,0.9);
+    --ring-gradient: linear-gradient(180deg, rgba(168,216,234,0.8), rgba(229,228,226,0.3));
+    --avatar-shadow: 0 0 35px rgba(168,216,234,0.45);
+    --shimmer-color: rgba(168,216,234,0.15);
+    --stat-bg: rgba(168,216,234,0.06);
+    --stat-border: rgba(168,216,234,0.12);
+    --stat-color: #A8D8EA;
+    box-shadow: 0 0 55px rgba(168,216,234,0.25), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  /* ═══ TIER: DIAMANT ═══ */
+  .card-a.diamant {
+    --accent: #00D4FF;
+    --accent-dim: rgba(0,212,255,0.25);
+    --accent-glow: rgba(0,212,255,0.35);
+    --border-gradient: linear-gradient(180deg, rgba(0,212,255,0.75) 0%, rgba(185,242,255,0.2) 100%);
+    --card-bg: linear-gradient(165deg, #061420 0%, #0E2438 40%, #061420 100%);
+    --pill-bg: rgba(6,20,32,0.9);
+    --ring-gradient: linear-gradient(180deg, rgba(0,212,255,0.9), rgba(185,242,255,0.3));
+    --avatar-shadow: 0 0 40px rgba(0,212,255,0.55), 0 0 80px rgba(0,212,255,0.2);
+    --shimmer-color: rgba(0,212,255,0.15);
+    --stat-bg: rgba(0,212,255,0.06);
+    --stat-border: rgba(0,212,255,0.15);
+    --stat-color: #00D4FF;
+    box-shadow: 0 0 65px rgba(0,212,255,0.3), 0 0 130px rgba(0,212,255,0.1), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  /* ═══ TIER: LEGENDE ═══ */
+  .card-a.legende {
+    --accent: #FFD700;
+    --accent-dim: rgba(255,215,0,0.3);
+    --accent-glow: rgba(255,215,0,0.4);
+    --border-gradient: linear-gradient(180deg, rgba(255,215,0,0.8) 0%, rgba(255,149,0,0.3) 50%, rgba(255,215,0,0.1) 100%);
+    --card-bg: linear-gradient(165deg, #1A0E02 0%, #2A1A08 40%, #0A1A12 70%, #1A0E02 100%);
+    --pill-bg: rgba(26,14,2,0.9);
+    --ring-gradient: linear-gradient(180deg, rgba(255,215,0,0.9), rgba(255,149,0,0.4));
+    --avatar-shadow: 0 0 45px rgba(255,215,0,0.55), 0 0 90px rgba(255,215,0,0.2);
+    --shimmer-color: rgba(255,215,0,0.18);
+    --stat-bg: rgba(255,215,0,0.06);
+    --stat-border: rgba(255,215,0,0.15);
+    --stat-color: #FFE44D;
+    box-shadow: 0 0 70px rgba(255,215,0,0.35), 0 0 140px rgba(255,215,0,0.12), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  /* Rainbow overlay for legende */
+  .card-a.legende .rainbow-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg,
+      rgba(255,0,0,0.04) 0%, rgba(255,165,0,0.04) 16%, rgba(255,255,0,0.04) 33%,
+      rgba(0,255,0,0.04) 50%, rgba(0,0,255,0.04) 66%, rgba(75,0,130,0.04) 83%,
+      rgba(238,130,238,0.04) 100%
+    );
+    animation: hue-spin 6s linear infinite;
+  }
+  @keyframes hue-spin { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+  /* Particles for diamant & legende */
+  .particles-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .prt {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    animation: float-p var(--d) linear infinite;
+    animation-delay: var(--dl);
+    left: var(--x);
+    opacity: 0;
+  }
+  @keyframes float-p {
+    0% { transform: translateY(520px); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-20px) translateX(15px); opacity: 0; }
+  }
+
+  /* ═══════════════════════════════════════
+     DESIGN B — "SHIELD"
+     FIFA-style with crest shape at top
+     More decorative, ornate
+     ═══════════════════════════════════════ */
+  .card-b {
+    position: relative;
+    width: 320px;
+    height: 520px;
+    border-radius: 20px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .card-b .bg-layer {
+    position: absolute;
+    inset: 0;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1.5px solid var(--accent-dim);
+  }
+  /* Decorative top crest */
+  .card-b .crest {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 55px;
+    z-index: 5;
+  }
+  .card-b .crest-shape {
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 50% 80%, 15% 100%);
+    background: var(--crest-gradient);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 8px;
+  }
+  .card-b .crest-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--crest-text);
+  }
+  /* Vertical decorative lines */
+  .card-b .vert-line {
+    position: absolute;
+    top: 60px;
+    bottom: 60px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--accent-dim), transparent);
+    z-index: 3;
+  }
+  .card-b .vert-line.left { left: 16px; }
+  .card-b .vert-line.right { right: 16px; }
+
+  .card-b .content {
+    position: relative;
+    z-index: 4;
+    height: 100%;
+    padding: 65px 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card-b .ovr-block {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .card-b .ovr-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    text-shadow: 0 0 50px var(--accent-glow);
+  }
+  .card-b .ovr-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.25);
+  }
+  .card-b .avatar-section {
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .card-b .avatar-hex {
+    width: 88px;
+    height: 88px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: var(--ring-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 20px var(--accent-glow));
+  }
+  .card-b .avatar-hex-inner {
+    width: 82px;
+    height: 82px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: #0E1828;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .card-b .username {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-bottom: 2px;
+  }
+  .card-b .tier-text {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+  .card-b .divider {
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+    margin-bottom: 16px;
+  }
+  .card-b .stats-2rows {
+    width: 100%;
+  }
+  .card-b .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  .card-b .stat-hex-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card-b .stat-hex {
+    width: 64px;
+    height: 68px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: var(--stat-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-b .stat-hex-inner {
+    width: 58px;
+    height: 62px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: var(--stat-bg-hex);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-b .stat-v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--stat-color);
+  }
+  .card-b .stat-l {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    margin-top: 1px;
+  }
+  .card-b .footer {
+    margin-top: auto;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.1);
+  }
+  .card-b .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .card-b .shimmer-overlay::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 25%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, var(--shimmer-color), transparent);
+    transform: rotate(20deg);
+    animation: card-shimmer 5s ease-in-out infinite;
+  }
+
+  /* Card B tier vars */
+  .card-b.bronze {
+    --accent: #E8A854;
+    --accent-dim: rgba(232,168,84,0.2);
+    --accent-glow: rgba(232,168,84,0.3);
+    --card-bg: linear-gradient(170deg, #1A1208 0%, #241A0D 50%, #1A1208 100%);
+    --crest-gradient: linear-gradient(180deg, #E8A854, #CD7F32);
+    --crest-text: #1A1208;
+    --ring-gradient: linear-gradient(180deg, #E8A854, #8B6830);
+    --shimmer-color: rgba(232,168,84,0.1);
+    --stat-border: rgba(232,168,84,0.2);
+    --stat-bg-hex: linear-gradient(180deg, rgba(30,22,10,0.95), rgba(20,14,6,0.98));
+    --stat-color: #E8A854;
+    box-shadow: 0 0 50px rgba(205,127,50,0.2), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card-b.argent {
+    --accent: #8EC8E8;
+    --accent-dim: rgba(142,200,232,0.2);
+    --accent-glow: rgba(142,200,232,0.3);
+    --card-bg: linear-gradient(170deg, #0C1424 0%, #14203A 50%, #0C1424 100%);
+    --crest-gradient: linear-gradient(180deg, #8EC8E8, #5A9CBC);
+    --crest-text: #0C1424;
+    --ring-gradient: linear-gradient(180deg, #8EC8E8, #5A8CAC);
+    --shimmer-color: rgba(212,224,237,0.15);
+    --stat-border: rgba(142,200,232,0.2);
+    --stat-bg-hex: linear-gradient(180deg, rgba(16,26,46,0.95), rgba(10,18,34,0.98));
+    --stat-color: #B8D8EE;
+    box-shadow: 0 0 60px rgba(142,200,232,0.25), 0 0 120px rgba(142,200,232,0.08), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card-b.platine {
+    --accent: #A8D8EA;
+    --accent-dim: rgba(168,216,234,0.2);
+    --accent-glow: rgba(168,216,234,0.3);
+    --card-bg: linear-gradient(170deg, #101828 0%, #1A2640 50%, #101828 100%);
+    --crest-gradient: linear-gradient(180deg, #A8D8EA, #7EB0C4);
+    --crest-text: #101828;
+    --ring-gradient: linear-gradient(180deg, #A8D8EA, #7EB0C4);
+    --shimmer-color: rgba(168,216,234,0.12);
+    --stat-border: rgba(168,216,234,0.2);
+    --stat-bg-hex: linear-gradient(180deg, rgba(18,28,48,0.95), rgba(12,20,36,0.98));
+    --stat-color: #A8D8EA;
+    box-shadow: 0 0 55px rgba(168,216,234,0.25), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card-b.diamant {
+    --accent: #00D4FF;
+    --accent-dim: rgba(0,212,255,0.2);
+    --accent-glow: rgba(0,212,255,0.35);
+    --card-bg: linear-gradient(170deg, #061420 0%, #0E2438 50%, #061420 100%);
+    --crest-gradient: linear-gradient(180deg, #00D4FF, #0088AA);
+    --crest-text: #061420;
+    --ring-gradient: linear-gradient(180deg, #00D4FF, #0098CC);
+    --shimmer-color: rgba(0,212,255,0.12);
+    --stat-border: rgba(0,212,255,0.25);
+    --stat-bg-hex: linear-gradient(180deg, rgba(8,22,40,0.95), rgba(6,16,30,0.98));
+    --stat-color: #00D4FF;
+    box-shadow: 0 0 65px rgba(0,212,255,0.3), 0 0 130px rgba(0,212,255,0.1), 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .card-b.legende {
+    --accent: #FFD700;
+    --accent-dim: rgba(255,215,0,0.25);
+    --accent-glow: rgba(255,215,0,0.4);
+    --card-bg: linear-gradient(170deg, #1A0E02 0%, #2A1A08 50%, #0A1A12 70%, #1A0E02 100%);
+    --crest-gradient: linear-gradient(180deg, #FFD700, #FF9500);
+    --crest-text: #1A0E02;
+    --ring-gradient: linear-gradient(180deg, #FFD700, #CC8800);
+    --shimmer-color: rgba(255,215,0,0.15);
+    --stat-border: rgba(255,215,0,0.25);
+    --stat-bg-hex: linear-gradient(180deg, rgba(30,22,6,0.95), rgba(20,14,4,0.98));
+    --stat-color: #FFE44D;
+    box-shadow: 0 0 70px rgba(255,215,0,0.35), 0 0 140px rgba(255,215,0,0.12), 0 25px 50px rgba(0,0,0,0.5);
+  }
+
+  /* ═══════════════════════════════════════
+     DESIGN C — "CLEAN MINIMAL"
+     Inspired by Apple/Stripe - ultra clean
+     No hexagons, pure rounded rects
+     ═══════════════════════════════════════ */
+  .card-c {
+    position: relative;
+    width: 320px;
+    height: 520px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--accent-dim);
+    isolation: isolate;
+  }
+  .card-c .glow-top {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 120px;
+    background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .card-c .content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 28px 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card-c .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 28px;
+  }
+  .card-c .brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.2);
+  }
+  .card-c .tier-badge {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    padding: 5px 14px;
+    border-radius: 8px;
+    background: var(--accent-ultra-dim);
+    border: 1px solid var(--accent-dim);
+  }
+  .card-c .avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .card-c .avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--ring-gradient);
+    padding: 2px;
+    box-shadow: var(--avatar-shadow);
+    flex-shrink: 0;
+  }
+  .card-c .avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    background: #12192D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .card-c .name-block {
+    flex: 1;
+  }
+  .card-c .username {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+  .card-c .tier-sub {
+    font-size: 11px;
+    color: #64748B;
+    margin-top: 2px;
+  }
+  .card-c .ovr-row {
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .card-c .ovr-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 64px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    text-shadow: 0 0 60px var(--accent-glow);
+  }
+  .card-c .ovr-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: 0.1em;
+  }
+  .card-c .stats-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .card-c .stat-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .card-c .stat-bar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #64748B;
+    width: 32px;
+  }
+  .card-c .stat-bar-track {
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .card-c .stat-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--bar-gradient);
+    transition: width 1s ease;
+  }
+  .card-c .stat-bar-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--stat-color);
+    width: 28px;
+    text-align: right;
+  }
+  .card-c .footer {
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.1);
+  }
+  .card-c .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+  .card-c .shimmer-overlay::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 25%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, var(--shimmer-color), transparent);
+    transform: rotate(15deg);
+    animation: card-shimmer 5s ease-in-out infinite;
+  }
+
+  .card-c.bronze {
+    --accent: #E8A854;
+    --accent-dim: rgba(232,168,84,0.15);
+    --accent-ultra-dim: rgba(232,168,84,0.08);
+    --accent-glow: rgba(232,168,84,0.15);
+    --card-bg: linear-gradient(180deg, #14100A 0%, #0E0C08 100%);
+    --ring-gradient: linear-gradient(135deg, #E8A854, #CD7F32);
+    --avatar-shadow: 0 4px 20px rgba(205,127,50,0.3);
+    --bar-gradient: linear-gradient(90deg, #CD7F32, #E8A854);
+    --stat-color: #E8A854;
+    --shimmer-color: rgba(232,168,84,0.08);
+    box-shadow: 0 0 40px rgba(205,127,50,0.15), 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .card-c.argent {
+    --accent: #8EC8E8;
+    --accent-dim: rgba(142,200,232,0.15);
+    --accent-ultra-dim: rgba(142,200,232,0.08);
+    --accent-glow: rgba(142,200,232,0.18);
+    --card-bg: linear-gradient(180deg, #0C1220 0%, #080E18 100%);
+    --ring-gradient: linear-gradient(135deg, #8EC8E8, #5A9CBC);
+    --avatar-shadow: 0 4px 20px rgba(142,200,232,0.35);
+    --bar-gradient: linear-gradient(90deg, #5A9CBC, #8EC8E8);
+    --stat-color: #B8D8EE;
+    --shimmer-color: rgba(142,200,232,0.1);
+    box-shadow: 0 0 50px rgba(142,200,232,0.18), 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .card-c.platine {
+    --accent: #A8D8EA;
+    --accent-dim: rgba(168,216,234,0.15);
+    --accent-ultra-dim: rgba(168,216,234,0.08);
+    --accent-glow: rgba(168,216,234,0.15);
+    --card-bg: linear-gradient(180deg, #0E1520 0%, #0A1018 100%);
+    --ring-gradient: linear-gradient(135deg, #A8D8EA, #7EB0C4);
+    --avatar-shadow: 0 4px 20px rgba(168,216,234,0.3);
+    --bar-gradient: linear-gradient(90deg, #7EB0C4, #A8D8EA);
+    --stat-color: #A8D8EA;
+    --shimmer-color: rgba(168,216,234,0.08);
+    box-shadow: 0 0 45px rgba(168,216,234,0.18), 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .card-c.diamant {
+    --accent: #00D4FF;
+    --accent-dim: rgba(0,212,255,0.15);
+    --accent-ultra-dim: rgba(0,212,255,0.08);
+    --accent-glow: rgba(0,212,255,0.2);
+    --card-bg: linear-gradient(180deg, #081418 0%, #060E14 100%);
+    --ring-gradient: linear-gradient(135deg, #00D4FF, #0098CC);
+    --avatar-shadow: 0 4px 25px rgba(0,212,255,0.4);
+    --bar-gradient: linear-gradient(90deg, #0098CC, #00D4FF);
+    --stat-color: #00D4FF;
+    --shimmer-color: rgba(0,212,255,0.1);
+    box-shadow: 0 0 55px rgba(0,212,255,0.22), 0 0 110px rgba(0,212,255,0.08), 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .card-c.legende {
+    --accent: #FFD700;
+    --accent-dim: rgba(255,215,0,0.2);
+    --accent-ultra-dim: rgba(255,215,0,0.08);
+    --accent-glow: rgba(255,215,0,0.2);
+    --card-bg: linear-gradient(180deg, #141008 0%, #0E0C06 100%);
+    --ring-gradient: linear-gradient(135deg, #FFD700, #FF9500);
+    --avatar-shadow: 0 4px 25px rgba(255,215,0,0.4);
+    --bar-gradient: linear-gradient(90deg, #FF9500, #FFD700);
+    --stat-color: #FFE44D;
+    --shimmer-color: rgba(255,215,0,0.12);
+    box-shadow: 0 0 60px rgba(255,215,0,0.25), 0 0 120px rgba(255,215,0,0.1), 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  .compare-label {
+    text-align: center;
+    margin: 80px 0 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    color: #334155;
+    border-top: 1px solid #1E293B;
+    padding-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<h1>VeloCard — Maquettes Design</h1>
+<p class="subtitle">3 directions visuelles pour les cartes. Chaque design montre les 5 tiers.</p>
+
+<!-- ═══════════════════════════ DESIGN A ═══════════════════════════ -->
+<div class="section-title">DESIGN A — "OBSIDIAN"</div>
+<p style="text-align:center;color:#475569;font-size:12px;margin-bottom:30px;">Coins angulaires, bordure m&eacute;tallique d&eacute;grad&eacute;e, stats en grille arrondie</p>
+
+<div class="cards-row">
+  <!-- Bronze -->
+  <div>
+    <div class="card-a bronze">
+      <div class="shimmer-overlay"></div>
+      <div class="scan-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="inner">
+        <div class="top-bar">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-pill">BRONZE</span>
+        </div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"><div class="avatar">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-sub">BRONZE TIER</div>
+        <div class="ovr">72</div>
+        <div class="divider"></div>
+        <div class="stats-grid">
+          <div class="stat-item"><span class="stat-value">68</span><span class="stat-label">PAC</span></div>
+          <div class="stat-item"><span class="stat-value">74</span><span class="stat-label">MON</span></div>
+          <div class="stat-item"><span class="stat-value">70</span><span class="stat-label">VAL</span></div>
+          <div class="stat-item"><span class="stat-value">75</span><span class="stat-label">SPR</span></div>
+          <div class="stat-item"><span class="stat-value">71</span><span class="stat-label">END</span></div>
+          <div class="stat-item"><span class="stat-value">65</span><span class="stat-label">RES</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Bronze</div>
+  </div>
+
+  <!-- Argent -->
+  <div>
+    <div class="card-a argent">
+      <div class="shimmer-overlay"></div>
+      <div class="scan-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="inner">
+        <div class="top-bar">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-pill">ARGENT</span>
+        </div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"><div class="avatar">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-sub">ARGENT TIER</div>
+        <div class="ovr">78</div>
+        <div class="divider"></div>
+        <div class="stats-grid">
+          <div class="stat-item"><span class="stat-value">76</span><span class="stat-label">PAC</span></div>
+          <div class="stat-item"><span class="stat-value">80</span><span class="stat-label">MON</span></div>
+          <div class="stat-item"><span class="stat-value">77</span><span class="stat-label">VAL</span></div>
+          <div class="stat-item"><span class="stat-value">82</span><span class="stat-label">SPR</span></div>
+          <div class="stat-item"><span class="stat-value">78</span><span class="stat-label">END</span></div>
+          <div class="stat-item"><span class="stat-value">73</span><span class="stat-label">RES</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Platine -->
+  <div>
+    <div class="card-a platine">
+      <div class="shimmer-overlay"></div>
+      <div class="scan-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="inner">
+        <div class="top-bar">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-pill">PLATINE</span>
+        </div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"><div class="avatar">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-sub">PLATINE TIER</div>
+        <div class="ovr">84</div>
+        <div class="divider"></div>
+        <div class="stats-grid">
+          <div class="stat-item"><span class="stat-value">82</span><span class="stat-label">PAC</span></div>
+          <div class="stat-item"><span class="stat-value">86</span><span class="stat-label">MON</span></div>
+          <div class="stat-item"><span class="stat-value">83</span><span class="stat-label">VAL</span></div>
+          <div class="stat-item"><span class="stat-value">88</span><span class="stat-label">SPR</span></div>
+          <div class="stat-item"><span class="stat-value">84</span><span class="stat-label">END</span></div>
+          <div class="stat-item"><span class="stat-value">80</span><span class="stat-label">RES</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Platine</div>
+  </div>
+
+  <!-- Diamant -->
+  <div>
+    <div class="card-a diamant">
+      <div class="shimmer-overlay"></div>
+      <div class="scan-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="inner">
+        <div class="top-bar">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-pill">DIAMANT</span>
+        </div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"><div class="avatar">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-sub">DIAMANT TIER</div>
+        <div class="ovr">91</div>
+        <div class="divider"></div>
+        <div class="stats-grid">
+          <div class="stat-item"><span class="stat-value">90</span><span class="stat-label">PAC</span></div>
+          <div class="stat-item"><span class="stat-value">93</span><span class="stat-label">MON</span></div>
+          <div class="stat-item"><span class="stat-value">89</span><span class="stat-label">VAL</span></div>
+          <div class="stat-item"><span class="stat-value">94</span><span class="stat-label">SPR</span></div>
+          <div class="stat-item"><span class="stat-value">91</span><span class="stat-label">END</span></div>
+          <div class="stat-item"><span class="stat-value">88</span><span class="stat-label">RES</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende -->
+  <div>
+    <div class="card-a legende">
+      <div class="shimmer-overlay"></div>
+      <div class="scan-overlay"></div>
+      <div class="rainbow-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="particles-wrap">
+        <div class="prt" style="--x:10%;--d:4s;--dl:0s;background:#FFD700;"></div>
+        <div class="prt" style="--x:25%;--d:5s;--dl:1.2s;background:#FFE44D;"></div>
+        <div class="prt" style="--x:40%;--d:3.5s;--dl:0.5s;background:#FFC000;"></div>
+        <div class="prt" style="--x:55%;--d:4.5s;--dl:2s;background:#FFD700;"></div>
+        <div class="prt" style="--x:70%;--d:5.5s;--dl:0.8s;background:#FFAA00;"></div>
+        <div class="prt" style="--x:85%;--d:4s;--dl:1.5s;background:#FFE44D;"></div>
+        <div class="prt" style="--x:95%;--d:3s;--dl:2.5s;background:#FFD700;"></div>
+      </div>
+      <div class="inner">
+        <div class="top-bar">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-pill">LEGENDE</span>
+        </div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"><div class="avatar">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-sub">LEGENDE TIER</div>
+        <div class="ovr">96</div>
+        <div class="divider"></div>
+        <div class="stats-grid">
+          <div class="stat-item"><span class="stat-value">95</span><span class="stat-label">PAC</span></div>
+          <div class="stat-item"><span class="stat-value">97</span><span class="stat-label">MON</span></div>
+          <div class="stat-item"><span class="stat-value">94</span><span class="stat-label">VAL</span></div>
+          <div class="stat-item"><span class="stat-value">98</span><span class="stat-label">SPR</span></div>
+          <div class="stat-item"><span class="stat-value">96</span><span class="stat-label">END</span></div>
+          <div class="stat-item"><span class="stat-value">93</span><span class="stat-label">RES</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DESIGN B ═══════════════════════════ -->
+<div class="section-title">DESIGN B — "SHIELD"</div>
+<p style="text-align:center;color:#475569;font-size:12px;margin-bottom:30px;">Style FIFA/FUT — cr&ecirc;te en haut, avatar hexagonal, stats hexagonales</p>
+
+<div class="cards-row">
+  <!-- Bronze B -->
+  <div>
+    <div class="card-b bronze">
+      <div class="bg-layer"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vert-line left"></div>
+      <div class="vert-line right"></div>
+      <div class="content">
+        <div class="ovr-block">
+          <div class="ovr-value">72</div>
+          <div class="ovr-label">OVERALL</div>
+        </div>
+        <div class="avatar-section">
+          <div class="avatar-hex"><div class="avatar-hex-inner">H</div></div>
+        </div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-text">BRONZE</div>
+        <div class="divider"></div>
+        <div class="stats-2rows">
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">68</span><span class="stat-l">PAC</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">74</span><span class="stat-l">MON</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">70</span><span class="stat-l">VAL</span></div></div></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">75</span><span class="stat-l">SPR</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">71</span><span class="stat-l">END</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">65</span><span class="stat-l">RES</span></div></div></div>
+          </div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Bronze</div>
+  </div>
+
+  <!-- Argent B -->
+  <div>
+    <div class="card-b argent">
+      <div class="bg-layer"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vert-line left"></div>
+      <div class="vert-line right"></div>
+      <div class="content">
+        <div class="ovr-block"><div class="ovr-value">78</div><div class="ovr-label">OVERALL</div></div>
+        <div class="avatar-section"><div class="avatar-hex"><div class="avatar-hex-inner">H</div></div></div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-text">ARGENT</div>
+        <div class="divider"></div>
+        <div class="stats-2rows">
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">76</span><span class="stat-l">PAC</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">80</span><span class="stat-l">MON</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">77</span><span class="stat-l">VAL</span></div></div></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">82</span><span class="stat-l">SPR</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">78</span><span class="stat-l">END</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">73</span><span class="stat-l">RES</span></div></div></div>
+          </div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Platine B -->
+  <div>
+    <div class="card-b platine">
+      <div class="bg-layer"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vert-line left"></div>
+      <div class="vert-line right"></div>
+      <div class="content">
+        <div class="ovr-block"><div class="ovr-value">84</div><div class="ovr-label">OVERALL</div></div>
+        <div class="avatar-section"><div class="avatar-hex"><div class="avatar-hex-inner">H</div></div></div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-text">PLATINE</div>
+        <div class="divider"></div>
+        <div class="stats-2rows">
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">82</span><span class="stat-l">PAC</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">86</span><span class="stat-l">MON</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">83</span><span class="stat-l">VAL</span></div></div></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">88</span><span class="stat-l">SPR</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">84</span><span class="stat-l">END</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">80</span><span class="stat-l">RES</span></div></div></div>
+          </div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Platine</div>
+  </div>
+
+  <!-- Diamant B -->
+  <div>
+    <div class="card-b diamant">
+      <div class="bg-layer"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vert-line left"></div>
+      <div class="vert-line right"></div>
+      <div class="particles-wrap">
+        <div class="prt" style="--x:15%;--d:4s;--dl:0s;background:#00D4FF;"></div>
+        <div class="prt" style="--x:35%;--d:5s;--dl:1s;background:#00D4FF;"></div>
+        <div class="prt" style="--x:60%;--d:3.5s;--dl:0.5s;background:#B9F2FF;"></div>
+        <div class="prt" style="--x:80%;--d:4.5s;--dl:2s;background:#00D4FF;"></div>
+      </div>
+      <div class="content">
+        <div class="ovr-block"><div class="ovr-value">91</div><div class="ovr-label">OVERALL</div></div>
+        <div class="avatar-section"><div class="avatar-hex"><div class="avatar-hex-inner">H</div></div></div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-text">DIAMANT</div>
+        <div class="divider"></div>
+        <div class="stats-2rows">
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">90</span><span class="stat-l">PAC</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">93</span><span class="stat-l">MON</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">89</span><span class="stat-l">VAL</span></div></div></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">94</span><span class="stat-l">SPR</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">91</span><span class="stat-l">END</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">88</span><span class="stat-l">RES</span></div></div></div>
+          </div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende B -->
+  <div>
+    <div class="card-b legende">
+      <div class="bg-layer"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="rainbow-overlay" style="border-radius:20px;"></div>
+      <div class="crest"><div class="crest-shape"><span class="crest-text">VELOCARD</span></div></div>
+      <div class="vert-line left"></div>
+      <div class="vert-line right"></div>
+      <div class="particles-wrap">
+        <div class="prt" style="--x:8%;--d:4s;--dl:0s;background:#FFD700;"></div>
+        <div class="prt" style="--x:22%;--d:5s;--dl:1.2s;background:#FFE44D;"></div>
+        <div class="prt" style="--x:38%;--d:3.5s;--dl:0.5s;background:#FFC000;"></div>
+        <div class="prt" style="--x:52%;--d:4.5s;--dl:2s;background:#FFD700;"></div>
+        <div class="prt" style="--x:68%;--d:5.5s;--dl:0.8s;background:#FFAA00;"></div>
+        <div class="prt" style="--x:82%;--d:4s;--dl:1.5s;background:#FFE44D;"></div>
+        <div class="prt" style="--x:92%;--d:3s;--dl:2.5s;background:#FFD700;"></div>
+      </div>
+      <div class="content">
+        <div class="ovr-block"><div class="ovr-value">96</div><div class="ovr-label">OVERALL</div></div>
+        <div class="avatar-section"><div class="avatar-hex"><div class="avatar-hex-inner">H</div></div></div>
+        <div class="username">HugoMNR</div>
+        <div class="tier-text">LEGENDE</div>
+        <div class="divider"></div>
+        <div class="stats-2rows">
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">95</span><span class="stat-l">PAC</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">97</span><span class="stat-l">MON</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">94</span><span class="stat-l">VAL</span></div></div></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">98</span><span class="stat-l">SPR</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">96</span><span class="stat-l">END</span></div></div></div>
+            <div class="stat-hex-wrap"><div class="stat-hex"><div class="stat-hex-inner"><span class="stat-v">93</span><span class="stat-l">RES</span></div></div></div>
+          </div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DESIGN C ═══════════════════════════ -->
+<div class="section-title">DESIGN C — "CLEAN MINIMAL"</div>
+<p style="text-align:center;color:#475569;font-size:12px;margin-bottom:30px;">Ultra clean, inspir&eacute; Apple/Stripe. Barres de progression, pas d'hexagones.</p>
+
+<div class="cards-row">
+  <!-- Bronze C -->
+  <div>
+    <div class="card-c bronze">
+      <div class="glow-top"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="content">
+        <div class="top-row">
+          <span class="brand">VELOCARD</span>
+          <span class="tier-badge">BRONZE</span>
+        </div>
+        <div class="avatar-row">
+          <div class="avatar-circle"><div class="avatar-inner">H</div></div>
+          <div class="name-block">
+            <div class="username">HugoMNR</div>
+            <div class="tier-sub">Bronze Tier</div>
+          </div>
+        </div>
+        <div class="ovr-row">
+          <span class="ovr-number">72</span>
+          <span class="ovr-text">OVR</span>
+        </div>
+        <div class="stats-list">
+          <div class="stat-bar-item"><span class="stat-bar-label">PAC</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:68%"></div></div><span class="stat-bar-value">68</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">MON</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:74%"></div></div><span class="stat-bar-value">74</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">VAL</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:70%"></div></div><span class="stat-bar-value">70</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">SPR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:75%"></div></div><span class="stat-bar-value">75</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">END</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:71%"></div></div><span class="stat-bar-value">71</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">RES</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:65%"></div></div><span class="stat-bar-value">65</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Bronze</div>
+  </div>
+
+  <!-- Argent C -->
+  <div>
+    <div class="card-c argent">
+      <div class="glow-top"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="content">
+        <div class="top-row"><span class="brand">VELOCARD</span><span class="tier-badge">ARGENT</span></div>
+        <div class="avatar-row"><div class="avatar-circle"><div class="avatar-inner">H</div></div><div class="name-block"><div class="username">HugoMNR</div><div class="tier-sub">Argent Tier</div></div></div>
+        <div class="ovr-row"><span class="ovr-number">78</span><span class="ovr-text">OVR</span></div>
+        <div class="stats-list">
+          <div class="stat-bar-item"><span class="stat-bar-label">PAC</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:76%"></div></div><span class="stat-bar-value">76</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">MON</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:80%"></div></div><span class="stat-bar-value">80</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">VAL</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:77%"></div></div><span class="stat-bar-value">77</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">SPR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:82%"></div></div><span class="stat-bar-value">82</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">END</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:78%"></div></div><span class="stat-bar-value">78</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">RES</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:73%"></div></div><span class="stat-bar-value">73</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Argent</div>
+  </div>
+
+  <!-- Platine C -->
+  <div>
+    <div class="card-c platine">
+      <div class="glow-top"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="content">
+        <div class="top-row"><span class="brand">VELOCARD</span><span class="tier-badge">PLATINE</span></div>
+        <div class="avatar-row"><div class="avatar-circle"><div class="avatar-inner">H</div></div><div class="name-block"><div class="username">HugoMNR</div><div class="tier-sub">Platine Tier</div></div></div>
+        <div class="ovr-row"><span class="ovr-number">84</span><span class="ovr-text">OVR</span></div>
+        <div class="stats-list">
+          <div class="stat-bar-item"><span class="stat-bar-label">PAC</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:82%"></div></div><span class="stat-bar-value">82</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">MON</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:86%"></div></div><span class="stat-bar-value">86</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">VAL</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:83%"></div></div><span class="stat-bar-value">83</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">SPR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:88%"></div></div><span class="stat-bar-value">88</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">END</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:84%"></div></div><span class="stat-bar-value">84</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">RES</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:80%"></div></div><span class="stat-bar-value">80</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Platine</div>
+  </div>
+
+  <!-- Diamant C -->
+  <div>
+    <div class="card-c diamant">
+      <div class="glow-top"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="content">
+        <div class="top-row"><span class="brand">VELOCARD</span><span class="tier-badge">DIAMANT</span></div>
+        <div class="avatar-row"><div class="avatar-circle"><div class="avatar-inner">H</div></div><div class="name-block"><div class="username">HugoMNR</div><div class="tier-sub">Diamant Tier</div></div></div>
+        <div class="ovr-row"><span class="ovr-number">91</span><span class="ovr-text">OVR</span></div>
+        <div class="stats-list">
+          <div class="stat-bar-item"><span class="stat-bar-label">PAC</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:90%"></div></div><span class="stat-bar-value">90</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">MON</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:93%"></div></div><span class="stat-bar-value">93</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">VAL</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:89%"></div></div><span class="stat-bar-value">89</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">SPR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:94%"></div></div><span class="stat-bar-value">94</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">END</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:91%"></div></div><span class="stat-bar-value">91</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">RES</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:88%"></div></div><span class="stat-bar-value">88</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">Diamant</div>
+  </div>
+
+  <!-- Legende C -->
+  <div>
+    <div class="card-c legende">
+      <div class="glow-top"></div>
+      <div class="shimmer-overlay"></div>
+      <div class="content">
+        <div class="top-row"><span class="brand">VELOCARD</span><span class="tier-badge">LEGENDE</span></div>
+        <div class="avatar-row"><div class="avatar-circle"><div class="avatar-inner">H</div></div><div class="name-block"><div class="username">HugoMNR</div><div class="tier-sub">L&eacute;gende Tier</div></div></div>
+        <div class="ovr-row"><span class="ovr-number">96</span><span class="ovr-text">OVR</span></div>
+        <div class="stats-list">
+          <div class="stat-bar-item"><span class="stat-bar-label">PAC</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:95%"></div></div><span class="stat-bar-value">95</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">MON</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:97%"></div></div><span class="stat-bar-value">97</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">VAL</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:94%"></div></div><span class="stat-bar-value">94</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">SPR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:98%"></div></div><span class="stat-bar-value">98</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">END</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:96%"></div></div><span class="stat-bar-value">96</span></div>
+          <div class="stat-bar-item"><span class="stat-bar-label">RES</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:93%"></div></div><span class="stat-bar-value">93</span></div>
+        </div>
+        <div class="footer">VELOCARD.APP</div>
+      </div>
+    </div>
+    <div class="card-label">L&eacute;gende</div>
+  </div>
+</div>
+
+<div class="compare-label">
+  Tu peux aussi mixer : par exemple les coins du A + les stats barres du C, ou la cr&ecirc;te du B + la grille du A.<br>
+  Dis-moi quel design te plait le plus (ou quel mix), et je l'impl&eacute;mente dans l'app.
+</div>
+
+<div style="height:100px"></div>
+</body>
+</html>

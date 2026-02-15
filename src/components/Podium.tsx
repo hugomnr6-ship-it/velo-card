@@ -2,6 +2,7 @@
 
 import type { LeaderboardEntry, CardTier } from "@/types";
 import { tierConfig, tierBorderColors } from "./VeloCard";
+import { IconMedalGold, IconMedalSilver, IconMedalBronze } from "@/components/icons/VeloIcons";
 
 interface PodiumProps {
   entries: LeaderboardEntry[];
@@ -9,13 +10,11 @@ interface PodiumProps {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C0C0",
-  platine: "#A8D8EA",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",
 };
-
-const rankEmojis = ["", "\ud83e\udd47", "\ud83e\udd48", "\ud83e\udd49"];
 
 export default function Podium({ entries }: PodiumProps) {
   const top3 = entries.slice(0, 3);
@@ -38,7 +37,11 @@ export default function Podium({ entries }: PodiumProps) {
         return (
           <div key={entry.user_id} className="flex flex-col items-center">
             {/* Rank emoji */}
-            <span className="mb-1 text-lg">{rankEmojis[entry.rank]}</span>
+            <span className="mb-1 flex justify-center">
+              {entry.rank === 1 ? <IconMedalGold size={20} className="text-[#FFD700]" /> :
+               entry.rank === 2 ? <IconMedalSilver size={18} className="text-[#C0C0C0]" /> :
+               <IconMedalBronze size={18} className="text-[#cd7f32]" />}
+            </span>
 
             {/* Mini card */}
             <div

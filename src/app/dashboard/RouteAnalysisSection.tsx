@@ -69,7 +69,7 @@ export default function RouteAnalysisSection({
   return (
     <section className="mt-8 w-full max-w-2xl">
       {/* Section divider */}
-      <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+      <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
       <h2 className="mb-4 text-center text-lg font-bold tracking-wide text-white">
         Analyse de parcours
@@ -108,7 +108,7 @@ export default function RouteAnalysisSection({
           {/* Reset button */}
           <button
             onClick={handleRouteReset}
-            className="mx-auto mt-2 text-sm text-neutral-500 underline hover:text-neutral-300"
+            className="mx-auto mt-2 text-sm text-[#94A3B8] underline hover:text-white/80"
           >
             Analyser un autre parcours
           </button>

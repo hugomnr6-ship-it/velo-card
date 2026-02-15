@@ -13,14 +13,14 @@ function formatTime(seconds: number): string {
 
 const positionBadge: Record<number, string> = {
   1: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40",
-  2: "bg-neutral-400/20 text-neutral-300 border-neutral-400/40",
+  2: "bg-[#94A3B8]/20 text-white/80 border-[#94A3B8]/40",
   3: "bg-orange-700/20 text-orange-400 border-orange-700/40",
 };
 
 const tierColors: Record<string, string> = {
   bronze: "text-[#cd7f32]",
   argent: "text-[#bdc3c7]",
-  platine: "text-[#A8D8EA]",
+  platine: "text-[#E0E8F0]",
   diamant: "text-[#B9F2FF]",
   legende: "text-[#ffd700]",
 };
@@ -28,7 +28,7 @@ const tierColors: Record<string, string> = {
 const tierBg: Record<string, string> = {
   bronze: "bg-[#cd7f32]/10 border-[#cd7f32]/30",
   argent: "bg-[#bdc3c7]/10 border-[#bdc3c7]/30",
-  platine: "bg-[#A8D8EA]/10 border-[#A8D8EA]/30",
+  platine: "bg-[#E0E8F0]/10 border-[#E0E8F0]/30",
   diamant: "bg-[#B9F2FF]/10 border-[#B9F2FF]/30",
   legende: "bg-[#ffd700]/10 border-[#ffd700]/30",
 };
@@ -41,7 +41,7 @@ interface ResultRowProps {
 export default function ResultRow({ result, currentUserId }: ResultRowProps) {
   const badgeClass =
     positionBadge[result.position] ||
-    "bg-neutral-800/50 text-neutral-500 border-neutral-700/50";
+    "bg-[#1A1A2E]/60 text-[#94A3B8] border-white/[0.06]";
 
   const isCurrentUser = currentUserId && result.user_id === currentUserId;
 
@@ -50,7 +50,7 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
       className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
         isCurrentUser
           ? "border-white/20 bg-white/5"
-          : "border-neutral-700/50 bg-neutral-800/50"
+          : "border-white/[0.06] bg-[#1A1A2E]/60"
       }`}
     >
       {/* Position badge */}
@@ -62,13 +62,13 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
 
       {/* Avatar */}
       {result.is_ghost ? (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-700/50">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#22223A]/60">
           <svg
             width="18"
             height="18"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className="text-neutral-500"
+            className="text-[#94A3B8]"
           >
             <path d="M12 2C7.58 2 4 5.58 4 10v10.5c0 .83 1 1.5 1.5 1.5s1-.67 1.5-1.5 1-1.5 1.5-1.5 1 .67 1.5 1.5.67 1.5 1.5 1.5h1c.83 0 1-1 1.5-1.5s1-1.5 1.5-1.5 1 .67 1.5 1.5S18 22 18.5 22s1.5-.67 1.5-1.5V10c0-4.42-3.58-8-8-8zm-3 10.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm6 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
           </svg>
@@ -80,7 +80,7 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
           className="h-9 w-9 shrink-0 rounded-full object-cover"
         />
       ) : (
-        <div className="h-9 w-9 shrink-0 rounded-full bg-neutral-600" />
+        <div className="h-9 w-9 shrink-0 rounded-full bg-[#22223A]" />
       )}
 
       {/* Name + time */}
@@ -95,13 +95,13 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
             </span>
           )}
           {result.is_ghost && (
-            <span className="rounded-full bg-neutral-700/50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-neutral-500">
+            <span className="rounded-full bg-[#22223A]/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#94A3B8]">
               Fantome
             </span>
           )}
         </div>
         {result.finish_time > 0 && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[#94A3B8]">
             {formatTime(result.finish_time)}
           </p>
         )}
@@ -109,9 +109,9 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
 
       {/* GEN score badge */}
       {result.is_ghost ? (
-        <div className="flex items-center gap-1.5 rounded-full border border-neutral-600/30 bg-neutral-700/20 px-2.5 py-1">
-          <span className="text-xs font-bold text-neutral-400">?</span>
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-neutral-500">
+        <div className="flex items-center gap-1.5 rounded-full border border-white/[0.10] bg-[#22223A]/20 px-2.5 py-1">
+          <span className="text-xs font-bold text-[#94A3B8]">?</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">
             GEN
           </span>
         </div>
@@ -122,7 +122,7 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
           <span className={`text-xs font-bold ${tierColors[result.tier]}`}>
             {result.gen_score}
           </span>
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-neutral-500">
+          <span className="text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">
             GEN
           </span>
         </div>
