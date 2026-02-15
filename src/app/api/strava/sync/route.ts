@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { computeStats, getTier } from "@/lib/stats";
+import { computeBadges } from "@/lib/badges";
 import { updateWarProgressForUser } from "@/lib/wars";
 
 export async function POST() {
@@ -77,7 +78,10 @@ export async function POST() {
     // 7. Update Squad Wars progress (non-blocking)
     updateWarProgressForUser(profile.id).catch(() => {});
 
-    // 8. Return stats to frontend
+    // 8. Compute badges
+    const badges = computeBadges(stats);
+
+    // 9. Return stats to frontend
     return Response.json({
       pac: stats.pac,
       end: stats.end,
@@ -86,7 +90,9 @@ export async function POST() {
       spr: stats.spr,
       val: stats.val,
       ovr: stats.ovr,
+      stats,
       tier,
+      badges,
       activitiesCount: activities.length,
     });
   } catch (err: any) {

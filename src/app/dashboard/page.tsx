@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
 import { VeloCardWithButtonSkeleton } from "@/components/Skeleton";
 import AnimatedPage from "@/components/AnimatedPage";
 import VeloCardSection from "./VeloCardSection";
@@ -11,6 +12,29 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.accessToken) {
     redirect("/");
+  }
+
+  // Check if user has completed onboarding
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("id")
+    .eq("strava_id", session.user.stravaId)
+    .single();
+
+  if (profile) {
+    const { data: stats } = await supabaseAdmin
+      .from("user_stats")
+      .select("has_onboarded")
+      .eq("user_id", profile.id)
+      .single();
+
+    // If no stats at all OR hasn't onboarded → send to onboarding
+    if (!stats || stats.has_onboarded === false) {
+      redirect("/onboarding");
+    }
+  } else {
+    // No profile yet — redirect to onboarding which will trigger sync
+    redirect("/onboarding");
   }
 
   const userInfo = {
