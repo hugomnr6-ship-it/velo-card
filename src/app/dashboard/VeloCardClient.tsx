@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import VeloCardInteractive from "@/components/VeloCardInteractive";
 import CardWidget from "@/components/CardWidget";
 import DownloadButton from "@/components/DownloadButton";
+import ShareButton from "@/components/ShareButton";
 import LevelUpToast from "@/components/LevelUpToast";
 import MondayUpdateBanner from "@/components/MondayUpdateBanner";
 import RouteAnalysisSection from "./RouteAnalysisSection";
@@ -74,7 +75,10 @@ export default function VeloCardClient({
         clubs={clubs}
         specialCard={specialCard}
       />
-      <DownloadButton tier={tier} userId={userId} />
+      <div className="flex gap-3">
+        <DownloadButton tier={tier} userId={userId} />
+        <ShareButton tier={tier} userId={userId} />
+      </div>
 
       {/* Dashboard feed — weekly stats, Échappée teaser, quick links */}
       <DashboardFeed userId={userId} tier={tier} />
