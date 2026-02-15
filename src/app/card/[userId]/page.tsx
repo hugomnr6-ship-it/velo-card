@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import VeloCard from "@/components/VeloCard";
+import VeloCard3DWrapper from "@/components/VeloCard3DWrapper";
 import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
@@ -91,7 +91,7 @@ export default async function CardPage({
       />
 
       <div className="relative z-10">
-        <VeloCard
+        <VeloCard3DWrapper
           username={profile.username}
           avatarUrl={profile.avatar_url}
           stats={computedStats}
