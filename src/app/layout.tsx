@@ -13,6 +13,16 @@ import '@fontsource/jetbrains-mono/700.css';
 export const metadata: Metadata = {
   title: "VeloCard - Ta carte de cycliste",
   description: "Génère ta carte de stats vélo depuis Strava",
+  manifest: "/manifest.json",
+  themeColor: "#0B1120",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "VeloCard",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
