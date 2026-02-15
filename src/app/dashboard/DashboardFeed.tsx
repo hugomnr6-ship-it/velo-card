@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import type { CardTier } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
 import { IconStar, IconCycling, IconRoad, IconMountain, IconCalendar, IconTimer, IconSwords, IconShield, IconFlag, IconTrophy, STAT_ICONS } from "@/components/icons/VeloIcons";
+import FeedItem from "@/components/FeedItem";
 
 /* ═══ Types ═══ */
 
@@ -60,6 +61,7 @@ interface DashboardFeedProps {
 export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
   const [weekly, setWeekly] = useState<WeeklyStats | null>(null);
   const [echappee, setEchappee] = useState<EchappeePreview[]>([]);
+  const [feedEvents, setFeedEvents] = useState<any[]>([]);
 
   const accent = tierAccentHex[tier];
 
@@ -79,10 +81,40 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
         if (data.team) setEchappee(data.team.slice(0, 3));
       })
       .catch(() => {});
+
+    // Fetch activity feed
+    fetch("/api/feed?limit=10")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFeedEvents(data);
+      })
+      .catch(() => {});
   }, [userId]);
 
   return (
     <div className="w-full max-w-md flex flex-col gap-4 mt-4">
+
+      {/* ═══ Activity Feed ═══ */}
+      {feedEvents.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass rounded-2xl p-4"
+        >
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px]" style={{ color: accent }}>●</span>
+            <p className="text-[10px] font-bold tracking-wider text-white/30">
+              ACTIVITE RECENTE
+            </p>
+          </div>
+          <div className="flex flex-col divide-y divide-white/[0.04]">
+            {feedEvents.map((event) => (
+              <FeedItem key={event.id} event={event} />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* ═══ Weekly Summary ═══ */}
       {weekly && (weekly.rides > 0 || weekly.km > 0) && (
         <motion.div

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeStats, getTier } from "@/lib/stats";
 import { computeOVR } from "@/lib/stats";
+import { insertFeedEvent } from "@/lib/feed";
 import type { StravaActivity, ComputedStats, CardTier, SpecialCardType } from "@/types";
 
 // Decay rate: stats lose 2-5% per inactive week (makes people ride to keep their card)
@@ -226,6 +227,19 @@ export async function GET(request: Request) {
         tier: newTier,
       });
 
+      // Emit activity feed events
+      if (newTier !== prevStats.tier) {
+        insertFeedEvent(userId, "tier_up", {
+          previousTier: prevStats.tier,
+          newTier,
+        });
+      }
+
+      // Streak milestones: 5, 10, 25 weeks
+      if ([5, 10, 25].includes(newStreak)) {
+        insertFeedEvent(userId, "streak_milestone", { weeks: newStreak });
+      }
+
       updatedCount++;
     }
 
@@ -274,6 +288,12 @@ async function selectEchappee(
         .from("user_stats")
         .update({ special_card: "totw" })
         .eq("user_id", best.user_id);
+
+      // Emit feed event for TOTW selection
+      insertFeedEvent(best.user_id, "totw_selected", {
+        category: cat,
+        weekLabel,
+      });
     }
   }
 
