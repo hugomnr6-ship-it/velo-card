@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { insertFeedEvent } from "@/lib/feed";
 import type { DuelCategory } from "@/types";
 
 /**
@@ -140,6 +141,24 @@ async function resolveInstantDuel(duel: any) {
   if (winnerId && loserId) {
     await supabaseAdmin.rpc("increment_ego_points", { uid: winnerId, pts: duel.stake });
     await supabaseAdmin.rpc("increment_ego_points", { uid: loserId, pts: -duel.stake });
+
+    // Feed events for duel result
+    const { data: winnerProfile } = await supabaseAdmin.from("profiles").select("username").eq("id", winnerId).single();
+    const { data: loserProfile } = await supabaseAdmin.from("profiles").select("username").eq("id", loserId).single();
+
+    insertFeedEvent(winnerId, "duel_won", {
+      opponent_name: loserProfile?.username || "?",
+      category,
+      stake: duel.stake,
+    });
+    insertFeedEvent(loserId, "duel_lost", {
+      opponent_name: winnerProfile?.username || "?",
+      category,
+      stake: duel.stake,
+    });
+  } else if (isDraw) {
+    insertFeedEvent(duel.challenger_id, "duel_draw", { category, stake: duel.stake });
+    insertFeedEvent(duel.opponent_id, "duel_draw", { category, stake: duel.stake });
   }
 
   return resolved;

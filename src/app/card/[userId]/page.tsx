@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import VeloCard3DWrapper from "@/components/VeloCard3DWrapper";
+import ShareButtonWrapper from "./ShareButtonWrapper";
 import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
 
@@ -76,8 +77,17 @@ export default async function CardPage({
 
   const tier: CardTier = (stats?.tier as CardTier) || "bronze";
 
-  // TODO: Fetch badges when badge system is implemented
-  const badges: Badge[] = [];
+  // Fetch badges
+  const { data: userBadges } = await supabaseAdmin
+    .from("user_badges")
+    .select("badge_id")
+    .eq("user_id", userId);
+
+  const badges: Badge[] = (userBadges || []).slice(0, 3).map((b: any) => ({
+    id: b.badge_id,
+    name: b.badge_id,
+    emoji: b.badge_id,
+  }));
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0B1120] px-4 py-12">
@@ -101,7 +111,11 @@ export default async function CardPage({
         />
       </div>
 
-      <p className="relative z-10 mt-6 text-center text-xs text-[#475569]">
+      <div className="relative z-10 mt-6 flex items-center gap-3">
+        <ShareButtonWrapper tier={tier} userId={userId} />
+      </div>
+
+      <p className="relative z-10 mt-3 text-center text-xs text-[#475569]">
         {profile.username} sur VeloCard
       </p>
 

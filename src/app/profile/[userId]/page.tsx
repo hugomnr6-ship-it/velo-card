@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Radar,
@@ -16,6 +17,9 @@ import {
   Tooltip,
 } from "recharts";
 import AnimatedPage from "@/components/AnimatedPage";
+import ShareButton from "@/components/ShareButton";
+import BadgeGrid from "@/components/BadgeGrid";
+import ProfileEditForm from "@/components/ProfileEditForm";
 import type { CardTier, SpecialCardType } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
 import { IconCycling, IconMountain, IconCalendar, IconTimer, IconStar, IconSwords, IconShield, IconChartUp, IconRocket, IconCrown, IconTrophy, IconCheck } from "@/components/icons/VeloIcons";
@@ -27,7 +31,11 @@ interface ProfileData {
     id: string;
     username: string;
     avatar_url: string | null;
+    custom_avatar_url: string | null;
     region: string | null;
+    bio: string | null;
+    favorite_climb: string | null;
+    bike_name: string | null;
     created_at: string;
   };
   stats: {
@@ -101,9 +109,11 @@ export default function UserProfilePage() {
   const router = useRouter();
   const userId = params.userId as string;
 
+  const { data: session } = useSession();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"stats" | "history" | "career">("stats");
+  const [editOpen, setEditOpen] = useState(false);
 
   // Search state
   const [searchOpen, setSearchOpen] = useState(false);
@@ -113,7 +123,7 @@ export default function UserProfilePage() {
   const debounceRef = useRef<NodeJS.Timeout>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const fetchProfile = useCallback(() => {
     setLoading(true);
     fetch(`/api/users/${userId}`)
       .then((r) => r.json())
@@ -123,6 +133,10 @@ export default function UserProfilePage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [userId]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Search
   const doSearch = useCallback(async (q: string) => {
@@ -172,6 +186,18 @@ export default function UserProfilePage() {
   const { profile, stats, deltas, history, clubs, weekly, career } = data;
   const accent = tierAccentHex[stats.tier];
   const config = tierConfig[stats.tier];
+
+  // Check if the viewer is the profile owner
+  const [isOwner, setIsOwner] = useState(false);
+  const displayAvatarUrl = profile.custom_avatar_url || profile.avatar_url;
+
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((p) => { if (p?.id === userId) setIsOwner(true); })
+      .catch(() => {});
+  }, [session, userId]);
 
   // Radar data
   const radarData = [
@@ -290,13 +316,20 @@ export default function UserProfilePage() {
           </svg>
           Rechercher
         </button>
-        <button
-          onClick={() => router.push(`/card/${userId}`)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
-          title="Voir la carte"
-        >
-          <IconStar size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => router.push(`/card/${userId}`)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
+            title="Voir la carte"
+          >
+            <IconStar size={18} />
+          </button>
+          <ShareButton
+            tier={stats.tier}
+            userId={userId}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
+          />
+        </div>
       </div>
 
       {/* ═══ Avatar + Name + OVR ═══ */}
@@ -311,9 +344,9 @@ export default function UserProfilePage() {
             style={{ background: `linear-gradient(180deg, ${accent}cc, ${accent}40)` }}
           >
             <div className="rounded-full border-[3px] border-black/50 overflow-hidden">
-              {profile.avatar_url ? (
+              {displayAvatarUrl ? (
                 <img
-                  src={`/api/img?url=${encodeURIComponent(profile.avatar_url)}`}
+                  src={profile.custom_avatar_url ? profile.custom_avatar_url : `/api/img?url=${encodeURIComponent(displayAvatarUrl)}`}
                   alt={profile.username}
                   className="h-24 w-24 rounded-full object-cover"
                 />
@@ -383,6 +416,34 @@ export default function UserProfilePage() {
           )}
         </div>
       </div>
+
+      {/* ═══ Bio & Details ═══ */}
+      {(profile.bio || profile.bike_name || profile.favorite_climb) && (
+        <div className="relative z-10 mt-3 flex flex-col items-center gap-1 max-w-[280px] text-center">
+          {profile.bio && (
+            <p className="text-xs text-white/50 leading-relaxed">{profile.bio}</p>
+          )}
+          <div className="flex items-center gap-3 text-[10px] text-white/25 mt-1">
+            {profile.bike_name && <span>{profile.bike_name}</span>}
+            {profile.bike_name && profile.favorite_climb && <span>|</span>}
+            {profile.favorite_climb && <span>{profile.favorite_climb}</span>}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Edit button (own profile only) ═══ */}
+      {isOwner && (
+        <button
+          onClick={() => setEditOpen(true)}
+          className="relative z-10 mt-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] font-semibold text-white/40 transition hover:bg-white/10 hover:text-white/60"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Modifier le profil
+        </button>
+      )}
 
       {/* ═══ Quick weekly stats ═══ */}
       <div className="relative z-10 mt-6 w-full max-w-md">
@@ -458,6 +519,30 @@ export default function UserProfilePage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* ═══ Badges ═══ */}
+      <div className="relative z-10 mt-6 w-full max-w-md">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+          <p className="text-[10px] font-bold tracking-wider text-white/30 mb-3">BADGES</p>
+          <BadgeGrid userId={userId} />
+        </div>
+      </div>
+
+      {/* ═══ Edit modal ═══ */}
+      {isOwner && (
+        <ProfileEditForm
+          isOpen={editOpen}
+          onClose={() => setEditOpen(false)}
+          currentData={{
+            bio: profile.bio || "",
+            favorite_climb: profile.favorite_climb || "",
+            bike_name: profile.bike_name || "",
+            region: profile.region || "",
+            avatar_url: displayAvatarUrl,
+          }}
+          onSaved={fetchProfile}
+        />
+      )}
     </AnimatedPage>
   );
 }

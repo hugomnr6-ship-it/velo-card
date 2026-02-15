@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
+import { insertFeedEvent } from "@/lib/feed";
 
 export async function POST(
   request: Request,
@@ -185,6 +186,19 @@ export async function POST(
       avg_speed: avgSpeed,
     })
     .eq("id", raceId);
+
+  // Generate feed events for registered users who got results
+  for (const r of raceResultsToInsert) {
+    if (r.user_id) {
+      const { data: raceInfo } = await supabaseAdmin.from("races").select("name").eq("id", raceId).single();
+      insertFeedEvent(r.user_id, "race_result", {
+        race_name: raceInfo?.name || "Course",
+        position: r.position,
+        total_riders: totalRiders,
+        gen_score: r.gen_score,
+      });
+    }
+  }
 
   return Response.json({ success: true, ghost_count: ghostCount });
 }

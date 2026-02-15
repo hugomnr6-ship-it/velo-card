@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import AnimatedPage from "@/components/AnimatedPage";
 import GpxDropZone from "@/components/GpxDropZone";
 import ElevationProfile from "@/components/ElevationProfile";
+import WindOverlay from "@/components/WindOverlay";
 import {
   computeSegmentGradients,
   identifyClimbs,
@@ -17,6 +18,7 @@ import { computeRdi } from "@/lib/rdi";
 import { trackEvent } from "@/lib/analytics";
 import { IconMountain, IconCycling } from "@/components/icons/VeloIcons";
 import type { RouteSummary, WeatherData, RdiResult } from "@/types";
+import type maplibregl from "maplibre-gl";
 
 // Dynamic import MapLibre (no SSR)
 const CourseMap = dynamic(() => import("@/components/CourseMap"), {
@@ -34,6 +36,7 @@ export default function CourseClient() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [rdi, setRdi] = useState<RdiResult | null>(null);
   const [loadingWeather, setLoadingWeather] = useState(false);
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
 
   const handleRouteParsed = useCallback(async (routeSummary: RouteSummary) => {
     setSummary(routeSummary);
@@ -174,6 +177,13 @@ export default function CourseClient() {
             segments={segments}
             centerLat={summary.centerLat}
             centerLon={summary.centerLon}
+            onMapReady={setMapInstance}
+          />
+
+          {/* ═══ Wind Overlay ═══ */}
+          <WindOverlay
+            points={summary.points}
+            map={mapInstance}
           />
 
           {/* ═══ Elevation Profile ═══ */}

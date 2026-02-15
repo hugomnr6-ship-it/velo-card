@@ -11,6 +11,7 @@ interface CourseMapProps {
   segments: GradientSegment[];
   centerLat: number;
   centerLon: number;
+  onMapReady?: (map: maplibregl.Map) => void;
 }
 
 export default function CourseMap({
@@ -18,6 +19,7 @@ export default function CourseMap({
   segments,
   centerLat,
   centerLon,
+  onMapReady,
 }: CourseMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -38,6 +40,7 @@ export default function CourseMap({
     map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     map.on("load", () => {
+      onMapReady?.(map);
       // Fit to route bounds
       const lngs = points.map((p) => p.lon);
       const lats = points.map((p) => p.lat);

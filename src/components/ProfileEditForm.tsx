@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/contexts/ToastContext";
+import { trackEvent } from "@/lib/analytics";
 import { FRENCH_REGIONS } from "@/types";
 
 interface ProfileEditFormProps {
@@ -81,6 +82,12 @@ export default function ProfileEditForm({
         toast(data.error || "Erreur", "error");
       } else {
         toast("Profil mis a jour", "success");
+        trackEvent("profile_edited", {
+          has_bio: bio.length > 0,
+          has_climb: climb.length > 0,
+          has_bike: bike.length > 0,
+          has_region: region.length > 0,
+        });
         onSaved();
         onClose();
       }

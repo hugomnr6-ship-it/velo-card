@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import ErrorState from "@/components/ErrorState";
 import { useToast } from "@/contexts/ToastContext";
+import { trackEvent } from "@/lib/analytics";
 import type { CardTier, DuelCategory, DuelWithPlayers } from "@/types";
 import { DUEL_CATEGORY_LABELS } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
@@ -124,6 +125,11 @@ export default function DuelsPage() {
         throw new Error(data.error || "Erreur lors de la creation du defi");
       }
       toast("Defi envoye !", "success");
+      trackEvent("duel_created", {
+        category: selectedCategory,
+        stake: selectedStake,
+        opponent_tier: selectedOpponent.tier,
+      });
       setShowCreate(false);
       setSelectedOpponent(null);
       setSearchQuery("");
@@ -141,6 +147,7 @@ export default function DuelsPage() {
       const res = await fetch(`/api/duels/${duelId}/accept`, { method: "POST" });
       if (!res.ok) throw new Error("Erreur lors de l'acceptation");
       toast("Defi accepte !", "success");
+      trackEvent("duel_accepted", { duel_id: duelId });
       fetchDuels();
     } catch (err: any) {
       toast(err.message || "Erreur reseau", "error");

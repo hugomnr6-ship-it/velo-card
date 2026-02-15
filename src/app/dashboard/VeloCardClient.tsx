@@ -8,7 +8,9 @@ import ShareButton from "@/components/ShareButton";
 import LevelUpToast from "@/components/LevelUpToast";
 import MondayUpdateBanner from "@/components/MondayUpdateBanner";
 import RouteAnalysisSection from "./RouteAnalysisSection";
+import BadgeToast from "@/components/BadgeToast";
 import DashboardFeed from "./DashboardFeed";
+import { trackEvent } from "@/lib/analytics";
 import type { ComputedStats, CardTier, Badge, ClubInfo, StatDeltas, SpecialCardType } from "@/types";
 
 interface VeloCardClientProps {
@@ -46,9 +48,15 @@ export default function VeloCardClient({
     sessionStorage.setItem("velocard-prev-tier", tier);
   }, [tier]);
 
+  useEffect(() => {
+    trackEvent("dashboard_viewed", { tier, ovr: stats.ovr, badge_count: badges.length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <LevelUpToast previousTier={previousTier} currentTier={tier} />
+      <BadgeToast userId={userId} />
 
       {/* Monday Update Banner — shows deltas if available */}
       {deltas && deltas.ovr !== 0 && (
