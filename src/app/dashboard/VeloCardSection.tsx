@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { computeStats, getTier } from "@/lib/stats";
 import { computeBadges } from "@/lib/badges";
+import { checkBadges } from "@/lib/checkBadges";
 import { updateWarProgressForUser } from "@/lib/wars";
 import VeloCardClient from "./VeloCardClient";
 import RetryButton from "./RetryButton";
@@ -111,6 +112,14 @@ export default async function VeloCardSection({
 
     // 7. Update Squad Wars progress (non-blocking, don't break card render)
     updateWarProgressForUser(profile.id).catch(() => {});
+
+    // 7b. Check achievement badges (non-blocking)
+    checkBadges({
+      userId: profile.id,
+      stats,
+      tier,
+      streak,
+    }).catch(() => {});
 
     // 8. Compute PlayStyle badges
     const badges = computeBadges(stats);
