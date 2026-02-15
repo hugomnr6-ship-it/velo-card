@@ -163,6 +163,16 @@ export default function UserProfilePage() {
   }, [searchOpen]);
 
   /* ——— Loading ——— */
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((p) => { if (p?.id === userId) setIsOwner(true); })
+      .catch(() => {});
+  }, [session, userId]);
+
   if (loading) {
     return (
       <main className="flex min-h-screen flex-col items-center gap-4 px-4 pb-24 pt-12">
@@ -194,16 +204,6 @@ export default function UserProfilePage() {
   const config = tierConfig[stats.tier];
 
   // Check if the viewer is the profile owner
-  const [isOwner, setIsOwner] = useState(false);
-  const displayAvatarUrl = profile.custom_avatar_url || profile.avatar_url;
-
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch("/api/profile")
-      .then((r) => r.json())
-      .then((p) => { if (p?.id === userId) setIsOwner(true); })
-      .catch(() => {});
-  }, [session, userId]);
 
   // Radar data
   const radarData = [
