@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { StatDeltas, SpecialCardType } from "@/types";
 import { IconChartUp, IconChartDown, IconArrowUp, IconArrowDown, IconFire, IconCelebration, SPECIAL_ICONS } from "@/components/icons/VeloIcons";
@@ -40,7 +40,23 @@ export default function MondayUpdateBanner({
   specialCard,
   streak = 0,
 }: MondayUpdateBannerProps) {
+  // Persist dismissal per week in localStorage
+  const weekKey = `velocard-monday-dismissed-${new Date().toISOString().slice(0, 10)}`;
   const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem(weekKey)) {
+      setDismissed(true);
+    }
+  }, [weekKey]);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(weekKey, "1");
+    }
+  };
+
   const isPositive = deltas.ovr > 0;
   const special = specialCard ? specialCardLabels[specialCard] : null;
 
@@ -63,7 +79,7 @@ export default function MondayUpdateBanner({
           >
             {/* Close button */}
             <button
-              onClick={() => setDismissed(true)}
+              onClick={handleDismiss}
               className="absolute right-3 top-3 text-white/30 hover:text-white/60 transition"
             >
               \u2715

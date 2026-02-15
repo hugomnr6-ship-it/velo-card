@@ -10,16 +10,17 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { IconCheck, IconX, IconInfo } from "@/components/icons/VeloIcons";
 
-type ToastType = "success" | "error" | "info";
+type ToastType = "success" | "error" | "info" | "badge";
 
 interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  icon?: string; // For badge toasts — emoji icon
 }
 
 interface ToastContextValue {
-  toast: (message: string, type?: ToastType) => void;
+  toast: (message: string, type?: ToastType, icon?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -29,12 +30,12 @@ let nextId = 0;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string, type: ToastType = "info") => {
+  const toast = useCallback((message: string, type: ToastType = "info", icon?: string) => {
     const id = nextId++;
-    setToasts((prev) => [...prev.slice(-2), { id, message, type }]);
+    setToasts((prev) => [...prev.slice(-4), { id, message, type, icon }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
+    }, 4000);
   }, []);
 
   return (
@@ -54,7 +55,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   ? "border-green-500/30 text-green-400"
                   : t.type === "error"
                     ? "border-red-500/30 text-red-400"
-                    : "border-white/[0.10] text-white/80"
+                    : t.type === "badge"
+                      ? "border-[#FFD700]/30 text-[#FFD700]"
+                      : "border-white/[0.10] text-white/80"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -63,7 +66,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     ? <IconCheck size={16} className="text-green-400" />
                     : t.type === "error"
                       ? <IconX size={16} className="text-red-400" />
-                      : <IconInfo size={16} className="text-white/60" />}
+                      : t.type === "badge"
+                        ? <span className="text-base">{t.icon || "\uD83C\uDFC5"}</span>
+                        : <IconInfo size={16} className="text-white/60" />}
                 </span>
                 <span>{t.message}</span>
               </div>
@@ -71,13 +76,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               <motion.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
-                transition={{ duration: 3, ease: "linear" }}
+                transition={{ duration: 4, ease: "linear" }}
                 className={`absolute bottom-0 left-0 h-0.5 w-full origin-left rounded-b-xl ${
                   t.type === "success"
                     ? "bg-green-500/40"
                     : t.type === "error"
                       ? "bg-red-500/40"
-                      : "bg-[#94A3B8]/40"
+                      : t.type === "badge"
+                        ? "bg-[#FFD700]/40"
+                        : "bg-[#94A3B8]/40"
                 }`}
               />
             </motion.div>
