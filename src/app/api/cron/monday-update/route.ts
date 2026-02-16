@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { computeStats, getTier } from "@/lib/stats";
 import { computeOVR } from "@/lib/stats";
 import { insertFeedEvent } from "@/lib/feed";
+import { getRaceBonus } from "@/lib/race-points";
 import type { StravaActivity, ComputedStats, CardTier, SpecialCardType } from "@/types";
 
 // Decay rate: stats lose 2-5% per inactive week (makes people ride to keep their card)
@@ -134,6 +135,48 @@ export async function GET(request: Request) {
         newTier = prevStats.tier as CardTier;
       }
 
+      // 4b. Apply race result bonuses to stats
+      const { data: weekRaceResults } = await supabaseAdmin
+        .from("race_results")
+        .select("position, race_id, races!inner(total_participants, federation, distance_km, elevation_gain, rdi_score)")
+        .eq("user_id", userId)
+        .gte("created_at", oneWeekAgo.toISOString());
+
+      let totalResBoost = 0;
+      let totalOvrBoost = 0;
+
+      if (weekRaceResults && weekRaceResults.length > 0) {
+        for (const result of weekRaceResults) {
+          const race = (result as any).races;
+          const total = race?.total_participants || 1;
+          const bonus = getRaceBonus(result.position, total);
+          totalResBoost += bonus.resBoost;
+          totalOvrBoost += bonus.ovrBoost;
+        }
+
+        // Cap bonuses: max +5 RES, +3 OVR per week
+        totalResBoost = Math.min(totalResBoost, 5);
+        totalOvrBoost = Math.min(totalOvrBoost, 3);
+
+        // Apply RES boost
+        newStats.res = Math.min(99, newStats.res + totalResBoost);
+
+        // Recalculate OVR with boosted stats + temporary OVR boost
+        newStats.ovr = Math.min(99, computeOVR(newStats) + totalOvrBoost);
+        newTier = getTier(newStats);
+      }
+
+      // 4c. Check for 3 consecutive podiums → In-Form card
+      const { data: recentPodiums } = await supabaseAdmin
+        .from("race_results")
+        .select("position")
+        .eq("user_id", userId)
+        .lte("position", 3)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      const hasThreeConsecutivePodiums = recentPodiums && recentPodiums.length >= 3;
+
       // 5. Apply decay if inactive this week
       if (!isActive) {
         const currentStreak = userStat.active_weeks_streak || 0;
@@ -160,8 +203,8 @@ export async function GET(request: Request) {
       let specialCard: SpecialCardType | null = null;
       const deltaOvr = newStats.ovr - prevStats.ovr;
 
-      // "In-Form" = gained 5+ OVR in one week
-      if (deltaOvr >= 5) {
+      // "In-Form" = gained 5+ OVR in one week OR 3 consecutive podiums
+      if (deltaOvr >= 5 || hasThreeConsecutivePodiums) {
         specialCard = "in_form";
       }
 

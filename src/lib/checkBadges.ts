@@ -83,6 +83,49 @@ export async function checkBadges(ctx: CheckBadgesContext): Promise<string[]> {
 
   if (totwData && totwData.length > 0) toUnlock.push("echappee_once");
 
+  // Race badges — based on race_results
+  const { data: raceResults } = await supabaseAdmin
+    .from("race_results")
+    .select("position, created_at, race_id, races!inner(distance_km, elevation_gain, rdi_score)")
+    .eq("user_id", userId);
+
+  if (raceResults && raceResults.length > 0) {
+    const totalRaces = raceResults.length;
+    const victories = raceResults.filter((r: any) => r.position === 1);
+    const podiums = raceResults.filter((r: any) => r.position <= 3);
+    const top10s = raceResults.filter((r: any) => r.position <= 10);
+
+    // Premiere Victoire
+    if (victories.length >= 1) toUnlock.push("race_first_win");
+
+    // Podium Machine (3 podiums)
+    if (podiums.length >= 3) toUnlock.push("race_podium_3");
+
+    // Decathlonien (10 courses)
+    if (totalRaces >= 10) toUnlock.push("race_10_starts");
+
+    // Serial Winner (3 victories — same season check simplified to all-time)
+    if (victories.length >= 3) toUnlock.push("race_serial_winner");
+
+    // Iron Man (5 courses in 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentRaces = raceResults.filter((r: any) => new Date(r.created_at) >= thirtyDaysAgo);
+    if (recentRaces.length >= 5) toUnlock.push("race_iron_man");
+
+    // Roi des Cimes (victory on race with RDI >= 7)
+    const mountainWins = victories.filter((r: any) => (r as any).races?.rdi_score >= 7);
+    if (mountainWins.length >= 1) toUnlock.push("race_mountain_king");
+
+    // Costaud (finish a race with distance >= 100km)
+    const longRaces = raceResults.filter((r: any) => (r as any).races?.distance_km >= 100);
+    if (longRaces.length >= 1) toUnlock.push("race_centurion");
+
+    // Grimpeur Confirme (3 top 10 in mountain races — elevation_gain >= 1500)
+    const mountainTop10s = top10s.filter((r: any) => (r as any).races?.elevation_gain >= 1500);
+    if (mountainTop10s.length >= 3) toUnlock.push("race_climber");
+  }
+
   // 3. Filter out already earned
   const newBadges = toUnlock.filter(
     (badgeId) => !earnedSet.has(badgeId) && badgeMap.has(badgeId),

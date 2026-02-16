@@ -53,6 +53,8 @@ interface ProfileData {
   career: {
     totalKm: number; totalDplus: number; totalRides: number; totalTime: number;
     echappeeSelections: number; warsParticipated: number; totalWarKm: number;
+    victories: number; podiums: number; racesCompleted: number; totalRacePoints: number;
+    recentResults: { position: number; raceName: string; raceDate: string; totalParticipants: number | null; points: number }[];
   };
 }
 
@@ -776,32 +778,108 @@ function CareerTab({
   const memberSince = new Date(profile.created_at);
   const months = Math.max(1, Math.floor((Date.now() - memberSince.getTime()) / (1000 * 60 * 60 * 24 * 30)));
 
+  const positionColor = (pos: number) => {
+    if (pos === 1) return "#FFD700";
+    if (pos === 2) return "#C0C0C0";
+    if (pos === 3) return "#CD7F32";
+    return "rgba(255,255,255,0.5)";
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    } catch { return dateStr; }
+  };
+
   const achievements = [
     { iconKey: "cycling", label: "Total KM", value: `${(career.totalKm ?? 0).toLocaleString()} km`, condition: (career.totalKm ?? 0) > 0 },
     { iconKey: "mountain", label: "Total D+", value: `${(career.totalDplus ?? 0).toLocaleString()} m`, condition: (career.totalDplus ?? 0) > 0 },
     { iconKey: "calendar", label: "Sorties", value: (career.totalRides ?? 0).toString(), condition: (career.totalRides ?? 0) > 0 },
     { iconKey: "timer", label: "Temps Total", value: formatTime(career.totalTime ?? 0), condition: (career.totalTime ?? 0) > 0 },
-    { iconKey: "star", label: "Échappées", value: (career.echappeeSelections ?? 0).toString(), condition: (career.echappeeSelections ?? 0) > 0 },
+    { iconKey: "star", label: "Echappees", value: (career.echappeeSelections ?? 0).toString(), condition: (career.echappeeSelections ?? 0) > 0 },
     { iconKey: "swords", label: "Guerres", value: (career.warsParticipated ?? 0).toString(), condition: (career.warsParticipated ?? 0) > 0 },
-    { iconKey: "shield", label: "KM en Guerre", value: `${career.totalWarKm ?? 0} km`, condition: (career.totalWarKm ?? 0) > 0 },
     { iconKey: "calendar", label: "Membre depuis", value: `${months} mois`, condition: true },
   ];
 
-  // Unlock-style badges
   const milestones = [
-    { iconKey: "star", name: "Premier Coup de Pédale", desc: "1ère sortie enregistrée", unlocked: (career.totalRides ?? 0) >= 1 },
-    { iconKey: "trophy", name: "Centurion", desc: "100 km cumulés", unlocked: (career.totalKm ?? 0) >= 100 },
-    { iconKey: "mountain", name: "Col Hunter", desc: "1000 m D+ cumulés", unlocked: (career.totalDplus ?? 0) >= 1000 },
-    { iconKey: "chartup", name: "Machine", desc: "1000 km cumulés", unlocked: (career.totalKm ?? 0) >= 1000 },
-    { iconKey: "star", name: "Échappé", desc: "Sélectionné dans L'Échappée", unlocked: (career.echappeeSelections ?? 0) >= 1 },
-    { iconKey: "swords", name: "Guerrier", desc: "Participer à une Guerre", unlocked: (career.warsParticipated ?? 0) >= 1 },
-    { iconKey: "rocket", name: "Ultra", desc: "5000 km cumulés", unlocked: (career.totalKm ?? 0) >= 5000 },
+    { iconKey: "star", name: "Premier Coup de Pedale", desc: "1ere sortie enregistree", unlocked: (career.totalRides ?? 0) >= 1 },
+    { iconKey: "trophy", name: "Centurion", desc: "100 km cumules", unlocked: (career.totalKm ?? 0) >= 100 },
+    { iconKey: "mountain", name: "Col Hunter", desc: "1000 m D+ cumules", unlocked: (career.totalDplus ?? 0) >= 1000 },
+    { iconKey: "chartup", name: "Machine", desc: "1000 km cumules", unlocked: (career.totalKm ?? 0) >= 1000 },
+    { iconKey: "star", name: "Echappe", desc: "Selectionne dans L'Echappee", unlocked: (career.echappeeSelections ?? 0) >= 1 },
+    { iconKey: "swords", name: "Guerrier", desc: "Participer a une Guerre", unlocked: (career.warsParticipated ?? 0) >= 1 },
+    { iconKey: "rocket", name: "Ultra", desc: "5000 km cumules", unlocked: (career.totalKm ?? 0) >= 5000 },
     { iconKey: "crown", name: "Roi de la Montagne", desc: "10 000 m D+", unlocked: (career.totalDplus ?? 0) >= 10000 },
   ];
 
+  const hasRaceData = (career.racesCompleted ?? 0) > 0;
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Career stats grid */}
+      {/* Race Palmares — Top section */}
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-3">PALMARES COURSE</p>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="text-center rounded-xl border border-yellow-500/20 bg-yellow-500/[0.06] p-3">
+            <p className="text-2xl font-black font-['JetBrains_Mono']" style={{ color: "#FFD700" }}>{career.victories ?? 0}</p>
+            <p className="text-[9px] font-bold tracking-wider text-white/30">VICTOIRES</p>
+          </div>
+          <div className="text-center rounded-xl border border-gray-400/20 bg-gray-400/[0.06] p-3">
+            <p className="text-2xl font-black font-['JetBrains_Mono']" style={{ color: "#C0C0C0" }}>{career.podiums ?? 0}</p>
+            <p className="text-[9px] font-bold tracking-wider text-white/30">PODIUMS</p>
+          </div>
+          <div className="text-center rounded-xl border border-indigo-500/20 bg-indigo-500/[0.06] p-3">
+            <p className="text-2xl font-black font-['JetBrains_Mono']" style={{ color: "#6366F1" }}>{career.racesCompleted ?? 0}</p>
+            <p className="text-[9px] font-bold tracking-wider text-white/30">COURSES</p>
+          </div>
+        </div>
+
+        {career.totalRacePoints > 0 && (
+          <div className="text-center rounded-lg bg-white/[0.03] py-2">
+            <span className="text-sm font-black font-['JetBrains_Mono'] text-white">{career.totalRacePoints}</span>
+            <span className="text-[10px] text-white/30 ml-1.5">points course</span>
+          </div>
+        )}
+
+        {/* Recent Results */}
+        {hasRaceData && career.recentResults && career.recentResults.length > 0 && (
+          <div className="mt-3">
+            <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">DERNIERS RESULTATS</p>
+            <div className="flex flex-col gap-1.5">
+              {career.recentResults.map((r, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="flex items-center gap-3 rounded-lg bg-white/[0.03] px-3 py-2"
+                >
+                  <span
+                    className="text-base font-black font-['JetBrains_Mono'] w-7 text-center"
+                    style={{ color: positionColor(r.position) }}
+                  >
+                    {r.position}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-bold text-white truncate">{r.raceName}</p>
+                    <p className="text-[9px] text-white/30">
+                      {formatDate(r.raceDate)}
+                      {r.totalParticipants ? ` \u00B7 ${r.totalParticipants} participants` : ""}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!hasRaceData && (
+          <p className="text-[11px] text-white/20 text-center py-4">Aucun resultat de course enregistre</p>
+        )}
+      </div>
+
+      {/* Strava career stats grid */}
       <div className="grid grid-cols-2 gap-2">
         {achievements.filter((a) => a.condition).map((item) => (
           <div

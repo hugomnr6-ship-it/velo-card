@@ -41,6 +41,7 @@ export default function BadgeGrid({ userId }: BadgeGridProps) {
     { key: "progression", label: "Progression", badges: allBadgeDefinitions.filter((b) => b.category === "progression") },
     { key: "social", label: "Social", badges: allBadgeDefinitions.filter((b) => b.category === "social") },
     { key: "performance", label: "Performance", badges: allBadgeDefinitions.filter((b) => b.category === "performance") },
+    { key: "race", label: "Course", badges: allBadgeDefinitions.filter((b) => b.category === "race") },
   ];
 
   const totalEarned = allBadgeDefinitions.filter((b) => earnedIds.has(b.id)).length;

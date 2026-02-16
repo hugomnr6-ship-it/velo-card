@@ -93,7 +93,7 @@ export interface AchievementBadge {
   name: string;
   description: string;
   icon: string;
-  category: "progression" | "social" | "performance";
+  category: "progression" | "social" | "performance" | "race";
   rarity: "common" | "rare" | "epic" | "legendary";
 }
 
@@ -116,6 +116,15 @@ export const allBadgeDefinitions: AchievementBadge[] = [
   { id: "speed_demon", name: "Demon de Vitesse", description: "PAC >= 70", icon: "\uD83D\uDCA8", category: "performance", rarity: "epic" },
   { id: "iron_legs", name: "Jambes d'Acier", description: "RES >= 60", icon: "\uD83E\uDDBF", category: "performance", rarity: "rare" },
   { id: "mountain_goat", name: "Chevre de Montagne", description: "MON >= 80", icon: "\uD83D\uDC10", category: "performance", rarity: "legendary" },
+  // Race badges (8)
+  { id: "race_first_win", name: "Premiere Victoire", description: "Remporte ta premiere course", icon: "\uD83E\uDD47", category: "race", rarity: "epic" },
+  { id: "race_podium_3", name: "Podium Machine", description: "3 podiums au total", icon: "\uD83C\uDFC5", category: "race", rarity: "rare" },
+  { id: "race_10_starts", name: "Decathlonien", description: "10 courses disputees", icon: "\uD83C\uDFCE\uFE0F", category: "race", rarity: "rare" },
+  { id: "race_iron_man", name: "Iron Man", description: "5 courses en 30 jours", icon: "\uD83D\uDCAA", category: "race", rarity: "epic" },
+  { id: "race_serial_winner", name: "Serial Winner", description: "3 victoires en une saison", icon: "\uD83D\uDD25", category: "race", rarity: "legendary" },
+  { id: "race_mountain_king", name: "Roi des Cimes", description: "Victoire sur course RDI >= 7", icon: "\uD83D\uDC51", category: "race", rarity: "epic" },
+  { id: "race_centurion", name: "Costaud", description: "Finir une course de +100km", icon: "\uD83E\uDDBE", category: "race", rarity: "rare" },
+  { id: "race_climber", name: "Grimpeur Confirme", description: "3 top 10 en course montagne", icon: "\u26F0\uFE0F", category: "race", rarity: "epic" },
 ];
 
 export const badgeMap = new Map(allBadgeDefinitions.map((b) => [b.id, b]));

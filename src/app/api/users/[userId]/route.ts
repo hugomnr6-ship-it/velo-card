@@ -107,6 +107,45 @@ export async function GET(
       warsParticipated = (warContributions || []).length;
     } catch { /* table doesn't exist yet */ }
 
+    // 9. Race palmares
+    let victories = 0;
+    let podiums = 0;
+    let racesCompleted = 0;
+    let totalRacePoints = 0;
+    let recentResults: { position: number; raceName: string; raceDate: string; totalParticipants: number | null; points: number }[] = [];
+
+    try {
+      // Get race results with race details
+      const { data: raceResultsData } = await supabaseAdmin
+        .from("race_results")
+        .select("position, created_at, race_id, races!inner(name, date, total_participants)")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (raceResultsData && raceResultsData.length > 0) {
+        racesCompleted = raceResultsData.length;
+        victories = raceResultsData.filter((r: any) => r.position === 1).length;
+        podiums = raceResultsData.filter((r: any) => r.position <= 3).length;
+
+        // Get total race points
+        const { data: pointsData } = await supabaseAdmin
+          .from("race_points")
+          .select("points")
+          .eq("user_id", userId);
+
+        totalRacePoints = (pointsData || []).reduce((sum: number, p: any) => sum + (p.points || 0), 0);
+
+        // Build recent results (last 10)
+        recentResults = raceResultsData.slice(0, 10).map((r: any) => ({
+          position: r.position,
+          raceName: r.races?.name || "Course",
+          raceDate: r.races?.date || r.created_at,
+          totalParticipants: r.races?.total_participants || null,
+          points: 0, // will be enriched client-side if needed
+        }));
+      }
+    } catch { /* race tables may not exist */ }
+
     // Compute deltas if prev stats exist
     const deltas = stats ? {
       pac: stats.pac - (stats.prev_pac || stats.pac),
@@ -138,6 +177,12 @@ export async function GET(
         echappeeSelections: echappeeCount || 0,
         warsParticipated,
         totalWarKm: Math.round(totalWarKm),
+        // Race palmares
+        victories,
+        podiums,
+        racesCompleted,
+        totalRacePoints,
+        recentResults,
       },
     });
   } catch (err: any) {

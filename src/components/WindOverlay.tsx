@@ -194,13 +194,52 @@ export default function WindOverlay({ points, map, targetDate }: WindOverlayProp
   );
 }
 
+/** Create a wind arrow image for use as MapLibre symbol */
+function createArrowImage(map: maplibregl.Map, id: string, color: string) {
+  const size = 24;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  // Draw arrow pointing UP (0 degrees = north)
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(size / 2, 2);        // top center
+  ctx.lineTo(size - 4, size - 4); // bottom right
+  ctx.lineTo(size / 2, size - 8); // notch
+  ctx.lineTo(4, size - 4);        // bottom left
+  ctx.closePath();
+  ctx.fill();
+
+  // Stroke for visibility
+  ctx.strokeStyle = "#0B1120";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  const imageData = ctx.getImageData(0, 0, size, size);
+  if (!map.hasImage(id)) {
+    map.addImage(id, imageData, { sdf: false });
+  }
+}
+
 /** Add wind direction arrows as a GeoJSON layer on the MapLibre map */
 function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
-  // Remove existing layer
+  // Remove existing layers
   try {
     if (map.getLayer("wind-arrows")) map.removeLayer("wind-arrows");
+    if (map.getLayer("wind-circles")) map.removeLayer("wind-circles");
     if (map.getSource("wind-arrows")) map.removeSource("wind-arrows");
   } catch {}
+
+  // Create arrow images for each impact color
+  const colorIds: Record<string, string> = {};
+  Object.entries(impactColors).forEach(([impact, color]) => {
+    const imageId = `wind-arrow-${impact}`;
+    colorIds[impact] = imageId;
+    createArrowImage(map, imageId, color);
+  });
 
   const features = windData.map((w) => ({
     type: "Feature" as const,
@@ -211,7 +250,9 @@ function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
     properties: {
       windDirection: w.windDirection,
       color: impactColors[w.impact],
+      impact: w.impact,
       speed: w.windSpeed,
+      arrowImage: colorIds[w.impact] || colorIds["neutral"],
     },
   }));
 
@@ -220,16 +261,30 @@ function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
     data: { type: "FeatureCollection", features },
   });
 
+  // Background circle for visibility
   map.addLayer({
-    id: "wind-arrows",
+    id: "wind-circles",
     type: "circle",
     source: "wind-arrows",
     paint: {
-      "circle-radius": 6,
-      "circle-color": ["get", "color"],
-      "circle-stroke-color": "#0B1120",
-      "circle-stroke-width": 2,
-      "circle-opacity": 0.85,
+      "circle-radius": 14,
+      "circle-color": "#0B1120",
+      "circle-opacity": 0.7,
+    },
+  });
+
+  // Arrow symbols rotated by wind direction
+  map.addLayer({
+    id: "wind-arrows",
+    type: "symbol",
+    source: "wind-arrows",
+    layout: {
+      "icon-image": ["get", "arrowImage"],
+      "icon-size": 0.9,
+      "icon-rotate": ["get", "windDirection"],
+      "icon-rotation-alignment": "map",
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
     },
   });
 }

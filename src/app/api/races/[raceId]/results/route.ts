@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
 import { insertFeedEvent } from "@/lib/feed";
 import { computeRacePoints } from "@/lib/race-points";
+import { applyRaceBonusToStats, evaluateRaceBadges, checkInFormStatus } from "@/lib/race-card-link";
 import type { Federation } from "@/types";
 
 export async function POST(
@@ -225,6 +226,23 @@ export async function POST(
   // Insert new race points
   if (racePointsToInsert.length > 0) {
     await supabaseAdmin.from("race_points").insert(racePointsToInsert);
+  }
+
+  // ═══ Apply race bonuses to card stats, badges, and In-Form detection ═══
+  // Non-blocking: these are important but shouldn't block the response
+  const userIdsWithResults = raceResultsToInsert
+    .filter((r) => r.user_id)
+    .map((r) => ({ userId: r.user_id as string, position: r.position as number }));
+
+  for (const { userId: uid, position: pos } of userIdsWithResults) {
+    // 1. Boost card stats (RES + OVR) based on position
+    applyRaceBonusToStats(uid, pos, totalRiders).catch(() => {});
+
+    // 2. Evaluate and award race badges
+    evaluateRaceBadges(uid).catch(() => {});
+
+    // 3. Check for In-Form status (3 consecutive podiums)
+    checkInFormStatus(uid).catch(() => {});
   }
 
   return Response.json({ success: true, ghost_count: ghostCount });

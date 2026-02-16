@@ -12,6 +12,7 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/space-grotesk": "^5.2.10",
+    "@next/swc-linux-x64-gnu": "^16.1.6",
     "@sentry/nextjs": "^10.38.0",
     "@supabase/supabase-js": "^2.45.0",
     "framer-motion": "^12.34.0",
