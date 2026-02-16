@@ -584,11 +584,27 @@ export default function VeloCard({
         width: 280,
         height: 470,
         borderRadius: 18,
-        border: `1.5px solid ${borderClr}`,
+        border: tier === "legende" || tier === "diamant"
+          ? `1.5px solid ${tierAccentHex[tier]}40`
+          : `1.5px solid ${borderClr}`,
         background: bgGradient,
         isolation: "isolate",
+        boxShadow: tier === "legende"
+          ? `inset 0 0 30px rgba(255,215,0,0.08), 0 0 15px rgba(255,215,0,0.05)`
+          : tier === "diamant"
+          ? `inset 0 0 30px rgba(0,212,255,0.06), 0 0 10px rgba(0,212,255,0.03)`
+          : "none",
       }}
     >
+      {/* ── Noise texture overlay (z-4) ── */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[4] rounded-[18px] opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "128px 128px",
+        }}
+      />
+
       {/* ── Texture overlay (z-5) ── */}
       <div className={`pointer-events-none absolute inset-0 z-[5] rounded-[18px] texture-${sv ? `${specialCard}` : tier}`} />
 
@@ -666,8 +682,10 @@ export default function VeloCard({
                   "--delay": `${Math.random() * 5}s`,
                   "--duration": `${3 + Math.random() * 4}s`,
                   background: color,
-                  width: `${2 + Math.random() * 2}px`,
-                  height: `${2 + Math.random() * 2}px`,
+                  width: `${3 + Math.random() * 2}px`,
+                  height: `${3 + Math.random() * 2}px`,
+                  boxShadow: `0 0 4px ${color}`,
+                  opacity: 0.7,
                 } as React.CSSProperties}
               />
             );

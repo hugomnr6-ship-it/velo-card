@@ -20,7 +20,23 @@ const fedColors: Record<string, { bg: string; text: string }> = {
   OTHER: { bg: "bg-gray-500/15", text: "text-gray-400" },
 };
 
-// ——— Group races by week ———
+// ——— Check if a date is today ———
+function isToday(dateStr: string) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.toDateString() === now.toDateString();
+}
+
+// ——— Check if a date is past ———
+function isPastDate(dateStr: string) {
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return d < now;
+}
+
+// ——— Group races by week (only upcoming + today) ———
 function groupByWeek(races: RaceWithCreator[]): { label: string; races: RaceWithCreator[] }[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -31,9 +47,8 @@ function groupByWeek(races: RaceWithCreator[]): { label: string; races: RaceWith
     const diffDays = Math.floor((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     let label: string;
-    if (diffDays < 0) {
-      label = "Passees";
-    } else if (diffDays === 0) {
+    if (diffDays < 0) continue; // Skip past races
+    if (diffDays === 0) {
       label = "Aujourd'hui";
     } else if (diffDays === 1) {
       label = "Demain";
@@ -72,27 +87,48 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
 }
 
 // ——— Race row component ———
-function RaceRow({ race }: { race: RaceWithCreator }) {
+function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) {
   const d = new Date(race.date);
   const day = d.getDate();
   const month = d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase().replace(".", "");
   const fed = fedColors[race.federation] || fedColors.OTHER;
+  const today = isToday(race.date);
 
   return (
     <Link href={`/races/${race.id}`}>
       <motion.div
-        className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3 transition hover:border-[#6366F1]/20 hover:bg-[#22223A]/60"
+        className={`flex items-center gap-3 rounded-xl border p-3 transition ${
+          isPast
+            ? "border-white/[0.04] bg-[#1A1A2E]/30 opacity-50"
+            : today
+            ? "border-l-[3px] border-l-[#6366F1] border-t-white/[0.06] border-r-white/[0.06] border-b-white/[0.06] bg-[#6366F1]/[0.03]"
+            : "border-white/[0.06] bg-[#1A1A2E]/60 hover:border-[#6366F1]/20 hover:bg-[#22223A]/60"
+        }`}
         whileTap={{ scale: 0.98 }}
       >
         {/* Date badge */}
-        <div className="flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-lg bg-[#6366F1]/10">
+        <div className={`flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-lg ${
+          today ? "bg-[#6366F1]/20" : "bg-[#6366F1]/10"
+        }`}>
           <span className="text-lg font-black leading-none text-white">{day}</span>
-          <span className="text-[9px] font-bold text-[#6366F1]">{month}</span>
+          <span className={`text-[9px] font-bold ${today ? "text-[#818CF8]" : "text-[#6366F1]"}`}>{month}</span>
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-bold text-white">{race.name}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-bold text-white">{race.name}</p>
+            {today && (
+              <span className="shrink-0 rounded-md bg-[#6366F1]/20 px-1.5 py-0.5 text-[9px] font-black text-[#818CF8]">
+                AUJOURD&apos;HUI
+              </span>
+            )}
+            {isPast && (
+              <span className="shrink-0 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold text-white/30">
+                Terminee
+              </span>
+            )}
+          </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#64748B]">
             <span>{race.location}</span>
             {race.distance_km && <span>· {race.distance_km} km</span>}
@@ -122,9 +158,11 @@ function RaceRow({ race }: { race: RaceWithCreator }) {
         </div>
 
         {/* Chevron */}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[#475569]">
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+        {!isPast && (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[#475569]">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        )}
       </motion.div>
     </Link>
   );
@@ -139,6 +177,7 @@ export default function RacesCalendarPage() {
   const [fedFilter, setFedFilter] = useState<string>("all");
   const [catFilter, setCatFilter] = useState<string>("all");
   const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [showPast, setShowPast] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
@@ -154,6 +193,8 @@ export default function RacesCalendarPage() {
       if (genderFilter !== "all") params.set("gender", genderFilter);
       if (search) params.set("search", search);
       params.set("limit", "300");
+      // Fetch all (including past) so we can toggle
+      params.set("upcoming", "false");
 
       const res = await fetch(`/api/races?${params.toString()}`);
       if (res.ok) {
@@ -183,12 +224,23 @@ export default function RacesCalendarPage() {
   }, [allRaces]);
 
   // Apply category filter client-side so the pills stay visible
-  const races = useMemo(() => {
+  const filteredRaces = useMemo(() => {
     if (catFilter === "all") return allRaces;
     return allRaces.filter(r => r.category === catFilter);
   }, [allRaces, catFilter]);
 
-  const grouped = useMemo(() => groupByWeek(races), [races]);
+  // Split into upcoming and past
+  const upcomingRaces = useMemo(
+    () => filteredRaces.filter((r) => !isPastDate(r.date)),
+    [filteredRaces]
+  );
+
+  const pastRaces = useMemo(
+    () => filteredRaces.filter((r) => isPastDate(r.date)).reverse(),
+    [filteredRaces]
+  );
+
+  const grouped = useMemo(() => groupByWeek(upcomingRaces), [upcomingRaces]);
 
   if (status === "loading" || !session) {
     return (
@@ -256,7 +308,7 @@ export default function RacesCalendarPage() {
         {/* Race count */}
         {!loading && (
           <p className="mb-4 text-xs text-[#64748B]">
-            {races.length} course{races.length !== 1 ? "s" : ""} trouvee{races.length !== 1 ? "s" : ""}
+            {upcomingRaces.length} course{upcomingRaces.length !== 1 ? "s" : ""} a venir
           </p>
         )}
 
@@ -265,7 +317,7 @@ export default function RacesCalendarPage() {
           <div className="flex flex-col gap-3">
             {[0, 1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
           </div>
-        ) : races.length === 0 ? (
+        ) : upcomingRaces.length === 0 && pastRaces.length === 0 ? (
           <EmptyState
             icon={<FlagIcon size={48} />}
             title="Aucune course"
@@ -273,6 +325,7 @@ export default function RacesCalendarPage() {
           />
         ) : (
           <div className="flex flex-col gap-6">
+            {/* Upcoming races */}
             {grouped.map((group) => (
               <div key={group.label}>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-[#64748B]">
@@ -285,6 +338,43 @@ export default function RacesCalendarPage() {
                 </div>
               </div>
             ))}
+
+            {/* No upcoming but have past */}
+            {upcomingRaces.length === 0 && pastRaces.length > 0 && (
+              <EmptyState
+                icon={<FlagIcon size={48} />}
+                title="Pas de courses a venir"
+                description="Toutes les courses sont passees. Consulte-les ci-dessous."
+              />
+            )}
+
+            {/* Past races toggle */}
+            {pastRaces.length > 0 && (
+              <div className="mt-2">
+                <button
+                  onClick={() => setShowPast(!showPast)}
+                  className="w-full py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] text-white/40 text-sm font-medium active:bg-white/[0.04] transition-colors flex items-center justify-center gap-2"
+                >
+                  {showPast ? "Masquer" : "Voir"} les courses passees ({pastRaces.length})
+                  <span className={`transform transition-transform ${showPast ? "rotate-180" : ""}`}>
+                    ▼
+                  </span>
+                </button>
+
+                {showPast && (
+                  <motion.div
+                    className="mt-3 flex flex-col gap-2"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {pastRaces.map((race) => (
+                      <RaceRow key={race.id} race={race} isPast={true} />
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

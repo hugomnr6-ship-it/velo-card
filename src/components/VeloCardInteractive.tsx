@@ -15,16 +15,20 @@ interface VeloCardInteractiveProps {
   specialCard?: SpecialCardType | null;
 }
 
-const tierHoloColors: Record<CardTier, string> = {
-  bronze:
-    "linear-gradient(135deg, rgba(255,140,50,0.05) 0%, rgba(255,200,100,0.08) 25%, rgba(255,100,50,0.04) 50%, rgba(255,220,150,0.06) 75%, rgba(255,140,50,0.05) 100%)",
-  argent:
-    "linear-gradient(135deg, rgba(150,180,255,0.05) 0%, rgba(200,220,255,0.08) 25%, rgba(150,200,255,0.04) 50%, rgba(220,240,255,0.06) 75%, rgba(150,180,255,0.05) 100%)",
-  platine:
-    "linear-gradient(135deg, rgba(224,232,240,0.05) 0%, rgba(200,230,240,0.08) 25%, rgba(224,232,240,0.04) 50%, rgba(229,228,226,0.06) 75%, rgba(224,232,240,0.05) 100%)",
-  diamant:
-    "linear-gradient(135deg, rgba(185,242,255,0.06) 0%, rgba(200,248,255,0.09) 25%, rgba(185,242,255,0.05) 50%, rgba(220,250,255,0.07) 75%, rgba(185,242,255,0.06) 100%)",
-  legende: "linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,240,100,0.09) 25%, rgba(255,200,0,0.05) 50%, rgba(255,250,150,0.07) 75%, rgba(255,215,0,0.06) 100%)",
+const tierAccentHex: Record<CardTier, string> = {
+  bronze: "#E8A854",
+  argent: "#B8A0D8",
+  platine: "#E0E8F0",
+  diamant: "#00D4FF",
+  legende: "#FFD700",
+};
+
+const tierAccentRgb: Record<CardTier, string> = {
+  bronze: "232,168,84",
+  argent: "184,160,216",
+  platine: "224,232,240",
+  diamant: "0,212,255",
+  legende: "255,215,0",
 };
 
 export default function VeloCardInteractive({
@@ -39,30 +43,88 @@ export default function VeloCardInteractive({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tilt } = useGyroscope(wrapperRef);
 
-  // Compute holo angle from tilt for dynamic color shift
-  const holoAngle = 135 + tilt.rotateY * 3 + tilt.rotateX * 2;
-  const holoOpacity =
-    0.1 +
-    (Math.abs(tilt.rotateX) + Math.abs(tilt.rotateY)) * 0.005;
+  const tiltIntensity = Math.abs(tilt.rotateX) + Math.abs(tilt.rotateY);
+
+  // Dynamic holo overlay — angle & intensity react to tilt
+  const holoStyle = {
+    background: `
+      linear-gradient(
+        ${130 + tilt.rotateY * 3}deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,${0.03 + tiltIntensity * 0.008}) 30%,
+        ${tierAccentHex[tier]}22 50%,
+        rgba(255,255,255,${0.03 + tiltIntensity * 0.008}) 70%,
+        rgba(255,255,255,0) 100%
+      )
+    `,
+    mixBlendMode: "color-dodge" as const,
+    transition: "background 0.15s ease-out",
+  };
+
+  // Specular highlight — moves with tilt
+  const specularStyle = {
+    background: `radial-gradient(
+      ellipse at ${50 + tilt.rotateY * 4}% ${50 - tilt.rotateX * 4}%,
+      rgba(255,255,255,${0.12 + tiltIntensity * 0.015}) 0%,
+      rgba(255,255,255,0.02) 40%,
+      transparent 70%
+    )`,
+    transition: "background 0.1s ease-out",
+  };
+
+  // Edge light — bord lumineux qui suit l'inclinaison
+  const edgeLightStyle = {
+    boxShadow: `
+      ${-tilt.rotateY * 0.5}px ${-tilt.rotateX * 0.5}px 20px rgba(${tierAccentRgb[tier]}, ${0.1 + tiltIntensity * 0.01}),
+      0 0 40px rgba(${tierAccentRgb[tier]}, 0.05)
+    `,
+  };
+
+  // Dynamic shadow — bouge avec le tilt
+  const shadowStyle = {
+    boxShadow: `
+      ${tilt.rotateY * 1.5}px ${tilt.rotateX * 1.5 + 15}px 40px -10px rgba(0,0,0,0.6),
+      ${tilt.rotateY * 0.5}px ${tilt.rotateX * 0.5 + 8}px 20px -5px rgba(0,0,0,0.3)
+    `,
+  };
 
   return (
     <div className="flex flex-col items-center">
-      {/* 3D perspective wrapper — NOT captured by export */}
+      {/* Glow ambiant derriere la carte */}
+      <div
+        className="absolute rounded-[24px] blur-[50px] opacity-25 -z-10"
+        style={{
+          width: 280,
+          height: 470,
+          background: `radial-gradient(ellipse at center, rgba(${tierAccentRgb[tier]}, 0.5), transparent 70%)`,
+          transform: "scale(1.2)",
+        }}
+      />
+
+      {/* 3D perspective wrapper */}
       <div
         ref={wrapperRef}
         style={{ perspective: "800px" }}
         className="relative"
       >
+        {/* Dynamic shadow layer */}
+        <div
+          className="absolute inset-0 rounded-[18px] -z-10"
+          style={shadowStyle}
+        />
+
         {/* Tilt container */}
         <div
           style={{
             transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
             transformStyle: "preserve-3d",
             transition: "transform 0.08s linear",
+            ...edgeLightStyle,
+            borderRadius: 18,
           }}
           className="relative"
         >
-          {/* The actual card — this is what gets captured by toPng */}
+          {/* The actual card */}
           <VeloCard
             username={username}
             avatarUrl={avatarUrl}
@@ -73,36 +135,18 @@ export default function VeloCardInteractive({
             specialCard={specialCard}
           />
 
-          {/* Holographic overlay — filtered out during export */}
+          {/* Holographic overlay — reacts to tilt */}
           <div
             data-holo="true"
-            className="pointer-events-none absolute inset-0 z-30 rounded-2xl"
-            style={{
-              background: tierHoloColors[tier],
-              backgroundImage: `linear-gradient(${holoAngle}deg,
-                rgba(255,0,0,0.02),
-                rgba(255,165,0,0.03),
-                rgba(255,255,0,0.02),
-                rgba(0,255,0,0.03),
-                rgba(0,100,255,0.02),
-                rgba(150,0,255,0.03),
-                rgba(255,0,0,0.02))`,
-              opacity: holoOpacity,
-              mixBlendMode: "color-dodge",
-            }}
+            className="pointer-events-none absolute inset-0 z-30 rounded-[18px]"
+            style={holoStyle}
           />
 
           {/* Specular highlight — moves with tilt */}
           <div
             data-holo="true"
-            className="pointer-events-none absolute inset-0 z-30 rounded-2xl"
-            style={{
-              background: `radial-gradient(
-                ellipse at ${50 + tilt.rotateY * 2}% ${50 - tilt.rotateX * 2}%,
-                rgba(255,255,255,0.05) 0%,
-                transparent 60%
-              )`,
-            }}
+            className="pointer-events-none absolute inset-0 z-30 rounded-[18px]"
+            style={specularStyle}
           />
         </div>
       </div>
