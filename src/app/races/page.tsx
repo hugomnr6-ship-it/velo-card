@@ -134,7 +134,6 @@ function RaceRow({ race }: { race: RaceWithCreator }) {
 export default function RacesCalendarPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [races, setRaces] = useState<RaceWithCreator[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [fedFilter, setFedFilter] = useState<string>("all");
@@ -145,24 +144,26 @@ export default function RacesCalendarPage() {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
+  const [allRaces, setAllRaces] = useState<RaceWithCreator[]>([]);
+
   const fetchRaces = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (fedFilter !== "all") params.set("federation", fedFilter);
-      if (catFilter !== "all") params.set("category", catFilter);
       if (genderFilter !== "all") params.set("gender", genderFilter);
       if (search) params.set("search", search);
       params.set("limit", "300");
 
       const res = await fetch(`/api/races?${params.toString()}`);
       if (res.ok) {
-        setRaces(await res.json());
+        const data = await res.json();
+        setAllRaces(data);
       }
     } finally {
       setLoading(false);
     }
-  }, [fedFilter, catFilter, genderFilter, search]);
+  }, [fedFilter, genderFilter, search]);
 
   useEffect(() => {
     if (session) fetchRaces();
@@ -175,13 +176,19 @@ export default function RacesCalendarPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const grouped = useMemo(() => groupByWeek(races), [races]);
-
-  // Extract unique categories
+  // Extract unique categories from ALL races (before category filter)
   const categories = useMemo(() => {
-    const cats = new Set(races.map(r => r.category).filter(Boolean));
+    const cats = new Set(allRaces.map(r => r.category).filter(Boolean));
     return Array.from(cats).sort();
-  }, [races]);
+  }, [allRaces]);
+
+  // Apply category filter client-side so the pills stay visible
+  const races = useMemo(() => {
+    if (catFilter === "all") return allRaces;
+    return allRaces.filter(r => r.category === catFilter);
+  }, [allRaces, catFilter]);
+
+  const grouped = useMemo(() => groupByWeek(races), [races]);
 
   if (status === "loading" || !session) {
     return (
