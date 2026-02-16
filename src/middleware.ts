@@ -1,5 +1,6 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Routes API qui ne nécessitent PAS d'authentification
 const PUBLIC_API_ROUTES = [
@@ -12,8 +13,16 @@ const PUBLIC_API_ROUTES = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip non-API routes and public API routes
+  // Skip non-API routes
   if (!pathname.startsWith("/api")) return NextResponse.next();
+
+  // Rate limit global (toutes les API, même publiques)
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim()
+    || request.headers.get("x-real-ip")
+    || "unknown";
+  const rateLimited = await checkRateLimit(ip, "general");
+  if (rateLimited) return new NextResponse(rateLimited.body, { status: 429, headers: { "Retry-After": "60" } });
+
   if (PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))) return NextResponse.next();
 
   const token = await getToken({ req: request });

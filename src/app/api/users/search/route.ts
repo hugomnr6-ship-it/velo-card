@@ -1,5 +1,6 @@
 import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 /**
  * GET /api/users/search?q=username
@@ -7,6 +8,9 @@ import { supabaseAdmin } from "@/lib/supabase";
  * Returns up to 20 results with their stats and tier.
  */
 export async function GET(request: Request) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
+  if (rateLimited) return rateLimited;
+
   const { searchParams } = new URL(request.url);
   let query = searchParams.get("q")?.trim();
 

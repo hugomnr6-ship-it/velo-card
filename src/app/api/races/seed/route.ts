@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { handleApiError } from "@/lib/api-utils";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { Federation } from "@/types";
 
 /**
@@ -70,6 +71,9 @@ const SEED_RACES: SeedRace[] = [
 ];
 
 export async function POST(request: Request) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "auth");
+  if (rateLimited) return rateLimited;
+
   // Verify cron secret
   const authHeader = request.headers.get("authorization");
   if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {

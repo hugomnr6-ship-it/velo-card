@@ -1,5 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -14,6 +15,9 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
+  if (rateLimited) return rateLimited;
+
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
   const { profileId } = authResult;

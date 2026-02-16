@@ -1,9 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { handleApiError } from "@/lib/api-utils";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const IMPORT_SECRET = process.env.IMPORT_SECRET;
 
 export async function POST(request: Request) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "auth");
+  if (rateLimited) return rateLimited;
   // Simple admin secret protection
   const authHeader = request.headers.get("authorization");
   if (!IMPORT_SECRET || authHeader !== `Bearer ${IMPORT_SECRET}`) {

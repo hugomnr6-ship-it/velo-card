@@ -1,5 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import type { AuthProvider } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { fetchWahooWorkouts, wahooToActivities } from "@/lib/wahoo";
@@ -9,7 +10,10 @@ import { computeBadges } from "@/lib/badges";
 import { updateWarProgressForUser } from "@/lib/wars";
 import type { StravaActivity } from "@/types";
 
-export async function POST() {
+export async function POST(request: Request) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
+  if (rateLimited) return rateLimited;
+
   // 1. Check auth
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;

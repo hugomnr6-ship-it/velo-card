@@ -1,8 +1,12 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const rateLimited = await checkRateLimit(getClientIp(request), "auth");
+  if (rateLimited) return rateLimited;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return Response.json({ error: "Non authentifié" }, { status: 401 });
