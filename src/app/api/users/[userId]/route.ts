@@ -90,10 +90,14 @@ export async function GET(
     const totalTime = (allActivities || []).reduce((sum, a) => sum + a.moving_time, 0);
 
     // 7. Échappée selections count
-    const { count: echappeeCount } = await supabaseAdmin
-      .from("team_of_the_week")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId);
+    let echappeeCount = 0;
+    try {
+      const { count } = await supabaseAdmin
+        .from("team_of_the_week")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+      echappeeCount = count || 0;
+    } catch { /* table may not exist yet */ }
 
     // 8. War stats (table may not exist yet)
     let totalWarKm = 0;
