@@ -72,7 +72,7 @@ const SEED_RACES: SeedRace[] = [
 export async function POST(request: Request) {
   // Verify cron secret
   const authHeader = request.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
