@@ -17,7 +17,10 @@ export async function GET(request: Request) {
     .limit(50);
 
   if (search) {
-    query = query.ilike("name", `%${search}%`);
+    const sanitizedSearch = search.replace(/[%_\\]/g, "");
+    if (sanitizedSearch.length > 0) {
+      query = query.ilike("name", `%${sanitizedSearch}%`);
+    }
   }
 
   const { data: clubs, error } = await query;

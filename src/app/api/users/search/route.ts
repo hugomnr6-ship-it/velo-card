@@ -8,10 +8,16 @@ import { supabaseAdmin } from "@/lib/supabase";
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q")?.trim();
+  let query = searchParams.get("q")?.trim();
 
   if (!query || query.length < 2) {
     return Response.json({ error: "Minimum 2 caractères" }, { status: 400 });
+  }
+
+  // Sanitize for SQL LIKE wildcards
+  query = query.replace(/[%_\\]/g, "");
+  if (query.length < 2) {
+    return Response.json({ error: "Minimum 2 caractères valides" }, { status: 400 });
   }
 
   try {
