@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
@@ -10,6 +10,7 @@ import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
 import { FlagIcon } from "@/components/icons/TabIcons";
+import { useRaces } from "@/hooks/useRaces";
 import type { RaceWithCreator } from "@/types";
 
 // ——— Federation badge colors ———
@@ -172,7 +173,6 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
 export default function RacesCalendarPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [fedFilter, setFedFilter] = useState<string>("all");
   const [catFilter, setCatFilter] = useState<string>("all");
@@ -183,32 +183,17 @@ export default function RacesCalendarPage() {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
-  const [allRaces, setAllRaces] = useState<RaceWithCreator[]>([]);
-
-  const fetchRaces = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (fedFilter !== "all") params.set("federation", fedFilter);
-      if (genderFilter !== "all") params.set("gender", genderFilter);
-      if (search) params.set("search", search);
-      params.set("limit", "300");
-      // Fetch all (including past) so we can toggle
-      params.set("upcoming", "false");
-
-      const res = await fetch(`/api/races?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setAllRaces(data);
-      }
-    } finally {
-      setLoading(false);
-    }
+  // Build filters for the hook
+  const raceFilters = useMemo(() => {
+    const filters: Record<string, string> = { limit: "300", upcoming: "false" };
+    if (fedFilter !== "all") filters.federation = fedFilter;
+    if (genderFilter !== "all") filters.gender = genderFilter;
+    if (search) filters.search = search;
+    return filters;
   }, [fedFilter, genderFilter, search]);
 
-  useEffect(() => {
-    if (session) fetchRaces();
-  }, [session, fetchRaces]);
+  // Fetch races via React Query hook
+  const { data: allRaces = [], isLoading: loading } = useRaces(raceFilters);
 
   // Debounced search
   const [searchInput, setSearchInput] = useState("");

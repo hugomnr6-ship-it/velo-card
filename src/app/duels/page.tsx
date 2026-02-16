@@ -8,6 +8,7 @@ import AnimatedPage from "@/components/AnimatedPage";
 import ErrorState from "@/components/ErrorState";
 import { useToast } from "@/contexts/ToastContext";
 import { trackEvent } from "@/lib/analytics";
+import { useDuels } from "@/hooks/useDuels";
 import type { CardTier, DuelCategory, DuelWithPlayers } from "@/types";
 import { DUEL_CATEGORY_LABELS } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
@@ -41,11 +42,7 @@ export default function DuelsPage() {
   const router = useRouter();
   const { status } = useSession();
   const { toast } = useToast();
-  const [duels, setDuels] = useState<(DuelWithPlayers & { is_mine: boolean })[]>([]);
   const [stats, setStats] = useState<DuelStatsData | null>(null);
-  const [userId, setUserId] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"pending" | "active" | "history">("pending");
 
   // Create duel state
@@ -59,33 +56,34 @@ export default function DuelsPage() {
   const [creating, setCreating] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
+  // Fetch duels via React Query hook
+  const { data: duelsData, isLoading: loading, error: duelsError, refetch: refetchDuels } = useDuels("all");
+  const duels: (DuelWithPlayers & { is_mine: boolean })[] = duelsData?.duels ?? [];
+  const userId: string = duelsData?.user_id ?? "";
+  const error = duelsError ? "Impossible de charger les duels" : null;
+
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
-  // Fetch duels & stats
-  const fetchDuels = useCallback(async () => {
+  // Fetch stats separately (no hook available)
+  const fetchStats = useCallback(async () => {
     try {
-      setError(null);
-      const [duelsRes, statsRes] = await Promise.all([
-        fetch("/api/duels"),
-        fetch("/api/duels/stats"),
-      ]);
-      const duelsData = await duelsRes.json();
+      const statsRes = await fetch("/api/duels/stats");
       const statsData = await statsRes.json();
-      setDuels(duelsData.duels || []);
-      setUserId(duelsData.user_id || "");
       setStats(statsData);
-    } catch {
-      setError("Impossible de charger les duels");
-    } finally {
-      setLoading(false);
-    }
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") fetchDuels();
-  }, [status, fetchDuels]);
+    if (status === "authenticated") fetchStats();
+  }, [status, fetchStats]);
+
+  // Refetch helper for after actions (refetches both duels + stats)
+  const fetchDuels = useCallback(async () => {
+    refetchDuels();
+    fetchStats();
+  }, [refetchDuels, fetchStats]);
 
   // Search opponents
   const doSearch = useCallback(async (q: string) => {

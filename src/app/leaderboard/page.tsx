@@ -15,6 +15,8 @@ import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
 import { LeaderboardSkeleton } from "@/components/Skeleton";
 import Skeleton from "@/components/Skeleton";
 import { TrophyIcon } from "@/components/icons/TabIcons";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { useProfile } from "@/hooks/useProfile";
 import type { FrenchRegion, LeaderboardEntry, LeaderboardSort, CardTier } from "@/types";
 
 // ——— Race Points Leaderboard types ———
@@ -51,58 +53,40 @@ export default function LeaderboardPage() {
   const [region, setRegion] = useState<FrenchRegion | null>(null);
   const [userRegion, setUserRegion] = useState<FrenchRegion | null>(null);
   const [sort, setSort] = useState<LeaderboardSort>("weekly_km");
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [racePointsEntries, setRacePointsEntries] = useState<RacePointsEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [regionLoading, setRegionLoading] = useState(true);
+  const [racePointsLoading, setRacePointsLoading] = useState(false);
+
+  // Fetch profile for region
+  const { data: profileData, isLoading: profileLoading } = useProfile();
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
+  // Set region from profile once loaded
   useEffect(() => {
-    if (session) {
-      fetch("/api/profile")
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.region) {
-            setRegion(data.region);
-            setUserRegion(data.region);
-          }
-        })
-        .finally(() => setRegionLoading(false));
+    if (profileData?.region && !region) {
+      setRegion(profileData.region);
+      setUserRegion(profileData.region);
     }
-  }, [session]);
+  }, [profileData, region]);
 
   // Compute effective region for API calls
   const effectiveRegion = scope === "france" ? "france" : region;
 
-  // Weekly leaderboard
-  useEffect(() => {
-    if (effectiveRegion && mode === "weekly") fetchLeaderboard();
-  }, [effectiveRegion, sort, mode]);
+  // Weekly leaderboard via hook
+  const { data: entries = [], isLoading: weeklyLoading } = useLeaderboard(
+    mode === "weekly" ? effectiveRegion : null,
+    sort
+  );
 
-  // Race points leaderboard
+  // Race points leaderboard (no hook — keep manual)
   useEffect(() => {
     if (mode === "race_points") fetchRacePoints();
   }, [mode, effectiveRegion]);
 
-  async function fetchLeaderboard() {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/leaderboard?region=${encodeURIComponent(effectiveRegion!)}&sort=${sort}`
-      );
-      if (res.ok) {
-        setEntries(await res.json());
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function fetchRacePoints() {
-    setLoading(true);
+    setRacePointsLoading(true);
     try {
       const params = new URLSearchParams({ leaderboard: "true" });
       // For race points, don't send region filter when scope is "france"
@@ -112,9 +96,11 @@ export default function LeaderboardPage() {
         setRacePointsEntries(await res.json());
       }
     } finally {
-      setLoading(false);
+      setRacePointsLoading(false);
     }
   }
+
+  const loading = mode === "weekly" ? weeklyLoading : racePointsLoading;
 
   async function handleRegionChange(newRegion: FrenchRegion) {
     setRegion(newRegion);
@@ -133,7 +119,7 @@ export default function LeaderboardPage() {
     }
   }
 
-  if (status === "loading" || !session || regionLoading) {
+  if (status === "loading" || !session || profileLoading) {
     return (
       <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
         <LeaderboardSkeleton />

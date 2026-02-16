@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import type { WarDashboard } from "@/types";
@@ -16,31 +15,14 @@ import WarMatchupHeader from "@/components/WarMatchupHeader";
 import WarTowerBar from "@/components/WarTowerBar";
 import WarContributorRow from "@/components/WarContributorRow";
 import WarDebriefCard from "@/components/WarDebriefCard";
+import { useWarDashboard } from "@/hooks/useWars";
 
 export default function WarsPage() {
   const { status } = useSession();
-  const [data, setData] = useState<WarDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const fetchWar = async () => {
-      try {
-        const res = await fetch("/api/wars/current");
-        if (!res.ok) throw new Error("Erreur de chargement");
-        const json = await res.json();
-        setData(json);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWar();
-  }, [status]);
+  // Fetch war dashboard via React Query hook
+  const { data, isLoading: loading, error: warError } = useWarDashboard();
+  const error = warError ? "Erreur de chargement" : null;
 
   if (status === "loading" || loading) {
     return (

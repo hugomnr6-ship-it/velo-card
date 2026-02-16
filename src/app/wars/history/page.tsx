@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import type { WarHistoryEntry } from "@/types";
@@ -11,28 +10,14 @@ import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
 import { SwordsIcon } from "@/components/icons/TabIcons";
 import { IconTrophy, IconShield, IconMuscle, IconTimer } from "@/components/icons/VeloIcons";
 import Skeleton from "@/components/Skeleton";
+import { useWarHistory } from "@/hooks/useWars";
 
 export default function WarHistoryPage() {
   const { status } = useSession();
-  const [history, setHistory] = useState<WarHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch("/api/wars/history");
-        if (!res.ok) return;
-        const json = await res.json();
-        setHistory(json.history || []);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHistory();
-  }, [status]);
+  // Fetch war history via React Query hook
+  const { data: historyData, isLoading: loading } = useWarHistory();
+  const history: WarHistoryEntry[] = historyData?.history ?? [];
 
   if (status === "loading" || loading) {
     return (

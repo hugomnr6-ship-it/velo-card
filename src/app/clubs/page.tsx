@@ -12,47 +12,32 @@ import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
 import { ClubsSkeleton } from "@/components/Skeleton";
 import Skeleton from "@/components/Skeleton";
 import { ShieldIcon } from "@/components/icons/TabIcons";
+import { useClubs } from "@/hooks/useClubs";
 import type { ClubWithCount, ClubMember } from "@/types";
 
 export default function ClubsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
-  const [clubs, setClubs] = useState<ClubWithCount[]>([]);
-  const [userClubIds, setUserClubIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [clubDetail, setClubDetail] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Fetch clubs via React Query hook
+  const { data: clubsData, isLoading: loading, refetch: refetchClubs } = useClubs(submittedSearch || undefined);
+  const clubs: ClubWithCount[] = clubsData?.clubs ?? [];
+  const userClubIds: string[] = clubsData?.userClubIds ?? [];
+
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
-  useEffect(() => {
-    if (session) fetchClubs();
-  }, [session]);
-
-  async function fetchClubs() {
-    setLoading(true);
-    try {
-      const q = search ? `?q=${encodeURIComponent(search)}` : "";
-      const res = await fetch(`/api/clubs${q}`);
-      if (res.ok) {
-        const data = await res.json();
-        setClubs(data.clubs);
-        setUserClubIds(data.userClubIds || []);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    fetchClubs();
+    setSubmittedSearch(search);
   }
 
   async function openDetail(clubId: string) {
@@ -74,7 +59,7 @@ export default function ClubsPage() {
       const res = await fetch(`/api/clubs/${clubId}/join`, { method: "POST" });
       if (res.ok) {
         toast("Club rejoint !", "success");
-        await fetchClubs();
+        await refetchClubs();
         await openDetail(clubId);
       } else {
         const data = await res.json().catch(() => ({}));
@@ -93,7 +78,7 @@ export default function ClubsPage() {
         toast("Club quitte", "info");
         setSelectedClubId(null);
         setClubDetail(null);
-        await fetchClubs();
+        await refetchClubs();
       } else {
         const data = await res.json().catch(() => ({}));
         toast(data.error || "Erreur", "error");
@@ -229,7 +214,7 @@ export default function ClubsPage() {
           </div>
         )}
 
-        <CreateClubForm onCreated={() => fetchClubs()} />
+        <CreateClubForm onCreated={() => refetchClubs()} />
 
         <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 

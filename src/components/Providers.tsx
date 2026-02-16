@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/contexts/ToastContext";
+import QueryProvider from "./QueryProvider";
 import BottomTabBar from "./BottomTabBar";
 import PosthogProvider from "./PosthogProvider";
 
@@ -20,12 +21,14 @@ function ServiceWorkerRegistrar() {
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <ToastProvider>
-        <ServiceWorkerRegistrar />
-        <PosthogProvider />
-        {children}
-        <BottomTabBar />
-      </ToastProvider>
+      <QueryProvider>
+        <ToastProvider>
+          <ServiceWorkerRegistrar />
+          <PosthogProvider />
+          {children}
+          <BottomTabBar />
+        </ToastProvider>
+      </QueryProvider>
     </SessionProvider>
   );
 }
