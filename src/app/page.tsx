@@ -130,14 +130,7 @@ export default function Home() {
           {providers.map((p) => (
             <button
               key={p.id}
-              onClick={() => {
-                if (p.id === "strava") {
-                  signIn("strava");
-                } else {
-                  // Garmin & Wahoo: Coming soon
-                  alert(`Connexion ${p.name} bientôt disponible ! Pour le MVP, connecte-toi via Strava.`);
-                }
-              }}
+              onClick={() => signIn(p.id)}
               className="flex items-center justify-center gap-3 rounded-xl px-6 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 backgroundColor: p.color,
