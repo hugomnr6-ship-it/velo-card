@@ -141,7 +141,7 @@ export default function CardWidget({
                       </span>
                     )}
                   </span>
-                  <span>{nextTier}</span>
+                  <span className="text-white/25">Prochain: {nextTier}</span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                   <div

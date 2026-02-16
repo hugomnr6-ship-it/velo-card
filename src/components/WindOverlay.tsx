@@ -33,6 +33,22 @@ const impactColors: Record<string, string> = {
   very_favorable: "#22C55E",
 };
 
+const impactLabels: Record<string, string> = {
+  very_unfavorable: "Vent de face fort",
+  unfavorable: "Vent de face",
+  neutral: "Vent neutre",
+  favorable: "Vent de dos",
+  very_favorable: "Vent de dos fort",
+};
+
+const impactEmoji: Record<string, string> = {
+  very_unfavorable: "🔴",
+  unfavorable: "🟠",
+  neutral: "⚪",
+  favorable: "🟢",
+  very_favorable: "🟢",
+};
+
 function classifyWindImpact(headwind: number): WindPoint["impact"] {
   if (headwind > 15) return "very_unfavorable";
   if (headwind > 5) return "unfavorable";
@@ -117,6 +133,8 @@ export default function WindOverlay({ points, map, targetDate }: WindOverlayProp
       if (map) {
         try {
           if (map.getLayer("wind-arrows")) map.removeLayer("wind-arrows");
+          if (map.getLayer("wind-circles")) map.removeLayer("wind-circles");
+          if (map.getLayer("wind-speed-labels")) map.removeLayer("wind-speed-labels");
           if (map.getSource("wind-arrows")) map.removeSource("wind-arrows");
         } catch {}
       }
@@ -127,14 +145,37 @@ export default function WindOverlay({ points, map, targetDate }: WindOverlayProp
     ? Math.round((windData.filter((w) => w.headwindComponent > 5).length / windData.length) * 100)
     : 0;
 
+  const tailwindPct = windData.length > 0
+    ? Math.round((windData.filter((w) => w.headwindComponent < -5).length / windData.length) * 100)
+    : 0;
+
   const avgWind = windData.length > 0
     ? Math.round(windData.reduce((s, w) => s + w.windSpeed, 0) / windData.length)
     : 0;
 
+  const maxGust = windData.length > 0
+    ? Math.round(Math.max(...windData.map((w) => w.windGust || w.windSpeed)))
+    : 0;
+
+  // Overall verdict
+  const getVerdict = () => {
+    if (headwindPct >= 60) return { text: "Conditions difficiles", color: "#EF4444", icon: "😰" };
+    if (headwindPct >= 40) return { text: "Vent de face frequent", color: "#F97316", icon: "😤" };
+    if (tailwindPct >= 50) return { text: "Conditions favorables !", color: "#22C55E", icon: "🚀" };
+    return { text: "Conditions correctes", color: "#94A3B8", icon: "👍" };
+  };
+
+  const verdict = windData.length > 0 ? getVerdict() : null;
+
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-bold tracking-wider text-white/30">VENT SUR LE PARCOURS</p>
+        <div className="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/30">
+            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
+          </svg>
+          <p className="text-[10px] font-bold tracking-wider text-white/30">ANALYSE DU VENT</p>
+        </div>
         <button
           onClick={() => setEnabled(!enabled)}
           className={`rounded-full px-3 py-1 text-[10px] font-bold transition ${
@@ -145,36 +186,106 @@ export default function WindOverlay({ points, map, targetDate }: WindOverlayProp
         </button>
       </div>
 
+      {!enabled && !loading && (
+        <p className="mt-2 text-[10px] text-white/20 leading-relaxed">
+          Active cette option pour voir la direction et la force du vent sur ton parcours, avec des fleches sur la carte.
+        </p>
+      )}
+
       {enabled && windData.length > 0 && (
-        <div className="mt-3 space-y-2">
-          {/* Summary stats */}
-          <div className="flex gap-3">
-            <div className="flex-1 rounded-lg bg-white/[0.03] p-2 text-center">
-              <p className="text-sm font-black font-['JetBrains_Mono'] text-white">{avgWind} km/h</p>
-              <p className="text-[8px] text-white/30">VENT MOYEN</p>
+        <div className="mt-3 space-y-3">
+          {/* Verdict banner */}
+          {verdict && (
+            <div
+              className="flex items-center gap-2 rounded-lg px-3 py-2"
+              style={{ backgroundColor: `${verdict.color}10`, border: `1px solid ${verdict.color}25` }}
+            >
+              <span className="text-base">{verdict.icon}</span>
+              <p className="text-xs font-bold" style={{ color: verdict.color }}>{verdict.text}</p>
             </div>
-            <div className="flex-1 rounded-lg bg-white/[0.03] p-2 text-center">
-              <p className="text-sm font-black font-['JetBrains_Mono']" style={{ color: headwindPct > 50 ? "#EF4444" : "#22C55E" }}>
+          )}
+
+          {/* Summary stats - 4 columns */}
+          <div className="grid grid-cols-4 gap-2">
+            <div className="rounded-lg bg-white/[0.04] p-2 text-center">
+              <p className="text-sm font-black font-['JetBrains_Mono'] text-white">{avgWind}</p>
+              <p className="text-[8px] text-white/30 leading-tight">KM/H<br />MOYEN</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] p-2 text-center">
+              <p className="text-sm font-black font-['JetBrains_Mono'] text-white/60">{maxGust}</p>
+              <p className="text-[8px] text-white/30 leading-tight">KM/H<br />RAFALES</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] p-2 text-center">
+              <p className="text-sm font-black font-['JetBrains_Mono']" style={{ color: headwindPct > 50 ? "#EF4444" : headwindPct > 30 ? "#F97316" : "#94A3B8" }}>
                 {headwindPct}%
               </p>
-              <p className="text-[8px] text-white/30">VENT DE FACE</p>
+              <p className="text-[8px] text-white/30 leading-tight">VENT<br />DE FACE</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] p-2 text-center">
+              <p className="text-sm font-black font-['JetBrains_Mono']" style={{ color: tailwindPct > 50 ? "#22C55E" : tailwindPct > 30 ? "#4ADE80" : "#94A3B8" }}>
+                {tailwindPct}%
+              </p>
+              <p className="text-[8px] text-white/30 leading-tight">VENT<br />DE DOS</p>
             </div>
           </div>
 
-          {/* Wind bar visualization */}
-          <div className="flex h-3 overflow-hidden rounded-full">
+          {/* Wind bar visualization with km labels */}
+          <div>
+            <div className="flex h-4 overflow-hidden rounded-full">
+              {windData.map((w, i) => (
+                <div
+                  key={i}
+                  className="flex-1 flex items-center justify-center"
+                  style={{ backgroundColor: impactColors[w.impact] }}
+                >
+                  <span className="text-[7px] font-bold text-black/50">{Math.round(w.windSpeed)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-0.5 flex">
+              {windData.map((w, i) => (
+                <div key={i} className="flex-1 text-center">
+                  <span className="text-[7px] text-white/20">km {Math.round(w.km)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Per-point detail list */}
+          <div className="space-y-1">
+            <p className="text-[9px] font-bold tracking-wider text-white/25 mb-1">DETAIL PAR SECTION</p>
             {windData.map((w, i) => (
               <div
                 key={i}
-                className="flex-1"
-                style={{ backgroundColor: impactColors[w.impact] }}
-                title={`Km ${w.km?.toFixed(1)} — ${w.windSpeed} km/h, ${w.headwindComponent > 0 ? "face" : "dos"}`}
-              />
+                className="flex items-center gap-2 rounded-lg bg-white/[0.02] px-2.5 py-1.5"
+              >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: impactColors[w.impact] }}
+                />
+                <span className="text-[10px] font-mono text-white/40 w-12 shrink-0">
+                  km {Math.round(w.km)}
+                </span>
+                <span className="text-[10px] font-bold text-white/70 w-14 shrink-0">
+                  {w.windSpeed} km/h
+                </span>
+                <span className="text-[10px] text-white/30 flex-1 truncate">
+                  {w.headwindComponent > 0
+                    ? `Face ${Math.abs(w.headwindComponent)} km/h`
+                    : w.headwindComponent < 0
+                      ? `Dos ${Math.abs(w.headwindComponent)} km/h`
+                      : "Lateral"}
+                  {w.crosswindComponent > 8 && ` + lateral ${w.crosswindComponent} km/h`}
+                </span>
+                <span className="text-[9px] shrink-0" style={{ color: impactColors[w.impact] }}>
+                  {impactLabels[w.impact]?.replace("Vent ", "") || ""}
+                </span>
+              </div>
             ))}
           </div>
 
           {/* Legend */}
-          <div className="flex justify-center gap-3 text-[8px] text-white/25">
+          <div className="flex justify-center gap-3 text-[8px] text-white/25 pt-1">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full" style={{ background: "#EF4444" }} /> Face fort
             </span>
@@ -196,7 +307,7 @@ export default function WindOverlay({ points, map, targetDate }: WindOverlayProp
 
 /** Create a wind arrow image for use as MapLibre symbol */
 function createArrowImage(map: maplibregl.Map, id: string, color: string) {
-  const size = 24;
+  const size = 32;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -206,16 +317,21 @@ function createArrowImage(map: maplibregl.Map, id: string, color: string) {
   // Draw arrow pointing UP (0 degrees = north)
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(size / 2, 2);        // top center
-  ctx.lineTo(size - 4, size - 4); // bottom right
-  ctx.lineTo(size / 2, size - 8); // notch
-  ctx.lineTo(4, size - 4);        // bottom left
+  ctx.moveTo(size / 2, 2);         // top center
+  ctx.lineTo(size - 4, size - 4);  // bottom right
+  ctx.lineTo(size / 2, size - 10); // notch
+  ctx.lineTo(4, size - 4);         // bottom left
   ctx.closePath();
   ctx.fill();
 
-  // Stroke for visibility
+  // Thick stroke for visibility on dark map
   ctx.strokeStyle = "#0B1120";
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Inner bright border
+  ctx.strokeStyle = `${color}80`;
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
   const imageData = ctx.getImageData(0, 0, size, size);
@@ -230,6 +346,7 @@ function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
   try {
     if (map.getLayer("wind-arrows")) map.removeLayer("wind-arrows");
     if (map.getLayer("wind-circles")) map.removeLayer("wind-circles");
+    if (map.getLayer("wind-speed-labels")) map.removeLayer("wind-speed-labels");
     if (map.getSource("wind-arrows")) map.removeSource("wind-arrows");
   } catch {}
 
@@ -252,6 +369,7 @@ function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
       color: impactColors[w.impact],
       impact: w.impact,
       speed: w.windSpeed,
+      speedLabel: `${Math.round(w.windSpeed)}`,
       arrowImage: colorIds[w.impact] || colorIds["neutral"],
     },
   }));
@@ -261,30 +379,54 @@ function addWindArrowsToMap(map: maplibregl.Map, windData: WindPoint[]) {
     data: { type: "FeatureCollection", features },
   });
 
-  // Background circle for visibility
+  // Background circle for visibility — bigger and more opaque
   map.addLayer({
     id: "wind-circles",
     type: "circle",
     source: "wind-arrows",
     paint: {
-      "circle-radius": 14,
+      "circle-radius": 18,
       "circle-color": "#0B1120",
-      "circle-opacity": 0.7,
+      "circle-opacity": 0.85,
+      "circle-stroke-width": 1.5,
+      "circle-stroke-color": ["get", "color"],
+      "circle-stroke-opacity": 0.5,
     },
   });
 
-  // Arrow symbols rotated by wind direction
+  // Arrow symbols rotated by wind direction — bigger
   map.addLayer({
     id: "wind-arrows",
     type: "symbol",
     source: "wind-arrows",
     layout: {
       "icon-image": ["get", "arrowImage"],
-      "icon-size": 0.9,
+      "icon-size": 1.1,
       "icon-rotate": ["get", "windDirection"],
       "icon-rotation-alignment": "map",
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,
+      "icon-offset": [0, -4],
+    },
+  });
+
+  // Speed labels below each arrow
+  map.addLayer({
+    id: "wind-speed-labels",
+    type: "symbol",
+    source: "wind-arrows",
+    layout: {
+      "text-field": ["concat", ["get", "speedLabel"], " km/h"],
+      "text-size": 9,
+      "text-font": ["Open Sans Bold"],
+      "text-offset": [0, 2.2],
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+    },
+    paint: {
+      "text-color": ["get", "color"],
+      "text-halo-color": "#0B1120",
+      "text-halo-width": 1.5,
     },
   });
 }

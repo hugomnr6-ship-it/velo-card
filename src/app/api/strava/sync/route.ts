@@ -1,10 +1,14 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import type { AuthProvider } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
+import { fetchWahooWorkouts, wahooToActivities } from "@/lib/wahoo";
+import { fetchGarminActivities, garminToActivities } from "@/lib/garmin";
 import { computeStats, getTier } from "@/lib/stats";
 import { computeBadges } from "@/lib/badges";
 import { updateWarProgressForUser } from "@/lib/wars";
+import type { StravaActivity } from "@/types";
 
 export async function POST() {
   // 1. Check auth
@@ -13,15 +17,44 @@ export async function POST() {
     return Response.json({ error: "Non authentifié" }, { status: 401 });
   }
 
+  const provider: AuthProvider = session.user.provider || "strava";
+
   try {
-    // 2. Fetch last 50 activities from Strava
-    const activities = await fetchActivities(session.user.accessToken);
+    // 2. Fetch activities from the appropriate provider
+    let activities: StravaActivity[];
+
+    switch (provider) {
+      case "wahoo": {
+        const workouts = await fetchWahooWorkouts(session.user.accessToken);
+        activities = wahooToActivities(workouts);
+        break;
+      }
+      case "garmin": {
+        const tokenSecret = session.user.oauthTokenSecret || "";
+        const garminActivities = await fetchGarminActivities(
+          session.user.accessToken,
+          tokenSecret,
+        );
+        activities = garminToActivities(garminActivities);
+        break;
+      }
+      case "strava":
+      default: {
+        activities = await fetchActivities(session.user.accessToken);
+        break;
+      }
+    }
 
     // 3. Get user profile ID from Supabase
+    const lookupCol =
+      provider === "strava" ? "strava_id" :
+      provider === "garmin" ? "garmin_id" :
+      "wahoo_id";
+
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id")
-      .eq("strava_id", session.user.stravaId)
+      .eq(lookupCol, session.user.stravaId) // stravaId is actually the providerId
       .single();
 
     if (!profile) {
@@ -29,6 +62,7 @@ export async function POST() {
     }
 
     // 4. Cache activities in Supabase (upsert to avoid duplicates)
+    // strava_activity_id is used as provider-agnostic external activity ID
     const activityRows = activities.map((a) => ({
       user_id: profile.id,
       strava_activity_id: a.id,
@@ -94,9 +128,10 @@ export async function POST() {
       tier,
       badges,
       activitiesCount: activities.length,
+      provider,
     });
   } catch (err: any) {
-    console.error("Sync error:", err);
+    console.error(`[SYNC] Error (${provider}):`, err);
     return Response.json(
       { error: err.message || "Erreur de synchronisation" },
       { status: 500 },
