@@ -17,15 +17,22 @@ export async function POST(
 
   const { raceId } = await params;
 
-  // Verify race exists
+  // Verify race exists AND user is creator
   const { data: race } = await supabaseAdmin
     .from("races")
-    .select("id, gpx_data, location")
+    .select("id, creator_id, gpx_data, location")
     .eq("id", raceId)
     .single();
 
   if (!race) {
     return Response.json({ error: "Course introuvable" }, { status: 404 });
+  }
+
+  if (race.creator_id !== profileId) {
+    return Response.json(
+      { error: "Seul le créateur peut ajouter un GPX" },
+      { status: 403 },
+    );
   }
 
   // Parse body
