@@ -51,13 +51,25 @@ export async function POST(
 
   try {
     // Parse GPX XML to extract track points
-    const points = parseGpxXml(gpxXml);
+    let points = parseGpxXml(gpxXml);
 
     if (points.length < 10) {
       return Response.json(
         { error: "Le fichier GPX doit contenir au moins 10 points" },
         { status: 400 },
       );
+    }
+
+    // Downsample to max 500 points to keep payload manageable
+    if (points.length > 500) {
+      const step = points.length / 500;
+      const sampled: GpxPoint[] = [];
+      for (let i = 0; i < 500; i++) {
+        sampled.push(points[Math.floor(i * step)]);
+      }
+      // Always include last point
+      sampled[sampled.length - 1] = points[points.length - 1];
+      points = sampled;
     }
 
     // Compute distance from start for each point

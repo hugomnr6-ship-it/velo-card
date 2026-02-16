@@ -93,7 +93,7 @@ export default function RaceDetailPage() {
   const [gpxUploading, setGpxUploading] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.replace("/");
+    if (status === "unauthenticated") router.push("/");
   }, [status, router]);
 
   const fetchRace = useCallback(async () => {
@@ -103,7 +103,7 @@ export default function RaceDetailPage() {
       if (res.ok) {
         setRace(await res.json());
       } else {
-        router.replace("/races");
+        router.push("/races");
       }
     } finally {
       setLoading(false);
@@ -735,8 +735,8 @@ export default function RaceDetailPage() {
                         toast(`GPX ajoute ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
                         await fetchRace();
                       } else {
-                        const err = await res.json();
-                        toast(err.error || "Erreur upload GPX", "error");
+                        const err = await res.json().catch(() => null);
+                        toast(err?.error || "Erreur upload GPX", "error");
                       }
                     } catch {
                       toast("Erreur lors de l'upload", "error");
