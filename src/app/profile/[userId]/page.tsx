@@ -308,29 +308,29 @@ export default function UserProfilePage() {
       />
 
       {/* ═══ Top bar: search + share ═══ */}
-      <div className="relative z-10 flex w-full max-w-md items-center justify-between mb-6">
+      <div className="relative z-10 flex w-full max-w-md items-center justify-between gap-2 mb-6">
         <button
           onClick={() => router.back()}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
         >
           ←
         </button>
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex h-9 items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 text-xs text-white/40 hover:text-white/60 transition"
+          className="flex h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 text-xs text-white/40 hover:text-white/60 transition"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
-          Rechercher
+          <span className="truncate">Rechercher</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-shrink-0 items-center gap-1.5">
           <button
             onClick={() => router.push(`/card/${userId}`)}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
             title="Voir la carte"
           >
-            <IconStar size={18} />
+            <IconStar size={16} />
           </button>
           <button
             onClick={() => {
@@ -344,7 +344,7 @@ export default function UserProfilePage() {
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
             title="Comparer"
           >
-            <IconSwords size={18} />
+            <IconSwords size={16} />
           </button>
           <ShareButton
             tier={stats.tier}
