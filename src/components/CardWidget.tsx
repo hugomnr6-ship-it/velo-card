@@ -60,7 +60,7 @@ export default function CardWidget({
   const accent = tierAccentHex[tier];
   const progress = getProgress(stats.ovr, tier);
   const nextTier = nextTierLabel[tier];
-  const animatedOvr = useCountUp(stats.ovr);
+  const animatedOvr = useCountUp(stats.ovr, 1200, { enabled: stats.ovr > 0 });
 
   const statPills: { label: string; value: number; delta: number }[] = [
     { label: "VIT", value: stats.pac, delta: deltas?.pac ?? 0 },

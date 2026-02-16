@@ -544,7 +544,7 @@ export default function VeloCard({
 }: VeloCardProps) {
   const cv = cardVisuals[tier];
   const sv = specialCard ? specialVisuals[specialCard] : null;
-  const animatedOvr = useCountUp(stats.ovr);
+  const animatedOvr = useCountUp(stats.ovr, 1500, { enabled: stats.ovr > 0 });
 
   /* Resolve — special overrides tier */
   const accentHex   = sv ? sv.accentHex   : cv.accentHex;

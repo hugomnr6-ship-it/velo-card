@@ -91,6 +91,11 @@ export default async function VeloCardSection({
     const specialCard = existingStats?.special_card as SpecialCardType | null;
     const streak = existingStats?.active_weeks_streak || 0;
 
+    // Compute previousTier from prev_tier for Monday Reveal
+    const serverPreviousTier = existingStats?.prev_tier
+      ? (existingStats.prev_tier as CardTier)
+      : null;
+
     // 6. Upsert user_stats (preserve prev_ fields from Monday Update)
     await supabaseAdmin
       .from("user_stats")
@@ -158,6 +163,7 @@ export default async function VeloCardSection({
         deltas={deltas}
         specialCard={specialCard}
         streak={streak}
+        serverPreviousTier={serverPreviousTier}
       />
     );
   } catch (err: any) {

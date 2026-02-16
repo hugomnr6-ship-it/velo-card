@@ -66,13 +66,18 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
   const accent = tierAccentHex[tier];
 
   useEffect(() => {
-    // Fetch user's own weekly stats
-    fetch(`/api/users/${userId}`)
+    // Fetch user's own weekly stats (real-time from cached activities)
+    fetch("/api/stats/weekly")
       .then((r) => r.json())
       .then((data) => {
-        if (data.weekly) setWeekly(data.weekly);
+        setWeekly({
+          km: data.km ?? 0,
+          dplus: data.dplus ?? 0,
+          rides: data.rides ?? 0,
+          time: data.time ?? 0,
+        });
       })
-      .catch(() => {});
+      .catch(() => setWeekly({ km: 0, dplus: 0, rides: 0, time: 0 }));
 
     // Fetch Échappée preview
     fetch("/api/echappee")
@@ -116,13 +121,13 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
       )}
 
       {/* ═══ Weekly Summary ═══ */}
-      {weekly && (weekly.rides > 0 || weekly.km > 0) && (
+      {weekly && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass rounded-2xl p-4"
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
               <IconCycling size={12} className="text-white/30" />
               <p className="text-[10px] font-bold tracking-wider text-white/30">
@@ -133,27 +138,36 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
               href="/profile"
               className="text-[10px] font-bold text-white/20 hover:text-white/40 transition"
             >
-              Voir tout →
+              Voir tout &rarr;
             </Link>
           </div>
-          <div className="grid grid-cols-4 gap-2">
-            {[
-              { icon: IconRoad, value: `${weekly.km.toFixed(1)}`, unit: "km", key: "road" },
-              { icon: IconMountain, value: `${weekly.dplus}`, unit: "m D+", key: "mountain" },
-              { icon: IconCalendar, value: `${weekly.rides}`, unit: "sorties", key: "calendar" },
-              { icon: IconTimer, value: formatTime(weekly.time), unit: "", key: "timer" },
-            ].map((item) => (
-              <div key={item.key} className="flex flex-col items-center">
-                <item.icon size={16} className="text-white/70" />
-                <span className="text-base font-black text-white font-['JetBrains_Mono']">
-                  {item.value}
-                </span>
-                {item.unit && (
-                  <span className="text-[8px] text-white/25">{item.unit}</span>
-                )}
-              </div>
-            ))}
+          <div className="text-[10px] text-white/20 font-medium mb-3">
+            Depuis lundi
           </div>
+          {weekly.km === 0 && weekly.rides === 0 ? (
+            <div className="text-[11px] text-white/40 text-center py-2">
+              Pas encore de sortie cette semaine. Ta premiere sortie mettra a jour tes stats ici !
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { icon: IconRoad, value: `${weekly.km.toFixed(1)}`, unit: "km", key: "road" },
+                { icon: IconMountain, value: `${weekly.dplus}`, unit: "m D+", key: "mountain" },
+                { icon: IconCalendar, value: `${weekly.rides}`, unit: "sorties", key: "calendar" },
+                { icon: IconTimer, value: formatTime(weekly.time), unit: "", key: "timer" },
+              ].map((item) => (
+                <div key={item.key} className="flex flex-col items-center">
+                  <item.icon size={16} className="text-white/70" />
+                  <span className="text-base font-black text-white font-['JetBrains_Mono']">
+                    {item.value}
+                  </span>
+                  {item.unit && (
+                    <span className="text-[8px] text-white/25">{item.unit}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
       )}
 
