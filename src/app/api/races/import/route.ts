@@ -1,12 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { handleApiError } from "@/lib/api-utils";
 
-const IMPORT_SECRET = process.env.IMPORT_SECRET || "velocard-admin-2026";
+const IMPORT_SECRET = process.env.IMPORT_SECRET;
 
 export async function POST(request: Request) {
   // Simple admin secret protection
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${IMPORT_SECRET}`) {
+  if (!IMPORT_SECRET || authHeader !== `Bearer ${IMPORT_SECRET}`) {
     return Response.json({ error: "Non autorisé" }, { status: 401 });
   }
 
