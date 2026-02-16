@@ -60,17 +60,15 @@ export default function CourseMap({
   const hoverMarkerRef = useRef<maplibregl.Marker | null>(null);
   const climbMarkersRef = useRef<maplibregl.Marker[]>([]);
   const boundsRef = useRef<maplibregl.LngLatBounds | null>(null);
+  const mapLoadedRef = useRef(false);
 
-  // Route bounds for recenter
-  const routeBounds = useMemo(() => {
-    if (points.length < 2) return null;
-    const lngs = points.map((p) => p.lon);
-    const lats = points.map((p) => p.lat);
-    return new maplibregl.LngLatBounds(
-      [Math.min(...lngs), Math.min(...lats)],
-      [Math.max(...lngs), Math.max(...lats)]
-    );
-  }, [points]);
+  // Store callbacks in refs to avoid re-init
+  const onMapReadyRef = useRef(onMapReady);
+  onMapReadyRef.current = onMapReady;
+  const onHoverKmRef = useRef(onHoverKm);
+  onHoverKmRef.current = onHoverKm;
+  const pointsRef = useRef(points);
+  pointsRef.current = points;
 
   // Recenter handler
   const handleRecenter = useCallback(() => {
@@ -80,9 +78,11 @@ export default function CourseMap({
     map.fitBounds(bounds, { padding: 40, duration: 500 });
   }, []);
 
-  // Initialize map
+  // ═══ Initialize map — only depends on points & segments (route data) ═══
   useEffect(() => {
     if (!mapContainer.current || points.length < 2) return;
+
+    mapLoadedRef.current = false;
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
@@ -97,13 +97,18 @@ export default function CourseMap({
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 
     map.on("load", () => {
-      onMapReady?.(map);
+      mapLoadedRef.current = true;
+      onMapReadyRef.current?.(map);
 
       // Fit to route bounds
-      if (routeBounds) {
-        boundsRef.current = routeBounds;
-        map.fitBounds(routeBounds, { padding: 40, duration: 0 });
-      }
+      const lngs = points.map((p) => p.lon);
+      const lats = points.map((p) => p.lat);
+      const bounds = new maplibregl.LngLatBounds(
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)]
+      );
+      boundsRef.current = bounds;
+      map.fitBounds(bounds, { padding: 40, duration: 0 });
 
       // ═══ Background outline (dark stroke under route) ═══
       const allCoords = points.map((p) => [p.lon, p.lat]);
@@ -166,58 +171,36 @@ export default function CourseMap({
         .setLngLat([points[points.length - 1].lon, points[points.length - 1].lat])
         .addTo(map);
 
-      // ═══ Climb peak markers ═══
-      climbMarkersRef.current.forEach((m) => m.remove());
-      climbMarkersRef.current = [];
+      // ═══ Touch/click interaction for km sync ═══
+      const findNearestKm = (lngLat: { lng: number; lat: number }) => {
+        const pts = pointsRef.current;
+        let closestKm = 0;
+        let minDist = Infinity;
+        const step = Math.max(1, Math.floor(pts.length / 300));
+        for (let i = 0; i < pts.length; i += step) {
+          const p = pts[i];
+          const dx = p.lon - lngLat.lng;
+          const dy = p.lat - lngLat.lat;
+          const dist = dx * dx + dy * dy;
+          if (dist < minDist) {
+            minDist = dist;
+            closestKm = p.distFromStart;
+          }
+        }
+        return Math.round(closestKm * 10) / 10;
+      };
 
-      climbs.forEach((climb) => {
-        // Find the highest point in the climb
-        const peakIdx = climb.endIdx;
-        if (peakIdx >= 0 && peakIdx < points.length) {
-          const peak = points[peakIdx];
-          const el = document.createElement("div");
-          el.className = "climb-marker";
-          el.innerHTML = `<svg width="20" height="24" viewBox="0 0 20 24"><polygon points="10,2 18,20 2,20" fill="#F59E0B" fill-opacity="0.85" stroke="#0A0A0F" stroke-width="1.5"/><text x="10" y="16" text-anchor="middle" font-size="7" font-weight="800" fill="#0A0A0F">${climb.avgGradient}%</text></svg>`;
-          el.style.cursor = "pointer";
-
-          const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
-            .setLngLat([peak.lon, peak.lat])
-            .addTo(map);
-
-          climbMarkersRef.current.push(marker);
+      map.on("mousemove", (e: any) => {
+        onHoverKmRef.current?.(findNearestKm(e.lngLat));
+      });
+      map.on("touchmove", (e: any) => {
+        if (e.lngLat) {
+          onHoverKmRef.current?.(findNearestKm(e.lngLat));
         }
       });
-
-      // ═══ Touch/click interaction for km sync ═══
-      if (onHoverKm) {
-        // Find nearest route km from lngLat
-        const findNearestKm = (lngLat: { lng: number; lat: number }) => {
-          let closestKm = 0;
-          let minDist = Infinity;
-          const step = Math.max(1, Math.floor(points.length / 300));
-          for (let i = 0; i < points.length; i += step) {
-            const p = points[i];
-            const dx = p.lon - lngLat.lng;
-            const dy = p.lat - lngLat.lat;
-            const dist = dx * dx + dy * dy;
-            if (dist < minDist) {
-              minDist = dist;
-              closestKm = p.distFromStart;
-            }
-          }
-          return Math.round(closestKm * 10) / 10;
-        };
-
-        map.on("mousemove", (e: any) => {
-          onHoverKm(findNearestKm(e.lngLat));
-        });
-        map.on("touchmove", (e: any) => {
-          if (e.lngLat) {
-            onHoverKm(findNearestKm(e.lngLat));
-          }
-        });
-        map.on("mouseleave", () => onHoverKm(null));
-      }
+      map.on("mouseleave", () => {
+        onHoverKmRef.current?.(null);
+      });
     });
 
     return () => {
@@ -225,15 +208,45 @@ export default function CourseMap({
       climbMarkersRef.current = [];
       hoverMarkerRef.current?.remove();
       hoverMarkerRef.current = null;
+      mapLoadedRef.current = false;
       map.remove();
       mapRef.current = null;
     };
-  }, [points, segments, centerLat, centerLon, climbs]);
+    // Only re-init map when route data truly changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points, segments, centerLat, centerLon]);
+
+  // ═══ Climb markers — separate effect ═══
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoadedRef.current) return;
+
+    // Remove old climb markers
+    climbMarkersRef.current.forEach((m) => m.remove());
+    climbMarkersRef.current = [];
+
+    climbs.forEach((climb) => {
+      const peakIdx = climb.endIdx;
+      if (peakIdx >= 0 && peakIdx < points.length) {
+        const peak = points[peakIdx];
+        const el = document.createElement("div");
+        el.className = "climb-marker";
+        el.innerHTML = `<svg width="20" height="24" viewBox="0 0 20 24"><polygon points="10,2 18,20 2,20" fill="#F59E0B" fill-opacity="0.85" stroke="#0A0A0F" stroke-width="1.5"/><text x="10" y="16" text-anchor="middle" font-size="7" font-weight="800" fill="#0A0A0F">${climb.avgGradient}%</text></svg>`;
+        el.style.cursor = "pointer";
+
+        const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+          .setLngLat([peak.lon, peak.lat])
+          .addTo(map);
+
+        climbMarkersRef.current.push(marker);
+      }
+    });
+  }, [climbs, points]);
 
   // ═══ Hover marker sync ═══
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.loaded()) return;
+    if (!map || !mapLoadedRef.current) return;
 
     if (hoveredKm === null) {
       hoverMarkerRef.current?.remove();
@@ -267,7 +280,7 @@ export default function CourseMap({
   // ═══ Wind arrows ═══
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.loaded()) return;
+    if (!map || !mapLoadedRef.current) return;
 
     // Clean up old wind layers
     try {
