@@ -210,6 +210,33 @@ export default function DuelsPage() {
           </button>
         </div>
 
+        {/* Intro explanation (show when no duels yet) */}
+        {duels.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-2xl p-4 mb-4 border-[#6366F1]/15"
+          >
+            <p className="text-sm text-white/70 leading-relaxed">
+              Defie d&apos;autres cyclistes en <span className="font-bold text-[#6366F1]">1 contre 1</span> sur une stat de ton choix (vitesse, montagne, endurance...). Le gagnant remporte des <span className="font-bold text-[#FFD700]">points d&apos;ego</span> !
+            </p>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-white/[0.04] p-2">
+                <IconTarget size={18} className="mx-auto text-[#6366F1]/60" />
+                <p className="mt-1 text-[9px] text-white/40">Choisis une stat</p>
+              </div>
+              <div className="rounded-lg bg-white/[0.04] p-2">
+                <IconSwords size={18} className="mx-auto text-[#6366F1]/60" />
+                <p className="mt-1 text-[9px] text-white/40">Compare-toi en 1v1</p>
+              </div>
+              <div className="rounded-lg bg-white/[0.04] p-2">
+                <IconStar size={18} className="mx-auto text-[#FFD700]/60" />
+                <p className="mt-1 text-[9px] text-white/40">Gagne des points</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Ego stats bar */}
         {stats && (
           <motion.div

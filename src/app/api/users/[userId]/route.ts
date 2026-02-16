@@ -135,13 +135,26 @@ export async function GET(
 
         totalRacePoints = (pointsData || []).reduce((sum: number, p: any) => sum + (p.points || 0), 0);
 
-        // Build recent results (last 10)
+        // Get race points for enrichment
+        const raceIdsForPoints = raceResultsData.map((r: any) => r.race_id);
+        const { data: racePointsData } = await supabaseAdmin
+          .from("race_points")
+          .select("race_id, points")
+          .eq("user_id", userId)
+          .in("race_id", raceIdsForPoints);
+
+        const pointsByRace: Record<string, number> = {};
+        for (const rp of racePointsData || []) {
+          pointsByRace[rp.race_id] = rp.points;
+        }
+
+        // Build recent results (last 10) with real points
         recentResults = raceResultsData.slice(0, 10).map((r: any) => ({
           position: r.position,
           raceName: r.races?.name || "Course",
           raceDate: r.races?.date || r.created_at,
           totalParticipants: r.races?.total_participants || null,
-          points: 0, // will be enriched client-side if needed
+          points: pointsByRace[r.race_id] || 0,
         }));
       }
     } catch { /* race tables may not exist */ }
