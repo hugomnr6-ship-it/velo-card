@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: Request) {
@@ -17,9 +17,7 @@ export async function POST(request: Request) {
     .update({ region })
     .eq("id", profileId);
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "PROFILE_REGION");
 
   return Response.json({ success: true, region });
 }

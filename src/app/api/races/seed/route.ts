@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { handleApiError } from "@/lib/api-utils";
 import type { Federation } from "@/types";
 
 /**
@@ -108,8 +109,7 @@ export async function POST(request: Request) {
       inserted,
       message: `${inserted} courses Occitanie seedees avec succes`,
     });
-  } catch (err: any) {
-    console.error("[SEED] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "RACES_SEED");
   }
 }

@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
@@ -22,9 +22,7 @@ export async function GET(request: Request) {
     .eq("user_id", userId)
     .order("earned_at", { ascending: false });
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "BADGES_GET");
 
   return Response.json(badges || []);
 }

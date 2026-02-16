@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
 import { insertFeedEvent } from "@/lib/feed";
@@ -135,7 +135,7 @@ export async function POST(
       .select("id, claim_token");
 
     if (ghostError) {
-      return Response.json({ error: "Erreur création fantômes: " + ghostError.message }, { status: 500 });
+      return handleApiError(ghostError, "RACE_RESULTS");
     }
 
     // Map inserted ghosts by claim_token
@@ -164,7 +164,7 @@ export async function POST(
     .insert(raceResultsToInsert);
 
   if (resultsError) {
-    return Response.json({ error: "Erreur insertion résultats: " + resultsError.message }, { status: 500 });
+    return handleApiError(resultsError, "RACE_RESULTS");
   }
 
   // Mark race as results_published + save race_time & avg_speed

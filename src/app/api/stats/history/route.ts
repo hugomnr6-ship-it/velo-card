@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -25,8 +25,7 @@ export async function GET() {
     return Response.json({
       history: (history || []).reverse(), // chronological order
     });
-  } catch (err: any) {
-    console.error("[STATS HISTORY] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "STATS_HISTORY");
   }
 }

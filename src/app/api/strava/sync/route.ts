@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import type { AuthProvider } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
@@ -112,11 +112,7 @@ export async function POST() {
       activitiesCount: activities.length,
       provider,
     });
-  } catch (err: any) {
-    console.error(`[SYNC] Error (${provider}):`, err);
-    return Response.json(
-      { error: err.message || "Erreur de synchronisation" },
-      { status: 500 },
-    );
+  } catch (err) {
+    return handleApiError(err, "STRAVA_SYNC");
   }
 }

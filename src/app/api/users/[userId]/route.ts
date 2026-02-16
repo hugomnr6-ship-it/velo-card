@@ -1,3 +1,4 @@
+import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -202,8 +203,7 @@ export async function GET(
         recentResults,
       },
     });
-  } catch (err: any) {
-    console.error("[USER PROFILE] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "USER_DETAIL");
   }
 }

@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
@@ -44,9 +44,7 @@ export async function GET(request: Request) {
 
   const { data: races, error } = await query;
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "RACES_GET");
 
   // Get participant counts
   const raceIds = (races || []).map((r: any) => r.id);
@@ -110,9 +108,7 @@ export async function POST(request: Request) {
     .select()
     .single();
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "RACES_POST");
 
   // Auto-join creator
   await supabaseAdmin

@@ -1,3 +1,4 @@
+import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -52,8 +53,7 @@ export async function GET(request: Request) {
     results.sort((a, b) => b.ovr - a.ovr);
 
     return Response.json(results);
-  } catch (err: any) {
-    console.error("[USER SEARCH] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "USERS_SEARCH");
   }
 }

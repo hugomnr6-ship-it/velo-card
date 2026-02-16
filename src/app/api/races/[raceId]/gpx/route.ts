@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { GpxPoint } from "@/types";
 
@@ -111,7 +111,7 @@ export async function POST(
       .eq("id", raceId);
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      return handleApiError(error, "RACE_GPX");
     }
 
     return Response.json({
@@ -123,9 +123,8 @@ export async function POST(
         maxElevation: gpxData.maxElevation,
       },
     });
-  } catch (err: any) {
-    console.error("[GPX UPLOAD] Error:", err);
-    return Response.json({ error: "Erreur lors du parsing GPX: " + err.message }, { status: 400 });
+  } catch (err) {
+    return handleApiError(err, "RACE_GPX");
   }
 }
 

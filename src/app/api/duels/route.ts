@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { DuelCategory, DuelType, CardTier } from "@/types";
 
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   }
 
   const { data: duels, error } = await query;
-  if (error) return Response.json({ error: error.message }, { status: 500 });
+  if (error) return handleApiError(error, "DUELS_GET");
 
   // Enrich with player info
   const allUserIds = new Set<string>();
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
     .select()
     .single();
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
+  if (error) return handleApiError(error, "DUELS_POST");
 
   return Response.json({ duel });
 }

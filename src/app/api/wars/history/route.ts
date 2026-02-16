@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { WarHistoryEntry } from "@/types";
 
@@ -67,11 +67,7 @@ export async function GET() {
     wars.sort((a, b) => new Date(b.ended_at).getTime() - new Date(a.ended_at).getTime());
 
     return Response.json({ history: wars.slice(0, 10) });
-  } catch (err: any) {
-    console.error("War history error:", err);
-    return Response.json(
-      { error: err.message || "Erreur serveur" },
-      { status: 500 },
-    );
+  } catch (err) {
+    return handleApiError(err, "WARS_HISTORY");
   }
 }

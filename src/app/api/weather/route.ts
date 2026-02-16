@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 
 function degreesToCompass(deg: number): string {
   const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -55,11 +55,7 @@ export async function POST(request: Request) {
     };
 
     return Response.json(weather);
-  } catch (err: any) {
-    console.error("Weather API error:", err);
-    return Response.json(
-      { error: err.message || "Erreur lors de la récupération météo" },
-      { status: 500 },
-    );
+  } catch (err) {
+    return handleApiError(err, "WEATHER_GET");
   }
 }

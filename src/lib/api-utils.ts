@@ -43,3 +43,41 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | Respon
 export function isErrorResponse(result: AuthenticatedUser | Response): result is Response {
   return result instanceof Response;
 }
+
+/**
+ * Classe d'erreur applicative typée.
+ */
+export class AppError extends Error {
+  constructor(
+    public code: string,
+    message: string,
+    public statusCode: number = 400,
+  ) {
+    super(message);
+    this.name = "AppError";
+  }
+}
+
+/**
+ * Gère une erreur et retourne une Response JSON sécurisée.
+ * - Log l'erreur complète côté serveur (console.error)
+ * - Retourne un message générique au client (pas de fuite DB)
+ */
+export function handleApiError(error: unknown, context?: string): Response {
+  const prefix = context ? `[${context}]` : "[API]";
+
+  if (error instanceof AppError) {
+    console.error(`${prefix} AppError:`, error.code, error.message);
+    return Response.json(
+      { error: { code: error.code, message: error.message } },
+      { status: error.statusCode },
+    );
+  }
+
+  // Erreur Supabase ou inconnue : ne PAS retourner le message brut
+  console.error(`${prefix} Unexpected error:`, error);
+  return Response.json(
+    { error: { code: "INTERNAL_ERROR", message: "Une erreur est survenue" } },
+    { status: 500 },
+  );
+}

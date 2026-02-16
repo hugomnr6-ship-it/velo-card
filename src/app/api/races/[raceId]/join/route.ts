@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
@@ -32,7 +32,7 @@ export async function POST(
         { status: 409 },
       );
     }
-    return Response.json({ error: error.message }, { status: 500 });
+    return handleApiError(error, "RACE_JOIN");
   }
 
   return Response.json({ success: true }, { status: 201 });

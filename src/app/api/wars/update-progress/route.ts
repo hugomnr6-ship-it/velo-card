@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { updateWarProgressForUser } from "@/lib/wars";
 
 export async function POST() {
@@ -10,11 +10,7 @@ export async function POST() {
     await updateWarProgressForUser(profileId);
 
     return Response.json({ ok: true });
-  } catch (err: any) {
-    console.error("War update error:", err);
-    return Response.json(
-      { error: err.message || "Erreur serveur" },
-      { status: 500 },
-    );
+  } catch (err) {
+    return handleApiError(err, "WARS_UPDATE");
   }
 }

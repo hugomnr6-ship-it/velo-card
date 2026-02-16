@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { handleApiError } from "@/lib/api-utils";
 
 const IMPORT_SECRET = process.env.IMPORT_SECRET || "velocard-admin-2026";
 
@@ -43,9 +44,7 @@ export async function POST(request: Request) {
     .upsert(formatted, { onConflict: "name,date" })
     .select("id, name, date");
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "RACES_IMPORT");
 
   return Response.json({
     imported: data?.length || 0,

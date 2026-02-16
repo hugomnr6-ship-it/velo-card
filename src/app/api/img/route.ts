@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { handleApiError } from "@/lib/api-utils";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
@@ -26,8 +27,7 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch (err: unknown) {
-    console.error("Image proxy error:", err);
-    return new Response("Error fetching image", { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "IMG_GET");
   }
 }

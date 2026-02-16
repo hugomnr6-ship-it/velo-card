@@ -1,3 +1,5 @@
+import { handleApiError } from "@/lib/api-utils";
+
 /**
  * POST /api/weather/route-wind
  * Fetches wind data along a route from Open-Meteo (free, no API key).
@@ -74,8 +76,7 @@ export async function POST(request: Request) {
     });
 
     return Response.json(windPoints);
-  } catch (err: any) {
-    console.error("[ROUTE-WIND] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "WEATHER_ROUTEWIND");
   }
 }

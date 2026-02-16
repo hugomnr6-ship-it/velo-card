@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function PATCH(request: Request) {
@@ -35,9 +35,7 @@ export async function PATCH(request: Request) {
     .update(updates)
     .eq("id", profileId);
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "PROFILE_UPDATE");
 
   return Response.json({ ok: true });
 }

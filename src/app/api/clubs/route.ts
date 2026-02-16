@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
@@ -20,9 +20,7 @@ export async function GET(request: Request) {
   }
 
   const { data: clubs, error } = await query;
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return handleApiError(error, "CLUBS_GET");
 
   // Get member counts
   const clubIds = (clubs || []).map((c: any) => c.id);
@@ -95,12 +93,7 @@ export async function POST(request: Request) {
     .from("club-logos")
     .upload(fileName, buffer, { contentType: logo.type, upsert: false });
 
-  if (uploadError) {
-    return Response.json(
-      { error: "Erreur upload logo: " + uploadError.message },
-      { status: 500 },
-    );
-  }
+  if (uploadError) return handleApiError(uploadError, "CLUBS_POST_UPLOAD");
 
   const { data: publicUrlData } = supabaseAdmin.storage
     .from("club-logos")
@@ -121,7 +114,7 @@ export async function POST(request: Request) {
         { status: 409 },
       );
     }
-    return Response.json({ error: clubError.message }, { status: 500 });
+    return handleApiError(clubError, "CLUBS_POST");
   }
 
   // Auto-join creator

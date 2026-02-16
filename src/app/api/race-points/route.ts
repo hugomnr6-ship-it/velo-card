@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -80,8 +80,8 @@ export async function GET(request: Request) {
       total_points: totalPoints,
       entries,
     });
-  } catch (err: any) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "RACE_POINTS_GET");
   }
 }
 
@@ -160,7 +160,7 @@ async function handleLeaderboard(searchParams: URLSearchParams) {
     leaderboard = leaderboard.map((entry, i) => ({ ...entry, rank: i + 1 }));
 
     return Response.json(leaderboard);
-  } catch (err: any) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "RACE_POINTS_GET");
   }
 }

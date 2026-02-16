@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
@@ -39,9 +39,7 @@ export async function POST(request: Request) {
         upsert: true,
       });
 
-    if (uploadError) {
-      return Response.json({ error: uploadError.message }, { status: 500 });
-    }
+    if (uploadError) return handleApiError(uploadError, "PROFILE_AVATAR");
 
     // Get public URL
     const { data: publicUrlData } = supabaseAdmin
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
       .eq("id", profileId);
 
     return Response.json({ url: publicUrl });
-  } catch (err: any) {
-    return Response.json({ error: err.message || "Erreur upload" }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "PROFILE_AVATAR");
   }
 }

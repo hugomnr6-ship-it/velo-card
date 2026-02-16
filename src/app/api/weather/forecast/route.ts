@@ -1,3 +1,5 @@
+import { handleApiError } from "@/lib/api-utils";
+
 /**
  * POST /api/weather/forecast
  * Fetches weather forecast for a specific date and location from Open-Meteo.
@@ -92,8 +94,7 @@ export async function POST(request: Request) {
     };
 
     return Response.json(forecast);
-  } catch (err: any) {
-    console.error("[FORECAST] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "WEATHER_FORECAST");
   }
 }

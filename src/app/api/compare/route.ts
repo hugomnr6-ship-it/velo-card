@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -64,8 +64,7 @@ export async function GET(request: Request) {
       user1: buildUser(user1),
       user2: buildUser(user2),
     });
-  } catch (err: any) {
-    console.error("[COMPARE] Error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return handleApiError(err, "COMPARE_GET");
   }
 }

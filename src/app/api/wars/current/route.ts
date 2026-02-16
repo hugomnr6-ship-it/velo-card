@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
   getWarWeekBounds,
@@ -161,12 +161,8 @@ export async function GET() {
     }
 
     return Response.json(await buildWarDashboard(activeWar, profileId, false));
-  } catch (err: any) {
-    console.error("War current error:", err);
-    return Response.json(
-      { error: err.message || "Erreur serveur" },
-      { status: 500 },
-    );
+  } catch (err) {
+    return handleApiError(err, "WARS_CURRENT");
   }
 }
 
