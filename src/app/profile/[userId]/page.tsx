@@ -175,16 +175,6 @@ export default function UserProfilePage() {
   }, [session, userId]);
 
   /* ——— Loading ——— */
-  const [isOwner, setIsOwner] = useState(false);
-
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch("/api/profile")
-      .then((r) => r.json())
-      .then((p) => { if (p?.id === userId) setIsOwner(true); })
-      .catch(() => {});
-  }, [session, userId]);
-
   if (loading) {
     return (
       <main className="flex min-h-screen flex-col items-center gap-4 px-4 pb-24 pt-12">
