@@ -14,11 +14,24 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
+  // Look up profile by UUID first (reliable), fall back to strava_id
+  let profile: { id: string } | null = null;
+  if (session.user.id) {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("id", session.user.id)
+      .single();
+    profile = data;
+  }
+  if (!profile && session.user.stravaId) {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("strava_id", session.user.stravaId)
+      .single();
+    profile = data;
+  }
 
   if (!profile) {
     // Tout nouveau user sans profil → onboarding

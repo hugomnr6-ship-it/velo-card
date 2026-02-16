@@ -45,17 +45,28 @@ export async function POST() {
       }
     }
 
-    // 3. Get user profile ID from Supabase
-    const lookupCol =
-      provider === "strava" ? "strava_id" :
-      provider === "garmin" ? "garmin_id" :
-      "wahoo_id";
-
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq(lookupCol, session.user.stravaId) // stravaId is actually the providerId
-      .single();
+    // 3. Get user profile ID from Supabase — UUID first, then provider-specific ID
+    let profile: { id: string } | null = null;
+    if (session.user.id) {
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("id", session.user.id)
+        .single();
+      profile = data;
+    }
+    if (!profile && session.user.stravaId) {
+      const lookupCol =
+        provider === "strava" ? "strava_id" :
+        provider === "garmin" ? "garmin_id" :
+        "wahoo_id";
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq(lookupCol, session.user.stravaId)
+        .single();
+      profile = data;
+    }
 
     if (!profile) {
       return Response.json({ error: "Profil introuvable" }, { status: 404 });

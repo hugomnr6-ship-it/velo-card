@@ -169,6 +169,28 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      // Backward compat: old JWT tokens may not have providerId
+      // (users who signed in before multi-provider update)
+      if (!token.providerId && token.userId) {
+        try {
+          const { data: existingProfile } = await supabaseAdmin
+            .from("profiles")
+            .select("strava_id, garmin_id, wahoo_id, provider")
+            .eq("id", token.userId as string)
+            .single();
+          if (existingProfile) {
+            token.providerId =
+              existingProfile.strava_id ??
+              existingProfile.wahoo_id ??
+              existingProfile.garmin_id ??
+              null;
+            token.provider = token.provider || existingProfile.provider || "strava";
+          }
+        } catch {
+          // Ignore - will be set on next sign-in
+        }
+      }
+
       // Refresh token if expired (OAuth 2.0 providers only)
       const provider = token.provider as AuthProvider | undefined;
       if (token.expiresAt && Date.now() >= (token.expiresAt as number) * 1000) {
