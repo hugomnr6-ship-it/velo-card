@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { GpxPoint } from "@/types";
 
@@ -16,6 +16,9 @@ export async function POST(
   const { profileId } = authResult;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   // Verify race exists AND user is creator
   const { data: race } = await supabaseAdmin

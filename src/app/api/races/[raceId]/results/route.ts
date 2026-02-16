@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
 import { insertFeedEvent } from "@/lib/feed";
@@ -15,6 +15,9 @@ export async function POST(
   const { profileId } = authResult;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   // Verify race exists and user is creator
   const { data: race } = await supabaseAdmin

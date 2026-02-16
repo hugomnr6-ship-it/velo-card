@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
@@ -10,6 +10,9 @@ export async function POST(
   const { profileId } = authResult;
 
   const { clubId } = await params;
+  if (!isValidUUID(clubId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   const { data: club } = await supabaseAdmin
     .from("clubs")

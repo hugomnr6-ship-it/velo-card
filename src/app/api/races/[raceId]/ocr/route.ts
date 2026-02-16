@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -23,6 +23,9 @@ export async function POST(
   const { profileId } = authResult;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   // Verify creator
   const { data: race } = await supabaseAdmin

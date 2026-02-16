@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
@@ -10,6 +10,9 @@ export async function POST(
   const { profileId } = authResult;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   const { data: race } = await supabaseAdmin
     .from("races")

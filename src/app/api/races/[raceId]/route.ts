@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getRaceDetail } from "@/services/race.service";
 
@@ -10,6 +10,9 @@ export async function GET(
   if (isErrorResponse(auth)) return auth;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   try {
     const data = await getRaceDetail(raceId, auth.profileId);
@@ -28,6 +31,9 @@ export async function DELETE(
   const { profileId } = authResult;
 
   const { raceId } = await params;
+  if (!isValidUUID(raceId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   const { data: race } = await supabaseAdmin
     .from("races")

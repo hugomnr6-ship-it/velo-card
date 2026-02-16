@@ -1,4 +1,4 @@
-import { handleApiError } from "@/lib/api-utils";
+import { handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -16,6 +16,9 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
+  if (!isValidUUID(userId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   try {
     // 1. Profile

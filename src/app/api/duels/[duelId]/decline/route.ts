@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -10,6 +10,9 @@ export async function POST(
   { params }: { params: Promise<{ duelId: string }> }
 ) {
   const { duelId } = await params;
+  if (!isValidUUID(duelId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
   const { profileId } = authResult;

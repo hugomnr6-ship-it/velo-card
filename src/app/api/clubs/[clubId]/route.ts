@@ -1,4 +1,4 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
@@ -10,6 +10,9 @@ export async function GET(
   const { profileId } = authResult;
 
   const { clubId } = await params;
+  if (!isValidUUID(clubId)) {
+    return Response.json({ error: "ID invalide" }, { status: 400 });
+  }
 
   // Fetch club with creator
   const { data: club, error } = await supabaseAdmin
