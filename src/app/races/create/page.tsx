@@ -25,8 +25,6 @@ export default function CreateRacePage() {
   const [distanceKm, setDistanceKm] = useState("");
   const [elevationGain, setElevationGain] = useState("");
   const [department, setDepartment] = useState("");
-  const [gpxFile, setGpxFile] = useState<File | null>(null);
-  const [gpxFileName, setGpxFileName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -62,17 +60,6 @@ export default function CreateRacePage() {
 
       if (res.ok) {
         const race = await res.json();
-        // Upload GPX if provided
-        if (gpxFile) {
-          try {
-            const gpxText = await gpxFile.text();
-            await fetch(`/api/races/${race.id}/gpx`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ gpx_xml: gpxText }),
-            });
-          } catch { /* GPX upload failed, but race was created */ }
-        }
         toast("Course creee avec succes !", "success");
         router.push(`/races/${race.id}`);
       } else {
@@ -177,44 +164,6 @@ export default function CreateRacePage() {
               <label className={labelClass}>Departement</label>
               <input type="text" className={inputClass} placeholder="66" value={department} onChange={(e) => setDepartment(e.target.value)} />
             </div>
-          </div>
-
-          {/* GPX File */}
-          <div>
-            <label className={labelClass}>Fichier GPX (optionnel)</label>
-            <label
-              className={`flex cursor-pointer items-center gap-3 rounded-xl border border-dashed ${gpxFile ? "border-[#6366F1]/40 bg-[#6366F1]/[0.06]" : "border-white/[0.08] bg-[#111827]"} px-4 py-3 transition hover:border-[#6366F1]/30`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={gpxFile ? "text-[#6366F1]" : "text-[#475569]"}>
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              <span className={`text-sm ${gpxFile ? "text-white font-medium" : "text-[#475569]"}`}>
-                {gpxFile ? gpxFileName : "Ajouter le parcours GPX"}
-              </span>
-              {gpxFile && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setGpxFile(null); setGpxFileName(""); }}
-                  className="ml-auto text-xs text-white/30 hover:text-red-400 transition"
-                >
-                  ✕
-                </button>
-              )}
-              <input
-                type="file"
-                accept=".gpx"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setGpxFile(file);
-                    setGpxFileName(file.name);
-                  }
-                }}
-              />
-            </label>
           </div>
 
           {/* Description */}

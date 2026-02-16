@@ -691,8 +691,8 @@ export default function RaceDetailPage() {
         </section>
 
         {/* ════════ GPX CONTRIBUTION ════════ */}
-        <section className="mb-6">
-          {!hasGpx ? (
+        {!hasGpx && (
+          <section className="mb-6">
             <div className="rounded-2xl border border-dashed border-white/[0.1] bg-[#1A1A2E]/30 p-6 text-center">
               <div className="mb-3 flex justify-center">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#475569]">
@@ -747,51 +747,8 @@ export default function RaceDetailPage() {
                 />
               </label>
             </div>
-          ) : (
-            <div className="flex justify-center">
-              <label
-                className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/40 transition hover:bg-white/[0.08] hover:text-white/60 ${gpxUploading ? "opacity-50 pointer-events-none" : ""}`}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                {gpxUploading ? "Remplacement..." : "Remplacer le GPX"}
-                <input
-                  type="file"
-                  accept=".gpx"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setGpxUploading(true);
-                    try {
-                      const text = await file.text();
-                      const res = await fetch(`/api/races/${raceId}/gpx`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ gpx_xml: text }),
-                      });
-                      if (res.ok) {
-                        const data = await res.json();
-                        toast(`GPX remplace ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
-                        await fetchRace();
-                      } else {
-                        const err = await res.json().catch(() => null);
-                        toast(err?.error || "Erreur remplacement GPX", "error");
-                      }
-                    } catch {
-                      toast("Erreur lors du remplacement", "error");
-                    } finally {
-                      setGpxUploading(false);
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* ════════ SOURCE LINK ════════ */}
         {race.source_url && (

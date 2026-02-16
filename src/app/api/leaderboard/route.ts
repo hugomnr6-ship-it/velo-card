@@ -37,17 +37,11 @@ export async function GET(request: Request) {
 
   const { monday, sunday } = getWeekBounds();
 
-  // Get users — if "france" get all profiles, otherwise filter by region
-  const isNational = region.toLowerCase() === "france";
-  let profileQuery = supabaseAdmin
+  // Get users in this region
+  const { data: regionProfiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, username, avatar_url");
-
-  if (!isNational) {
-    profileQuery = profileQuery.eq("region", region);
-  }
-
-  const { data: regionProfiles } = await profileQuery;
+    .select("id, username, avatar_url")
+    .eq("region", region);
 
   if (!regionProfiles || regionProfiles.length === 0) {
     return Response.json([]);

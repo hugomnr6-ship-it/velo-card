@@ -332,20 +332,6 @@ export default function UserProfilePage() {
           >
             <IconStar size={18} />
           </button>
-          <button
-            onClick={() => {
-              const myId = session?.user?.id;
-              if (myId && myId !== userId) {
-                router.push(`/compare?user1=${userId}&user2=${myId}`);
-              } else {
-                router.push(`/compare?user1=${userId}`);
-              }
-            }}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
-            title="Comparer"
-          >
-            <IconSwords size={18} />
-          </button>
           <ShareButton
             tier={stats.tier}
             userId={userId}

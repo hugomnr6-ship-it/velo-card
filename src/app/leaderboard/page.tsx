@@ -40,16 +40,13 @@ const tierAccentHex: Record<CardTier, string> = {
 };
 
 type LeaderboardMode = "weekly" | "race_points";
-type LeaderboardScope = "region" | "france";
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   const [mode, setMode] = useState<LeaderboardMode>("weekly");
-  const [scope, setScope] = useState<LeaderboardScope>("region");
   const [region, setRegion] = useState<FrenchRegion | null>(null);
-  const [userRegion, setUserRegion] = useState<FrenchRegion | null>(null);
   const [sort, setSort] = useState<LeaderboardSort>("weekly_km");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [racePointsEntries, setRacePointsEntries] = useState<RacePointsEntry[]>([]);
@@ -65,33 +62,27 @@ export default function LeaderboardPage() {
       fetch("/api/profile")
         .then((r) => r.json())
         .then((data) => {
-          if (data.region) {
-            setRegion(data.region);
-            setUserRegion(data.region);
-          }
+          if (data.region) setRegion(data.region);
         })
         .finally(() => setRegionLoading(false));
     }
   }, [session]);
 
-  // Compute effective region for API calls
-  const effectiveRegion = scope === "france" ? "france" : region;
-
   // Weekly leaderboard
   useEffect(() => {
-    if (effectiveRegion && mode === "weekly") fetchLeaderboard();
-  }, [effectiveRegion, sort, mode]);
+    if (region && mode === "weekly") fetchLeaderboard();
+  }, [region, sort, mode]);
 
   // Race points leaderboard
   useEffect(() => {
     if (mode === "race_points") fetchRacePoints();
-  }, [mode, effectiveRegion]);
+  }, [mode, region]);
 
   async function fetchLeaderboard() {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/leaderboard?region=${encodeURIComponent(effectiveRegion!)}&sort=${sort}`
+        `/api/leaderboard?region=${encodeURIComponent(region!)}&sort=${sort}`
       );
       if (res.ok) {
         setEntries(await res.json());
@@ -105,8 +96,7 @@ export default function LeaderboardPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams({ leaderboard: "true" });
-      // For race points, don't send region filter when scope is "france"
-      if (scope === "region" && region) params.set("region", region);
+      if (region) params.set("region", region);
       const res = await fetch(`/api/race-points?${params.toString()}`);
       if (res.ok) {
         setRacePointsEntries(await res.json());
@@ -118,19 +108,11 @@ export default function LeaderboardPage() {
 
   async function handleRegionChange(newRegion: FrenchRegion) {
     setRegion(newRegion);
-    setUserRegion(newRegion);
     fetch("/api/profile/region", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ region: newRegion }),
     });
-  }
-
-  function handleScopeChange(newScope: LeaderboardScope) {
-    setScope(newScope);
-    if (newScope === "region" && userRegion) {
-      setRegion(userRegion);
-    }
   }
 
   if (status === "loading" || !session || regionLoading) {
@@ -180,41 +162,15 @@ export default function LeaderboardPage() {
           </button>
         </div>
 
-        {/* Scope toggle: Ma région / France */}
-        <div className="mb-3 flex gap-2">
-          <button
-            onClick={() => handleScopeChange("region")}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-              scope === "region"
-                ? "bg-white text-black"
-                : "border border-white/10 bg-white/5 text-white/50 hover:text-white/70"
-            }`}
-          >
-            Ma region
-          </button>
-          <button
-            onClick={() => handleScopeChange("france")}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-              scope === "france"
-                ? "bg-[#6366F1] text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
-                : "border border-white/10 bg-white/5 text-white/50 hover:text-white/70"
-            }`}
-          >
-            France
-          </button>
+        {/* Region selector */}
+        <div className="mb-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">
+            Region
+          </p>
+          <RegionSelector value={region} onChange={handleRegionChange} />
         </div>
 
-        {/* Region selector (only when scope is region) */}
-        {scope === "region" && (
-          <div className="mb-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">
-              Region
-            </p>
-            <RegionSelector value={region} onChange={handleRegionChange} />
-          </div>
-        )}
-
-        {!effectiveRegion && mode === "weekly" ? (
+        {!region && mode === "weekly" ? (
           <EmptyState
             icon={<TrophyIcon size={48} />}
             title="Choisis ta region"

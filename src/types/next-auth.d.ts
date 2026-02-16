@@ -1,5 +1,4 @@
 import "next-auth";
-import type { AuthProvider } from "@/lib/auth";
 
 declare module "next-auth" {
   interface Session {
@@ -10,8 +9,6 @@ declare module "next-auth" {
       image?: string | null;
       stravaId: number;
       accessToken: string;
-      provider: AuthProvider;
-      oauthTokenSecret?: string;
     };
   }
 }
@@ -20,11 +17,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     userId?: string;
     stravaId?: number;
-    providerId?: number;
     accessToken?: string;
     refreshToken?: string;
     expiresAt?: number;
-    provider?: string;
-    oauthTokenSecret?: string;
   }
 }
