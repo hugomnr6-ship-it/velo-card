@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import type { AuthProvider } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
@@ -12,10 +11,9 @@ import type { StravaActivity } from "@/types";
 
 export async function POST() {
   // 1. Check auth
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.accessToken) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId, session } = authResult;
 
   const provider: AuthProvider = session.user.provider || "strava";
 
@@ -45,37 +43,10 @@ export async function POST() {
       }
     }
 
-    // 3. Get user profile ID from Supabase — UUID first, then provider-specific ID
-    let profile: { id: string } | null = null;
-    if (session.user.id) {
-      const { data } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("id", session.user.id)
-        .single();
-      profile = data;
-    }
-    if (!profile && session.user.stravaId) {
-      const lookupCol =
-        provider === "strava" ? "strava_id" :
-        provider === "garmin" ? "garmin_id" :
-        "wahoo_id";
-      const { data } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq(lookupCol, session.user.stravaId)
-        .single();
-      profile = data;
-    }
-
-    if (!profile) {
-      return Response.json({ error: "Profil introuvable" }, { status: 404 });
-    }
-
     // 4. Cache activities in Supabase (upsert to avoid duplicates)
     // strava_activity_id is used as provider-agnostic external activity ID
     const activityRows = activities.map((a) => ({
-      user_id: profile.id,
+      user_id: profileId,
       strava_activity_id: a.id,
       name: a.name,
       distance: a.distance,
@@ -106,7 +77,7 @@ export async function POST() {
       .from("user_stats")
       .upsert(
         {
-          user_id: profile.id,
+          user_id: profileId,
           pac: stats.pac,
           end: stats.end,
           mon: stats.mon,
@@ -121,7 +92,7 @@ export async function POST() {
       );
 
     // 7. Update Squad Wars progress (non-blocking)
-    updateWarProgressForUser(profile.id).catch(() => {});
+    updateWarProgressForUser(profileId).catch(() => {});
 
     // 8. Compute badges
     const badges = computeBadges(stats);

@@ -1,25 +1,13 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   try {
     const formData = await request.formData();
@@ -38,7 +26,7 @@ export async function POST(request: Request) {
     }
 
     const ext = file.type.split("/")[1];
-    const path = `avatars/${profile.id}.${ext}`;
+    const path = `avatars/${profileId}.${ext}`;
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -67,7 +55,7 @@ export async function POST(request: Request) {
     await supabaseAdmin
       .from("profiles")
       .update({ custom_avatar_url: publicUrl })
-      .eq("id", profile.id);
+      .eq("id", profileId);
 
     return Response.json({ url: publicUrl });
   } catch (err: any) {

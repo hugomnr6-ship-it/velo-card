@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { DuelCategory, DuelType, CardTier } from "@/types";
 
@@ -9,18 +8,11 @@ import type { DuelCategory, DuelType, CardTier } from "@/types";
  */
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return Response.json({ error: "Non authentifié" }, { status: 401 });
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) return Response.json({ error: "Profil introuvable" }, { status: 404 });
-
-  const userId = profile.id;
+  const userId = profileId;
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get("filter") || "all"; // all, pending, active, history
 
@@ -87,16 +79,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return Response.json({ error: "Non authentifié" }, { status: 401 });
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) return Response.json({ error: "Profil introuvable" }, { status: 404 });
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const body = await request.json();
   const { opponent_id, category, duel_type, stake } = body as {
@@ -110,7 +95,7 @@ export async function POST(request: Request) {
   if (!opponent_id || !category) {
     return Response.json({ error: "opponent_id et category requis" }, { status: 400 });
   }
-  if (opponent_id === profile.id) {
+  if (opponent_id === profileId) {
     return Response.json({ error: "Tu ne peux pas te défier toi-même" }, { status: 400 });
   }
   if (stake < 5 || stake > 100) {
@@ -132,7 +117,7 @@ export async function POST(request: Request) {
   const { data: existingDuels } = await supabaseAdmin
     .from("duels")
     .select("id")
-    .or(`and(challenger_id.eq.${profile.id},opponent_id.eq.${opponent_id}),and(challenger_id.eq.${opponent_id},opponent_id.eq.${profile.id})`)
+    .or(`and(challenger_id.eq.${profileId},opponent_id.eq.${opponent_id}),and(challenger_id.eq.${opponent_id},opponent_id.eq.${profileId})`)
     .in("status", ["pending", "accepted"])
     .limit(1);
 
@@ -147,7 +132,7 @@ export async function POST(request: Request) {
   const { data: duel, error } = await supabaseAdmin
     .from("duels")
     .insert({
-      challenger_id: profile.id,
+      challenger_id: profileId,
       opponent_id,
       category,
       duel_type: duel_type || "instant",

@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 function getWeekBounds(): { monday: string; sunday: string } {
@@ -22,10 +21,8 @@ function getWeekBounds(): { monday: string; sunday: string } {
 }
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
 
   const { searchParams } = new URL(request.url);
   const region = searchParams.get("region");

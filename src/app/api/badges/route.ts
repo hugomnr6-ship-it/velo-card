@@ -1,30 +1,19 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { searchParams } = new URL(request.url);
   const targetUserId = searchParams.get("userId");
 
   let userId = targetUserId;
 
-  // If no userId provided, get own profile
+  // If no userId provided, use own profile
   if (!userId) {
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("strava_id", session.user.stravaId)
-      .single();
-
-    if (!profile) {
-      return Response.json({ error: "Profil introuvable" }, { status: 404 });
-    }
-    userId = profile.id;
+    userId = profileId;
   }
 
   const { data: badges, error } = await supabaseAdmin

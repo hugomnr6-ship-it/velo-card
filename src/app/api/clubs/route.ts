@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const url = new URL(request.url);
   const search = url.searchParams.get("q")?.trim();
@@ -39,20 +37,12 @@ export async function GET(request: Request) {
   }
 
   // Get current user's club memberships
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
   let userClubIds: string[] = [];
-  if (profile) {
-    const { data: userMemberships } = await supabaseAdmin
-      .from("club_members")
-      .select("club_id")
-      .eq("user_id", profile.id);
-    userClubIds = (userMemberships || []).map((m: any) => m.club_id);
-  }
+  const { data: userMemberships } = await supabaseAdmin
+    .from("club_members")
+    .select("club_id")
+    .eq("user_id", profileId);
+  userClubIds = (userMemberships || []).map((m: any) => m.club_id);
 
   const result = (clubs || []).map((c: any) => ({
     ...c,
@@ -63,10 +53,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const formData = await request.formData();
   const name = (formData.get("name") as string)?.trim();
@@ -97,17 +86,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Get profile
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
-
   // Upload logo to Supabase Storage
   const ext = logo.name.split(".").pop() || "jpg";
   const fileName = `${crypto.randomUUID()}.${ext}`;
@@ -132,7 +110,7 @@ export async function POST(request: Request) {
   // Insert club
   const { data: club, error: clubError } = await supabaseAdmin
     .from("clubs")
-    .insert({ name, logo_url: logoUrl, creator_id: profile.id })
+    .insert({ name, logo_url: logoUrl, creator_id: profileId })
     .select()
     .single();
 
@@ -149,7 +127,7 @@ export async function POST(request: Request) {
   // Auto-join creator
   await supabaseAdmin
     .from("club_members")
-    .insert({ club_id: club.id, user_id: profile.id });
+    .insert({ club_id: club.id, user_id: profileId });
 
   return Response.json(club, { status: 201 });
 }

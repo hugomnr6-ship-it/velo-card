@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
@@ -10,10 +9,9 @@ import { NextResponse } from "next/server";
  * this endpoint calculates from actual activity data for the current week.
  */
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   try {
     // Calculate Monday 00:00 UTC for the current week
@@ -28,7 +26,7 @@ export async function GET() {
     const { data: activities } = await supabaseAdmin
       .from("strava_activities")
       .select("distance, total_elevation_gain, moving_time, activity_type")
-      .eq("user_id", session.user.id)
+      .eq("user_id", profileId)
       .gte("start_date", monday.toISOString())
       .in("activity_type", ["Ride", "VirtualRide"]);
 

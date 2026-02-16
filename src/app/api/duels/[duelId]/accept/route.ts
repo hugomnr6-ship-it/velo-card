@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { insertFeedEvent } from "@/lib/feed";
 import type { DuelCategory } from "@/types";
@@ -13,16 +12,9 @@ export async function POST(
   { params }: { params: Promise<{ duelId: string }> }
 ) {
   const { duelId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return Response.json({ error: "Non authentifié" }, { status: 401 });
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) return Response.json({ error: "Profil introuvable" }, { status: 404 });
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   // Fetch duel
   const { data: duel, error: duelError } = await supabaseAdmin
@@ -34,7 +26,7 @@ export async function POST(
   if (duelError || !duel) return Response.json({ error: "Duel introuvable" }, { status: 404 });
 
   // Only the opponent can accept
-  if (duel.opponent_id !== profile.id) {
+  if (duel.opponent_id !== profileId) {
     return Response.json({ error: "Seul l'adversaire peut accepter" }, { status: 403 });
   }
 

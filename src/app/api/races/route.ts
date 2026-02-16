@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { searchParams } = new URL(request.url);
   const federation = searchParams.get("federation");
@@ -71,10 +69,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const body = await request.json();
   const {
@@ -91,20 +88,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
-
   const { data: race, error } = await supabaseAdmin
     .from("races")
     .insert({
-      creator_id: profile.id,
+      creator_id: profileId,
       name: name.trim(),
       date,
       location: location.trim(),
@@ -130,7 +117,7 @@ export async function POST(request: Request) {
   // Auto-join creator
   await supabaseAdmin
     .from("race_entries")
-    .insert({ race_id: race.id, user_id: profile.id });
+    .insert({ race_id: race.id, user_id: profileId });
 
   return Response.json(race, { status: 201 });
 }

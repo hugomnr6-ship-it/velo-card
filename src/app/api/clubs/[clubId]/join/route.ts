@@ -1,27 +1,15 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ clubId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { clubId } = await params;
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
 
   const { data: club } = await supabaseAdmin
     .from("clubs")
@@ -36,7 +24,7 @@ export async function POST(
   // Insert membership
   const { error } = await supabaseAdmin
     .from("club_members")
-    .insert({ club_id: clubId, user_id: profile.id });
+    .insert({ club_id: clubId, user_id: profileId });
 
   if (error) {
     if (error.code === "23505") {

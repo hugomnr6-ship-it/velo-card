@@ -1,22 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function PATCH(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const body = await request.json();
   const { bio, favorite_climb, bike_name, region } = body;
@@ -45,7 +33,7 @@ export async function PATCH(request: Request) {
   const { error } = await supabaseAdmin
     .from("profiles")
     .update(updates)
-    .eq("id", profile.id);
+    .eq("id", profileId);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -11,16 +10,9 @@ export async function POST(
   { params }: { params: Promise<{ duelId: string }> }
 ) {
   const { duelId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return Response.json({ error: "Non authentifié" }, { status: 401 });
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) return Response.json({ error: "Profil introuvable" }, { status: 404 });
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { data: duel } = await supabaseAdmin
     .from("duels")
@@ -31,7 +23,7 @@ export async function POST(
   if (!duel) return Response.json({ error: "Duel introuvable" }, { status: 404 });
 
   // Only the opponent can decline
-  if (duel.opponent_id !== profile.id) {
+  if (duel.opponent_id !== profileId) {
     return Response.json({ error: "Seul l'adversaire peut décliner" }, { status: 403 });
   }
 

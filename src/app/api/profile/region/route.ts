@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { region } = await request.json();
 
@@ -17,7 +15,7 @@ export async function POST(request: Request) {
   const { error } = await supabaseAdmin
     .from("profiles")
     .update({ region })
-    .eq("strava_id", session.user.stravaId);
+    .eq("id", profileId);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });

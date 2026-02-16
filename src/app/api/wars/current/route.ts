@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
   getWarWeekBounds,
@@ -9,28 +8,16 @@ import {
 import type { WarDashboard, WarContribution } from "@/types";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.accessToken) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   try {
-    // Get user profile
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("strava_id", session.user.stravaId)
-      .single();
-
-    if (!profile) {
-      return Response.json({ error: "Profil introuvable" }, { status: 404 });
-    }
-
     // Get user's clubs
     const { data: memberships } = await supabaseAdmin
       .from("club_members")
       .select("club_id")
-      .eq("user_id", profile.id)
+      .eq("user_id", profileId)
       .order("joined_at", { ascending: true });
 
     if (!memberships || memberships.length === 0) {
@@ -82,7 +69,7 @@ export async function GET() {
       }
 
       // Build debrief response
-      return Response.json(await buildWarDashboard(lastWar, profile.id, true));
+      return Response.json(await buildWarDashboard(lastWar, profileId, true));
     }
 
     // Tuesday-Sunday: find or create active war
@@ -173,7 +160,7 @@ export async function GET() {
       return Response.json(result);
     }
 
-    return Response.json(await buildWarDashboard(activeWar, profile.id, false));
+    return Response.json(await buildWarDashboard(activeWar, profileId, false));
   } catch (err: any) {
     console.error("War current error:", err);
     return Response.json(

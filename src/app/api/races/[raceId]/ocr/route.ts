@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -15,31 +14,20 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
 
   // Verify creator
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
-
   const { data: race } = await supabaseAdmin
     .from("races")
     .select("creator_id")
     .eq("id", raceId)
     .single();
 
-  if (!race || race.creator_id !== profile.id) {
+  if (!race || race.creator_id !== profileId) {
     return Response.json(
       { error: "Seul le créateur peut importer des résultats" },
       { status: 403 },

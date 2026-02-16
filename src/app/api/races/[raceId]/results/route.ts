@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { computeGenScore, getGhostTier, generateClaimToken } from "@/lib/ghost-score";
 import { insertFeedEvent } from "@/lib/feed";
@@ -11,23 +10,11 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
-
-  // Get current user profile
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
 
   // Verify race exists and user is creator
   const { data: race } = await supabaseAdmin
@@ -40,7 +27,7 @@ export async function POST(
     return Response.json({ error: "Course introuvable" }, { status: 404 });
   }
 
-  if (race.creator_id !== profile.id) {
+  if (race.creator_id !== profileId) {
     return Response.json(
       { error: "Seul le créateur peut publier les résultats" },
       { status: 403 },

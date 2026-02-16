@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
@@ -11,10 +10,9 @@ import { supabaseAdmin } from "@/lib/supabase";
  * Returns top 50 riders by total race points (optionally filtered by region).
  */
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { searchParams } = new URL(request.url);
   const isLeaderboard = searchParams.get("leaderboard") === "true";
@@ -26,12 +24,7 @@ export async function GET(request: Request) {
   // Palmares for a specific user
   let userId = searchParams.get("user_id");
   if (!userId) {
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("strava_id", session.user.stravaId)
-      .single();
-    userId = profile?.id;
+    userId = profileId;
   }
 
   if (!userId) {

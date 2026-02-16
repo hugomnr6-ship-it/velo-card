@@ -1,27 +1,15 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
 
   const { data: race } = await supabaseAdmin
     .from("races")
@@ -35,7 +23,7 @@ export async function POST(
 
   const { error } = await supabaseAdmin
     .from("race_entries")
-    .insert({ race_id: raceId, user_id: profile.id });
+    .insert({ race_id: raceId, user_id: profileId });
 
   if (error) {
     if (error.code === "23505") {

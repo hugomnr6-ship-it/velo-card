@@ -1,23 +1,15 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
-
-  const { data: currentProfile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
 
   // Fetch race with creator info
   const { data: race, error } = await supabaseAdmin
@@ -148,8 +140,8 @@ export async function GET(
     participants,
     results,
     results_published: resultsPublished,
-    is_creator: currentProfile?.id === race.creator_id,
-    is_participant: userIds.includes(currentProfile?.id),
+    is_creator: profileId === race.creator_id,
+    is_participant: userIds.includes(profileId),
   });
 }
 
@@ -157,18 +149,11 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
 
   const { data: race } = await supabaseAdmin
     .from("races")
@@ -180,7 +165,7 @@ export async function DELETE(
     return Response.json({ error: "Course introuvable" }, { status: 404 });
   }
 
-  if (race.creator_id !== profile?.id) {
+  if (race.creator_id !== profileId) {
     return Response.json(
       { error: "Seul le créateur peut supprimer cette course" },
       { status: 403 },

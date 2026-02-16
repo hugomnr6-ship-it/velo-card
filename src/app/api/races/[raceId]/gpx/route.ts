@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { GpxPoint } from "@/types";
 
@@ -12,23 +11,11 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ raceId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { raceId } = await params;
-
-  // Get current user profile
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
-
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
-  }
 
   // Verify race exists
   const { data: race } = await supabaseAdmin
@@ -97,7 +84,7 @@ export async function POST(
       minElevation: Math.round(Math.min(...points.map((p) => p.ele))),
       centerLat: points[Math.floor(points.length / 2)].lat,
       centerLon: points[Math.floor(points.length / 2)].lon,
-      contributor_id: profile.id,
+      contributor_id: profileId,
       contributed_at: new Date().toISOString(),
     };
 

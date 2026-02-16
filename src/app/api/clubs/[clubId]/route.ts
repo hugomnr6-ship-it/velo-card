@@ -1,23 +1,15 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ clubId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifie" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { clubId } = await params;
-
-  const { data: currentProfile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
 
   // Fetch club with creator
   const { data: club, error } = await supabaseAdmin
@@ -74,7 +66,7 @@ export async function GET(
   return Response.json({
     ...club,
     members,
-    is_creator: currentProfile?.id === club.creator_id,
-    is_member: userIds.includes(currentProfile?.id),
+    is_creator: profileId === club.creator_id,
+    is_member: userIds.includes(profileId),
   });
 }

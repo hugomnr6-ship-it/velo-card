@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 
 function degreesToCompass(deg: number): string {
   const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -9,10 +8,8 @@ function degreesToCompass(deg: number): string {
 
 export async function POST(request: Request) {
   // 1. Check auth
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
 
   // 2. Parse body
   const { lat, lon } = await request.json();

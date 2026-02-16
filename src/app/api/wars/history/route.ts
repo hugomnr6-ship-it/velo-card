@@ -1,30 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { WarHistoryEntry } from "@/types";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.accessToken) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   try {
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("strava_id", session.user.stravaId)
-      .single();
-
-    if (!profile) {
-      return Response.json({ error: "Profil introuvable" }, { status: 404 });
-    }
-
     // Get user's clubs
     const { data: memberships } = await supabaseAdmin
       .from("club_members")
       .select("club_id")
-      .eq("user_id", profile.id);
+      .eq("user_id", profileId);
 
     if (!memberships || memberships.length === 0) {
       return Response.json({ history: [] });

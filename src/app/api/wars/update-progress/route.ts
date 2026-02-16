@@ -1,26 +1,13 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { updateWarProgressForUser } from "@/lib/wars";
 
 export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.accessToken) {
-    return Response.json({ error: "Non authentifié" }, { status: 401 });
-  }
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   try {
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("strava_id", session.user.stravaId)
-      .single();
-
-    if (!profile) {
-      return Response.json({ error: "Profil introuvable" }, { status: 404 });
-    }
-
-    await updateWarProgressForUser(profile.id);
+    await updateWarProgressForUser(profileId);
 
     return Response.json({ ok: true });
   } catch (err: any) {
