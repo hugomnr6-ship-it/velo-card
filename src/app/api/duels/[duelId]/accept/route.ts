@@ -41,20 +41,46 @@ export async function POST(
   }
 
   if (duel.duel_type === "instant") {
-    // Resolve immediately — compare current stats
-    const result = await resolveInstantDuel(duel);
-    return Response.json({ duel: result });
-  } else {
-    // Weekly duel — just mark as accepted, will be resolved by Monday Update
-    const { data: updated } = await supabaseAdmin
+    // Atomic status check: only update if still pending
+    const { data: locked, error: lockError } = await supabaseAdmin
       .from("duels")
       .update({
         status: "accepted",
         accepted_at: new Date().toISOString(),
       })
       .eq("id", duelId)
+      .eq("status", "pending")
       .select()
       .single();
+
+    if (lockError || !locked) {
+      return Response.json(
+        { error: "Ce duel n'est plus disponible" },
+        { status: 409 },
+      );
+    }
+
+    const result = await resolveInstantDuel(locked);
+    return Response.json({ duel: result });
+  } else {
+    // Weekly duel — atomic accept
+    const { data: updated, error: updateError } = await supabaseAdmin
+      .from("duels")
+      .update({
+        status: "accepted",
+        accepted_at: new Date().toISOString(),
+      })
+      .eq("id", duelId)
+      .eq("status", "pending")
+      .select()
+      .single();
+
+    if (updateError || !updated) {
+      return Response.json(
+        { error: "Ce duel n'est plus disponible" },
+        { status: 409 },
+      );
+    }
 
     return Response.json({ duel: updated });
   }
@@ -126,8 +152,13 @@ async function resolveInstantDuel(duel: any) {
       is_draw: isDraw,
     })
     .eq("id", duel.id)
+    .eq("status", "accepted")
     .select()
     .single();
+
+  if (!resolved) {
+    return { error: "Duel déjà résolu" };
+  }
 
   // Update ego points
   if (winnerId && loserId) {

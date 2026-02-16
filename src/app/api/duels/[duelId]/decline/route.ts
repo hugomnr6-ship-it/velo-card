@@ -31,12 +31,20 @@ export async function POST(
     return Response.json({ error: "Ce duel n'est plus en attente" }, { status: 409 });
   }
 
-  const { data: updated } = await supabaseAdmin
+  const { data: updated, error: updateError } = await supabaseAdmin
     .from("duels")
     .update({ status: "declined" })
     .eq("id", duelId)
+    .eq("status", "pending")
     .select()
     .single();
+
+  if (updateError || !updated) {
+    return Response.json(
+      { error: "Ce duel n'est plus en attente" },
+      { status: 409 },
+    );
+  }
 
   return Response.json({ duel: updated });
 }
