@@ -68,11 +68,13 @@ export function computeRouteSummary(points: GpxPoint[]): RouteSummary {
 
   const totalDistanceKm = points[points.length - 1].distFromStart;
 
-  // D+ : sum of positive elevation differences
+  // D+ / D- : sum of positive/negative elevation differences
   let totalElevationGain = 0;
+  let totalElevationLoss = 0;
   for (let i = 1; i < points.length; i++) {
     const diff = points[i].ele - points[i - 1].ele;
     if (diff > 0) totalElevationGain += diff;
+    else totalElevationLoss += Math.abs(diff);
   }
 
   const elevations = points.map((p) => p.ele);
@@ -94,6 +96,7 @@ export function computeRouteSummary(points: GpxPoint[]): RouteSummary {
   return {
     totalDistanceKm: Math.round(totalDistanceKm * 10) / 10,
     totalElevationGain: Math.round(totalElevationGain),
+    totalElevationLoss: Math.round(totalElevationLoss),
     maxElevation: Math.round(maxElevation),
     minElevation: Math.round(minElevation),
     points,

@@ -153,6 +153,7 @@ export interface GpxPoint {
 export interface RouteSummary {
   totalDistanceKm: number;
   totalElevationGain: number; // D+ in meters
+  totalElevationLoss: number; // D- in meters
   maxElevation: number;
   minElevation: number;
   points: GpxPoint[];
@@ -166,6 +167,7 @@ export interface WeatherData {
   windSpeedKmh: number;
   windDirection: string; // "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW"
   windDegrees: number;
+  windGust?: number; // gusts in km/h (optional)
   temperature: number; // Celsius
   description: string;
   icon: string; // OpenWeatherMap icon code
