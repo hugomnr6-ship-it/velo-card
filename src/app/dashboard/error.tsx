@@ -10,7 +10,7 @@ export default function DashboardError({
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
       <p className="text-sm text-red-400">
-        Erreur de chargement : {error.message}
+        Erreur de chargement. Réessaie ou contacte le support.
       </p>
       <button
         onClick={reset}
