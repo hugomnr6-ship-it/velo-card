@@ -1,5 +1,6 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createClubSchema } from "@/schemas";
 
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
@@ -56,21 +57,13 @@ export async function POST(request: Request) {
   const { profileId } = authResult;
 
   const formData = await request.formData();
-  const name = (formData.get("name") as string)?.trim();
+  const rawName = (formData.get("name") as string)?.trim();
   const logo = formData.get("logo") as File | null;
 
-  if (!name) {
-    return Response.json(
-      { error: "Le nom du club est requis" },
-      { status: 400 },
-    );
-  }
-  if (name.length > 50) {
-    return Response.json(
-      { error: "Le nom ne peut pas depasser 50 caracteres" },
-      { status: 400 },
-    );
-  }
+  const nameValidated = validateBody(createClubSchema, { name: rawName });
+  if (nameValidated instanceof Response) return nameValidated;
+  const name = nameValidated.name;
+
   if (!logo || !logo.type.startsWith("image/")) {
     return Response.json(
       { error: "Une photo du maillot est requise" },

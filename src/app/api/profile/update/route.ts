@@ -1,5 +1,6 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { updateProfileSchema } from "@/schemas";
 
 export async function PATCH(request: Request) {
   const authResult = await getAuthenticatedUser();
@@ -7,23 +8,19 @@ export async function PATCH(request: Request) {
   const { profileId } = authResult;
 
   const body = await request.json();
-  const { bio, favorite_climb, bike_name, region } = body;
+  const validated = validateBody(updateProfileSchema, body);
+  if (validated instanceof Response) return validated;
 
-  // Validation
   const updates: Record<string, string> = {};
 
-  if (bio !== undefined) {
-    const trimmed = String(bio).trim().slice(0, 160);
-    updates.bio = trimmed;
+  if (validated.bio !== undefined) {
+    updates.bio = validated.bio.trim().slice(0, 160);
   }
-  if (favorite_climb !== undefined) {
-    updates.favorite_climb = String(favorite_climb).trim().slice(0, 100);
+  if (validated.favorite_climb !== undefined) {
+    updates.favorite_climb = validated.favorite_climb.trim().slice(0, 100);
   }
-  if (bike_name !== undefined) {
-    updates.bike_name = String(bike_name).trim().slice(0, 80);
-  }
-  if (region !== undefined) {
-    updates.region = String(region).trim();
+  if (validated.bike_name !== undefined) {
+    updates.bike_name = validated.bike_name.trim().slice(0, 80);
   }
 
   if (Object.keys(updates).length === 0) {

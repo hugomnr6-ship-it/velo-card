@@ -1,19 +1,16 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createRaceSchema, racesQuerySchema } from "@/schemas";
 
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
   const { profileId } = authResult;
 
-  const { searchParams } = new URL(request.url);
-  const federation = searchParams.get("federation");
-  const region = searchParams.get("region");
-  const category = searchParams.get("category");
-  const gender = searchParams.get("gender");
-  const search = searchParams.get("search");
-  const upcoming = searchParams.get("upcoming");
-  const limit = parseInt(searchParams.get("limit") || "200");
+  const params = Object.fromEntries(new URL(request.url).searchParams);
+  const validated = validateBody(racesQuerySchema, params);
+  if (validated instanceof Response) return validated;
+  const { federation, region, category, gender, search, upcoming, limit } = validated;
 
   let query = supabaseAdmin
     .from("races")
@@ -39,7 +36,9 @@ export async function GET(request: Request) {
     query = query.eq("gender", gender);
   }
   if (search) {
-    query = query.or(`name.ilike.%${search}%,location.ilike.%${search}%`);
+    // Sanitize search for Supabase ilike
+    const sanitized = search.replace(/[%_\\]/g, '');
+    query = query.or(`name.ilike.%${sanitized}%,location.ilike.%${sanitized}%`);
   }
 
   const { data: races, error } = await query;
@@ -72,37 +71,26 @@ export async function POST(request: Request) {
   const { profileId } = authResult;
 
   const body = await request.json();
-  const {
-    name, date, location, description,
-    federation, category, gender,
-    distance_km, elevation_gain,
-    department, region, is_official, source_url,
-  } = body;
-
-  if (!name || !date || !location) {
-    return Response.json(
-      { error: "Nom, date et lieu sont requis" },
-      { status: 400 },
-    );
-  }
+  const raceValidated = validateBody(createRaceSchema, body);
+  if (raceValidated instanceof Response) return raceValidated;
 
   const { data: race, error } = await supabaseAdmin
     .from("races")
     .insert({
       creator_id: profileId,
-      name: name.trim(),
-      date,
-      location: location.trim(),
-      description: (description || "").trim(),
-      federation: federation || "OTHER",
-      category: category || "Seniors",
-      gender: gender || "MIXTE",
-      distance_km: distance_km || null,
-      elevation_gain: elevation_gain || null,
-      is_official: is_official || false,
-      department: department || null,
-      region: region || null,
-      source_url: source_url || null,
+      name: raceValidated.name.trim(),
+      date: raceValidated.date,
+      location: raceValidated.location.trim(),
+      description: raceValidated.description.trim(),
+      federation: raceValidated.federation,
+      category: raceValidated.category,
+      gender: raceValidated.gender,
+      distance_km: raceValidated.distance_km || null,
+      elevation_gain: raceValidated.elevation_gain || null,
+      is_official: raceValidated.is_official,
+      department: raceValidated.department || null,
+      region: raceValidated.region || null,
+      source_url: raceValidated.source_url || null,
       status: "upcoming",
     })
     .select()

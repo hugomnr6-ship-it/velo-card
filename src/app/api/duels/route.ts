@@ -1,6 +1,7 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
-import type { DuelCategory, DuelType, CardTier } from "@/types";
+import { createDuelSchema } from "@/schemas";
+import type { CardTier } from "@/types";
 
 /**
  * GET /api/duels — List duels for current user (pending, active, recent resolved)
@@ -84,22 +85,12 @@ export async function POST(request: Request) {
   const { profileId } = authResult;
 
   const body = await request.json();
-  const { opponent_id, category, duel_type, stake } = body as {
-    opponent_id: string;
-    category: DuelCategory;
-    duel_type: DuelType;
-    stake: number;
-  };
+  const validated = validateBody(createDuelSchema, body);
+  if (validated instanceof Response) return validated;
+  const { opponent_id, category, duel_type, stake } = validated;
 
-  // Validation
-  if (!opponent_id || !category) {
-    return Response.json({ error: "opponent_id et category requis" }, { status: 400 });
-  }
   if (opponent_id === profileId) {
-    return Response.json({ error: "Tu ne peux pas te défier toi-même" }, { status: 400 });
-  }
-  if (stake < 5 || stake > 100) {
-    return Response.json({ error: "Mise entre 5 et 100 points" }, { status: 400 });
+    return Response.json({ error: { code: "SELF_DUEL", message: "Tu ne peux pas te défier toi-même" } }, { status: 400 });
   }
 
   // Check opponent exists

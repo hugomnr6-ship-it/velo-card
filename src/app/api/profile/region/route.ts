@@ -1,16 +1,16 @@
-import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { updateRegionSchema } from "@/schemas";
 
 export async function POST(request: Request) {
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
   const { profileId } = authResult;
 
-  const { region } = await request.json();
-
-  if (region !== null && typeof region !== "string") {
-    return Response.json({ error: "Région invalide" }, { status: 400 });
-  }
+  const body = await request.json();
+  const validated = validateBody(updateRegionSchema, body);
+  if (validated instanceof Response) return validated;
+  const { region } = validated;
 
   const { error } = await supabaseAdmin
     .from("profiles")

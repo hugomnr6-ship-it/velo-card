@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import type { ZodSchema } from "zod";
 
 export interface AuthenticatedUser {
   session: any;
@@ -80,4 +81,26 @@ export function handleApiError(error: unknown, context?: string): Response {
     { error: { code: "INTERNAL_ERROR", message: "Une erreur est survenue" } },
     { status: 500 },
   );
+}
+
+/**
+ * Valide des données avec un schéma Zod.
+ * Retourne les données typées ou une Response d'erreur 400.
+ */
+export function validateBody<T>(schema: ZodSchema<T>, data: unknown): T | Response {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    const firstError = result.error.issues[0];
+    return Response.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: firstError.message,
+          field: firstError.path.join("."),
+        },
+      },
+      { status: 400 },
+    );
+  }
+  return result.data;
 }

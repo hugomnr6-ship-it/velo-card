@@ -1,5 +1,6 @@
-import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { leaderboardQuerySchema } from "@/schemas";
 
 function getWeekBounds(): { monday: string; sunday: string } {
   const now = new Date();
@@ -24,13 +25,10 @@ export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
 
-  const { searchParams } = new URL(request.url);
-  const region = searchParams.get("region");
-  const sort = searchParams.get("sort") || "weekly_km";
-
-  if (!region) {
-    return Response.json({ error: "Paramètre région requis" }, { status: 400 });
-  }
+  const params = Object.fromEntries(new URL(request.url).searchParams);
+  const validated = validateBody(leaderboardQuerySchema, params);
+  if (validated instanceof Response) return validated;
+  const { region, sort } = validated;
 
   const { monday, sunday } = getWeekBounds();
 
