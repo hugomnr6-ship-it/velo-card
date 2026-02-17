@@ -104,7 +104,7 @@ export default memo(function VeloCardInteractive({
       {/* 3D perspective wrapper */}
       <div
         ref={wrapperRef}
-        style={{ perspective: "800px" }}
+        style={{ perspective: "800px", width: 280 }}
         className="relative"
       >
         {/* Dynamic shadow layer */}
