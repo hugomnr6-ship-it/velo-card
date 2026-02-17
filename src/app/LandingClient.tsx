@@ -228,7 +228,7 @@ export default function LandingClient() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0A0A0F]">
+    <main className="relative min-h-screen overflow-x-hidden bg-[#0A0A0F]">
       {/* ═══ HERO ═══ */}
       <section className="relative flex flex-col items-center px-6 pt-16 pb-20 sm:pt-24">
         {/* Background glow */}
