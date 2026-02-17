@@ -7,7 +7,7 @@ interface SkeletonProps {
 export default function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-lg bg-[#1A1A2E] ${className}`}
+      className={`shimmer rounded-lg bg-[#1A1A2E] ${className}`}
     />
   );
 }
@@ -17,7 +17,7 @@ export default function Skeleton({ className = "" }: SkeletonProps) {
 /** Skeleton that mimics the VeloCard shape */
 export function VeloCardSkeleton() {
   return (
-    <div className="relative w-[400px] h-[711px] rounded-2xl border border-white/[0.06] bg-[#111827] overflow-hidden">
+    <div className="relative w-full max-w-[280px] aspect-[280/470] rounded-2xl border border-white/[0.06] bg-[#111827] overflow-hidden">
       <div className="flex h-full flex-col items-center px-6 pt-6 pb-5">
         {/* Top bar */}
         <div className="flex w-full items-center justify-between">

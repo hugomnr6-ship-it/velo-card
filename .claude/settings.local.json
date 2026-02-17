@@ -60,7 +60,12 @@
       "Bash(del \"C:\\\\Users\\\\hugom\\\\Desktop\\\\velo-card\\\\.git\\\\index.lock\")",
       "Bash(git pull:*)",
       "Bash(git stash:*)",
-      "Bash(git stash pop:*)"
+      "Bash(git stash pop:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx vitest:*)",
+      "Bash(del \"C:\\\\Users\\\\hugom\\\\Desktop\\\\velo-card\\\\migrate-motion.ps1\")",
+      "Bash(npx tsc:*)",
+      "Bash(cmd.exe /c \"dir C:\\\\Users\\\\hugom\\\\Desktop\\\\velo-card\\\\package.json\")"
     ]
   }
 }

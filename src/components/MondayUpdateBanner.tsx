@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import type { StatDeltas, SpecialCardType } from "@/types";
 import { IconChartUp, IconChartDown, IconArrowUp, IconArrowDown, IconFire, IconCelebration, SPECIAL_ICONS } from "@/components/icons/VeloIcons";
 
@@ -63,7 +63,7 @@ export default function MondayUpdateBanner({
   return (
     <AnimatePresence>
       {!dismissed && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -80,6 +80,7 @@ export default function MondayUpdateBanner({
             {/* Close button */}
             <button
               onClick={handleDismiss}
+              aria-label="Fermer la bannière"
               className="absolute right-3 top-3 text-white/30 hover:text-white/60 transition"
             >
               \u2715
@@ -146,7 +147,7 @@ export default function MondayUpdateBanner({
 
             {/* Tier change */}
             {deltas.tierChanged && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -155,10 +156,10 @@ export default function MondayUpdateBanner({
                 <p className="text-xs font-bold text-white/80">
                   {isPositive ? <><IconCelebration size={14} className="inline-block mr-1" />Changement de tier !</> : "Tier modifié"}
                 </p>
-              </motion.div>
+              </m.div>
             )}
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

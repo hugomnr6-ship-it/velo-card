@@ -1,4 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
+import { cached } from "@/lib/cache";
+import { withExternalRetry } from "@/lib/retry";
 
 function degreesToCompass(deg: number): string {
   const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -30,31 +32,38 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 4. Fetch weather from OpenWeatherMap
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=fr`;
-    const res = await fetch(url);
+    // Cache Redis 30 minutes par coordonnées (arrondi pour grouper les requêtes proches)
+    const roundedLat = Math.round(lat * 10) / 10;
+    const roundedLon = Math.round(lon * 10) / 10;
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      return Response.json(
-        { error: errorData.message || "Erreur API météo" },
-        { status: res.status },
-      );
-    }
+    const weather = await cached(
+      `${roundedLat}:${roundedLon}`,
+      async () => {
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=fr`;
+        const res = await withExternalRetry(() => fetch(url));
 
-    const data = await res.json();
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || "Erreur API météo");
+        }
 
-    // 5. Transform to WeatherData
-    const weather = {
-      windSpeedKmh: Math.round(data.wind.speed * 3.6), // m/s → km/h
-      windDirection: degreesToCompass(data.wind.deg || 0),
-      windDegrees: data.wind.deg || 0,
-      temperature: Math.round(data.main.temp),
-      description: data.weather?.[0]?.description || "",
-      icon: data.weather?.[0]?.icon || "01d",
-    };
+        const data = await res.json();
 
-    return Response.json(weather);
+        return {
+          windSpeedKmh: Math.round(data.wind.speed * 3.6),
+          windDirection: degreesToCompass(data.wind.deg || 0),
+          windDegrees: data.wind.deg || 0,
+          temperature: Math.round(data.main.temp),
+          description: data.weather?.[0]?.description || "",
+          icon: data.weather?.[0]?.icon || "01d",
+        };
+      },
+      { ttl: 1800, prefix: "weather" }
+    );
+
+    return Response.json(weather, {
+      headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' },
+    });
   } catch (err) {
     return handleApiError(err, "WEATHER_GET");
   }

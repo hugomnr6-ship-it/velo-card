@@ -374,7 +374,7 @@ export default function CourseMap({
     <div className="relative">
       <div
         ref={mapContainer}
-        className="h-[300px] w-full rounded-2xl overflow-hidden border border-white/[0.06]"
+        className="h-[min(300px,50vh)] min-h-[200px] w-full rounded-2xl overflow-hidden border border-white/[0.06]"
       />
 
       {/* Recenter button */}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { m } from "framer-motion";
 import type { CardTier } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
 import { IconStar, IconCycling, IconRoad, IconMountain, IconCalendar, IconTimer, IconSwords, IconShield, IconFlag, IconTrophy, STAT_ICONS } from "@/components/icons/VeloIcons";
@@ -46,9 +46,9 @@ const categoryIcons: Record<string, string> = {
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h === 0) return `${m}min`;
-  return `${h}h${m > 0 ? `${String(m).padStart(2, "0")}` : ""}`;
+  const mn = Math.floor((seconds % 3600) / 60);
+  if (h === 0) return `${mn}min`;
+  return `${h}h${mn > 0 ? `${String(mn).padStart(2, "0")}` : ""}`;
 }
 
 /* ═══ Main Component ═══ */
@@ -59,56 +59,65 @@ interface DashboardFeedProps {
 }
 
 export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
-  const [weekly, setWeekly] = useState<WeeklyStats | null>(null);
-  const [echappee, setEchappee] = useState<EchappeePreview[]>([]);
-  const [feedEvents, setFeedEvents] = useState<any[]>([]);
-
   const accent = tierAccentHex[tier];
 
-  useEffect(() => {
-    // Fetch user's own weekly stats (real-time from cached activities)
-    fetch("/api/stats/weekly")
-      .then((r) => r.json())
-      .then((data) => {
-        setWeekly({
-          km: data.km ?? 0,
-          dplus: data.dplus ?? 0,
-          rides: data.rides ?? 0,
-          time: data.time ?? 0,
-        });
-      })
-      .catch(() => setWeekly({ km: 0, dplus: 0, rides: 0, time: 0 }));
+  // React Query: weekly stats
+  const { data: weekly } = useQuery<WeeklyStats>({
+    queryKey: ["dashboard-weekly", userId],
+    queryFn: async () => {
+      const res = await fetch("/api/stats/weekly");
+      if (!res.ok) throw new Error("Erreur chargement stats");
+      const data = await res.json();
+      return {
+        km: data.km ?? 0,
+        dplus: data.dplus ?? 0,
+        rides: data.rides ?? 0,
+        time: data.time ?? 0,
+      };
+    },
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
 
-    // Fetch Échappée preview
-    fetch("/api/echappee")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.team) setEchappee(data.team.slice(0, 3));
-      })
-      .catch(() => {});
+  // React Query: échappée preview
+  const { data: echappee = [] } = useQuery<EchappeePreview[]>({
+    queryKey: ["dashboard-echappee"],
+    queryFn: async () => {
+      const res = await fetch("/api/echappee");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.team ? data.team.slice(0, 3) : [];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
-    // Fetch activity feed
-    fetch("/api/feed?limit=10")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setFeedEvents(data);
-      })
-      .catch(() => {});
-  }, [userId]);
+  // React Query: feed events
+  const { data: feedEvents = [] } = useQuery<any[]>({
+    queryKey: ["dashboard-feed", userId],
+    queryFn: async () => {
+      const res = await fetch("/api/feed?limit=10");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="w-full max-w-md flex flex-col gap-4 mt-4">
 
       {/* ═══ Activity Feed ═══ */}
       {feedEvents.length > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass rounded-2xl p-4"
         >
           <div className="flex items-center gap-1.5 mb-2">
             <span className="text-[10px]" style={{ color: accent }}>●</span>
-            <p className="text-[10px] font-bold tracking-wider text-white/30">
+            <p className="text-[10px] font-bold tracking-wider text-white/50">
               ACTIVITE RECENTE
             </p>
           </div>
@@ -117,31 +126,31 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
               <FeedItem key={event.id} event={event} />
             ))}
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* ═══ Weekly Summary ═══ */}
       {weekly && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass rounded-2xl p-4"
         >
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
-              <IconCycling size={12} className="text-white/30" />
-              <p className="text-[10px] font-bold tracking-wider text-white/30">
+              <IconCycling size={12} className="text-white/50" />
+              <p className="text-[10px] font-bold tracking-wider text-white/50">
                 CETTE SEMAINE
               </p>
             </div>
             <Link
               href="/profile"
-              className="text-[10px] font-bold text-white/20 hover:text-white/40 transition"
+              className="text-[10px] font-bold text-white/40 hover:text-white/40 transition"
             >
               Voir tout &rarr;
             </Link>
           </div>
-          <div className="text-[10px] text-white/20 font-medium mb-3">
+          <div className="text-[10px] text-white/40 font-medium mb-3">
             Depuis lundi
           </div>
           {weekly.km === 0 && weekly.rides === 0 ? (
@@ -162,18 +171,18 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
                     {item.value}
                   </span>
                   {item.unit && (
-                    <span className="text-[8px] text-white/25">{item.unit}</span>
+                    <span className="text-[8px] text-white/45">{item.unit}</span>
                   )}
                 </div>
               ))}
             </div>
           )}
-        </motion.div>
+        </m.div>
       )}
 
       {/* ═══ L'Échappée Teaser ═══ */}
       {echappee.length > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -187,7 +196,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
                     L'ÉCHAPPÉE DE LA SEMAINE
                   </p>
                 </div>
-                <span className="text-[10px] text-white/20">Voir →</span>
+                <span className="text-[10px] text-white/40">Voir →</span>
               </div>
               <div className="flex flex-col gap-2">
                 {echappee.map((player) => {
@@ -202,7 +211,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
                       {player.avatar_url && (
                         <img
                           src={`/api/img?url=${encodeURIComponent(player.avatar_url)}`}
-                          alt=""
+                          alt={`Photo de ${player.username}`}
                           className="h-5 w-5 rounded-full border border-white/10 object-cover"
                         />
                       )}
@@ -222,11 +231,11 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
               </div>
             </div>
           </Link>
-        </motion.div>
+        </m.div>
       )}
 
       {/* ═══ Quick Links ═══ */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -272,7 +281,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
           <p className="mt-1 text-xs font-bold text-white">Classement</p>
           <p className="text-[9px] text-[#94A3B8]">Ta position régionale</p>
         </Link>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

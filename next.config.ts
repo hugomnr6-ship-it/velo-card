@@ -1,16 +1,44 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["http://192.168.1.31:3000"],
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "dgalywyr863hv.cloudfront.net", // Strava avatar CDN
-      },
+
+  // 1. Optimisation des imports de packages lourds
+  experimental: {
+    optimizePackageImports: [
+      "framer-motion",
+      "recharts",
+      "lucide-react",
+      "@heroicons/react",
+      "date-fns",
     ],
   },
+
+  // 2. Compression activée
+  compress: true,
+
+  // 3. Optimisation images avec next/image
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "dgalywyr863hv.cloudfront.net" },
+      { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "*.strava.com" },
+    ],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+  },
+
+  // 4. Headers de cache pour les assets statiques + sécurité
   async headers() {
     return [
       {
@@ -58,24 +86,43 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Headers spécifiques pour les API
-        source: "/api/:path*",
+        // Cache immutable pour les assets statiques
+        source: "/_next/static/:path*",
         headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/api/leaderboard",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" },
+        ],
+      },
+      {
+        source: "/api/seasons",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=600, stale-while-revalidate=1200" },
         ],
       },
     ];
   },
+
+  // 5. Webpack optimizations
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Utilise le bundle ES réduit de framer-motion
+        "framer-motion": "framer-motion/dist/es/index.mjs",
+      };
+    }
+    return config;
+  },
 };
 
-export default withSentryConfig(nextConfig, {
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+export default withNextIntl(withBundleAnalyzer(withSentryConfig(nextConfig, {
   // Sentry build options
   silent: true,
 
@@ -95,4 +142,4 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: {
     deleteSourcemapsAfterUpload: true,
   },
-});
+})));

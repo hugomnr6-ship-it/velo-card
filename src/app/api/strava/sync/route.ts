@@ -1,6 +1,5 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import type { AuthProvider } from "@/lib/auth";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { fetchWahooWorkouts, wahooToActivities } from "@/lib/wahoo";
@@ -8,11 +7,13 @@ import { fetchGarminActivities, garminToActivities } from "@/lib/garmin";
 import { computeStats, getTier } from "@/lib/stats";
 import { computeBadges } from "@/lib/badges";
 import { updateWarProgressForUser } from "@/lib/wars";
+import { assignDailyQuests, updateQuestProgress } from "@/services/quests.service";
+import { invalidateUserCache } from "@/lib/cache";
+import { withExternalRetry } from "@/lib/retry";
 import type { StravaActivity } from "@/types";
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   // 1. Check auth
   const authResult = await getAuthenticatedUser();
@@ -25,24 +26,24 @@ export async function POST(request: Request) {
     // 2. Fetch activities from the appropriate provider
     let activities: StravaActivity[];
 
+    // Fetch activities avec retry (exponential backoff pour les APIs externes)
     switch (provider) {
       case "wahoo": {
-        const workouts = await fetchWahooWorkouts(session.user.accessToken);
+        const workouts = await withExternalRetry(() => fetchWahooWorkouts(session.user.accessToken));
         activities = wahooToActivities(workouts);
         break;
       }
       case "garmin": {
         const tokenSecret = session.user.oauthTokenSecret || "";
-        const garminActivities = await fetchGarminActivities(
-          session.user.accessToken,
-          tokenSecret,
+        const garminActivities = await withExternalRetry(() =>
+          fetchGarminActivities(session.user.accessToken, tokenSecret)
         );
         activities = garminToActivities(garminActivities);
         break;
       }
       case "strava":
       default: {
-        activities = await fetchActivities(session.user.accessToken);
+        activities = await withExternalRetry(() => fetchActivities(session.user.accessToken));
         break;
       }
     }
@@ -98,7 +99,36 @@ export async function POST(request: Request) {
     // 7. Update Squad Wars progress (non-blocking)
     updateWarProgressForUser(profileId).catch(() => {});
 
-    // 8. Compute badges
+    // 7b. Update quest progress (non-blocking)
+    assignDailyQuests(profileId).catch(() => {});
+
+    // Compute today's and weekly aggregates for quest progress
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const weekStart = new Date();
+    const dayOfWeek = weekStart.getDay();
+    const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    weekStart.setDate(weekStart.getDate() + diffToMon);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const rides = activities.filter((a) => a.type === "Ride");
+    const todayRides = rides.filter((a) => new Date(a.start_date) >= todayStart);
+    const weeklyRides = rides.filter((a) => new Date(a.start_date) >= weekStart);
+
+    const todayKm = todayRides.reduce((s, a) => s + a.distance / 1000, 0);
+    const todayDplus = todayRides.reduce((s, a) => s + a.total_elevation_gain, 0);
+    const wKm = weeklyRides.reduce((s, a) => s + a.distance / 1000, 0);
+    const wDplus = weeklyRides.reduce((s, a) => s + a.total_elevation_gain, 0);
+
+    updateQuestProgress(
+      profileId, todayKm, todayDplus, todayRides.length,
+      wKm, wDplus, weeklyRides.length
+    ).catch(() => {});
+
+    // 8. Invalidate user cache after successful sync
+    invalidateUserCache(profileId).catch(() => {});
+
+    // 9. Compute badges
     const badges = computeBadges(stats);
 
     // 9. Return stats to frontend

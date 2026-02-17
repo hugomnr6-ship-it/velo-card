@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useCountUp } from "@/hooks/useCountUp";
 import VeloCard from "@/components/VeloCard";
 import type { ComputedStats, CardTier, Badge } from "@/types";
@@ -32,7 +32,7 @@ interface SyncResult {
 /* ═══ Phase 1: Sync ═══ */
 function SyncPhase({ progress }: { progress: number }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -41,7 +41,7 @@ function SyncPhase({ progress }: { progress: number }) {
       {/* Pulsing icon */}
       <div className="relative">
         <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
-          <motion.div
+          <m.div
             animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="text-5xl"
@@ -50,10 +50,10 @@ function SyncPhase({ progress }: { progress: number }) {
               <path d="M12 2L12 6M12 18L12 22M6 12L2 12M22 12L18 12" />
               <circle cx="12" cy="12" r="4" />
             </svg>
-          </motion.div>
+          </m.div>
         </div>
         {/* Rotating ring */}
-        <motion.div
+        <m.div
           animate={{ rotate: 360 }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 rounded-full border-2 border-transparent"
@@ -76,7 +76,7 @@ function SyncPhase({ progress }: { progress: number }) {
       {/* Progress bar */}
       <div className="w-64">
         <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-          <motion.div
+          <m.div
             className="h-full rounded-full"
             style={{
               background: "linear-gradient(90deg, #00F5D4, #6366F1)",
@@ -90,7 +90,7 @@ function SyncPhase({ progress }: { progress: number }) {
           {progress}%
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -116,20 +116,20 @@ function CardRevealPhase({
   }, []);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col items-center gap-6"
     >
-      <motion.h2
+      <m.h2
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="font-['Space_Grotesk'] text-xl font-bold text-white"
       >
         Ta carte est prête !
-      </motion.h2>
+      </m.h2>
 
       {/* Pack opening container */}
       <div className="relative">
@@ -141,7 +141,7 @@ function CardRevealPhase({
                 const angle = (i / 20) * Math.PI * 2;
                 const distance = 80 + Math.random() * 60;
                 return (
-                  <motion.div
+                  <m.div
                     key={i}
                     initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                     animate={{
@@ -165,7 +165,7 @@ function CardRevealPhase({
         </AnimatePresence>
 
         {/* Card with reveal animation */}
-        <motion.div
+        <m.div
           initial={{ scale: 0.3, rotateY: 180, opacity: 0 }}
           animate={
             revealed
@@ -186,11 +186,11 @@ function CardRevealPhase({
             tier={tier}
             badges={badges}
           />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Tier label */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5 }}
@@ -204,8 +204,8 @@ function CardRevealPhase({
         }}>
           {tier}
         </p>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -253,14 +253,14 @@ function SlidesPhase({
   const slide = slides[currentSlide];
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="flex flex-col items-center gap-8"
     >
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={currentSlide}
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -277,7 +277,7 @@ function SlidesPhase({
           <p className="max-w-[280px] text-sm leading-relaxed text-white/50">
             {slide.desc}
           </p>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       {/* Dots */}
@@ -303,14 +303,14 @@ function SlidesPhase({
       >
         {currentSlide < slides.length - 1 ? "Suivant" : "C'est parti !"}
       </button>
-    </motion.div>
+    </m.div>
   );
 }
 
 /* ═══ Phase 4: CTA ═══ */
 function CtaPhase({ onDashboard }: { onDashboard: () => void }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center gap-6 text-center"
@@ -336,7 +336,7 @@ function CtaPhase({ onDashboard }: { onDashboard: () => void }) {
       >
         Voir mon dashboard
       </button>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -458,7 +458,7 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
           <SyncPhase key="sync" progress={Math.round(syncProgress)} />
         )}
         {phase === 2 && syncResult && (
-          <motion.div
+          <m.div
             key="reveal"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -471,7 +471,7 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
               tier={syncResult.tier}
               badges={syncResult.badges}
             />
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 2 }}
@@ -487,8 +487,8 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
               >
                 Continuer
               </button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
         {phase === 3 && (
           <SlidesPhase

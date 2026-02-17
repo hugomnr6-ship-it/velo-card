@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import VeloCardInteractive from "@/components/VeloCardInteractive";
 import CardWidget from "@/components/CardWidget";
@@ -7,12 +8,15 @@ import DownloadButton from "@/components/DownloadButton";
 import ShareButton from "@/components/ShareButton";
 import LevelUpToast from "@/components/LevelUpToast";
 import MondayUpdateBanner from "@/components/MondayUpdateBanner";
-import MondayReveal from "@/components/MondayReveal";
 import TierProgress from "@/components/TierProgress";
-import RouteAnalysisSection from "./RouteAnalysisSection";
 import BadgeToast from "@/components/BadgeToast";
 import DashboardFeed from "./DashboardFeed";
+import FeatureTooltip from "@/components/FeatureTooltip";
 import { trackEvent } from "@/lib/analytics";
+
+const MondayReveal = dynamic(() => import("@/components/MondayReveal"), { ssr: false });
+const GamificationWidgets = dynamic(() => import("./GamificationWidgets"), { ssr: false });
+const RouteAnalysisSection = dynamic(() => import("./RouteAnalysisSection"), { ssr: false });
 import type { ComputedStats, CardTier, Badge, ClubInfo, StatDeltas, SpecialCardType } from "@/types";
 
 function getISOWeek(date: Date): number {
@@ -154,8 +158,13 @@ export default function VeloCardClient({
       />
       <div className="flex gap-3">
         <DownloadButton tier={tier} userId={userId} />
-        <ShareButton tier={tier} userId={userId} />
+        <FeatureTooltip id="card-share" title="Partage ta carte !" description="Exporte ta VeloCard en story Instagram ou QR code.">
+          <ShareButton tier={tier} userId={userId} />
+        </FeatureTooltip>
       </div>
+
+      {/* Gamification widgets — coins, quests, season, quick links */}
+      <GamificationWidgets />
 
       {/* Dashboard feed — weekly stats, Échappée teaser, quick links */}
       <DashboardFeed userId={userId} tier={tier} />

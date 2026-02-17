@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
 import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
@@ -93,7 +93,7 @@ export default function EchappeePage() {
     <AnimatedPage className="flex min-h-screen flex-col items-center gap-6 px-4 pb-24 pt-12">
       {/* Header with gold styling */}
       <div className="flex flex-col items-center gap-2">
-        <motion.div
+        <m.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", damping: 15 }}
@@ -104,7 +104,7 @@ export default function EchappeePage() {
             L'ÉCHAPPÉE
           </h1>
           <IconCycling size={28} className="text-[#FFD700]/60" />
-        </motion.div>
+        </m.div>
         <p className="text-[10px] font-bold tracking-[0.2em] text-white/30">
           DE LA SEMAINE
         </p>

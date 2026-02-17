@@ -2,6 +2,7 @@
 
 import Tilt from "react-parallax-tilt";
 import VeloCard from "./VeloCard";
+import { useMotionSafe } from "@/hooks/useReducedMotion";
 import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "@/types";
 
 interface VeloCard3DProps {
@@ -78,6 +79,22 @@ const tierTiltConfig: Record<
 
 export default function VeloCard3D(props: VeloCard3DProps) {
   const config = tierTiltConfig[props.tier];
+  const { shouldReduce } = useMotionSafe();
+
+  // Version plate sans tilt si reduced motion
+  if (shouldReduce) {
+    return (
+      <VeloCard
+        username={props.username}
+        avatarUrl={props.avatarUrl}
+        stats={props.stats}
+        tier={props.tier}
+        badges={props.badges}
+        clubs={props.clubs}
+        specialCard={props.specialCard}
+      />
+    );
+  }
 
   return (
     <div className="relative">
@@ -109,7 +126,7 @@ export default function VeloCard3D(props: VeloCard3DProps) {
         perspective={config.perspective}
         scale={config.scale}
         transitionSpeed={config.transitionSpeed}
-        gyroscope={true}
+        gyroscope={!shouldReduce}
         glareEnable={true}
         glareMaxOpacity={config.glareMaxOpacity}
         glareColor={config.glareColor}

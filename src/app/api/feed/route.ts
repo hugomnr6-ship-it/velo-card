@@ -1,21 +1,22 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { parsePagination, getPaginationRange, paginatedResponse } from "@/lib/pagination";
 
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
 
   const { searchParams } = new URL(request.url);
-  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-  const offset = parseInt(searchParams.get("offset") || "0");
+  const pagination = parsePagination(searchParams);
+  const { from, to } = getPaginationRange(pagination);
 
-  const { data: events, error } = await supabaseAdmin
+  const { data: events, error, count } = await supabaseAdmin
     .from("activity_feed")
-    .select("*, profiles!user_id(username, avatar_url)")
+    .select("*, profiles!user_id(username, avatar_url)", { count: "exact" })
     .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(from, to);
 
   if (error) return handleApiError(error, "FEED_GET");
 
-  return Response.json(events || []);
+  return Response.json(paginatedResponse(events || [], count ?? 0, pagination));
 }

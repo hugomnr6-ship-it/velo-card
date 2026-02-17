@@ -1,6 +1,39 @@
 @import "tailwindcss";
 
 /* ========================================
+   ACCESSIBILITY — Focus & Motion
+   ======================================== */
+
+/* Focus visible — toujours visible au clavier, invisible au clic */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Supprimer le outline au clic/touch */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to content */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  padding: 8px 16px;
+  z-index: 9999;
+  font-weight: 600;
+  border-radius: 0 0 8px 0;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ========================================
    VELOCARD — PREMIUM DESIGN SYSTEM v2
    Inspired by top 1M+ user apps:
    Strava, Nike Run Club, Duolingo, Spotify
@@ -710,4 +743,149 @@
 @keyframes sync-pulse {
   0%, 100% { transform: scale(1); opacity: 0.6; }
   50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ═══ Card Skins ═══ */
+
+.skin-neon {
+  animation: skin-neon-pulse 2s ease-in-out infinite;
+}
+@keyframes skin-neon-pulse {
+  0%, 100% { box-shadow: inset 0 0 30px rgba(0,245,212,0.15), 0 0 20px rgba(0,245,212,0.15); }
+  50% { box-shadow: inset 0 0 40px rgba(0,245,212,0.25), 0 0 35px rgba(0,245,212,0.25); }
+}
+
+.skin-flames::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 18px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(255,60,0,0.12) 0%, rgba(255,107,53,0.04) 30%, transparent 60%);
+  animation: skin-flames-flicker 3s ease-in-out infinite;
+}
+@keyframes skin-flames-flicker {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.skin-holographic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  border-radius: 18px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(99,102,241,0.06) 25%, rgba(0,212,255,0.06) 50%, rgba(167,139,250,0.08) 75%, rgba(255,215,0,0.06));
+  background-size: 200% 200%;
+  animation: skin-holo-shift 4s ease-in-out infinite;
+  opacity: 0.6;
+}
+@keyframes skin-holo-shift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.skin-gold {
+  animation: skin-gold-glow 2.5s ease-in-out infinite;
+}
+@keyframes skin-gold-glow {
+  0%, 100% { box-shadow: inset 0 0 30px rgba(255,215,0,0.15), 0 0 20px rgba(255,215,0,0.15); }
+  50% { box-shadow: inset 0 0 40px rgba(255,215,0,0.25), 0 0 35px rgba(255,215,0,0.25), 0 0 60px rgba(255,215,0,0.1); }
+}
+
+/* ========================================
+   REDUCED MOTION — Respect user preferences
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all CSS keyframe animations */
+  .shimmer,
+  .argent-shimmer::after,
+  .holographic-scan::after,
+  .rainbow-holo,
+  .particle,
+  .stat-elite,
+  .glow-pulse,
+  .totw-sweep::after,
+  .inform-fire-glow,
+  .pack-glow,
+  .skin-neon,
+  .skin-flames::after,
+  .skin-holographic::after,
+  .skin-gold,
+  .animate-fade-in,
+  .animate-slide-up {
+    animation: none !important;
+  }
+
+  /* Disable transitions */
+  .glass-hover,
+  .ghost-card-filter {
+    transition: none !important;
+  }
+
+  /* Disable particle rendering */
+  .particle {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   LIGHT MODE TOKENS
+   ======================================== */
+:root.light {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --bg-card: rgba(255, 255, 255, 0.80);
+  --bg-elevated: rgba(241, 245, 249, 0.90);
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  --accent-primary: #00D4B0;
+}
+
+:root.light {
+  --color-bg-primary: #F8FAFC;
+  --color-bg-secondary: #F1F5F9;
+  --color-bg-card: #FFFFFF;
+  --color-bg-elevated: #F1F5F9;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+}
+
+/* Glass utilities for light mode */
+:root.light .glass {
+  background: rgba(255, 255, 255, 0.70);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+:root.light .glass-light {
+  background: rgba(241, 245, 249, 0.80);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+:root.light .glass-accent {
+  background: rgba(0, 212, 176, 0.06);
+  border: 1px solid rgba(0, 212, 176, 0.12);
+}
+
+/* VeloCard always stays dark */
+#velo-card {
+  color-scheme: dark;
+}
+
+/* ========================================
+   VELO CARD RESPONSIVE — Container queries
+   ======================================== */
+.velo-card-responsive {
+  container-type: inline-size;
+}
+@container (max-width: 260px) {
+  .velo-card-responsive .stat-value { font-size: 18px; }
+  .velo-card-responsive .ovr-value { font-size: 36px; }
+  .velo-card-responsive .avatar-hex { width: 56px; height: 56px; }
+  .velo-card-responsive .gauge-container { width: 44px; height: 44px; }
 }

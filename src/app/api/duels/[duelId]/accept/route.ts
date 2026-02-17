@@ -1,6 +1,8 @@
 import { getAuthenticatedUser, isErrorResponse, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { insertFeedEvent } from "@/lib/feed";
+import { addCoins, COIN_REWARDS } from "@/services/coins.service";
+import { addSeasonPoints, SEASON_POINTS } from "@/services/seasons.service";
 import type { DuelCategory } from "@/types";
 
 /**
@@ -163,22 +165,33 @@ async function resolveInstantDuel(duel: any) {
     return { error: "Duel déjà résolu" };
   }
 
-  // Update ego points
+  // Update ego points + award coins
   if (winnerId && loserId) {
     await supabaseAdmin.rpc("increment_ego_points", { uid: winnerId, pts: duel.stake });
     await supabaseAdmin.rpc("increment_ego_points", { uid: loserId, pts: -duel.stake });
+
+    // Award VeloCoins to the winner
+    await addCoins(winnerId, COIN_REWARDS.duel_win!, "duel_win", { duelId: duel.id });
+
+    // Award season points
+    await addSeasonPoints(winnerId, SEASON_POINTS.duel_win, "duels_won", 1);
 
     // Feed events for duel result
     const { data: winnerProfile } = await supabaseAdmin.from("profiles").select("username").eq("id", winnerId).single();
     const { data: loserProfile } = await supabaseAdmin.from("profiles").select("username").eq("id", loserId).single();
 
     insertFeedEvent(winnerId, "duel_won", {
-      opponent_name: loserProfile?.username || "?",
+      duelId: duel.id,
+      opponentName: loserProfile?.username || "?",
       category,
       stake: duel.stake,
+      winnerValue: challengerValue === Math.max(challengerValue, opponentValue) ? challengerValue : opponentValue,
+      loserValue: challengerValue === Math.min(challengerValue, opponentValue) ? challengerValue : opponentValue,
+      isDomination: Math.abs(challengerValue - opponentValue) > 20,
     });
     insertFeedEvent(loserId, "duel_lost", {
-      opponent_name: winnerProfile?.username || "?",
+      duelId: duel.id,
+      opponentName: winnerProfile?.username || "?",
       category,
       stake: duel.stake,
     });

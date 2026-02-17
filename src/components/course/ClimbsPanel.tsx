@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { ClimbSegment, DescentSegment } from "@/lib/gpx-analysis";
 
 interface ClimbsPanelProps {
@@ -66,7 +66,7 @@ export default function ClimbsPanel({
             const active = activeClimbIdx === i;
             const color = gradientColor(climb.avgGradient);
             return (
-              <motion.button
+              <m.button
                 key={i}
                 onClick={() => onClimbClick(i)}
                 className={`w-full text-left rounded-xl border p-3 transition-all ${
@@ -131,7 +131,7 @@ export default function ClimbsPanel({
                     }}
                   />
                 </div>
-              </motion.button>
+              </m.button>
             );
           })}
 
@@ -143,7 +143,7 @@ export default function ClimbsPanel({
 
         {tab === "descents" &&
           descents.map((d, i) => (
-            <motion.div
+            <m.div
               key={i}
               className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-3"
               initial={{ opacity: 0, y: 8 }}
@@ -163,7 +163,7 @@ export default function ClimbsPanel({
                 <span>{d.elevDrop}m</span>
                 <span className="text-[#3B82F6]">{d.avgGradient}%</span>
               </div>
-            </motion.div>
+            </m.div>
           ))}
       </div>
     </div>

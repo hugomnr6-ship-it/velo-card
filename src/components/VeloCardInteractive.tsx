@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { useGyroscope } from "@/hooks/useGyroscope";
 import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "@/types";
 import VeloCard from "./VeloCard";
@@ -31,7 +31,7 @@ const tierAccentRgb: Record<CardTier, string> = {
   legende: "255,215,0",
 };
 
-export default function VeloCardInteractive({
+export default memo(function VeloCardInteractive({
   username,
   avatarUrl,
   stats,
@@ -152,4 +152,4 @@ export default function VeloCardInteractive({
       </div>
     </div>
   );
-}
+});

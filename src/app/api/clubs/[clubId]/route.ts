@@ -14,10 +14,20 @@ export async function GET(
     return Response.json({ error: "ID invalide" }, { status: 400 });
   }
 
-  // Fetch club with creator
+  // ═══ N+1 FIX: 1 seule requête avec JOINs au lieu de 4 requêtes séparées ═══
   const { data: club, error } = await supabaseAdmin
     .from("clubs")
-    .select("*, creator:profiles!creator_id (username, avatar_url)")
+    .select(`
+      *,
+      creator:profiles!creator_id (username, avatar_url),
+      members:club_members (
+        user_id,
+        role,
+        joined_at,
+        profile:profiles (id, username, avatar_url, region),
+        stats:user_stats (ovr, tier, pac, mon, "end")
+      )
+    `)
     .eq("id", clubId)
     .single();
 
@@ -25,50 +35,26 @@ export async function GET(
     return Response.json({ error: "Club introuvable" }, { status: 404 });
   }
 
-  // Fetch members
-  const { data: entries } = await supabaseAdmin
-    .from("club_members")
-    .select("user_id, joined_at")
-    .eq("club_id", clubId)
-    .order("joined_at", { ascending: true });
-
-  const userIds = (entries || []).map((e: any) => e.user_id);
-
-  let profiles: any[] = [];
-  let stats: any[] = [];
-  if (userIds.length > 0) {
-    const { data: p } = await supabaseAdmin
-      .from("profiles")
-      .select("id, username, avatar_url")
-      .in("id", userIds);
-    profiles = p || [];
-
-    const { data: s } = await supabaseAdmin
-      .from("user_stats")
-      .select('user_id, pac, "end", mon, tier')
-      .in("user_id", userIds);
-    stats = s || [];
-  }
-
-  const profileMap: Record<string, any> = {};
-  for (const p of profiles) profileMap[p.id] = p;
-  const statsMap: Record<string, any> = {};
-  for (const s of stats) statsMap[s.user_id] = s;
-
-  const members = (entries || []).map((e: any) => ({
-    user_id: e.user_id,
-    username: profileMap[e.user_id]?.username || "Inconnu",
-    avatar_url: profileMap[e.user_id]?.avatar_url || null,
-    pac: statsMap[e.user_id]?.pac || 0,
-    end: statsMap[e.user_id]?.end || 0,
-    mon: statsMap[e.user_id]?.mon || 0,
-    tier: statsMap[e.user_id]?.tier || "bronze",
-    joined_at: e.joined_at,
+  const membersList = ((club as any).members || []).map((m: any) => ({
+    user_id: m.user_id,
+    username: m.profile?.username || "Inconnu",
+    avatar_url: m.profile?.avatar_url || null,
+    pac: m.stats?.pac || 0,
+    end: m.stats?.end || 0,
+    mon: m.stats?.mon || 0,
+    tier: m.stats?.tier || "bronze",
+    joined_at: m.joined_at,
+    role: m.role,
   }));
 
+  const userIds = membersList.map((m: any) => m.user_id);
+
+  // Remove members from the club object before spreading
+  const { members: _, ...clubData } = club as any;
+
   return Response.json({
-    ...club,
-    members,
+    ...clubData,
+    members: membersList,
     is_creator: profileId === club.creator_id,
     is_member: userIds.includes(profileId),
   });

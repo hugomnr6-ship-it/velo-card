@@ -138,6 +138,60 @@ export async function getWarDashboardForUser(userId: string): Promise<WarDashboa
   return buildWarDashboard(activeWar, userId, false);
 }
 
+/**
+ * Get the war history for a club (last 10 wars with stats).
+ */
+export async function getWarHistory(clubId: string) {
+  const { data: wars } = await supabaseAdmin
+    .from("wars")
+    .select("id, week_label, club_a_id, club_b_id, club_a_score, club_b_score, status, ends_at")
+    .eq("status", "finished")
+    .or(`club_a_id.eq.${clubId},club_b_id.eq.${clubId}`)
+    .order("ends_at", { ascending: false })
+    .limit(10);
+
+  if (!wars || wars.length === 0) return { wars: [], wins: 0, losses: 0, draws: 0 };
+
+  // Get opponent club names
+  const opponentIds = wars.map((w: any) => w.club_a_id === clubId ? w.club_b_id : w.club_a_id);
+  const { data: clubs } = await supabaseAdmin
+    .from("clubs")
+    .select("id, name, logo_url")
+    .in("id", opponentIds);
+
+  const clubMap = new Map((clubs || []).map((c: any) => [c.id, c]));
+
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+
+  const history = wars.map((w: any) => {
+    const isClubA = w.club_a_id === clubId;
+    const myScore = isClubA ? w.club_a_score : w.club_b_score;
+    const oppScore = isClubA ? w.club_b_score : w.club_a_score;
+    const oppId = isClubA ? w.club_b_id : w.club_a_id;
+    const opp = clubMap.get(oppId);
+
+    const result = myScore > oppScore ? "win" : (oppScore > myScore ? "loss" : "draw");
+    if (result === "win") wins++;
+    else if (result === "loss") losses++;
+    else draws++;
+
+    return {
+      war_id: w.id,
+      week_label: w.week_label,
+      opponent_name: opp?.name || "Club inconnu",
+      opponent_logo_url: opp?.logo_url || null,
+      my_score: myScore,
+      opp_score: oppScore,
+      result,
+      ended_at: w.ends_at,
+    };
+  });
+
+  return { wars: history, wins, losses, draws };
+}
+
 export async function buildWarDashboard(
   war: any,
   userId: string,

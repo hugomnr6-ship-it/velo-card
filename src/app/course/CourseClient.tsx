@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import GpxDropZone from "@/components/GpxDropZone";
 import ElevationProfile from "@/components/ElevationProfile";
@@ -190,7 +190,7 @@ export default function CourseClient() {
 
       {/* ═══ Analysis content ═══ */}
       {summary && (
-        <motion.div
+        <m.div
           className="mt-4 w-full max-w-lg flex flex-col gap-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -243,7 +243,7 @@ export default function CourseClient() {
             onToggleWind={handleToggleWind}
             loading={loadingWind}
           />
-        </motion.div>
+        </m.div>
       )}
     </AnimatedPage>
   );

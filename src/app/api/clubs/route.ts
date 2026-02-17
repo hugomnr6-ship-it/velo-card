@@ -1,7 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createClubSchema } from "@/schemas";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
@@ -56,9 +55,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
-  if (rateLimited) return rateLimited;
-
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
   const { profileId } = authResult;

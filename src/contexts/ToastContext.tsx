@@ -7,7 +7,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { IconCheck, IconX, IconInfo } from "@/components/icons/VeloIcons";
 
 type ToastType = "success" | "error" | "info" | "badge";
@@ -44,8 +44,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div className="fixed bottom-20 left-0 right-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         <AnimatePresence mode="popLayout">
           {toasts.map((t) => (
-            <motion.div
+            <m.div
               key={t.id}
+              role="status"
+              aria-live="polite"
+              aria-label={t.message}
               initial={{ opacity: 0, y: 40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -73,7 +76,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 <span>{t.message}</span>
               </div>
               {/* Auto-dismiss progress bar */}
-              <motion.div
+              <m.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
                 transition={{ duration: 4, ease: "linear" }}
@@ -87,7 +90,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                         : "bg-[#94A3B8]/40"
                 }`}
               />
-            </motion.div>
+            </m.div>
           ))}
         </AnimatePresence>
       </div>

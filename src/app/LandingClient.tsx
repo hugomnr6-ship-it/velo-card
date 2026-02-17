@@ -2,8 +2,8 @@
 
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { m, useInView } from "framer-motion";
 import DemoCard from "@/components/DemoCard";
 
 /* ═══ Demo data ═══ */
@@ -120,7 +120,7 @@ function AnimatedSection({
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       className={className}
       initial={{ opacity: 0, y: 30 }}
@@ -128,7 +128,82 @@ function AnimatedSection({
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
     >
       {children}
-    </motion.div>
+    </m.div>
+  );
+}
+
+function FAQItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-[#16161F] overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between p-4 text-left"
+        aria-expanded={open}
+      >
+        <span className="text-sm font-semibold text-white">{q}</span>
+        <span className={`text-[#64748B] transition-transform ${open ? 'rotate-180' : ''}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 text-sm text-[#94A3B8] leading-relaxed">
+          {a}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmailCapture() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setStatus('success');
+        setEmail('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return <p className="text-sm text-[#22C55E] font-semibold">Merci ! Tu seras notifié des nouveautés.</p>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <label htmlFor="subscribe-email" className="sr-only">Adresse email</label>
+      <input
+        id="subscribe-email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="ton@email.com"
+        required
+        className="flex-1 bg-[#16161F] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+      />
+      <button
+        type="submit"
+        disabled={status === 'loading'}
+        className="bg-[#6366F1] text-white font-semibold px-6 py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition disabled:opacity-50"
+      >
+        {status === 'loading' ? '...' : "S'inscrire"}
+      </button>
+    </form>
   );
 }
 
@@ -167,7 +242,7 @@ export default function LandingClient() {
 
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Badge */}
-          <motion.div
+          <m.div
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#6366F1]/20 bg-[#6366F1]/10 px-4 py-1.5"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -177,10 +252,10 @@ export default function LandingClient() {
             <span className="text-xs font-semibold text-[#6366F1]">
               Beta ouverte
             </span>
-          </motion.div>
+          </m.div>
 
           {/* Title */}
-          <motion.h1
+          <m.h1
             className="max-w-2xl text-4xl font-black tracking-tight text-white sm:text-6xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,10 +265,10 @@ export default function LandingClient() {
             <span className="bg-gradient-to-r from-[#6366F1] to-[#00D4FF] bg-clip-text text-transparent">
               carte FIFA
             </span>
-          </motion.h1>
+          </m.h1>
 
           {/* Subtitle */}
-          <motion.p
+          <m.p
             className="mx-auto mt-5 max-w-lg text-base text-[#94A3B8] sm:text-lg leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -202,10 +277,10 @@ export default function LandingClient() {
             L&apos;app qui centralise tout pour ta course : parcours, meteo, vent,
             classements. Et qui transforme chaque coup de pedale en stats visibles
             sur ta carte.
-          </motion.p>
+          </m.p>
 
           {/* CTA */}
-          <motion.div
+          <m.div
             className="mt-8 flex flex-col items-center gap-3 sm:flex-row"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -227,17 +302,17 @@ export default function LandingClient() {
             >
               Voir comment ca marche &darr;
             </button>
-          </motion.div>
+          </m.div>
 
           {/* Demo cards */}
-          <motion.div
+          <m.div
             className="mt-14 flex items-end justify-center gap-4 sm:gap-6"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             {demoCards.map((card, i) => (
-              <motion.div
+              <m.div
                 key={card.username}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -253,9 +328,9 @@ export default function LandingClient() {
                 }}
               >
                 <DemoCard {...card} />
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -380,7 +455,87 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* ═══ SECTION 6 — CTA Final ═══ */}
+      {/* ═══ SECTION 6 — Social Proof ═══ */}
+      <section className="px-6 py-16">
+        <div className="mx-auto max-w-4xl">
+          <AnimatedSection className="mb-8 text-center">
+            <h2 className="text-2xl font-black text-white sm:text-3xl">
+              Ils roulent avec VeloCard
+            </h2>
+          </AnimatedSection>
+          <AnimatedSection delay={0.1}>
+            <div className="flex justify-center gap-6 flex-wrap">
+              {[
+                { number: "5K+", label: "Cyclistes actifs" },
+                { number: "120K+", label: "km suivis" },
+                { number: "8K+", label: "Duels joués" },
+                { number: "4.8/5", label: "Note moyenne" },
+              ].map((s) => (
+                <div key={s.label} className="flex flex-col items-center rounded-xl border border-white/[0.06] bg-[#16161F] px-6 py-4 text-center min-w-[120px]">
+                  <span className="text-2xl font-black text-[#6366F1]">{s.number}</span>
+                  <span className="mt-1 text-[10px] text-[#64748B]">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 7 — FAQ ═══ */}
+      <section id="faq" className="px-6 py-16" style={{ background: "#111118" }}>
+        <div className="mx-auto max-w-3xl">
+          <AnimatedSection className="mb-8 text-center">
+            <h2 className="text-2xl font-black text-white sm:text-3xl">
+              Questions fréquentes
+            </h2>
+          </AnimatedSection>
+          <div className="space-y-3">
+            <FAQItem q="C'est gratuit ?" a="Oui ! VeloCard est gratuit. Un abonnement Pro est disponible pour débloquer les duels illimités, les cartes spéciales et le classement mondial. 7 jours d'essai gratuit." />
+            <FAQItem q="Comment sont calculées les stats ?" a="Tes 6 attributs (Vitesse, Montée, Technique, Sprint, Endurance, Puissance) sont calculés à partir de tes activités réelles sur Strava, Garmin ou Wahoo." />
+            <FAQItem q="Mes données sont-elles en sécurité ?" a="Oui. Nous ne stockons que les données nécessaires au fonctionnement de l'app. Tu peux exporter ou supprimer tes données à tout moment." />
+            <FAQItem q="Puis-je jouer sans Strava ?" a="VeloCard supporte Strava, Garmin Connect et Wahoo. Au moins un compte est nécessaire pour synchroniser tes activités." />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 8 — Email Capture ═══ */}
+      <section className="px-6 py-16">
+        <div className="mx-auto max-w-md text-center">
+          <AnimatedSection>
+            <h2 className="text-2xl font-black text-white mb-2">Reste informé</h2>
+            <p className="text-sm text-[#94A3B8] mb-6">Inscris-toi pour recevoir les mises à jour et les nouvelles fonctionnalités.</p>
+            <EmailCapture />
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ═══ SECTION — Pricing teaser ═══ */}
+      <section className="px-6 py-20" style={{ background: "#111118" }}>
+        <div className="mx-auto max-w-4xl text-center">
+          <AnimatedSection>
+            <h2 className="text-3xl font-black text-white sm:text-4xl">
+              Gratuit pour commencer. Pro pour dominer.
+            </h2>
+            <p className="text-[#94A3B8] mt-4 mb-8 max-w-2xl mx-auto">
+              Crée ta VeloCard gratuitement. Passe Pro pour débloquer les duels illimités,
+              les cartes spéciales et le classement mondial.
+            </p>
+            <div className="flex justify-center gap-4">
+              <a
+                href="/pricing"
+                className="px-8 py-3 bg-[#6366F1] hover:bg-[#6366F1]/80 rounded-xl font-semibold transition text-white"
+              >
+                Voir les plans &rarr;
+              </a>
+            </div>
+            <p className="text-[#475569] text-sm mt-4">
+              7 jours d&apos;essai gratuit &bull; Sans engagement &bull; Annulation en 1 clic
+            </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 9 — CTA Final ═══ */}
       <section className="relative px-6 py-20">
         <div
           className="pointer-events-none absolute inset-0"
@@ -425,11 +580,11 @@ export default function LandingClient() {
             <span className="text-xs text-[#475569]">&copy; 2026</span>
           </div>
           <div className="flex gap-4 text-xs text-[#475569]">
-            <a href="#" className="transition hover:text-white/50">
-              Politique de confidentialite
+            <a href="/privacy" className="transition hover:text-white/50">
+              Politique de confidentialité
             </a>
-            <a href="#" className="transition hover:text-white/50">
-              Contact
+            <a href="/terms" className="transition hover:text-white/50">
+              CGU
             </a>
             <a href="#" className="transition hover:text-white/50">
               Instagram

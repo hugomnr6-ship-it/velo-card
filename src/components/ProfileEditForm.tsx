@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useToast } from "@/contexts/ToastContext";
 import { trackEvent } from "@/lib/analytics";
 import { FRENCH_REGIONS } from "@/types";
@@ -101,14 +101,14 @@ export default function ProfileEditForm({
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
           />
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
@@ -122,7 +122,8 @@ export default function ProfileEditForm({
               </h3>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/10"
+                aria-label="Fermer le formulaire"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#00F5D4]"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -134,6 +135,7 @@ export default function ProfileEditForm({
             <div className="mb-4 flex flex-col items-center">
               <button
                 onClick={() => fileRef.current?.click()}
+                aria-label="Modifier l'avatar"
                 className="group relative h-20 w-20 overflow-hidden rounded-full border border-white/10"
               >
                 {(previewUrl || currentData.avatar_url) ? (
@@ -234,7 +236,7 @@ export default function ProfileEditForm({
             >
               {saving ? "Sauvegarde..." : "Sauvegarder"}
             </button>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

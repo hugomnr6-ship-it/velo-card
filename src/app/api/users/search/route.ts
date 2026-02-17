@@ -1,6 +1,5 @@
 import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 /**
  * GET /api/users/search?q=username
@@ -8,8 +7,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
  * Returns up to 20 results with their stats and tier.
  */
 export async function GET(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   const { searchParams } = new URL(request.url);
   let query = searchParams.get("q")?.trim();

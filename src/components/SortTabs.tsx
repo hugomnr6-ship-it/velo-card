@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { LeaderboardSort } from "@/types";
 
 interface SortTabsProps {
@@ -43,7 +43,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
             className="relative rounded-md px-3 py-1.5 text-xs font-semibold transition"
           >
             {active === t.key && !isAttr && (
-              <motion.div
+              <m.div
                 layoutId="sort-active"
                 className="absolute inset-0 rounded-md bg-white"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
@@ -83,7 +83,7 @@ export default function SortTabs({ active, onChange }: SortTabsProps) {
               className="relative flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition"
             >
               {active === t.key && (
-                <motion.div
+                <m.div
                   layoutId="attr-active"
                   className="absolute inset-0 rounded-md bg-white"
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}

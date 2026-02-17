@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import Skeleton from "@/components/Skeleton";
 import PageHeader from "@/components/PageHeader";
@@ -232,7 +232,7 @@ function CompareContent() {
         {compareData && !loading && (
           <div className="flex flex-col gap-3">
             {/* OVR comparison */}
-            <motion.div
+            <m.div
               className="rounded-2xl border border-white/[0.06] bg-[#1A1A2E]/60 p-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -254,7 +254,7 @@ function CompareContent() {
                   <p className="text-[9px] font-bold uppercase tracking-wider text-[#64748B]">OVR</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Stat-by-stat comparison */}
             {STAT_LABELS.map((stat, i) => {
@@ -264,7 +264,7 @@ function CompareContent() {
               const winner = v1 > v2 ? 1 : v2 > v1 ? 2 : 0;
 
               return (
-                <motion.div
+                <m.div
                   key={stat.key}
                   className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/40 p-3"
                   initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
@@ -289,7 +289,7 @@ function CompareContent() {
                       <div className="flex gap-1">
                         {/* Left bar (grows from right) */}
                         <div className="flex h-2 flex-1 justify-end overflow-hidden rounded-full bg-white/[0.04]">
-                          <motion.div
+                          <m.div
                             className="h-full rounded-full"
                             style={{
                               background: winner === 1 ? "#22C55E" : winner === 0 ? "#94A3B8" : "#475569",
@@ -301,7 +301,7 @@ function CompareContent() {
                         </div>
                         {/* Right bar (grows from left) */}
                         <div className="flex h-2 flex-1 overflow-hidden rounded-full bg-white/[0.04]">
-                          <motion.div
+                          <m.div
                             className="h-full rounded-full"
                             style={{
                               background: winner === 2 ? "#22C55E" : winner === 0 ? "#94A3B8" : "#475569",
@@ -321,7 +321,7 @@ function CompareContent() {
                       </span>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
 
@@ -335,7 +335,7 @@ function CompareContent() {
                 else if (v2 > v1) wins2++;
               }
               return (
-                <motion.div
+                <m.div
                   className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-4 text-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -355,7 +355,7 @@ function CompareContent() {
                         : "Egalite parfaite !"
                     }
                   </p>
-                </motion.div>
+                </m.div>
               );
             })()}
 
@@ -416,6 +416,7 @@ function PlayerSlot({
         >
           <button
             onClick={onClear}
+            aria-label="Retirer le joueur"
             className="absolute right-2 top-2 text-[#475569] hover:text-white"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

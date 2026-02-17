@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { badgeMap } from "@/lib/badges";
 
 interface BadgeToastProps {
@@ -69,8 +69,11 @@ export default function BadgeToast({ userId }: BadgeToastProps) {
 
   return (
     <AnimatePresence>
-      <motion.div
+      <m.div
         key={current.badge_id}
+        role="status"
+        aria-live="polite"
+        aria-label={`Nouveau badge débloqué : ${badgeDef.name}`}
         initial={{ opacity: 0, y: -40, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.9 }}
@@ -92,7 +95,7 @@ export default function BadgeToast({ userId }: BadgeToastProps) {
             <p className="text-sm font-bold text-white">{badgeDef.name}</p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </AnimatePresence>
   );
 }

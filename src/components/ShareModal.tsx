@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   captureCard,
   generateQR,
@@ -24,6 +25,7 @@ type ShareAction = "story" | "card" | "link" | "qr";
 export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModalProps) {
   const [loading, setLoading] = useState<ShareAction | null>(null);
   const [copied, setCopied] = useState(false);
+  const modalRef = useFocusTrap(isOpen, onClose);
 
   const cardUrl = `https://velocard.app/card/${userId}`;
 
@@ -150,7 +152,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
       {isOpen && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -159,22 +161,28 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
           />
 
           {/* Modal */}
-          <motion.div
+          <m.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="share-modal-title"
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-x-4 bottom-8 z-[101] mx-auto max-w-[360px] rounded-2xl border border-white/10 bg-[#0F1729] p-5"
             style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+            onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
           >
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-['Space_Grotesk'] text-lg font-bold text-white">
+              <h3 id="share-modal-title" className="font-['Space_Grotesk'] text-lg font-bold text-white">
                 Partager
               </h3>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                aria-label="Fermer le menu de partage"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#00F5D4]"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -194,7 +202,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
                 >
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-white/60">
                     {loading === action.key ? (
-                      <motion.div
+                      <m.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="h-4 w-4 rounded-full border-2 border-white/20 border-t-white/60"
@@ -207,12 +215,12 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
                     <p className="text-sm font-semibold text-white">
                       {action.label}
                     </p>
-                    <p className="text-xs text-white/30">{action.sublabel}</p>
+                    <p className="text-xs text-white/50">{action.sublabel}</p>
                   </div>
                 </button>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

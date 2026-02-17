@@ -19,8 +19,30 @@ export const metadata: Metadata = {
     description: "Transforme tes sorties velo en carte FIFA.",
     images: ["/api/og"],
   },
+  alternates: {
+    canonical: "https://velocard.app",
+  },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'VeloCard',
+  description: 'Le FIFA Ultimate Team du cyclisme réel',
+  url: 'https://velocard.app',
+  applicationCategory: 'SportsApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
 };
 
 export default function Home() {
-  return <LandingClient />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <LandingClient />
+    </>
+  );
 }

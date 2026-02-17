@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { CardTier } from "@/types";
 
 interface TierProgressProps {
@@ -87,7 +87,7 @@ export default function TierProgress({ ovr, tier }: TierProgressProps) {
 
       {/* Progress bar */}
       <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
-        <motion.div
+        <m.div
           className="h-full rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}

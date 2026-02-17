@@ -532,3 +532,259 @@ export interface RaceDetailWithResults extends RaceDetail {
   race_time: number;      // seconds (winner time)
   avg_speed: number;      // km/h
 }
+
+// ——— Gamification: VeloCoins ———
+
+export interface CoinBalance {
+  balance: number;
+  totalEarned: number;
+  totalSpent: number;
+}
+
+export interface CoinTransaction {
+  id: string;
+  amount: number;
+  reason: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+// ——— Gamification: Quests ———
+
+export interface QuestDefinition {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  quest_type: "daily" | "weekly";
+  target_value: number;
+  target_metric: string;
+  coin_reward: number;
+}
+
+export interface UserQuest {
+  id: string;
+  quest_id: string;
+  quest: QuestDefinition;
+  current_value: number;
+  target_value: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  coin_claimed: boolean;
+}
+
+// ——— Gamification: Packs ———
+
+export interface PackDefinition {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  cost_coins: number;
+  items_count: number;
+}
+
+export interface PackItem {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  item_type: "stat_boost" | "skin" | "coins" | "badge";
+  rarity: "common" | "rare" | "epic" | "legendary";
+  effect: Record<string, unknown>;
+}
+
+export interface InventoryItem {
+  id: string;
+  item: PackItem;
+  obtained_from: string;
+  is_active: boolean;
+  expires_at: string | null;
+  equipped: boolean;
+  created_at: string;
+}
+
+// ——— Gamification: Seasons ———
+
+export interface Season {
+  id: string;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  status: "upcoming" | "active" | "finished";
+}
+
+export interface SeasonRanking {
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  season_points: number;
+  rank: number;
+  total_km: number;
+  duels_won: number;
+  quests_completed: number;
+}
+
+// ——— Gamification: Tournaments ———
+
+export interface Tournament {
+  id: string;
+  name: string;
+  tournament_type: "regional" | "national" | "custom";
+  category: string;
+  max_participants: number;
+  entry_cost_coins: number;
+  prize_pool_coins: number;
+  status: "registration" | "active" | "finished";
+  participants_count: number;
+  starts_at: string;
+}
+
+export interface TournamentMatch {
+  id: string;
+  round: number;
+  match_number: number;
+  player_a: { id: string; username: string; ovr: number } | null;
+  player_b: { id: string; username: string; ovr: number } | null;
+  winner_id: string | null;
+  player_a_value: number | null;
+  player_b_value: number | null;
+  status: "pending" | "active" | "finished" | "bye";
+}
+
+// ——— Gamification: Card Skins ———
+
+export interface CardSkin {
+  id: string;
+  name: string;
+  description: string;
+  skin_type: "border" | "background" | "effect" | "full";
+  rarity: "common" | "rare" | "epic" | "legendary";
+  preview_url?: string;
+}
+
+// ——— Fantasy Cycling ———
+
+export interface FantasyLeague {
+  id: string;
+  name: string;
+  creator_id: string;
+  invite_code: string;
+  is_public: boolean;
+  entry_fee: number;
+  max_participants: number;
+  duration_weeks: 4 | 8;
+  status: "draft" | "active" | "completed";
+  prize_pool: number;
+  draft_budget: number;
+  start_date: string | null;
+  end_date: string | null;
+  current_week: number;
+  created_at: string;
+  participant_count?: number;
+  creator?: Pick<Profile, "id" | "username" | "avatar_url">;
+}
+
+export interface FantasyParticipant {
+  id: string;
+  league_id: string;
+  user_id: string;
+  total_points: number;
+  weekly_points: number;
+  rank: number | null;
+  transfers_remaining: number;
+  joined_at: string;
+  user?: Pick<Profile, "id" | "username" | "avatar_url">;
+  team?: FantasyTeamMember[];
+}
+
+export interface FantasyTeamMember {
+  id: string;
+  participant_id: string;
+  cyclist_id: string;
+  is_captain: boolean;
+  is_super_sub: boolean;
+  draft_cost: number;
+  acquired_at: string;
+  cyclist?: Pick<Profile, "id" | "username" | "avatar_url"> & {
+    ovr: number;
+    tier: CardTier;
+    pac: number;
+    mon: number;
+    val: number;
+    spr: number;
+    end: number;
+    res: number;
+    weekly_km?: number;
+    weekly_elevation?: number;
+  };
+}
+
+export interface FantasyWeeklyScore {
+  id: string;
+  participant_id: string;
+  week_number: number;
+  total_score: number;
+  breakdown: Record<string, {
+    name: string;
+    base_points: number;
+    captain_bonus: boolean;
+    super_sub_used: boolean;
+    details: {
+      km: number;
+      elevation: number;
+      ovr_change: number;
+      tier_up: boolean;
+      duels_won: number;
+      totw: boolean;
+    };
+  }>;
+  calculated_at: string;
+}
+
+export interface FantasyTransfer {
+  id: string;
+  participant_id: string;
+  dropped_cyclist_id: string;
+  picked_cyclist_id: string;
+  week_number: number;
+  cost: number;
+  transferred_at: string;
+}
+
+// ——— Subscription types ———
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  stripe_subscription_id: string;
+  plan: "pro_monthly" | "pro_yearly";
+  status: "active" | "past_due" | "canceled" | "incomplete" | "trialing";
+  current_period_start: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  trial_end: string | null;
+}
+
+export interface Payment {
+  id: string;
+  user_id: string;
+  stripe_payment_intent_id: string | null;
+  stripe_invoice_id: string | null;
+  amount: number;
+  currency: string;
+  status: "succeeded" | "pending" | "failed" | "refunded";
+  type: "subscription" | "coins_purchase" | "pack_purchase";
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface Referral {
+  id: string;
+  referrer_id: string;
+  referred_id: string;
+  referral_code: string;
+  status: "pending" | "completed" | "rewarded";
+  reward_given: boolean;
+  created_at: string;
+}

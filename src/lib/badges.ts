@@ -125,6 +125,28 @@ export const allBadgeDefinitions: AchievementBadge[] = [
   { id: "race_mountain_king", name: "Roi des Cimes", description: "Victoire sur course RDI >= 7", icon: "\uD83D\uDC51", category: "race", rarity: "epic" },
   { id: "race_centurion", name: "Costaud", description: "Finir une course de +100km", icon: "\uD83E\uDDBE", category: "race", rarity: "rare" },
   { id: "race_climber", name: "Grimpeur Confirme", description: "3 top 10 en course montagne", icon: "\u26F0\uFE0F", category: "race", rarity: "epic" },
+  // Duel badges (new)
+  { id: "duel_win_10", name: "Duelliste Confirme", description: "Gagne 10 duels", icon: "\u2694\uFE0F", category: "social", rarity: "epic" },
+  { id: "duel_win_25", name: "Gladiateur", description: "Gagne 25 duels", icon: "\uD83D\uDDE1\uFE0F", category: "social", rarity: "legendary" },
+  { id: "duel_streak_5", name: "Invincible", description: "5 duels gagnes d'affilee", icon: "\uD83D\uDEE1\uFE0F", category: "social", rarity: "epic" },
+  // War badges (new)
+  { id: "war_veteran_5", name: "Veteran de Guerre", description: "Participe a 5 guerres", icon: "\uD83C\uDF96\uFE0F", category: "social", rarity: "rare" },
+  { id: "war_champion_3", name: "Champion de Guerre", description: "3 guerres gagnees", icon: "\uD83C\uDFF0", category: "social", rarity: "epic" },
+  { id: "war_mvp", name: "MVP de Guerre", description: "Top contributeur d'une guerre", icon: "\u2B50", category: "social", rarity: "epic" },
+  // Gamification badges (new)
+  { id: "first_pack", name: "Deballage", description: "Ouvre ton premier pack", icon: "\uD83D\uDCE6", category: "progression", rarity: "common" },
+  { id: "pack_legendary", name: "Coup de Chance", description: "Obtiens un item legendaire dans un pack", icon: "\uD83C\uDF1F", category: "progression", rarity: "legendary" },
+  { id: "quest_master_10", name: "Maitre des Quetes", description: "Complete 10 quetes", icon: "\uD83C\uDFAF", category: "progression", rarity: "rare" },
+  { id: "quest_master_50", name: "Legende des Quetes", description: "Complete 50 quetes", icon: "\uD83D\uDC8E", category: "progression", rarity: "epic" },
+  { id: "coins_1000", name: "Riche", description: "Accumule 1000 VeloCoins", icon: "\uD83D\uDCB0", category: "progression", rarity: "rare" },
+  { id: "coins_10000", name: "Millionnaire", description: "Accumule 10000 VeloCoins", icon: "\uD83E\uDD11", category: "progression", rarity: "legendary" },
+  { id: "season_top10", name: "Top 10 Saisonnier", description: "Finis dans le top 10 d'une saison", icon: "\uD83C\uDFC5", category: "social", rarity: "legendary" },
+  { id: "tournament_winner", name: "Champion de Tournoi", description: "Gagne un tournoi", icon: "\uD83C\uDFC6", category: "social", rarity: "legendary" },
+  // Fantasy badges (4)
+  { id: "fantasy_first_league", name: "Manager Debutant", description: "Rejoins ta premiere ligue Fantasy", icon: "\u26BD", category: "social", rarity: "common" },
+  { id: "fantasy_champion", name: "Champion Fantasy", description: "Gagne une ligue Fantasy", icon: "\uD83C\uDFC6", category: "social", rarity: "legendary" },
+  { id: "fantasy_draft_master", name: "Oeil de Scout", description: "Compose une equipe complete 5/5", icon: "\uD83D\uDC41\uFE0F", category: "social", rarity: "rare" },
+  { id: "fantasy_streak", name: "Meilleur Chaque Semaine", description: "Termine 1er 3 semaines d'affilee", icon: "\uD83D\uDD25", category: "social", rarity: "epic" },
 ];
 
 export const badgeMap = new Map(allBadgeDefinitions.map((b) => [b.id, b]));

@@ -1,10 +1,8 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "auth");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   const auth = await getAuthenticatedUser();
   if (isErrorResponse(auth)) return auth;

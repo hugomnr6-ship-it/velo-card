@@ -2,8 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { m } from "framer-motion";
 import RegionSelector from "@/components/RegionSelector";
 import SortTabs from "@/components/SortTabs";
 import Podium from "@/components/Podium";
@@ -53,8 +54,7 @@ export default function LeaderboardPage() {
   const [region, setRegion] = useState<FrenchRegion | null>(null);
   const [userRegion, setUserRegion] = useState<FrenchRegion | null>(null);
   const [sort, setSort] = useState<LeaderboardSort>("weekly_km");
-  const [racePointsEntries, setRacePointsEntries] = useState<RacePointsEntry[]>([]);
-  const [racePointsLoading, setRacePointsLoading] = useState(false);
+  // racePointsEntries + loading handled by React Query below
 
   // Fetch profile for region
   const { data: profileData, isLoading: profileLoading } = useProfile();
@@ -71,8 +71,10 @@ export default function LeaderboardPage() {
     }
   }, [profileData, region]);
 
-  // Compute effective region for API calls
-  const effectiveRegion = scope === "france" ? "france" : region;
+  // Memoize effective region
+  const effectiveRegion = useMemo(() => {
+    return scope === "france" ? "france" : region;
+  }, [scope, region]);
 
   // Weekly leaderboard via hook
   const { data: entries = [], isLoading: weeklyLoading } = useLeaderboard(
@@ -80,25 +82,20 @@ export default function LeaderboardPage() {
     sort
   );
 
-  // Race points leaderboard (no hook — keep manual)
-  useEffect(() => {
-    if (mode === "race_points") fetchRacePoints();
-  }, [mode, effectiveRegion]);
-
-  async function fetchRacePoints() {
-    setRacePointsLoading(true);
-    try {
+  // Race points leaderboard via React Query
+  const { data: racePointsEntries = [], isLoading: racePointsLoading } = useQuery<RacePointsEntry[]>({
+    queryKey: ["race-points", effectiveRegion, scope],
+    queryFn: async () => {
       const params = new URLSearchParams({ leaderboard: "true" });
-      // For race points, don't send region filter when scope is "france"
       if (scope === "region" && region) params.set("region", region);
       const res = await fetch(`/api/race-points?${params.toString()}`);
-      if (res.ok) {
-        setRacePointsEntries(await res.json());
-      }
-    } finally {
-      setRacePointsLoading(false);
-    }
-  }
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    enabled: mode === "race_points",
+  });
 
   const loading = mode === "weekly" ? weeklyLoading : racePointsLoading;
 
@@ -141,7 +138,7 @@ export default function LeaderboardPage() {
             }`}
           >
             {mode === "weekly" && (
-              <motion.div
+              <m.div
                 layoutId="mode-tab"
                 className="absolute inset-0 rounded-lg bg-white"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
@@ -156,7 +153,7 @@ export default function LeaderboardPage() {
             }`}
           >
             {mode === "race_points" && (
-              <motion.div
+              <m.div
                 layoutId="mode-tab"
                 className="absolute inset-0 rounded-lg bg-[#6366F1]"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
@@ -260,7 +257,7 @@ export default function LeaderboardPage() {
               <AnimatedList className="flex flex-col gap-2">
                 {racePointsEntries.map((entry) => (
                   <AnimatedListItem key={entry.user_id}>
-                    <motion.div
+                    <m.div
                       className={`flex items-center gap-3 rounded-xl border p-3 transition ${
                         entry.user_id === session.user.id
                           ? "border-[#6366F1]/30 bg-[#6366F1]/5"
@@ -305,7 +302,7 @@ export default function LeaderboardPage() {
                         <span className="text-lg font-black text-[#6366F1]">{entry.total_points}</span>
                         <span className="text-[9px] font-bold text-[#475569]">PTS</span>
                       </div>
-                    </motion.div>
+                    </m.div>
                   </AnimatedListItem>
                 ))}
               </AnimatedList>

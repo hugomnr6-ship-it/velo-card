@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -5,8 +6,26 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { VeloCardWithButtonSkeleton } from "@/components/Skeleton";
 import AnimatedPage from "@/components/AnimatedPage";
+import NotificationBell from "@/components/NotificationBell";
 import VeloCardSection from "./VeloCardSection";
 import SignOutButton from "./SignOutButton";
+
+export const metadata: Metadata = {
+  title: "Dashboard | VeloCard",
+  description: "Ta carte de cycliste — stats, duels, classement",
+  openGraph: {
+    title: "Dashboard | VeloCard",
+    description: "Ta carte de cycliste — stats, duels, classement",
+    type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dashboard | VeloCard",
+    description: "Ta carte de cycliste — stats, duels, classement",
+    images: ["/og-image.png"],
+  },
+};
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -61,6 +80,10 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 px-4 pb-24 pt-12">
+      {/* Notification Bell — top right */}
+      <div className="fixed top-4 right-4 z-40">
+        <NotificationBell />
+      </div>
       <AnimatedPage>
         <div className="flex flex-col items-center gap-6">
           <Suspense fallback={<VeloCardWithButtonSkeleton />}>

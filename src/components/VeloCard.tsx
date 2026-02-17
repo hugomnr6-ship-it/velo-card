@@ -8,6 +8,37 @@ import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "
    VeloCard — Design B "Shield" + Circular Gauges
    ════════════════════════════════════════════ */
 
+export type CardSkinId = "neon" | "flames" | "holographic" | "gold_border" | null;
+
+interface SkinOverlay {
+  borderColor: string;
+  glowColor: string;
+  extraClass: string;
+}
+
+const skinOverlays: Record<string, SkinOverlay> = {
+  neon: {
+    borderColor: "rgba(0,245,212,0.5)",
+    glowColor: "rgba(0,245,212,0.25)",
+    extraClass: "skin-neon",
+  },
+  flames: {
+    borderColor: "rgba(255,107,53,0.5)",
+    glowColor: "rgba(255,60,0,0.25)",
+    extraClass: "skin-flames",
+  },
+  holographic: {
+    borderColor: "rgba(167,139,250,0.4)",
+    glowColor: "rgba(167,139,250,0.2)",
+    extraClass: "skin-holographic",
+  },
+  gold_border: {
+    borderColor: "rgba(255,215,0,0.6)",
+    glowColor: "rgba(255,215,0,0.3)",
+    extraClass: "skin-gold",
+  },
+};
+
 interface VeloCardProps {
   username: string;
   avatarUrl: string | null;
@@ -18,6 +49,7 @@ interface VeloCardProps {
   specialCard?: SpecialCardType | null;
   country?: string;
   countryCode?: string;
+  skin?: CardSkinId;
 }
 
 /* ═══ Tier accent hex ═══ */
@@ -541,9 +573,11 @@ export default function VeloCard({
   specialCard,
   country,
   countryCode,
+  skin,
 }: VeloCardProps) {
   const cv = cardVisuals[tier];
   const sv = specialCard ? specialVisuals[specialCard] : null;
+  const skinOv = skin ? skinOverlays[skin] : null;
   const animatedOvr = useCountUp(stats.ovr, 1500, { enabled: stats.ovr > 0 });
 
   /* Resolve — special overrides tier */
@@ -574,26 +608,36 @@ export default function VeloCard({
   }, [clubs.length]);
   const currentClub = clubs.length > 0 ? clubs[clubIndex] : null;
 
-  const isAnimated = hasHoloScan || hasRainbow || tier === "diamant" || tier === "legende" || tier === "argent" || !!sv;
+  const isAnimated = hasHoloScan || hasRainbow || tier === "diamant" || tier === "legende" || tier === "argent" || !!sv || !!skinOv;
+
+  // Skin overrides for border and glow
+  const finalBorder = skinOv
+    ? `2px solid ${skinOv.borderColor}`
+    : tier === "legende" || tier === "diamant"
+      ? `1.5px solid ${tierAccentHex[tier]}40`
+      : `1.5px solid ${borderClr}`;
+
+  const finalBoxShadow = skinOv
+    ? `inset 0 0 30px ${skinOv.glowColor}, 0 0 20px ${skinOv.glowColor}`
+    : tier === "legende"
+      ? `inset 0 0 30px rgba(255,215,0,0.08), 0 0 15px rgba(255,215,0,0.05)`
+      : tier === "diamant"
+        ? `inset 0 0 30px rgba(0,212,255,0.06), 0 0 10px rgba(0,212,255,0.03)`
+        : "none";
 
   return (
     <div
       id="velo-card"
-      className={`relative overflow-hidden ${isAnimated ? "glow-pulse" : ""}`}
+      className={`velo-card-responsive relative overflow-hidden ${isAnimated ? "glow-pulse" : ""} ${skinOv?.extraClass || ""}`}
       style={{
-        width: 280,
-        height: 470,
+        width: "100%",
+        maxWidth: 280,
+        aspectRatio: "280 / 470",
         borderRadius: 18,
-        border: tier === "legende" || tier === "diamant"
-          ? `1.5px solid ${tierAccentHex[tier]}40`
-          : `1.5px solid ${borderClr}`,
+        border: finalBorder,
         background: bgGradient,
         isolation: "isolate",
-        boxShadow: tier === "legende"
-          ? `inset 0 0 30px rgba(255,215,0,0.08), 0 0 15px rgba(255,215,0,0.05)`
-          : tier === "diamant"
-          ? `inset 0 0 30px rgba(0,212,255,0.06), 0 0 10px rgba(0,212,255,0.03)`
-          : "none",
+        boxShadow: finalBoxShadow,
       }}
     >
       {/* ── Noise texture overlay (z-4) ── */}

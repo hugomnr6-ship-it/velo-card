@@ -1,6 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { handleApiError } from "@/lib/api-utils";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { Federation } from "@/types";
 
 /**
@@ -71,8 +70,7 @@ const SEED_RACES: SeedRace[] = [
 ];
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "auth");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   // Verify cron secret
   const authHeader = request.headers.get("authorization");

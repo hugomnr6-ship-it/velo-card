@@ -2,10 +2,14 @@
 
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { ToastProvider } from "@/contexts/ToastContext";
 import QueryProvider from "./QueryProvider";
 import BottomTabBar from "./BottomTabBar";
+import FeedbackButton from "./FeedbackButton";
 import PosthogProvider from "./PosthogProvider";
+import WebVitalsReporter from "./WebVitalsReporter";
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -21,14 +25,25 @@ function ServiceWorkerRegistrar() {
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <QueryProvider>
-        <ToastProvider>
-          <ServiceWorkerRegistrar />
-          <PosthogProvider />
-          {children}
-          <BottomTabBar />
-        </ToastProvider>
-      </QueryProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <LazyMotion features={domAnimation} strict>
+          <QueryProvider>
+            <ToastProvider>
+              <ServiceWorkerRegistrar />
+              <PosthogProvider />
+              <WebVitalsReporter />
+              {children}
+              <BottomTabBar />
+              <FeedbackButton />
+            </ToastProvider>
+          </QueryProvider>
+        </LazyMotion>
+      </ThemeProvider>
     </SessionProvider>
   );
 }

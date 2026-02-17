@@ -1,25 +1,8 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { m } from "framer-motion";
+import { useMotionSafe } from "@/hooks/useReducedMotion";
 import type { ReactNode } from "react";
-
-const containerVariants: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.05,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: "easeOut" as const },
-  },
-};
 
 interface AnimatedListProps {
   children: ReactNode;
@@ -28,22 +11,23 @@ interface AnimatedListProps {
 }
 
 export function AnimatedList({ children, className = "", delay }: AnimatedListProps) {
-  const variants = delay !== undefined
-    ? {
-        ...containerVariants,
-        show: { transition: { staggerChildren: delay } },
-      }
-    : containerVariants;
+  const { listVariants, shouldReduce } = useMotionSafe();
+
+  const variants = shouldReduce
+    ? listVariants
+    : delay !== undefined
+      ? { hidden: {}, show: { transition: { staggerChildren: delay } } }
+      : listVariants;
 
   return (
-    <motion.div
+    <m.div
       variants={variants}
       initial="hidden"
       animate="show"
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -53,9 +37,11 @@ interface AnimatedListItemProps {
 }
 
 export function AnimatedListItem({ children, className = "" }: AnimatedListItemProps) {
+  const { itemVariants } = useMotionSafe();
+
   return (
-    <motion.div variants={itemVariants} className={className}>
+    <m.div variants={itemVariants} className={className}>
       {children}
-    </motion.div>
+    </m.div>
   );
 }

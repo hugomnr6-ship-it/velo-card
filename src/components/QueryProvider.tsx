@@ -8,8 +8,22 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
     () => new QueryClient({
       defaultOptions: {
         queries: {
-          staleTime: 60 * 1000, // 1 minute
+          // Cache de 2 minutes par défaut
+          staleTime: 2 * 60 * 1000,
+          // Garbage collection après 10 minutes
+          gcTime: 10 * 60 * 1000,
+          // Retry intelligent : pas de retry sur 4xx
+          retry: (failureCount, error: any) => {
+            if (error?.status >= 400 && error?.status < 500) return false;
+            return failureCount < 2;
+          },
+          // Pas de refetch au focus par défaut (économie de requêtes)
           refetchOnWindowFocus: false,
+          // Refetch au reconnect
+          refetchOnReconnect: "always",
+        },
+        mutations: {
+          retry: 1,
         },
       },
     }),

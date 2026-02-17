@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
@@ -97,7 +97,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
 
   return (
     <Link href={`/races/${race.id}`}>
-      <motion.div
+      <m.div
         className={`flex items-center gap-3 rounded-xl border p-3 transition ${
           isPast
             ? "border-white/[0.04] bg-[#1A1A2E]/30 opacity-50"
@@ -164,7 +164,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
             <polyline points="9 18 15 12 9 6" />
           </svg>
         )}
-      </motion.div>
+      </m.div>
     </Link>
   );
 }
@@ -347,7 +347,7 @@ export default function RacesCalendarPage() {
                 </button>
 
                 {showPast && (
-                  <motion.div
+                  <m.div
                     className="mt-3 flex flex-col gap-2"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -356,7 +356,7 @@ export default function RacesCalendarPage() {
                     {pastRaces.map((race) => (
                       <RaceRow key={race.id} race={race} isPast={true} />
                     ))}
-                  </motion.div>
+                  </m.div>
                 )}
               </div>
             )}

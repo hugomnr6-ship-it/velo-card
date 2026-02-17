@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+import Image from "next/image";
 import type { LeaderboardEntry, CardTier } from "@/types";
 
 interface LeaderboardRowProps {
@@ -46,7 +48,7 @@ const miniCardAccent: Record<CardTier, string> = {
   legende: "text-[#FFD700]",
 };
 
-export default function LeaderboardRow({
+export default memo(function LeaderboardRow({
   entry,
   isCurrentUser,
 }: LeaderboardRowProps) {
@@ -76,10 +78,13 @@ export default function LeaderboardRow({
 
         {/* Avatar mini */}
         {entry.avatar_url ? (
-          <img
+          <Image
             src={entry.avatar_url}
             alt=""
+            width={20}
+            height={20}
             className="h-5 w-5 rounded-full border border-white/20 object-cover"
+            loading="lazy"
           />
         ) : (
           <div className="h-5 w-5 rounded-full bg-[#6366F1]" />
@@ -127,4 +132,4 @@ export default function LeaderboardRow({
       </div>
     </div>
   );
-}
+});

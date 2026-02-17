@@ -39,7 +39,7 @@ export default async function VeloCardSection({
       );
     }
 
-    // 3. Cache activities in Supabase (upsert to avoid duplicates)
+    // 3. Cache activities + fetch previous stats + clubs in PARALLEL
     const activityRows = activities.map((a) => ({
       user_id: profile.id,
       strava_activity_id: a.id,
@@ -55,22 +55,30 @@ export default async function VeloCardSection({
       activity_type: a.type,
     }));
 
-    if (activityRows.length > 0) {
-      await supabaseAdmin
-        .from("strava_activities")
-        .upsert(activityRows, { onConflict: "user_id,strava_activity_id" });
-    }
+    // Parallelize: upsert activities + fetch existing stats + fetch clubs
+    const [, { data: existingStats }, { data: clubJoinRowsParallel }] = await Promise.all([
+      // Upsert activities (fire & await but don't use result)
+      activityRows.length > 0
+        ? supabaseAdmin
+            .from("strava_activities")
+            .upsert(activityRows, { onConflict: "user_id,strava_activity_id" })
+        : Promise.resolve(null),
+      // Fetch previous stats for delta display
+      supabaseAdmin
+        .from("user_stats")
+        .select("prev_pac, prev_end, prev_mon, prev_res, prev_spr, prev_val, prev_ovr, prev_tier, special_card, active_weeks_streak")
+        .eq("user_id", profile.id)
+        .single(),
+      // Fetch clubs via JOIN (moved from step 9)
+      supabaseAdmin
+        .from("club_members")
+        .select("club:clubs(name, logo_url)")
+        .eq("user_id", profile.id),
+    ]);
 
     // 4. Compute stats
     const stats = computeStats(activities);
     const tier = getTier(stats);
-
-    // 5. Fetch previous stats for delta display (from Monday Update)
-    const { data: existingStats } = await supabaseAdmin
-      .from("user_stats")
-      .select("prev_pac, prev_end, prev_mon, prev_res, prev_spr, prev_val, prev_ovr, prev_tier, special_card, active_weeks_streak")
-      .eq("user_id", profile.id)
-      .single();
 
     // Compute deltas
     let deltas: StatDeltas | null = null;
@@ -129,24 +137,10 @@ export default async function VeloCardSection({
     // 8. Compute PlayStyle badges
     const badges = computeBadges(stats);
 
-    // 9. Fetch user's clubs via club_members → clubs
-    const { data: memberRows } = await supabaseAdmin
-      .from("club_members")
-      .select("club_id")
-      .eq("user_id", profile.id);
-
-    let clubs: { name: string; logo_url: string }[] = [];
-    if (memberRows && memberRows.length > 0) {
-      const clubIds = memberRows.map((m: any) => m.club_id);
-      const { data: clubRows } = await supabaseAdmin
-        .from("clubs")
-        .select("name, logo_url")
-        .in("id", clubIds);
-      clubs = (clubRows || []).filter((c: any) => c.logo_url) as {
-        name: string;
-        logo_url: string;
-      }[];
-    }
+    // 9. Build clubs from parallelized fetch (step 3)
+    const clubs = (clubJoinRowsParallel || [])
+      .map((r: any) => r.club)
+      .filter((c: any) => c && c.logo_url) as { name: string; logo_url: string }[];
 
     // 10. Render the card
     const avatarUrl = userInfo.image || profile.avatar_url || null;

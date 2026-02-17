@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Confetti, { tierConfettiColors } from "./Confetti";
 import ShareModal from "./ShareModal";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useMotionSafe } from "@/hooks/useReducedMotion";
 import type { ComputedStats, CardTier, StatDeltas, SpecialCardType } from "@/types";
 
 const tierAccentHex: Record<CardTier, string> = {
@@ -81,9 +82,91 @@ export default function MondayReveal({
   userId,
   onComplete,
 }: MondayRevealProps) {
+  const { shouldReduce } = useMotionSafe();
   const [phase, setPhase] = useState(1);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Reduced motion: show results directly without 5-phase animation
+  if (shouldReduce) {
+    return (
+      <>
+        {showShareModal && (
+          <ShareModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            tier={tier}
+            userId={userId}
+          />
+        )}
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 px-6"
+          style={{ background: "#0A0A0F" }}
+        >
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
+            {STAT_META.map((stat) => {
+              const delta = deltas[stat.key];
+              return (
+                <div key={stat.key} className="flex flex-col items-center">
+                  <span className="text-[10px] font-bold tracking-widest text-white/40">
+                    {stat.label}
+                  </span>
+                  <span
+                    className="text-3xl font-black font-['JetBrains_Mono']"
+                    style={{ color: tierAccentHex[tier] }}
+                  >
+                    {stats[stat.key]}
+                  </span>
+                  <span
+                    className={`text-sm font-bold ${
+                      delta > 0
+                        ? "text-[#22C55E]"
+                        : delta < 0
+                        ? "text-[#EF4444]"
+                        : "text-white/20"
+                    }`}
+                  >
+                    {delta > 0 ? `+${delta}` : delta === 0 ? "-" : delta}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col items-center">
+            <span
+              className="text-5xl font-black font-['JetBrains_Mono']"
+              style={{ color: tierAccentHex[tier] }}
+            >
+              {stats.ovr}
+            </span>
+            <span
+              className="text-xs font-bold tracking-widest"
+              style={{ color: tierAccentHex[tier] }}
+            >
+              {tierLabel[tier]}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={onComplete}
+              className="rounded-xl px-8 py-3 text-sm font-bold text-white"
+              style={{ background: "#6366F1" }}
+            >
+              Voir mon dashboard
+            </button>
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white/70"
+            >
+              Partager ma carte
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   // Phase transitions
   useEffect(() => {
@@ -108,14 +191,14 @@ export default function MondayReveal({
   useEffect(() => {
     if (phase === 4 && previousTier && previousTier !== tier && isTierUp(previousTier, tier)) {
       setShowConfetti(true);
-      navigator.vibrate?.([50, 30, 100]);
+      if (!shouldReduce) navigator.vibrate?.([50, 30, 100]);
       const t = setTimeout(() => setShowConfetti(false), 3500);
       return () => clearTimeout(t);
     }
-    if (phase === 3) {
+    if (phase === 3 && !shouldReduce) {
       navigator.vibrate?.(50);
     }
-  }, [phase, previousTier, tier]);
+  }, [phase, previousTier, tier, shouldReduce]);
 
   // Allow dismiss after 3s in phase 5
   useEffect(() => {
@@ -154,7 +237,7 @@ export default function MondayReveal({
         />
       )}
 
-      <motion.div
+      <m.div
         className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
         style={{ background: "#0A0A0F" }}
         initial={{ opacity: 0 }}
@@ -173,7 +256,7 @@ export default function MondayReveal({
           <AnimatePresence mode="wait">
             {/* ═══ PHASE 1 — Intro ═══ */}
             {phase === 1 && (
-              <motion.div
+              <m.div
                 key="phase1"
                 className="flex flex-col items-center"
                 initial={{ opacity: 0, y: 20 }}
@@ -191,12 +274,12 @@ export default function MondayReveal({
                     Tes stats ont ete recalculees...
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* ═══ PHASE 2 — Stats reveal ═══ */}
             {phase === 2 && (
-              <motion.div
+              <m.div
                 key="phase2"
                 className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3"
                 initial="hidden"
@@ -213,7 +296,7 @@ export default function MondayReveal({
                 {STAT_META.map((stat, i) => {
                   const delta = deltas[stat.key];
                   return (
-                    <motion.div
+                    <m.div
                       key={stat.key}
                       className="flex flex-col items-center"
                       variants={{
@@ -234,7 +317,7 @@ export default function MondayReveal({
                       >
                         <StatCountUp target={stats[stat.key]} delay={i * 600} />
                       </span>
-                      <motion.span
+                      <m.span
                         className={`text-sm font-bold ${
                           delta > 0
                             ? "text-[#22C55E]"
@@ -247,16 +330,16 @@ export default function MondayReveal({
                         transition={{ delay: i * 0.6 + 0.8 }}
                       >
                         {delta > 0 ? `+${delta}` : delta === 0 ? "-" : delta}
-                      </motion.span>
-                    </motion.div>
+                      </m.span>
+                    </m.div>
                   );
                 })}
-              </motion.div>
+              </m.div>
             )}
 
             {/* ═══ PHASE 3 — OVR Reveal ═══ */}
             {phase === 3 && (
-              <motion.div
+              <m.div
                 key="phase3"
                 className="flex flex-col items-center"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -264,7 +347,7 @@ export default function MondayReveal({
                 exit={{ opacity: 0 }}
                 transition={{ type: "spring", damping: 15 }}
               >
-                <motion.div
+                <m.div
                   className="relative flex flex-col items-center"
                   animate={
                     deltas.ovr > 0
@@ -288,8 +371,8 @@ export default function MondayReveal({
                   >
                     <OvrCountUp target={stats.ovr} />
                   </span>
-                </motion.div>
-                <motion.p
+                </m.div>
+                <m.p
                   className={`mt-2 text-xl font-bold ${
                     deltas.ovr > 0
                       ? "text-[#22C55E]"
@@ -302,13 +385,13 @@ export default function MondayReveal({
                   transition={{ delay: 1.5 }}
                 >
                   {deltas.ovr > 0 ? `+${deltas.ovr}` : deltas.ovr} OVR
-                </motion.p>
-              </motion.div>
+                </m.p>
+              </m.div>
             )}
 
             {/* ═══ PHASE 4 — Tier + Special Card ═══ */}
             {phase === 4 && (
-              <motion.div
+              <m.div
                 key="phase4"
                 className="flex flex-col items-center gap-4"
                 initial={{ opacity: 0 }}
@@ -324,7 +407,7 @@ export default function MondayReveal({
                 </span>
 
                 {/* Tier name */}
-                <motion.p
+                <m.p
                   className="text-2xl font-black tracking-wider"
                   style={{ color: tierAccentHex[tier] }}
                   initial={{ scale: 1 }}
@@ -332,11 +415,11 @@ export default function MondayReveal({
                   transition={{ duration: 0.6, ease: "easeOut" }}
                 >
                   {tierLabel[tier]}
-                </motion.p>
+                </m.p>
 
                 {/* Tier change */}
                 {tierChanged && tierUp && (
-                  <motion.div
+                  <m.div
                     className="flex flex-col items-center gap-2"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -349,34 +432,34 @@ export default function MondayReveal({
                       <span style={{ color: tierAccentHex[previousTier!] }}>
                         {tierLabel[previousTier!]}
                       </span>
-                      <motion.span
+                      <m.span
                         className="text-white/60"
                         animate={{ x: [0, 4, 0] }}
                         transition={{ repeat: 2, duration: 0.4 }}
                       >
                         &rarr;
-                      </motion.span>
+                      </m.span>
                       <span style={{ color: tierAccentHex[tier] }}>
                         {tierLabel[tier]}
                       </span>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {tierChanged && !tierUp && (
-                  <motion.p
+                  <m.p
                     className="text-sm text-[#EF4444]/70"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                   >
                     Tier descendu
-                  </motion.p>
+                  </m.p>
                 )}
 
                 {/* Special Card */}
                 {specialCard && (
-                  <motion.div
+                  <m.div
                     className="mt-2 rounded-xl px-5 py-2.5 text-center font-bold"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -412,26 +495,26 @@ export default function MondayReveal({
                       {specialCard === "in_form" && "En Forme !"}
                       {specialCard === "legend_moment" && "Moment de Legende !"}
                     </span>
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {/* Streak */}
                 {streak > 1 && (
-                  <motion.p
+                  <m.p
                     className="mt-1 text-sm text-white/50"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
                   >
                     {streak} semaines actives
-                  </motion.p>
+                  </m.p>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* ═══ PHASE 5 — CTA ═══ */}
             {phase === 5 && (
-              <motion.div
+              <m.div
                 key="phase5"
                 className="flex flex-col items-center gap-4"
                 initial={{ opacity: 0, y: 20 }}
@@ -453,7 +536,7 @@ export default function MondayReveal({
                   </span>
                 </div>
 
-                <motion.button
+                <m.button
                   onClick={onComplete}
                   className="rounded-xl px-8 py-3 text-sm font-bold text-white transition"
                   style={{ background: "#6366F1" }}
@@ -461,21 +544,21 @@ export default function MondayReveal({
                   whileTap={{ scale: 0.97 }}
                 >
                   Voir mon dashboard
-                </motion.button>
+                </m.button>
 
-                <motion.button
+                <m.button
                   onClick={() => setShowShareModal(true)}
                   className="rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white/70 transition hover:bg-white/10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Partager ma carte
-                </motion.button>
-              </motion.div>
+                </m.button>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </m.div>
     </>
   );
 }

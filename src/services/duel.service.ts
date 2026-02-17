@@ -4,10 +4,16 @@ import type { CardTier } from "@/types";
 import type { CreateDuelInput } from "@/schemas";
 
 export async function getDuelsForUser(userId: string, filter: string) {
-  // Build query
+  // ═══ N+1 FIX: 1 requête avec JOINs au lieu de 3 (duels + profiles + stats) ═══
   let query = supabaseAdmin
     .from("duels")
-    .select("*")
+    .select(`
+      *,
+      challenger:profiles!challenger_id (id, username, avatar_url),
+      challenger_stats:user_stats!challenger_id (ovr, tier),
+      opponent:profiles!opponent_id (id, username, avatar_url),
+      opponent_stats:user_stats!opponent_id (ovr, tier)
+    `)
     .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -23,43 +29,23 @@ export async function getDuelsForUser(userId: string, filter: string) {
   const { data: duels, error } = await query;
   if (error) throw error;
 
-  // Enrich with player info
-  const allUserIds = new Set<string>();
-  for (const d of duels || []) {
-    allUserIds.add(d.challenger_id);
-    allUserIds.add(d.opponent_id);
-  }
-
-  const { data: profiles } = await supabaseAdmin
-    .from("profiles")
-    .select("id, username, avatar_url")
-    .in("id", Array.from(allUserIds));
-
-  const { data: stats } = await supabaseAdmin
-    .from("user_stats")
-    .select("user_id, ovr, tier")
-    .in("user_id", Array.from(allUserIds));
-
-  const profileMap: Record<string, any> = {};
-  for (const p of profiles || []) profileMap[p.id] = p;
-
-  const statsMap: Record<string, any> = {};
-  for (const s of stats || []) statsMap[s.user_id] = s;
-
-  const enriched = (duels || []).map((d) => ({
+  const enriched = (duels || []).map((d: any) => ({
     ...d,
     challenger: {
-      username: profileMap[d.challenger_id]?.username || "?",
-      avatar_url: profileMap[d.challenger_id]?.avatar_url || null,
-      ovr: statsMap[d.challenger_id]?.ovr || 0,
-      tier: (statsMap[d.challenger_id]?.tier || "bronze") as CardTier,
+      username: d.challenger?.username || "?",
+      avatar_url: d.challenger?.avatar_url || null,
+      ovr: d.challenger_stats?.ovr || 0,
+      tier: (d.challenger_stats?.tier || "bronze") as CardTier,
     },
     opponent: {
-      username: profileMap[d.opponent_id]?.username || "?",
-      avatar_url: profileMap[d.opponent_id]?.avatar_url || null,
-      ovr: statsMap[d.opponent_id]?.ovr || 0,
-      tier: (statsMap[d.opponent_id]?.tier || "bronze") as CardTier,
+      username: d.opponent?.username || "?",
+      avatar_url: d.opponent?.avatar_url || null,
+      ovr: d.opponent_stats?.ovr || 0,
+      tier: (d.opponent_stats?.tier || "bronze") as CardTier,
     },
+    // Remove the embedded objects from the spread
+    challenger_stats: undefined,
+    opponent_stats: undefined,
     is_mine: d.challenger_id === userId,
   }));
 

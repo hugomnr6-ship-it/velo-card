@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import ErrorState from "@/components/ErrorState";
 import { useToast } from "@/contexts/ToastContext";
@@ -210,7 +210,7 @@ export default function DuelsPage() {
 
         {/* Intro explanation (show when no duels yet) */}
         {duels.length === 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass rounded-2xl p-4 mb-4 border-[#6366F1]/15"
@@ -232,12 +232,12 @@ export default function DuelsPage() {
                 <p className="mt-1 text-[9px] text-white/40">Gagne des points</p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Ego stats bar */}
         {stats && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass rounded-2xl p-4 mb-4"
@@ -262,7 +262,7 @@ export default function DuelsPage() {
                 <span className="text-[8px] font-bold tracking-wider text-white/30">EGO PTS</span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Tabs */}
@@ -280,7 +280,7 @@ export default function DuelsPage() {
               }`}
             >
               {activeTab === tab.key && (
-                <motion.div
+                <m.div
                   layoutId="duel-tab"
                   className="absolute inset-0 rounded-lg bg-[#6366F1]/15 border border-[#6366F1]/25"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -300,7 +300,7 @@ export default function DuelsPage() {
 
         {/* Duel list */}
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -337,21 +337,21 @@ export default function DuelsPage() {
                 onViewProfile={(id) => router.push(`/profile/${id}`)}
               />
             ))}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
 
       {/* ═══ Create Duel Overlay ═══ */}
       <AnimatePresence>
         {showCreate && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center"
             onClick={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}
           >
-            <motion.div
+            <m.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
@@ -475,8 +475,8 @@ export default function DuelsPage() {
                   </button>
                 </>
               )}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </AnimatedPage>
@@ -512,7 +512,7 @@ function DuelCard({
   const theirValue = duel.challenger_id === userId ? duel.opponent_value : duel.challenger_value;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
@@ -621,6 +621,6 @@ function DuelCard({
           <span className="text-[10px] font-bold text-white/25 animate-pulse">En attente...</span>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }

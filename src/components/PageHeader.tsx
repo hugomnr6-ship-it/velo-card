@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { ReactNode } from "react";
 
 interface PageHeaderProps {
@@ -11,7 +11,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({ icon, title, subtitle }: PageHeaderProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
@@ -31,6 +31,6 @@ export default function PageHeader({ icon, title, subtitle }: PageHeaderProps) {
         </div>
       </div>
       <div className="mt-3 h-px w-full bg-gradient-to-r from-[#6366F1]/20 via-[#6366F1]/10 to-transparent" />
-    </motion.div>
+    </m.div>
   );
 }

@@ -1,7 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createRaceSchema, racesQuerySchema } from "@/schemas";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
@@ -63,12 +62,13 @@ export async function GET(request: Request) {
     participant_count: countMap[r.id] || 0,
   }));
 
-  return Response.json(result);
+  return Response.json(result, {
+    headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+  });
 }
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;

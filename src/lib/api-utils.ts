@@ -13,6 +13,10 @@ export interface AuthenticatedUser {
 /**
  * Vérifie l'authentification et récupère le profil utilisateur.
  * Retourne l'utilisateur authentifié ou une Response d'erreur.
+ *
+ * ═══ OPTIMISÉ: utilise le profileId déjà stocké dans la session JWT ═══
+ * Plus besoin de SELECT profiles à chaque requête API.
+ * Économise ~100K requêtes/jour sur la table profiles.
  */
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | Response> {
   const session = await getServerSession(authOptions);
@@ -20,19 +24,32 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | Respon
     return Response.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("strava_id", session.user.stravaId)
-    .single();
+  // Le profileId est stocké dans le JWT depuis le login (voir auth.ts callbacks.jwt)
+  // Plus besoin de faire un SELECT profiles à chaque requête
+  const profileId = session.user.id;
+  if (!profileId) {
+    // Fallback: si l'ancienne session n'a pas le profileId (utilisateurs déjà connectés)
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("strava_id", session.user.stravaId)
+      .single();
 
-  if (!profile) {
-    return Response.json({ error: "Profil introuvable" }, { status: 404 });
+    if (!profile) {
+      return Response.json({ error: "Profil introuvable" }, { status: 404 });
+    }
+
+    return {
+      session,
+      profileId: profile.id,
+      stravaId: session.user.stravaId,
+      provider: session.user.provider,
+    };
   }
 
   return {
     session,
-    profileId: profile.id,
+    profileId,
     stravaId: session.user.stravaId,
     provider: session.user.provider,
   };

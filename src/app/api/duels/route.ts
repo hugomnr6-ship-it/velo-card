@@ -1,7 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { getDuelsForUser, createDuel } from "@/services/duel.service";
 import { createDuelSchema } from "@/schemas";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const auth = await getAuthenticatedUser();
@@ -18,8 +17,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const rateLimited = await checkRateLimit(getClientIp(request), "sensitive");
-  if (rateLimited) return rateLimited;
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
 
   const auth = await getAuthenticatedUser();
   if (isErrorResponse(auth)) return auth;

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -5,6 +6,38 @@ import VeloCard3DWrapper from "@/components/VeloCard3DWrapper";
 import ShareButtonWrapper from "./ShareButtonWrapper";
 import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ userId: string }>;
+}): Promise<Metadata> {
+  const { userId } = await params;
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("username")
+    .eq("id", userId)
+    .single();
+
+  const username = profile?.username ?? "Cycliste";
+
+  return {
+    title: `VeloCard de ${username}`,
+    description: `Decouvre la VeloCard de ${username} — stats, tier et classement`,
+    openGraph: {
+      title: `VeloCard de ${username}`,
+      description: `Decouvre la VeloCard de ${username}`,
+      type: "website",
+      images: [`/api/og/card/${userId}`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `VeloCard de ${username}`,
+      description: `Decouvre la VeloCard de ${username}`,
+      images: [`/api/og/card/${userId}`],
+    },
+  };
+}
 
 // Public card page — /card/[userId]
 export default async function CardPage({

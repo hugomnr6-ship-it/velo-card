@@ -19,16 +19,17 @@ function getWeekBounds(): { monday: string; sunday: string } {
   };
 }
 
-export async function getWeeklyLeaderboard(region: string, sort: string) {
+export async function getWeeklyLeaderboard(region: string, sort: string, limit: number = 100) {
   const { monday, sunday } = getWeekBounds();
 
-  // Get users — if "france" get all profiles, otherwise filter by region
+  // Get users — scope: "global" = all, "france" = all french, else filter by region
+  const isGlobal = region.toLowerCase() === "global";
   const isNational = region.toLowerCase() === "france";
   let profileQuery = supabaseAdmin
     .from("profiles")
     .select("id, username, avatar_url");
 
-  if (!isNational) {
+  if (!isGlobal && !isNational) {
     profileQuery = profileQuery.eq("region", region);
   }
 
@@ -102,5 +103,7 @@ export async function getWeeklyLeaderboard(region: string, sort: string) {
     entries.sort((a: any, b: any) => b.weekly_km - a.weekly_km);
   }
 
-  return entries.map((e: any, i: number) => ({ rank: i + 1, ...e }));
+  // Pagination: cap results to limit
+  const capped = entries.slice(0, limit);
+  return capped.map((e: any, i: number) => ({ rank: i + 1, ...e }));
 }

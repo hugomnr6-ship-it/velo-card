@@ -1,4 +1,7 @@
 import { supabaseAdmin } from "./supabase";
+import { addCoins } from "@/services/coins.service";
+import { addSeasonPoints, SEASON_POINTS } from "@/services/seasons.service";
+import { insertFeedEvent } from "@/lib/feed";
 
 // ——————————————————————————————————————————————
 // Squad Wars — Core logic
@@ -380,6 +383,36 @@ export async function finalizeExpiredWars(): Promise<void> {
         status: "finished",
       })
       .eq("id", war.id);
+
+    // Distribute war rewards
+    const winnerClubId = scoreA > scoreB ? war.club_a_id : (scoreB > scoreA ? war.club_b_id : null);
+
+    if (winnerClubId) {
+      const { data: winnerMembers } = await supabaseAdmin
+        .from("club_members")
+        .select("user_id")
+        .eq("club_id", winnerClubId);
+
+      for (const member of winnerMembers || []) {
+        await addCoins(member.user_id, 100, "war_win", { warId: war.id });
+        await addSeasonPoints(member.user_id, SEASON_POINTS.war_win, "wars_won", 1);
+        insertFeedEvent(member.user_id, "war_won", {
+          warId: war.id,
+          score: `${Math.max(scoreA, scoreB)}-${Math.min(scoreA, scoreB)}`,
+        });
+      }
+
+      // Losers get 25 coins participation
+      const loserClubId = winnerClubId === war.club_a_id ? war.club_b_id : war.club_a_id;
+      const { data: loserMembers } = await supabaseAdmin
+        .from("club_members")
+        .select("user_id")
+        .eq("club_id", loserClubId);
+
+      for (const member of loserMembers || []) {
+        await addCoins(member.user_id, 25, "war_win", { warId: war.id, participation: true });
+      }
+    }
   }
 }
 

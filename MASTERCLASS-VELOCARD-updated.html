@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloCard — Masterclass MVP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg-primary: #0A0A0F;
+    --bg-secondary: #111118;
+    --bg-card: #16161F;
+    --bg-card-hover: #1C1C28;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(99,102,241,0.3);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --accent: #6366F1;
+    --accent-glow: rgba(99,102,241,0.15);
+    --green: #22C55E;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #EF4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --orange: #F59E0B;
+    --orange-dim: rgba(245,158,11,0.12);
+    --cyan: #06B6D4;
+    --cyan-dim: rgba(6,182,212,0.12);
+    --pink: #EC4899;
+    --pink-dim: rgba(236,72,153,0.12);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ══════ NAVIGATION ══════ */
+  .nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; height: 56px;
+    gap: 1.5rem;
+  }
+  .nav-brand { font-weight: 800; font-size: 1rem; color: var(--accent); letter-spacing: -0.02em; }
+  .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; }
+  .nav-links a {
+    font-size: 0.7rem; font-weight: 500; color: var(--text-muted);
+    text-decoration: none; padding: 0.4rem 0.65rem; border-radius: 6px;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+
+  /* ══════ HERO ══════ */
+  .hero {
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%);
+    position: relative;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom:0; left:0; right:0; height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--bg-primary));
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--accent-glow); border: 1px solid rgba(99,102,241,0.2);
+    padding: 0.35rem 1rem; border-radius: 100px; font-size: 0.75rem;
+    font-weight: 600; color: var(--accent); margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900;
+    letter-spacing: -0.04em; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin: 0 auto; }
+
+  /* ══════ SECTIONS ══════ */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  section { padding: 5rem 0; }
+  .section-label {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800;
+    letter-spacing: -0.03em; margin-bottom: 0.5rem;
+  }
+  .section-desc { font-size: 1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 2.5rem; }
+
+  /* ══════ CARDS ══════ */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.75rem; transition: all 0.3s;
+  }
+  .card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+  .card-grid { display: grid; gap: 1rem; }
+  .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card-grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1rem;
+  }
+  .card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+  /* ══════ STAT BOXES ══════ */
+  .stat-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+  .stat-box {
+    flex: 1; min-width: 140px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.25rem 1.5rem; text-align: center;
+  }
+  .stat-box .value { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
+  .stat-box .label { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; margin-top: 0.25rem; }
+
+  /* ══════ TABLES ══════ */
+  .table-wrap {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead { background: rgba(255,255,255,0.02); }
+  th {
+    text-align: left; padding: 0.85rem 1.25rem; font-weight: 600;
+    color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.08em; border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* ══════ BADGES ══════ */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-orange { background: var(--orange-dim); color: var(--orange); }
+  .badge-cyan { background: var(--cyan-dim); color: var(--cyan); }
+  .badge-pink { background: var(--pink-dim); color: var(--pink); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); }
+
+  /* ══════ TIMELINE ══════ */
+  .timeline { position: relative; padding-left: 2.5rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0.75rem; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), var(--green), var(--pink));
+    border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 2.5rem; }
+  .tl-dot {
+    position: absolute; left: -2.5rem; top: 0.25rem;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--bg-card); border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: var(--accent);
+    z-index: 2;
+  }
+  .tl-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .tl-item h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .tl-item .meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .tl-item p { font-size: 0.85rem; color: var(--text-secondary); }
+
+  /* ══════ QUOTE BLOCKS ══════ */
+  .insight {
+    border-left: 3px solid var(--accent); padding: 1rem 1.5rem;
+    background: var(--accent-glow); border-radius: 0 12px 12px 0;
+    margin: 1.5rem 0; font-size: 0.9rem; color: var(--text-secondary);
+  }
+  .insight strong { color: var(--text-primary); }
+
+  /* ══════ PILL TABS ══════ */
+  .pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .pill {
+    padding: 0.4rem 0.9rem; border-radius: 100px; font-size: 0.75rem;
+    font-weight: 600; border: 1px solid var(--border); color: var(--text-muted);
+    cursor: default; transition: all 0.2s;
+  }
+  .pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ══════ FEATURE LIST ══════ */
+  .feature-list { list-style: none; }
+  .feature-list li {
+    padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem; color: var(--text-secondary);
+    display: flex; align-items: flex-start; gap: 0.75rem;
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list .icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  /* ══════ WIREFRAME PHONES ══════ */
+  .phone-frame {
+    width: 280px; min-height: 500px; margin: 0 auto;
+    border: 2px solid var(--border); border-radius: 28px;
+    background: var(--bg-secondary); padding: 1.5rem 1rem;
+    font-size: 0.72rem; overflow: hidden; position: relative;
+  }
+  .phone-frame .status-bar {
+    text-align: center; font-size: 0.65rem; color: var(--text-muted);
+    margin-bottom: 0.75rem; font-weight: 500;
+  }
+  .phone-header {
+    font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem;
+    color: var(--text-primary);
+  }
+  .phone-sub { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .phone-search {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.5rem 0.75rem; color: var(--text-muted);
+    font-size: 0.65rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .phone-pills { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .phone-pill {
+    padding: 0.2rem 0.5rem; border-radius: 100px; font-size: 0.55rem;
+    font-weight: 600; border: 1px solid var(--border); color: var(--text-muted);
+  }
+  .phone-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .phone-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem; border-radius: 10px; margin-bottom: 0.35rem;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+  }
+  .phone-row .date {
+    background: var(--accent-glow); border-radius: 8px; padding: 0.25rem 0.35rem;
+    text-align: center; min-width: 32px; flex-shrink: 0;
+  }
+  .phone-row .date .d { font-size: 0.85rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+  .phone-row .date .m { font-size: 0.45rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+  .phone-row .info { flex: 1; }
+  .phone-row .info .name { font-weight: 700; color: var(--text-primary); font-size: 0.7rem; }
+  .phone-row .info .meta { font-size: 0.55rem; color: var(--text-muted); }
+  .phone-tabs {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: space-around;
+    padding: 0.5rem 0; border-top: 1px solid var(--border);
+    background: var(--bg-secondary); font-size: 0.5rem;
+    color: var(--text-muted);
+  }
+  .phone-tabs span { text-align: center; }
+  .phone-tabs .active-tab { color: var(--accent); }
+
+  /* ══════ COMPARISON ══════ */
+  .vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: start; margin: 2rem 0; }
+  .vs-center { text-align: center; font-weight: 900; font-size: 1.5rem; color: var(--text-muted); padding-top: 2rem; }
+
+  /* ══════ HIGHLIGHT BOXES ══════ */
+  .highlight-box {
+    border-radius: 16px; padding: 2rem; margin: 1.5rem 0;
+    border: 1px solid;
+  }
+  .highlight-box.green { background: var(--green-dim); border-color: rgba(34,197,94,0.2); }
+  .highlight-box.orange { background: var(--orange-dim); border-color: rgba(245,158,11,0.2); }
+  .highlight-box.red { background: var(--red-dim); border-color: rgba(239,68,68,0.2); }
+  .highlight-box.accent { background: var(--accent-glow); border-color: rgba(99,102,241,0.2); }
+  .highlight-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .highlight-box p { font-size: 0.85rem; color: var(--text-secondary); }
+
+  /* ══════ CODE ══════ */
+  code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    background: rgba(255,255,255,0.05); padding: 0.15rem 0.4rem;
+    border-radius: 5px; color: var(--cyan);
+  }
+  pre {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    line-height: 1.7; color: var(--text-secondary); margin: 1rem 0;
+  }
+
+  /* ══════ DIVIDER ══════ */
+  .divider {
+    height: 1px; margin: 3rem 0;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+  }
+
+  /* ══════ RESPONSIVE ══════ */
+  @media (max-width: 768px) {
+    .nav { padding: 0 1rem; }
+    .hero { padding: 6rem 1rem 3rem; }
+    .container { padding: 0 1rem; }
+    section { padding: 3rem 0; }
+    .stat-row { gap: 0.5rem; }
+    .stat-box { min-width: 100px; padding: 1rem; }
+    .stat-box .value { font-size: 1.5rem; }
+    .vs { grid-template-columns: 1fr; }
+    .vs-center { padding: 0; }
+    .phone-frame { width: 100%; max-width: 280px; }
+  }
+
+  /* ══════ SCROLL ANIMATIONS ══════ */
+  .fade-in {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-brand">VELOCARD</div>
+  <div class="nav-links">
+    <a href="#vision">Vision</a>
+    <a href="#concurrence">Concurrence</a>
+    <a href="#psychologie">Psychologie</a>
+    <a href="#pilier1">Pilier 1</a>
+    <a href="#pilier2">Pilier 2</a>
+    <a href="#design">Design</a>
+    <a href="#monetisation">Business</a>
+    <a href="#growth">Growth</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-badge">MASTERCLASS MVP — 16 Février 2026 (mise à jour)</div>
+  <h1>VeloCard</h1>
+  <p>Le blueprint complet pour construire l'app cyclisme n°1 en France. Tout est là : la science, le design, le business, le growth. Zéro approximation.</p>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 01 — VISION -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="vision">
+<div class="container">
+  <div class="section-label">01 — La Vision</div>
+  <div class="section-title">Deux piliers, une addiction</div>
+  <div class="section-desc">VeloCard est au croisement de deux forces : l'utilité absolue (tout centralisé au même endroit) et l'addiction par le jeu (les cartes FIFA qui te rendent accro).</div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon" style="background:var(--cyan-dim);">🗺️</div>
+      <h3>Pilier 1 — Centralisation</h3>
+      <p>Un cycliste ouvre VeloCard, tape le nom de sa course, et trouve TOUT : le profil 2D/3D, la météo du jour J, le vent sur le circuit, les passages difficiles, les favoris au départ, les résultats historiques. C'est l'outil indispensable qui remplace 5 apps et 10 sites web.</p>
+      <div style="margin-top:1rem;"><span class="badge badge-green">90% fait ✅</span> <span style="font-size:0.75rem; color:var(--text-muted);">← était 45%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--pink-dim);">🃏</div>
+      <h3>Pilier 2 — Gamification</h3>
+      <p>Chaque cycliste a sa carte FIFA avec 6 stats calculées automatiquement. Système de points basé sur les résultats de courses réelles, duels head-to-head, Guerres des Pelotons entre clubs, badges, classements régionaux et nationaux. Tu veux monter ton OVR, tu veux ta carte Diamant.</p>
+      <div style="margin-top:1rem;"><span class="badge badge-green">97% fait ✅</span> <span style="font-size:0.75rem; color:var(--text-muted);">← était 90%</span></div>
+    </div>
+  </div>
+
+  <div class="insight" style="margin-top:2rem;">
+    <strong>Le "Double Hook" :</strong> Les gens viennent pour l'utilité (calendrier, météo, profil de course) et restent pour l'addiction (cartes, classements, duels). L'un sans l'autre ne fonctionne pas — c'est la combinaison des deux qui crée l'app qu'on ne supprime jamais.
+  </div>
+
+  <div class="stat-row" style="margin-top:2rem;">
+    <div class="stat-box">
+      <div class="value" style="color:var(--accent);">76M</div>
+      <div class="label">Utilisateurs Strava (monde)</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--orange);">4.25Md$</div>
+      <div class="label">Marché apps cyclisme 2033</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">0</div>
+      <div class="label">Apps qui font les 2 piliers</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--pink);">100K</div>
+      <div class="label">Abonnés pour 1M€/mois</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 02 — CONCURRENCE -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="concurrence">
+<div class="container">
+  <div class="section-label">02 — Analyse Concurrentielle</div>
+  <div class="section-title">Ils sont gros. Mais ils n'ont pas ta niche.</div>
+  <div class="section-desc">Aucune app ne combine centralisation course + gamification FIFA. Chaque concurrent ne couvre qu'un bout du puzzle. C'est ton angle d'attaque.</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>App</th>
+          <th>Forces</th>
+          <th>Faiblesses vs VeloCard</th>
+          <th>Revenue</th>
+          <th>Pricing</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--orange);">Strava</strong></td>
+          <td>Segments, KOM, social, 76M users, 2.23% engagement/post (15x Facebook)</td>
+          <td>Pas de calendrier courses, pas de gamification carte, paywall frustrant, pas de résultats</td>
+          <td>~500M$/an</td>
+          <td>11.99€/mois</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--cyan);">Zwift</strong></td>
+          <td>Indoor cycling leader, gaming elements, avatars, routes virtuelles</td>
+          <td>Indoor only, 19.99€/mois cher, pas de lien avec courses réelles</td>
+          <td>~150M$/an</td>
+          <td>19.99€/mois</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--green);">Komoot</strong></td>
+          <td>Planification routes, navigation, communauté, surfaces de route</td>
+          <td>Pas de gamification, pas de calendrier courses, pas social compétitif</td>
+          <td>~30M$/an</td>
+          <td>4.99€/mois</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text-muted);">ProCyclingStats</strong></td>
+          <td>Bible des stats pro, résultats historiques, profils d'équipe</td>
+          <td>Pro uniquement, pas d'amateur, UX antique, pas d'app mobile</td>
+          <td>Pub</td>
+          <td>Gratuit</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text-muted);">DirectVélo</strong></td>
+          <td>N°1 résultats amateurs France, couverture nationale</td>
+          <td>Design daté, pas de gamification, pas de carte, pas de profil parcours</td>
+          <td>Pub</td>
+          <td>Gratuit</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text-muted);">FirstCycling</strong></td>
+          <td>Stats, classements, calendrier pro</td>
+          <td>Pro uniquement, pas de gamification, UX basique</td>
+          <td>Pub</td>
+          <td>Gratuit</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--green);">Intervals.icu</strong></td>
+          <td>Analyse performance gratuite, puissant</td>
+          <td>Complexe, pas social, pas de calendrier courses, pas fun</td>
+          <td>Donations</td>
+          <td>Gratuit</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box accent">
+    <h4>L'Océan Bleu de VeloCard</h4>
+    <p><strong>Strava</strong> fait le tracking + social. <strong>DirectVélo</strong> fait les résultats amateurs. <strong>Zwift</strong> fait la gamification indoor. <strong>ProCyclingStats</strong> fait les stats pro. Personne ne fait "calendrier course amateur + profil parcours + météo + gamification FIFA + classement par résultats" dans un seul endroit. C'est un espace totalement vierge. Tu n'as pas besoin de battre Strava — tu dois être meilleur qu'eux sur TA niche (le cycliste amateur compétiteur français).</p>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 03 — PSYCHOLOGIE -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="psychologie">
+<div class="container">
+  <div class="section-label">03 — Science de l'Addiction</div>
+  <div class="section-title">La psychologie qui rend accro</div>
+  <div class="section-desc">Chaque feature de VeloCard doit s'appuyer sur des principes comportementaux prouvés. Voici les 10 mécanismes les plus puissants et comment les appliquer.</div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon" style="background:var(--pink-dim);">🪝</div>
+      <h3>1. Le Hook Model (Nir Eyal)</h3>
+      <p><strong>Trigger</strong> → Notification "Ta carte a évolué !" ou "Course samedi : vent 25km/h"<br>
+      <strong>Action</strong> → Ouvrir l'app, check ses stats<br>
+      <strong>Récompense variable</strong> → Nouvelle note, badge surprise, rank changé<br>
+      <strong>Investissement</strong> → Personnaliser son profil, défier un pote, s'inscrire à une course</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;">Les apps avec un hook cycle complétent en moyenne 5x plus de sessions par user/semaine.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--orange-dim);">🧠</div>
+      <h3>2. Aversion à la perte (Kahneman)</h3>
+      <p>Les gens détestent perdre 2x plus qu'ils n'aiment gagner. Si tu ne roules pas pendant 2 semaines, tes stats <strong>baissent</strong>. Ton tier peut descendre de Platine à Argent. Ton streak se remet à zéro. La peur de perdre ce qu'on a est le moteur d'engagement n°1.</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> Monday Update = stats qui baissent si inactif (-1 à -3 pts/stat/semaine d'inactivité). Streak counter visible sur le profil.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--cyan-dim);">🎰</div>
+      <h3>3. Récompenses Variables (Skinner)</h3>
+      <p>Le "variable ratio reinforcement schedule" est le pattern le plus addictif en psychologie. C'est ce qui rend les machines à sous et FIFA FUT si accro. Le cerveau libère plus de dopamine quand la récompense est <em>imprévisible</em> que quand elle est garantie.</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> Monday Update = tu ne sais pas comment ta carte va évoluer avant lundi 6h. Pack opening de la nouvelle carte chaque semaine. Badges qui se débloquent à des seuils non-révélés.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--green-dim);">🏆</div>
+      <h3>4. Comparaison Sociale (Festinger)</h3>
+      <p>Les humains évaluent constamment leur valeur en se comparant aux autres. C'est le moteur de Strava (segments), Instagram (likes), et FIFA (FUT Champions). Plus tu rends les comparaisons visibles et fréquentes, plus l'engagement est fort.</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> Favoris au départ triés par OVR. Leaderboard régional. Duels directs. "Tu es 47ème en Occitanie — 12 pts pour monter au 46ème."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--accent-glow);">🔥</div>
+      <h3>5. Streaks & Effet Zeigarnik</h3>
+      <p>Duolingo a prouvé que les streaks multiplient l'engagement par 3.6x. L'effet Zeigarnik dit que le cerveau est obsédé par les tâches non-terminées. Une barre de progression à 73% est plus motivante que le chiffre "73".</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> "Semaines actives : 🔥12" sur la carte. Barre de progression vers le tier suivant : "Platine → Diamant : 72/80 OVR". Objectif hebdo visible.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--red-dim);">💎</div>
+      <h3>6. Effet IKEA + Endowed Progress</h3>
+      <p>Les gens valorisent plus ce qu'ils ont construit eux-mêmes (IKEA Effect). Et s'ils ont l'impression d'avoir déjà commencé un parcours (Endowed Progress), ils sont plus motivés à le finir. Un programme de fidélité qui commence à 2/10 convertit 82% mieux qu'un qui commence à 0/8.</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> Onboarding = ta première carte est déjà calculée. "Tu as déjà 3 badges sur 23." Tier Bronze = pas 0, mais déjà un niveau.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--orange-dim);">🧲</div>
+      <h3>7. Self-Determination Theory (Deci & Ryan)</h3>
+      <p>3 besoins fondamentaux : <strong>Autonomie</strong> (je choisis mes courses, mes défis), <strong>Compétence</strong> (mes stats montent, je progresse visiblement), <strong>Relation</strong> (mon club, mes rivaux, mes potes). Quand les 3 sont satisfaits → motivation intrinsèque maximale.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--pink-dim);">⚡</div>
+      <h3>8. Peak-End Rule + État de Flow</h3>
+      <p>Les gens se souviennent du <strong>pic émotionnel</strong> et de la <strong>fin</strong> d'une expérience. Le "pack opening" du Monday Update = le pic. La "carte révélée" avec animation = la fin mémorable. Csikszentmihalyi : le Flow se produit quand le challenge est légèrement au-dessus du skill. Les duels ajustés par OVR = Flow.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--cyan-dim);">🎯</div>
+      <h3>9. FOMO & Urgence Temporelle</h3>
+      <p>La peur de rater quelque chose (Fear Of Missing Out) est un levier puissant. Les événements à durée limitée (TOTW de la semaine, guerre des pelotons qui se termine dimanche, course samedi) créent une urgence naturelle qui force le retour quotidien.</p>
+      <div class="insight" style="margin-top:0.75rem; font-size:0.8rem;"><strong>Implémentation :</strong> TOTW = ne dure qu'une semaine. Guerre = résultats dimanche soir. Notification "Dernier jour pour défier Lucas avant la fin de semaine !"</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon" style="background:var(--green-dim);">🤝</div>
+      <h3>10. Engagement & Cohérence (Cialdini)</h3>
+      <p>Une fois qu'une personne a pris un petit engagement (créer son profil, rejoindre un club), elle est psychologiquement poussée à rester cohérente avec cet engagement. Le coût de quitter augmente avec chaque investissement (carte améliorée, streak, palmarès, historique).</p>
+    </div>
+  </div>
+
+  <div class="highlight-box green" style="margin-top:2rem;">
+    <h4>La formule VeloCard</h4>
+    <p>Hook Model (revenir chaque jour) + Aversion à la perte (stats qui baissent) + Récompenses variables (Monday Update surprenant) + Comparaison sociale (leaderboards) + Streaks (semaines actives) + FOMO (events temporels) = <strong>une app que tu ne supprimes jamais</strong>.</p>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 04 — PILIER 1 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="pilier1">
+<div class="container">
+  <div class="section-label">04 — Pilier 1 : Centralisation</div>
+  <div class="section-title">L'outil indispensable du cycliste</div>
+  <div class="section-desc">Quand un cycliste a une course samedi, son premier réflexe doit être d'ouvrir VeloCard. C'est la promesse. Voici exactement ce qu'il faut construire.</div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">Ce qui existe vs ce qu'il manque</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Statut</th><th>Priorité</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Upload GPX + analyse parcours</strong></td>
+          <td><span class="badge badge-green">Fait</span></td>
+          <td>—</td>
+          <td>Parser GPX, gradient coloré, carte MapLibre, profil d'élévation</td>
+        </tr>
+        <tr>
+          <td><strong>Montées/descentes détectées</strong></td>
+          <td><span class="badge badge-green">Fait</span></td>
+          <td>—</td>
+          <td>gpx-analysis.ts, seuils 50m gain min, classement difficulté</td>
+        </tr>
+        <tr>
+          <td><strong>RDI (indice de difficulté)</strong></td>
+          <td><span class="badge badge-green">Fait</span></td>
+          <td>—</td>
+          <td>Formule D+/distance × coeff vent, 4 niveaux</td>
+        </tr>
+        <tr>
+          <td><strong>Météo de base</strong></td>
+          <td><span class="badge badge-green">Fait</span></td>
+          <td>—</td>
+          <td>OpenWeatherMap actuel + Open-Meteo vent horaire</td>
+        </tr>
+        <tr>
+          <td><strong>Résultats de course (saisie)</strong></td>
+          <td><span class="badge badge-green">Fait</span></td>
+          <td>—</td>
+          <td>Formulaire + OCR Gemini pour lire photos classement</td>
+        </tr>
+        <tr>
+          <td><strong>Calendrier centralisé des courses</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>Page /races avec recherche, filtres fédé/région/catégorie/genre, groupement par semaine, 30 courses Occitanie seedées. Manque : données réelles (GPX communautaire + scraping auto FFC)</td>
+        </tr>
+        <tr>
+          <td><strong>Fiche course complète</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>CourseMap + ElevationProfile + WindOverlay + Météo Forecast + Passages difficiles + Favoris OVR + Upload GPX communautaire</td>
+        </tr>
+        <tr>
+          <td><strong>Météo prévue jour J</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>Open-Meteo forecast pour le jour de la course (J-14), timeline horaire avec température, vent, précipitations</td>
+        </tr>
+        <tr>
+          <td><strong>Flèches de vent directionnelles</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>WindOverlay avec flèches rotées sur MapLibre + barre colorée (rouge=face, vert=dos) + stats headwind % + 10 points échantillonnés le long du parcours</td>
+        </tr>
+        <tr>
+          <td><strong>Favoris au départ</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>Inscrits triés par OVR descendant (sortedParticipants), lien vers carte/profil</td>
+        </tr>
+        <tr>
+          <td><strong>Upload GPX communautaire</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>GpxDropZone drag-drop sur la fiche course, parse GPX, calcule D+, distance, montées automatiquement</td>
+        </tr>
+        <tr>
+          <td><strong>OCR résultats de course</strong></td>
+          <td><span class="badge badge-green">Fait ✅</span></td>
+          <td>—</td>
+          <td>Gemini Vision API, supporte PDF/JPG/PNG/WebP, extrait position + nom + temps</td>
+        </tr>
+        <tr style="background:var(--orange-dim);">
+          <td><strong>Scraping auto FFC/UFOLEP</strong></td>
+          <td><span class="badge badge-orange">Phase 2</span></td>
+          <td><span class="badge badge-orange">P2</span></td>
+          <td>Import admin endpoint existe (/api/races/import), scraping automatique à faire plus tard pour couvrir la France</td>
+        </tr>
+        <tr style="background:var(--orange-dim);">
+          <td><strong>Données réelles (GPX sur courses seedées)</strong></td>
+          <td><span class="badge badge-orange">Manque data</span></td>
+          <td><span class="badge badge-orange">P2</span></td>
+          <td>30 courses seedées mais sans GPX. Les GPX arrivent quand les utilisateurs les uploadent (approche communautaire)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:2rem 0 1rem;">Sources de données pour le calendrier</h3>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <h3 style="color:var(--green);">MVP : Seed + Upload communautaire ✅</h3>
+      <p>30 courses Occitanie seedées (GP de Canohès, Circuit de Narbonne, Classic du Pic Saint-Loup...). Endpoint admin /api/races/import pour import bulk. Les GPX sont uploadés par les coureurs eux-mêmes via GpxDropZone — approche communautaire qui scale.</p>
+      <div class="badge badge-green" style="margin-top:0.75rem;">Fait — seed + upload communautaire</div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--cyan);">Open-Meteo API</h3>
+      <p>Déjà en place. Gratuit, sans clé API. Forecast 16 jours. Vent horaire par point GPS. C'est la colonne vertébrale de la météo jour J. Rien à changer.</p>
+      <div class="badge badge-green" style="margin-top:0.75rem;">Déjà intégré</div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--orange);">Scraping FFC/UFOLEP</h3>
+      <p>Pas d'API officielle mais les calendriers fédéraux sont scrapables. FFC = ASP.NET, UFOLEP = portails régionaux. À automatiser en Phase 2 pour couvrir la France.</p>
+      <div class="badge badge-orange" style="margin-top:0.75rem;">Phase 2</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:2.5rem 0 1rem;">Maquettes des écrans manquants</h3>
+
+  <div class="card-grid card-grid-2" style="gap:2rem;">
+    <!-- Phone 1 : Calendrier -->
+    <div>
+      <h4 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted);">Écran 1 — Calendrier des Courses <span class="badge badge-green">Fait ✅</span></h4>
+      <div class="phone-frame">
+        <div class="status-bar">9:41</div>
+        <div class="phone-header">Courses</div>
+        <div class="phone-sub">Calendrier FFC · UFOLEP · FSGT</div>
+        <div class="phone-search">🔍 Rechercher une course...</div>
+        <div class="phone-pills">
+          <div class="phone-pill active">Toutes</div>
+          <div class="phone-pill">Ma région</div>
+          <div class="phone-pill">FFC</div>
+          <div class="phone-pill">UFOLEP</div>
+        </div>
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin:0.5rem 0 0.35rem;">Ce week-end</div>
+        <div class="phone-row">
+          <div class="date"><div class="d">22</div><div class="m">Fév</div></div>
+          <div class="info">
+            <div class="name">GP de Canohès</div>
+            <div class="meta">📍 Canohès (66) · FCC · 75km · D+ 980m · RDI 7.2</div>
+          </div>
+        </div>
+        <div class="phone-row">
+          <div class="date"><div class="d">23</div><div class="m">Fév</div></div>
+          <div class="info">
+            <div class="name">Ronde du Roussillon</div>
+            <div class="meta">📍 Perpignan (66) · UFOLEP · 62km · D+ 450m</div>
+          </div>
+        </div>
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin:0.75rem 0 0.35rem;">Semaine prochaine</div>
+        <div class="phone-row">
+          <div class="date"><div class="d">01</div><div class="m">Mar</div></div>
+          <div class="info">
+            <div class="name">Circuit de Narbonne</div>
+            <div class="meta">📍 Narbonne (11) · FFC · 88km · D+ 1450m</div>
+          </div>
+        </div>
+        <div class="phone-row">
+          <div class="date"><div class="d">02</div><div class="m">Mar</div></div>
+          <div class="info">
+            <div class="name">Critérium de Béziers</div>
+            <div class="meta">📍 Béziers (34) · FSGT · 45km</div>
+          </div>
+        </div>
+        <div class="phone-tabs">
+          <span>🏠 Home</span>
+          <span class="active-tab">🏁 Courses</span>
+          <span>⚔️ Duels</span>
+          <span>🏆 Rank</span>
+          <span>👤 Profil</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone 2 : Fiche Course -->
+    <div>
+      <h4 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted);">Écran 2 — Fiche Course Complète <span class="badge badge-green">Fait ✅</span></h4>
+      <div class="phone-frame">
+        <div class="status-bar">9:41</div>
+        <div style="font-size:0.6rem; color:var(--text-muted); margin-bottom:0.5rem;">← Calendrier</div>
+        <div class="phone-header">GP de Canohès</div>
+        <div class="phone-sub">📍 Canohès (66) · Samedi 22 Février</div>
+        <div style="display:flex; gap:0.3rem; margin-bottom:0.75rem;">
+          <span class="badge badge-accent" style="font-size:0.55rem;">FFC</span>
+          <span class="badge badge-orange" style="font-size:0.55rem;">DN3</span>
+          <span class="badge badge-red" style="font-size:0.55rem;">RDI 7.2/10</span>
+        </div>
+        <!-- Stats row -->
+        <div style="display:flex; gap:0.25rem; margin-bottom:0.75rem;">
+          <div style="flex:1; text-align:center; background:rgba(255,255,255,0.03); border-radius:8px; padding:0.3rem;">
+            <div style="font-size:0.9rem; font-weight:800;">75</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">KM</div>
+          </div>
+          <div style="flex:1; text-align:center; background:rgba(255,255,255,0.03); border-radius:8px; padding:0.3rem;">
+            <div style="font-size:0.9rem; font-weight:800;">980</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">D+</div>
+          </div>
+          <div style="flex:1; text-align:center; background:rgba(255,255,255,0.03); border-radius:8px; padding:0.3rem;">
+            <div style="font-size:0.9rem; font-weight:800;">3</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">COLS</div>
+          </div>
+          <div style="flex:1; text-align:center; background:rgba(255,255,255,0.03); border-radius:8px; padding:0.3rem;">
+            <div style="font-size:0.9rem; font-weight:800;">487</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">ALT MAX</div>
+          </div>
+        </div>
+        <!-- Map placeholder -->
+        <div style="height:60px; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius:10px; margin-bottom:0.5rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-size:0.6rem; color:var(--text-muted);">🗺️ Carte du parcours + profil</span>
+        </div>
+        <!-- Météo -->
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Météo Jour J</div>
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem; padding:0.4rem; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid var(--border); font-size:0.6rem;">
+          <div>☀️ <strong style="color:var(--text-primary);">14°C</strong></div>
+          <div>💨 <strong style="color:var(--text-primary);">22 km/h</strong> NW</div>
+          <div>↗ Face <strong style="color:var(--red);">38%</strong></div>
+          <div>↙ Dos <strong style="color:var(--green);">28%</strong></div>
+        </div>
+        <!-- Passages difficiles -->
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Passages difficiles</div>
+        <div style="padding:0.3rem 0.5rem; background:rgba(239,68,68,0.05); border-left:2px solid var(--red); border-radius:0 6px 6px 0; margin-bottom:0.25rem; font-size:0.6rem;">
+          <strong style="color:var(--text-primary);">🏔 Col de Força Réal</strong> — km 32<br>
+          <span style="color:var(--text-muted);">4.2km à 6.8% · Max 11% · Face au vent</span>
+        </div>
+        <div style="padding:0.3rem 0.5rem; background:rgba(34,197,94,0.05); border-left:2px solid var(--green); border-radius:0 6px 6px 0; margin-bottom:0.75rem; font-size:0.6rem;">
+          <strong style="color:var(--text-primary);">🏔 Côte de Castelnou</strong> — km 48<br>
+          <span style="color:var(--text-muted);">1.8km à 8.1% · Max 14% · Vent de dos</span>
+        </div>
+        <!-- Favoris -->
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Favoris inscrits (8)</div>
+        <div style="display:flex; gap:0.3rem; font-size:0.55rem; margin-bottom:0.5rem;">
+          <div style="flex:1; padding:0.25rem; background:rgba(255,255,255,0.02); border-radius:6px; text-align:center; border:1px solid var(--border);">
+            <div style="font-weight:700; color:var(--text-primary);">Lucas M.</div>
+            <div style="color:var(--accent);">OVR 78 · 💎</div>
+          </div>
+          <div style="flex:1; padding:0.25rem; background:rgba(255,255,255,0.02); border-radius:6px; text-align:center; border:1px solid var(--border);">
+            <div style="font-weight:700; color:var(--text-primary);">Marie D.</div>
+            <div style="color:var(--accent);">OVR 72 · Pt</div>
+          </div>
+          <div style="flex:1; padding:0.25rem; background:rgba(255,255,255,0.02); border-radius:6px; text-align:center; border:1px solid var(--border);">
+            <div style="font-weight:700; color:var(--text-primary);">Hugo R.</div>
+            <div style="color:var(--accent);">OVR 68 · Pt</div>
+          </div>
+        </div>
+        <div style="background:var(--accent); border-radius:10px; padding:0.4rem; text-align:center; font-size:0.7rem; font-weight:700; color:#fff;">Je participe</div>
+        <div class="phone-tabs">
+          <span>🏠</span><span class="active-tab">🏁</span><span>⚔️</span><span>🏆</span><span>👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 05 — PILIER 2 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="pilier2">
+<div class="container">
+  <div class="section-label">05 — Pilier 2 : Gamification</div>
+  <div class="section-title">Le moteur d'addiction</div>
+  <div class="section-desc">Le Pilier 2 est à 97%. Le pont résultats → carte est connecté, les badges course sont actifs, le classement Points Course et le Palmarès sont en place.</div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Ce qui est fait (et c'est excellent)</h3>
+
+  <div class="card-grid card-grid-4" style="margin-bottom:2rem;">
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">🃏</div>
+      <div style="font-size:0.75rem; font-weight:700;">Cartes FIFA</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">5 tiers + 3 spéciales</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">95%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">⚔️</div>
+      <div style="font-size:0.75rem; font-weight:700;">Duels H2H</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">Ego points, historique</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">85%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">⚔️</div>
+      <div style="font-size:0.75rem; font-weight:700;">Squad Wars</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">3 tours, matchmaking</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">90%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">🏅</div>
+      <div style="font-size:0.75rem; font-weight:700;">33 Badges</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">9 PlayStyle + 16 Achievement + 8 Course</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">98%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">🏆</div>
+      <div style="font-size:0.75rem; font-weight:700;">Leaderboard</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">Hebdo + Points Course + 13 régions</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">95%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">📱</div>
+      <div style="font-size:0.75rem; font-weight:700;">Partage Social</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">Story, PNG, QR, Link</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">90%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">👻</div>
+      <div style="font-size:0.75rem; font-weight:700;">Ghost Cards</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">Boucle virale</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">85%</div>
+    </div>
+    <div class="card" style="text-align:center; padding:1.25rem;">
+      <div style="font-size:1.5rem; margin-bottom:0.5rem;">📅</div>
+      <div style="font-size:0.75rem; font-weight:700;">Monday Update</div>
+      <div style="font-size:0.65rem; color:var(--text-muted);">Cron hebdo, deltas</div>
+      <div class="badge badge-green" style="margin-top:0.5rem;">80%</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--green);">Ce qui était manquant → maintenant implémenté ✅</h3>
+
+  <div class="card-grid card-grid-2" style="margin-bottom:2rem;">
+    <div class="card" style="border-color:rgba(34,197,94,0.2);">
+      <h3 style="color:var(--green);">✅ Système de Points Course</h3>
+      <p>Implémenté dans <code>race-points.ts</code> + table <code>race_points</code> + API <code>/api/race-points</code>. Classement Points Course dans le leaderboard avec toggle Hebdo/Points Course.</p>
+      <pre style="margin-top:0.75rem;">
+Formule : points = round(
+  (1 - (position - 1) / total) × 100 × coeff_fed
+)
+
+Coefficients :
+  FFC    = 1.2
+  UFOLEP = 1.0
+  FSGT   = 0.8</pre>
+    </div>
+
+    <div class="card" style="border-color:rgba(34,197,94,0.2);">
+      <h3 style="color:var(--green);">✅ Impact des résultats sur la carte</h3>
+      <p>Implémenté dans <code>race-card-link.ts</code>. Appelé automatiquement quand les résultats sont publiés via <code>/api/races/[raceId]/results</code>.</p>
+      <ul class="feature-list" style="margin-top:0.75rem;">
+        <li><span class="icon" style="color:var(--green);">✅</span> Top 10 → +2 RES, +1 OVR (applyRaceBonusToStats)</li>
+        <li><span class="icon" style="color:var(--green);">✅</span> Podium → +3 RES, +2 OVR</li>
+        <li><span class="icon" style="color:var(--green);">✅</span> Victoire → +5 RES, +3 OVR + badge "race_first_win"</li>
+        <li><span class="icon" style="color:var(--green);">✅</span> 3 podiums consécutifs → Carte "In-Form" automatique (checkInFormStatus)</li>
+        <li><span class="icon" style="color:var(--green);">✅</span> Tier recalculé automatiquement après boost</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-color:rgba(34,197,94,0.2);">
+      <h3 style="color:var(--green);">✅ Palmarès du Coureur</h3>
+      <p>Onglet "Carrière" sur le profil. Affiche : victoires, podiums, courses disputées, total points, résultats récents (10 derniers) avec nom de course, date, position et points gagnés. Données servies par <code>/api/users/[userId]</code>.</p>
+    </div>
+
+    <div class="card" style="border-color:rgba(34,197,94,0.2);">
+      <h3 style="color:var(--green);">✅ 8 Badges liés aux courses</h3>
+      <p>Définis dans <code>badges.ts</code>, évalués automatiquement par <code>evaluateRaceBadges()</code> et affichés dans BadgeGrid (catégorie "Course"). Badges : Première Victoire, Podium Machine (3), 10 Courses, Serial Winner (3 victoires), Iron Man (5/mois), Roi des Cimes (victoire RDI≥7), Centurion (course 100km+), Grimpeur Confirmé (3 top 10 montagne).</p>
+    </div>
+  </div>
+
+  <!-- Phone maquettes Pilier 2 -->
+  <div class="card-grid card-grid-2" style="gap:2rem;">
+    <div>
+      <h4 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted);">Écran 3 — Classement Points Course <span class="badge badge-green">Fait ✅</span></h4>
+      <div class="phone-frame">
+        <div class="status-bar">9:41</div>
+        <div class="phone-header">Classement</div>
+        <div class="phone-sub">Points basés sur les résultats de course</div>
+        <div class="phone-pills">
+          <div class="phone-pill active">Pts Course</div>
+          <div class="phone-pill">OVR Carte</div>
+          <div class="phone-pill">Hebdo</div>
+        </div>
+        <div class="phone-pills">
+          <div class="phone-pill active">Occitanie</div>
+          <div class="phone-pill">National</div>
+          <div class="phone-pill">Mon club</div>
+        </div>
+        <!-- Podium -->
+        <div style="display:flex; align-items:flex-end; justify-content:center; gap:0.5rem; margin:0.75rem 0; height:80px;">
+          <div style="text-align:center; width:60px;">
+            <div style="font-size:0.55rem; font-weight:700; color:var(--text-primary);">Marie D.</div>
+            <div style="background:linear-gradient(to top, #C0C0C0, #E8E8E8); height:40px; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; font-weight:800; color:#333; font-size:0.8rem;">2</div>
+            <div style="font-size:0.5rem; color:var(--text-muted);">2840 pts</div>
+          </div>
+          <div style="text-align:center; width:60px;">
+            <div style="font-size:0.55rem; font-weight:700; color:var(--text-primary);">Lucas M.</div>
+            <div style="background:linear-gradient(to top, #FFD700, #FFF3A0); height:55px; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; font-weight:800; color:#333; font-size:0.8rem;">1</div>
+            <div style="font-size:0.5rem; color:var(--text-muted);">3120 pts</div>
+          </div>
+          <div style="text-align:center; width:60px;">
+            <div style="font-size:0.55rem; font-weight:700; color:var(--text-primary);">Hugo R.</div>
+            <div style="background:linear-gradient(to top, #CD7F32, #E8A862); height:30px; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; font-weight:800; color:#333; font-size:0.8rem;">3</div>
+            <div style="font-size:0.5rem; color:var(--text-muted);">2650 pts</div>
+          </div>
+        </div>
+        <!-- Classement list -->
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:0.5rem 0 0.35rem;">Classement</div>
+        <div class="phone-row">
+          <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); width:20px;">4</div>
+          <div class="info">
+            <div class="name">Thomas B.</div>
+            <div class="meta">2 410 pts · Platine</div>
+          </div>
+        </div>
+        <div class="phone-row">
+          <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); width:20px;">5</div>
+          <div class="info">
+            <div class="name">Léa C.</div>
+            <div class="meta">2 280 pts · Platine</div>
+          </div>
+        </div>
+        <div class="phone-row" style="border:1px solid var(--accent); background:var(--accent-glow);">
+          <div style="font-size:0.7rem; font-weight:700; color:var(--accent); width:20px;">12</div>
+          <div class="info">
+            <div class="name" style="color:var(--accent);">Toi</div>
+            <div class="meta">1 890 pts · Platine</div>
+          </div>
+        </div>
+        <div class="phone-tabs">
+          <span>🏠</span><span>🏁</span><span>⚔️</span><span class="active-tab">🏆</span><span>👤</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h4 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted);">Écran 4 — Palmarès du Coureur <span class="badge badge-green">Fait ✅</span></h4>
+      <div class="phone-frame">
+        <div class="status-bar">9:41</div>
+        <!-- Mini card -->
+        <div style="text-align:center; margin-bottom:0.5rem;">
+          <div style="font-size:2rem; font-weight:900; color:var(--accent);">72</div>
+          <div style="font-size:0.55rem; color:var(--text-muted); font-weight:600;">PLATINE</div>
+          <div style="font-size:1rem; font-weight:800; margin:0.25rem 0;">Hugo R.</div>
+        </div>
+        <!-- Stats mini -->
+        <div style="display:flex; justify-content:center; gap:0.5rem; font-size:0.55rem; margin-bottom:0.75rem;">
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">68</div><div style="color:var(--text-muted);">VIT</div></div>
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">75</div><div style="color:var(--text-muted);">MON</div></div>
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">71</div><div style="color:var(--text-muted);">TEC</div></div>
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">65</div><div style="color:var(--text-muted);">SPR</div></div>
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">78</div><div style="color:var(--text-muted);">END</div></div>
+          <div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary);">70</div><div style="color:var(--text-muted);">PUI</div></div>
+        </div>
+        <!-- Palmarès chiffres -->
+        <div style="display:flex; gap:0.25rem; margin-bottom:0.75rem;">
+          <div style="flex:1; text-align:center; background:rgba(255,215,0,0.08); border-radius:8px; padding:0.35rem;">
+            <div style="font-size:1.1rem; font-weight:800; color:#FFD700;">3</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">Victoires</div>
+          </div>
+          <div style="flex:1; text-align:center; background:rgba(192,192,192,0.08); border-radius:8px; padding:0.35rem;">
+            <div style="font-size:1.1rem; font-weight:800; color:#C0C0C0;">8</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">Podiums</div>
+          </div>
+          <div style="flex:1; text-align:center; background:rgba(99,102,241,0.08); border-radius:8px; padding:0.35rem;">
+            <div style="font-size:1.1rem; font-weight:800; color:var(--accent);">24</div>
+            <div style="font-size:0.45rem; color:var(--text-muted);">Courses</div>
+          </div>
+        </div>
+        <!-- Résultats récents -->
+        <div class="phone-pills">
+          <div class="phone-pill active">Saison 2026</div>
+          <div class="phone-pill">2025</div>
+          <div class="phone-pill">Tout</div>
+        </div>
+        <div style="font-size:0.55rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:0.35rem 0;">Derniers résultats</div>
+        <div class="phone-row">
+          <div style="font-size:0.9rem; font-weight:900; color:#FFD700; width:20px;">1</div>
+          <div class="info">
+            <div class="name">GP de Canohès</div>
+            <div class="meta">22 Fév · 80 participants · <span style="color:var(--green);">+100 pts</span></div>
+          </div>
+        </div>
+        <div class="phone-row">
+          <div style="font-size:0.9rem; font-weight:900; color:var(--text-primary); width:20px;">5</div>
+          <div class="info">
+            <div class="name">Ronde du Roussillon</div>
+            <div class="meta">16 Fév · 65 participants · <span style="color:var(--green);">+72 pts</span></div>
+          </div>
+        </div>
+        <div class="phone-row">
+          <div style="font-size:0.9rem; font-weight:900; color:#CD7F32; width:20px;">3</div>
+          <div class="info">
+            <div class="name">Circuit de Narbonne</div>
+            <div class="meta">9 Fév · 42 participants · <span style="color:var(--green);">+56 pts</span></div>
+          </div>
+        </div>
+        <div class="phone-tabs">
+          <span>🏠</span><span>🏁</span><span>⚔️</span><span>🏆</span><span class="active-tab">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight" style="margin-top:2rem;">
+    <strong>Leçon de FIFA Ultimate Team :</strong> EA Sports génère 1.6 milliards $/an avec FUT. La clé ? Les cartes évoluent (IF, TOTW), ce qui crée un sentiment d'investissement émotionnel. Quand ta carte VeloCard passe de 72 à 75 OVR après un top 10 en course, c'est le même rush de dopamine qu'ouvrir un pack FIFA — sauf que c'est basé sur tes vraies performances.
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 06 — DESIGN SYSTEM -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="design">
+<div class="container">
+  <div class="section-label">06 — Design System</div>
+  <div class="section-title">Un design qui fait "pro"</div>
+  <div class="section-desc">Les apps à milliards ont des points communs : dark mode, micro-animations, feedback haptique, et une cohérence visuelle impeccable. Voici le design system VeloCard.</div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">Palette de couleurs</h3>
+
+  <div class="card-grid card-grid-4" style="margin-bottom:2rem;">
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#0A0A0F; margin:0 auto 0.5rem; border:1px solid var(--border);"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Background</div>
+      <code style="font-size:0.65rem;">#0A0A0F</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#16161F; margin:0 auto 0.5rem; border:1px solid var(--border);"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Card Surface</div>
+      <code style="font-size:0.65rem;">#16161F</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#6366F1; margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Accent (Indigo)</div>
+      <code style="font-size:0.65rem;">#6366F1</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#22C55E; margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Success (Vert)</div>
+      <code style="font-size:0.65rem;">#22C55E</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#EF4444; margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Danger (Rouge)</div>
+      <code style="font-size:0.65rem;">#EF4444</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:#F59E0B; margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Warning (Or)</div>
+      <code style="font-size:0.65rem;">#F59E0B</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #FFD700, #FFA500, #FF6347); margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Tier Légende</div>
+      <code style="font-size:0.65rem;">Gradient doré</code>
+    </div>
+    <div class="card" style="text-align:center; padding:1rem;">
+      <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #06B6D4, #6366F1); margin:0 auto 0.5rem;"></div>
+      <div style="font-size:0.7rem; font-weight:600;">Tier Diamant</div>
+      <code style="font-size:0.65rem;">Gradient cyan</code>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Principes UX tirés des apps à milliards</h3>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <h3>Micro-animations partout</h3>
+      <p>Chaque interaction doit avoir un retour visuel. Durées : entrées 300ms, sorties 200ms, bounces 400ms. Framer Motion <code>spring</code> avec <code>stiffness: 300, damping: 20</code>. Les listes apparaissent item par item avec 50ms de delay entre chaque. Les stats qui changent ont un compteur animé (type odometer).</p>
+    </div>
+    <div class="card">
+      <h3>Haptic Feedback (Mobile)</h3>
+      <p>Vibration légère sur chaque tap (10ms). Vibration moyenne sur action importante (30ms). Vibration forte + animation sur événement majeur (new tier, victoire, badge). Utilise <code>navigator.vibrate()</code>. Strava l'utilise sur les KOM, Nike Run Club sur les milestones.</p>
+    </div>
+    <div class="card">
+      <h3>Skeleton Loading</h3>
+      <p>Jamais de spinner. Toujours des skeletons animés qui reproduisent la forme du contenu à venir. Shimmer effect avec un gradient linéaire qui se déplace en boucle. Déjà en place dans VeloCard — bien.</p>
+    </div>
+    <div class="card">
+      <h3>Celebration System</h3>
+      <p>Confettis pour : nouveau tier, victoire en course, 10ème badge, TOTW. Particules dorées pour : carte Légende. Compteur animé (0→78) pour : révélation de l'OVR. Bounce effect sur les badges quand ils s'affichent. C'est ce qui rend le Monday Update addictif.</p>
+    </div>
+    <div class="card">
+      <h3>Glassmorphism & Profondeur</h3>
+      <p><code>backdrop-filter: blur(20px)</code> sur la nav et les modales. Bordures subtiles <code>rgba(255,255,255,0.06)</code>. Background cards en semi-transparence. Ombres très douces. Donne un look premium sans être lourd. Ton code l'utilise déjà — continue.</p>
+    </div>
+    <div class="card">
+      <h3>Typography System</h3>
+      <p>Titres : Inter 800, letter-spacing -0.03em. Données/chiffres : JetBrains Mono ou la font-family-data du projet. Body : Inter 400-500. Labels : Inter 600, uppercase, tracking 0.1em, 0.65rem. Les chiffres de stats doivent être en tabular numbers pour l'alignement.</p>
+    </div>
+  </div>
+
+  <div class="highlight-box accent" style="margin-top:2rem;">
+    <h4>Règle d'or du Design VeloCard</h4>
+    <p>Chaque écran doit donner l'impression d'une app qui vaut 100M€. Dark mode, animations fluides, données bien présentées, zéro pixel de travers. Le design EST le produit — c'est ce qui fait que les gens partagent leur carte sur Instagram, et c'est ce qui justifie de payer 9.99€/mois.</p>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 07 — MONETISATION -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="monetisation">
+<div class="container">
+  <div class="section-label">07 — Business Model</div>
+  <div class="section-title">Comment faire payer les cyclistes</div>
+  <div class="section-desc">Les meilleurs modèles freemium donnent assez de valeur pour rendre accro, puis bloquent juste ce qu'il faut pour que la version Pro soit irrésistible.</div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">9.99€</div>
+      <div class="label">Prix mensuel recommandé</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--orange);">79.99€</div>
+      <div class="label">Prix annuel (-33%)</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--accent);">8-15%</div>
+      <div class="label">Taux de conversion cible</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--pink);">< 4%</div>
+      <div class="label">Churn mensuel max</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:1.5rem 0 1rem;">Gratuit vs Pro — Feature Gate</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th style="text-align:center;">Gratuit</th><th style="text-align:center;">Pro 9.99€/mois</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Carte FIFA</strong> (Bronze/Argent/Or uniquement)</td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">+ Platine/Diamant/Légende</span></td>
+        </tr>
+        <tr>
+          <td><strong>Calendrier des courses</strong></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui (complet)</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fiche course</strong> (profil, météo basique)</td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">+ Vent détaillé, passages durs, favoris</span></td>
+        </tr>
+        <tr>
+          <td><strong>Monday Update</strong></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui (1x/semaine)</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">+ Stats détaillées + historique</span></td>
+        </tr>
+        <tr>
+          <td><strong>Leaderboard</strong></td>
+          <td style="text-align:center;"><span class="badge badge-green">Top 10 visible</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Classement complet + ta position</span></td>
+        </tr>
+        <tr>
+          <td><strong>Duels</strong></td>
+          <td style="text-align:center;"><span class="badge badge-orange">3 par semaine</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Illimités</span></td>
+        </tr>
+        <tr>
+          <td><strong>Guerres des Pelotons</strong></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+        </tr>
+        <tr>
+          <td><strong>Clubs</strong></td>
+          <td style="text-align:center;"><span class="badge badge-orange">1 club</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Clubs illimités</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cartes Spéciales</strong> (TOTW, In-Form, Légende)</td>
+          <td style="text-align:center;"><span class="badge badge-red">Non</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Oui</span></td>
+        </tr>
+        <tr>
+          <td><strong>Palmarès détaillé</strong></td>
+          <td style="text-align:center;"><span class="badge badge-orange">Résumé</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Historique complet + stats avancées</span></td>
+        </tr>
+        <tr>
+          <td><strong>Historique stats</strong> (graphiques d'évolution)</td>
+          <td style="text-align:center;"><span class="badge badge-orange">4 semaines</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">2 ans</span></td>
+        </tr>
+        <tr>
+          <td><strong>Partage Instagram premium</strong></td>
+          <td style="text-align:center;"><span class="badge badge-orange">Basique</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">Templates premium, sans watermark</span></td>
+        </tr>
+        <tr>
+          <td><strong>Badges exclusifs</strong></td>
+          <td style="text-align:center;"><span class="badge badge-red">Non</span></td>
+          <td style="text-align:center;"><span class="badge badge-green">+10 badges Pro</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Leçon Duolingo :</strong> Duolingo a 8.6% de conversion free→paid avec le système de "hearts" (5 erreurs max en gratuit). L'équivalent VeloCard : limite les duels à 3/semaine et le leaderboard au top 10 en gratuit. Ça crée la frustration qui pousse vers Pro sans rendre l'app inutilisable. <strong>Le calendrier des courses reste GRATUIT</strong> — c'est ce qui attire les gens. La gamification avancée est le paywall.
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:2rem 0 1rem;">Benchmarks du marché</h3>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <h3>Strava</h3>
+      <p>76M users, 2% conversion = 1.5M payants. Revenue ~500M$/an. Paywall agressif depuis 2020 (segments, routes, safety). Pricing : 11.99€/mois.</p>
+    </div>
+    <div class="card">
+      <h3>Duolingo</h3>
+      <p>500M+ installs, 8.6% conversion. Système de "hearts" (5 erreurs). Revenue ~530M$/an. Le gaming drive la monétisation : streaks, XP, ligues, gems.</p>
+    </div>
+    <div class="card">
+      <h3>FIFA FUT</h3>
+      <p>1.6Md$/an d'une seule feature. Packs de cartes randomisés, rareté artificielle, TOTW, cartes spéciales saisonnières. La collectionnabilité paie.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 08 — GROWTH -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="growth">
+<div class="container">
+  <div class="section-label">08 — Growth & Marketing</div>
+  <div class="section-title">De 0 à 1000 beta testers en 90 jours</div>
+  <div class="section-desc">Le plan concret pour lancer VeloCard et atteindre le product-market fit avec les premiers utilisateurs passionnés.</div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">Plan 90 jours</h3>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">1</div>
+      <h3>Jours 1-30 : Le noyau dur (0 → 50 users)</h3>
+      <div class="meta">Objectif : 50 beta testers passionnés qui adorent le produit</div>
+      <div class="card-grid card-grid-2" style="margin-top:0.75rem;">
+        <div class="card" style="padding:1rem;">
+          <p><strong>Clubs locaux Occitanie</strong> : Rencontrer 5-10 présidents de clubs en personne. Leur montrer l'app, créer leur club dessus. Chaque club = 10-20 membres potentiels. Le bouche-à-oreille dans le peloton est ultra-rapide.</p>
+        </div>
+        <div class="card" style="padding:1rem;">
+          <p><strong>Ghost Cards aux courses</strong> : Aller à 3-4 courses locales. Entrer les résultats le soir même. Chaque coureur classé reçoit une carte fantôme avec un lien de claim. "Ta carte VeloCard t'attend : OVR 65, Platine."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">2</div>
+      <h3>Jours 30-60 : La viralité locale (50 → 300 users)</h3>
+      <div class="meta">Objectif : L'app se propage de club en club</div>
+      <div class="card-grid card-grid-2" style="margin-top:0.75rem;">
+        <div class="card" style="padding:1rem;">
+          <p><strong>Guerre des Pelotons inter-clubs</strong> : Lancer les premières guerres entre 2-3 clubs. Créer de la rivalité. Les membres invitent leurs potes pour gagner. Chaque guerre = 10-30 nouveaux users.</p>
+        </div>
+        <div class="card" style="padding:1rem;">
+          <p><strong>Instagram/Stories virales</strong> : Partager les cartes des meilleurs coureurs locaux en story. "Le TOTW de la semaine en Occitanie." Les coureurs repartagent → leurs followers découvrent l'app.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">3</div>
+      <h3>Jours 60-90 : L'expansion régionale (300 → 1000 users)</h3>
+      <div class="meta">Objectif : VeloCard est connu dans toute l'Occitanie cycliste</div>
+      <div class="card-grid card-grid-2" style="margin-top:0.75rem;">
+        <div class="card" style="padding:1rem;">
+          <p><strong>Partenariat organisateurs de courses</strong> : Proposer aux organisateurs d'intégrer VeloCard comme "classement officiel". En échange, l'app promeut leur course. Gagnant-gagnant. Les coureurs doivent avoir VeloCard pour voir leur classement.</p>
+        </div>
+        <div class="card" style="padding:1rem;">
+          <p><strong>Micro-influenceurs cyclisme</strong> : Identifier 10-15 comptes Instagram/YouTube cyclisme amateur (5K-50K followers). Leur offrir un accès Pro. Leurs followers = ta cible exacte.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:2rem 0 1rem;">Boucles virales intégrées au produit</h3>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon" style="background:var(--pink-dim);">👻</div>
+      <h3>Ghost Cards</h3>
+      <p>Chaque résultat de course génère des cartes fantômes pour les non-inscrits. Le lien de claim est partagé dans les groupes WhatsApp de peloton. K-factor estimé : 0.3-0.5 par course.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--orange-dim);">📸</div>
+      <h3>Partage Instagram</h3>
+      <p>La Story Canvas génère des images premium que les gens VEULENT partager. Le design de carte est assez beau pour finir en story. Chaque partage = exposition gratuite. Watermark VeloCard visible.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--cyan-dim);">⚔️</div>
+      <h3>Duels & Défis</h3>
+      <p>"Je te défie sur VeloCard" → l'adversaire doit télécharger l'app. QR code pour défier en personne au départ d'une course. Chaque duel envoyé à un non-inscrit = invitation virale.</p>
+    </div>
+  </div>
+
+  <div class="highlight-box green" style="margin-top:2rem;">
+    <h4>Strava a grandi sans pub. Tu peux aussi.</h4>
+    <p>Strava est passé de 0 à 76M d'users principalement par le produit lui-même (Product-Led Growth). Les segments KOM créaient des conversations de vestiaire, les cartes de chaleur étaient partagées sur les réseaux sociaux. VeloCard a le même potentiel : les cartes FIFA sont intrinsèquement partageables, les Ghost Cards créent un FOMO naturel, et les Guerres des Pelotons transforment chaque membre en recruteur pour son club.</p>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 09 — ROADMAP -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section id="roadmap">
+<div class="container">
+  <div class="section-label">09 — Roadmap d'implémentation</div>
+  <div class="section-title">Les 3 sprints sont terminés ✅</div>
+  <div class="section-desc">Les 3 sprints initiaux sont complétés. Le double hook est opérationnel. Voici l'historique d'implémentation et ce qui reste pour la phase suivante.</div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <h3 style="color:var(--green);">Sprint 1 — Calendrier + Fiche Course ✅</h3>
+      <div class="meta">Terminé · Pilier 1 passé de 45% à 90%</div>
+      <div class="card" style="margin-top:0.75rem; border-color:rgba(34,197,94,0.2);">
+        <ul class="feature-list">
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>1.1 Modèle Race enrichi</strong> : Table races avec gpx_data, federation, category, distance_km, elevation_gain, rdi_score, is_official, department, region, weather_cache, source_url, status.</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>1.2 Page Calendrier</strong> : /races avec recherche, filtres fédé/région/catégorie/genre, sections "Aujourd'hui", "Demain", "Ce week-end", "Semaine prochaine".</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>1.3 Fiche Course Complète</strong> : CourseMap + ElevationProfile + WindOverlay + Météo Forecast J-14 + Passages difficiles + Favoris OVR + Upload GPX communautaire.</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>1.4 Seeder + Import Admin</strong> : 30 courses Occitanie seedées + endpoint /api/races/import pour import bulk. GPX communautaire via GpxDropZone.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <h3 style="color:var(--green);">Sprint 2 — Système de Points Course ✅</h3>
+      <div class="meta">Terminé · Les deux piliers sont connectés</div>
+      <div class="card" style="margin-top:0.75rem; border-color:rgba(34,197,94,0.2);">
+        <ul class="feature-list">
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>2.1 Table race_points</strong> : Formule implémentée dans race-points.ts. Coefficients FFC=1.2, UFOLEP=1.0, FSGT=0.8. Points insérés automatiquement à la publication des résultats.</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>2.2 Classement Points Course</strong> : Toggle Hebdomadaire/Points Course dans le leaderboard avec podium, victoires, podiums, nb courses.</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>2.3 Palmarès sur le profil</strong> : Onglet Carrière avec victoires, podiums, courses, total points, 10 derniers résultats.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <h3 style="color:var(--green);">Sprint 3 — Polish & Liens entre piliers ✅</h3>
+      <div class="meta">Terminé · Le double hook est opérationnel</div>
+      <div class="card" style="margin-top:0.75rem; border-color:rgba(34,197,94,0.2);">
+        <ul class="feature-list">
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>3.1 Impact résultats → carte</strong> : applyRaceBonusToStats() — Victoire +5 RES +3 OVR, Podium +3 RES +2 OVR, Top 10 +2 RES +1 OVR. Tier recalculé. In-Form auto sur 3 podiums.</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>3.2 Flèches de vent sur carte</strong> : WindOverlay avec flèches rotées sur MapLibre + barre colorée + stats headwind %. 10 points échantillonnés.</li>
+          <li><span class="icon" style="color:var(--orange);">⏳</span><strong>3.3 Notifications veille de course</strong> : Service Worker existe. Push notifications à implémenter (Phase 2).</li>
+          <li><span class="icon" style="color:var(--green);">✅</span><strong>3.4 Badges course</strong> : 8 badges implémentés, évalués auto par evaluateRaceBadges(), affichés dans BadgeGrid catégorie "Course".</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin:2rem 0 1rem;">État actuel — 16 Février 2026</h3>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">90%</div>
+      <div class="label">Pilier 1 — Centralisation</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">97%</div>
+      <div class="label">Pilier 2 — Gamification</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">88%</div>
+      <div class="label">Infrastructure</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" style="color:var(--green);">92%</div>
+      <div class="label">MVP Ready ✅</div>
+    </div>
+  </div>
+
+  <div class="highlight-box green">
+    <h4>Le double hook est opérationnel ✅</h4>
+    <p>Les gens viennent pour le <strong>calendrier et les fiches course</strong> (utilité quotidienne), restent pour les <strong>cartes, classements et duels</strong> (addiction), et paient pour les <strong>features premium</strong> (cartes spéciales, duels illimités, historique complet). Les résultats de course impactent directement la carte FIFA — les deux piliers ne font plus qu'un. <strong>Le pont est connecté.</strong></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--orange);">Ce qui reste à faire avant la beta publique</h3>
+
+  <div class="card-grid card-grid-3" style="margin-bottom:2.5rem;">
+    <div class="card" style="border-color:rgba(245,158,11,0.2);">
+      <h3 style="color:var(--orange);">Données réelles</h3>
+      <p>Les 30 courses seedées n'ont pas de GPX. Les GPX arrivent via upload communautaire. Pour la beta, il faudrait 50-100 courses avec GPX tracés ou sourced. Stratégie : aller à 3-5 courses, uploader les GPX soi-même pour lancer la dynamique.</p>
+      <div class="badge badge-orange" style="margin-top:0.5rem;">Priorité haute</div>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,0.2);">
+      <h3 style="color:var(--orange);">Push Notifications</h3>
+      <p>Le Service Worker est en place (cache + offline). Il manque les Web Push Notifications : abonnement, stockage des tokens, envoi via API. Use cases critiques : Monday Update, veille de course, duel reçu.</p>
+      <div class="badge badge-orange" style="margin-top:0.5rem;">Rétention +40%</div>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,0.2);">
+      <h3 style="color:var(--orange);">Monday Update "Pack Opening"</h3>
+      <p>Le cron + deltas existent. Il manque l'animation : compteur 0→78 qui tourne, confettis sur nouveau tier, révélation progressive stat par stat. C'est le pic émotionnel de la semaine — c'est ce qui fait revenir le lundi matin.</p>
+      <div class="badge badge-orange" style="margin-top:0.5rem;">Wow Factor</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Phase suivante (post-MVP, semaines 5-12)</h3>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <h3>IA Journaliste</h3>
+      <p>Feed d'articles générés par IA, ton L'Équipe. "Exploit du dimanche : Hugo décroche la 5ème place au GP de Canohès !" GPT-4o-mini = 10€/mois pour 10K articles.</p>
+      <div class="badge badge-accent" style="margin-top:0.5rem;">Wow Factor</div>
+    </div>
+    <div class="card">
+      <h3>Stripe + Freemium</h3>
+      <p>Intégration paiement. 9.99€/mois ou 79.99€/an. Free trial 7 jours. Feature gate sur duels, cartes spéciales, historique.</p>
+      <div class="badge badge-green" style="margin-top:0.5rem;">Revenue</div>
+    </div>
+    <div class="card">
+      <h3>Push Notifications</h3>
+      <p>PWA déjà en place (Service Worker + manifest + cache). Reste les Push Notifications : "Monday Update", "Défi reçu", "Course demain". Le Service Worker est prêt, il faut ajouter le système de souscription + envoi.</p>
+      <div class="badge badge-orange" style="margin-top:0.5rem;">Rétention</div>
+    </div>
+    <div class="card">
+      <h3>Interview IA Post-Course</h3>
+      <p>Après une course, l'IA pose 3-5 questions personnalisées → génère un article "exclusif" avec citations. Boost ego massif → partage → acquisition organique.</p>
+      <div class="badge badge-pink" style="margin-top:0.5rem;">Viral</div>
+    </div>
+    <div class="card">
+      <h3>Scraping Calendrier National</h3>
+      <p>Automatiser la collecte FFC/UFOLEP/FSGT pour couvrir toute la France. Passer de 50-100 courses manuelles à 5000+ automatiques.</p>
+      <div class="badge badge-cyan" style="margin-top:0.5rem;">Scale</div>
+    </div>
+    <div class="card">
+      <h3>App Store (Capacitor.js)</h3>
+      <p>Wrapper natif iOS/Android. Publication App Store + Google Play. Onboarding guidé 5 écrans. Localisation EN/FR/ES.</p>
+      <div class="badge badge-accent" style="margin-top:0.5rem;">Distribution</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- CONCLUSION -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section style="padding:4rem 0 6rem;">
+<div class="container" style="text-align:center;">
+  <div class="section-label" style="text-align:center;">Conclusion</div>
+  <div class="section-title" style="text-align:center; margin: 0 auto 1rem;">Le MVP est prêt</div>
+  <p style="font-size:1rem; color:var(--text-secondary); max-width:640px; margin:0 auto 2rem;">
+    Le code est solide (44 endpoints API, 54 composants, 9500+ lignes TypeScript), le double hook est connecté, le marché est ouvert. Le calendrier attire, la gamification retient, les résultats de course font bouger les cartes. Il faut maintenant des vrais utilisateurs.
+  </p>
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:1rem;">
+    <div class="stat-box" style="min-width:180px;">
+      <div class="value" style="color:var(--green);">92%</div>
+      <div class="label">MVP Ready</div>
+    </div>
+    <div class="stat-box" style="min-width:180px;">
+      <div class="value" style="color:var(--green);">0€</div>
+      <div class="label">Coût infra (Supabase + Vercel gratuit)</div>
+    </div>
+    <div class="stat-box" style="min-width:180px;">
+      <div class="value" style="color:var(--pink);">1000</div>
+      <div class="label">Users cible en 90 jours</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer style="padding:2rem; text-align:center; border-top:1px solid var(--border); font-size:0.7rem; color:var(--text-muted);">
+  VeloCard Masterclass MVP — Mis à jour le 16 Février 2026 — Confidentiel
+</footer>
+
+<!-- Scroll animations -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.card, .stat-box, .tl-item, .highlight-box, .table-wrap').forEach(el => {
+    el.classList.add('fade-in');
+  });
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+});
+</script>
+
+</body>
+</html>

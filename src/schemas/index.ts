@@ -63,7 +63,31 @@ export const updateRegionSchema = z.object({
 // ——— Search params validation ———
 export const leaderboardQuerySchema = z.object({
   region: z.string().min(1, "Région requise"),
-  sort: z.enum(["weekly_km", "weekly_dplus", "card_score", "ovr", "pac", "mon", "val", "spr", "end", "res"]).default("weekly_km"),
+  sort: z.enum(["weekly_km", "weekly_dplus", "card_score", "ovr", "pac", "mon", "val", "spr", "end", "res", "season_points"]).default("weekly_km"),
+  scope: z.enum(["region", "france", "global"]).optional().default("region"),
+  period: z.enum(["weekly", "monthly", "yearly"]).optional().default("weekly"),
+});
+
+// ——— Gamification schemas ———
+export const openPackSchema = z.object({
+  packId: z.string().min(1),
+});
+
+export const equipSkinSchema = z.object({
+  skinId: z.string().min(1),
+});
+
+export const joinTournamentSchema = z.object({
+  tournamentId: z.string().uuid(),
+});
+
+export const matchmakeSchema = z.object({
+  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res", "weekly_km", "weekly_dplus", "weekly_rides"]),
+  stake: z.number().int().min(5).max(50),
+});
+
+export const showcaseBadgesSchema = z.object({
+  badgeIds: z.array(z.string()).max(3),
 });
 
 export const racesQuerySchema = z.object({
@@ -74,4 +98,28 @@ export const racesQuerySchema = z.object({
   search: z.string().max(200).optional(),
   upcoming: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(500).default(200),
+});
+
+// ——— Fantasy Cycling ———
+export const createFantasyLeagueSchema = z.object({
+  name: z.string().min(1, "Nom requis").max(50, "Nom trop long"),
+  isPublic: z.boolean().default(false),
+  entryFee: z.number().int().min(0).max(200).default(0),
+  maxParticipants: z.number().int().min(4).max(20).default(10),
+  durationWeeks: z.enum(["4", "8"]).transform(Number).default("4"),
+});
+
+export const fantasyDraftSchema = z.object({
+  cyclistId: z.string().uuid("cyclistId invalide"),
+  isCaptain: z.boolean().default(false),
+  isSuperSub: z.boolean().default(false),
+});
+
+export const fantasyTransferSchema = z.object({
+  droppedCyclistId: z.string().uuid("droppedCyclistId invalide"),
+  pickedCyclistId: z.string().uuid("pickedCyclistId invalide"),
+});
+
+export const fantasyJoinSchema = z.object({
+  inviteCode: z.string().min(1).max(10).optional(),
 });

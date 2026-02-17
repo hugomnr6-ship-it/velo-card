@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import dynamic from "next/dynamic";
 import ParticipantRow from "@/components/ParticipantRow";
 import ResultRow from "@/components/ResultRow";
@@ -388,14 +388,14 @@ export default function RaceDetailPage() {
         {/* ════════ ACTION BUTTONS ════════ */}
         <div className="mt-4 flex gap-3">
           {!race.is_participant && !race.is_creator && !isPast && (
-            <motion.button
+            <m.button
               onClick={handleJoin}
               disabled={actionLoading}
               className="flex-1 rounded-xl bg-[#6366F1] py-3 text-sm font-bold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
               whileTap={{ scale: 0.97 }}
             >
               {actionLoading ? "..." : "Je participe"}
-            </motion.button>
+            </m.button>
           )}
           {race.is_participant && !race.is_creator && (
             <button
@@ -524,7 +524,7 @@ export default function RaceDetailPage() {
             </h2>
             <div className="flex flex-col gap-2">
               {climbs.map((climb, i) => (
-                <motion.div
+                <m.div
                   key={i}
                   className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3"
                   initial={{ opacity: 0, y: 10 }}
@@ -572,7 +572,7 @@ export default function RaceDetailPage() {
                       }}
                     />
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </section>

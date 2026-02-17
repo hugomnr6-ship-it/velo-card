@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
+import { useCallback } from "react";
 import {
   HomeIcon,
   FlagIcon,
@@ -24,7 +26,13 @@ const tabs: { href: string; label: string; icon: ReactNode }[] = [
 
 export default function BottomTabBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { status } = useSession();
+
+  // Prefetch routes on hover/focus
+  const handlePrefetch = useCallback((path: string) => {
+    router.prefetch(path);
+  }, [router]);
 
   if (
     status !== "authenticated" ||
@@ -35,7 +43,12 @@ export default function BottomTabBar() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] bg-[rgba(11,17,32,0.85)] backdrop-blur-2xl" style={{ WebkitBackdropFilter: "blur(24px) saturate(180%)", backdropFilter: "blur(24px) saturate(180%)" }}>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] bg-[rgba(11,17,32,0.85)] backdrop-blur-2xl"
+      role="navigation"
+      aria-label="Navigation principale"
+      style={{ WebkitBackdropFilter: "blur(24px) saturate(180%)", backdropFilter: "blur(24px) saturate(180%)" }}
+    >
       <div className="mx-auto flex max-w-lg items-center justify-around pb-[env(safe-area-inset-bottom)]">
         {tabs.map((tab) => {
           const isActive =
@@ -44,14 +57,18 @@ export default function BottomTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex flex-1 flex-col items-center gap-0.5 py-2.5 transition-colors ${
+              aria-label={tab.label}
+              aria-current={isActive ? "page" : undefined}
+              onMouseEnter={() => handlePrefetch(tab.href)}
+              onFocus={() => handlePrefetch(tab.href)}
+              className={`relative flex flex-1 flex-col items-center gap-0.5 py-2.5 min-h-[44px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00F5D4] ${
                 isActive
                   ? "text-[#00F5D4]"
-                  : "text-[#475569] hover:text-[#64748B]"
+                  : "text-[#64748B] hover:text-[#94A3B8]"
               }`}
             >
               {isActive && (
-                <motion.div
+                <m.div
                   layoutId="tab-indicator"
                   className="absolute top-0 h-0.5 w-8 rounded-full bg-[#00F5D4]"
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Radar,
   RadarChart,
@@ -235,7 +235,7 @@ export default function UserProfilePage() {
       {/* ═══ Search overlay ═══ */}
       <AnimatePresence>
         {searchOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -297,7 +297,7 @@ export default function UserProfilePage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -356,7 +356,7 @@ export default function UserProfilePage() {
 
       {/* ═══ Avatar + Name + OVR ═══ */}
       <div className="relative z-10 flex flex-col items-center">
-        <motion.div
+        <m.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", damping: 15 }}
@@ -379,7 +379,7 @@ export default function UserProfilePage() {
               )}
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         <h1 className="mt-4 text-xl font-black tracking-wide text-white font-['Space_Grotesk']">
           {profile.username}
@@ -407,7 +407,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* OVR big number */}
-        <motion.div
+        <m.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", damping: 12, delay: 0.1 }}
@@ -422,7 +422,7 @@ export default function UserProfilePage() {
               {deltas.ovr > 0 ? "+" : ""}{deltas.ovr}
             </span>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Streak + Region */}
         <div className="mt-2 flex items-center gap-3">
@@ -505,7 +505,7 @@ export default function UserProfilePage() {
               }`}
             >
               {activeTab === tab.key && (
-                <motion.div
+                <m.div
                   layoutId="profile-tab"
                   className="absolute inset-0 rounded-lg"
                   style={{ backgroundColor: `${accent}15`, border: `1px solid ${accent}25` }}
@@ -521,7 +521,7 @@ export default function UserProfilePage() {
 
         {/* ═══ Tab content ═══ */}
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -538,7 +538,7 @@ export default function UserProfilePage() {
             {activeTab === "career" && (
               <CareerTab career={career} profile={profile} accent={accent} />
             )}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
 
@@ -760,7 +760,7 @@ function HistoryTab({
         <p className="text-[10px] font-bold tracking-wider text-white/30 mb-3">DÉTAIL PAR SEMAINE</p>
         <div className="flex flex-col gap-2">
           {[...history].reverse().slice(0, 8).map((h, i) => (
-            <motion.div
+            <m.div
               key={h.week_label}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -774,7 +774,7 @@ function HistoryTab({
                 <span className="flex items-center gap-1"><IconMountain size={10} /> {h.weekly_dplus}m</span>
                 <span>×{h.weekly_rides}</span>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
@@ -862,7 +862,7 @@ function CareerTab({
             <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">DERNIERS RESULTATS</p>
             <div className="flex flex-col gap-1.5">
               {career.recentResults.map((r, i) => (
-                <motion.div
+                <m.div
                   key={i}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -882,7 +882,7 @@ function CareerTab({
                       {r.totalParticipants ? ` \u00B7 ${r.totalParticipants} participants` : ""}
                     </p>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>

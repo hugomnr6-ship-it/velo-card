@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
+import { useMotionSafe } from "@/hooks/useReducedMotion";
 import type { ReactNode } from "react";
 
 interface AnimatedPageProps {
@@ -9,14 +10,16 @@ interface AnimatedPageProps {
 }
 
 export default function AnimatedPage({ children, className = "" }: AnimatedPageProps) {
+  const { pageVariants, transition } = useMotionSafe();
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+    <m.div
+      initial={pageVariants.initial}
+      animate={pageVariants.animate}
+      transition={transition}
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { allBadgeDefinitions, type AchievementBadge } from "@/lib/badges";
 
 interface BadgeGridProps {
@@ -76,7 +76,7 @@ export default function BadgeGrid({ userId }: BadgeGridProps) {
               const bg = rarityBg[badge.rarity];
 
               return (
-                <motion.div
+                <m.div
                   key={badge.id}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -111,7 +111,7 @@ export default function BadgeGrid({ userId }: BadgeGridProps) {
                       {badge.description}
                     </p>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>

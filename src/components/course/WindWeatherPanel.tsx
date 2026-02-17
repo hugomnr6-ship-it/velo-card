@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { WeatherData } from "@/types";
 import {
   type WindPoint,
@@ -161,7 +161,7 @@ export default function WindWeatherPanel({
 
         {/* ═══ Active state — wind data ═══ */}
         {showWind && stats && windData && windData.length > 0 && verdict && (
-          <motion.div
+          <m.div
             className="mt-3 space-y-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -290,7 +290,7 @@ export default function WindWeatherPanel({
                 })}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </div>
     </div>

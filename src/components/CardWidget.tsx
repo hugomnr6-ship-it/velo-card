@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import Link from "next/link";
 import type { ComputedStats, CardTier, StatDeltas } from "@/types";
 import { tierConfig } from "./VeloCard";
@@ -48,7 +49,7 @@ function getProgress(ovr: number, tier: CardTier): number {
   return Math.min(100, Math.round(((ovr - t.min) / range) * 100));
 }
 
-export default function CardWidget({
+export default memo(function CardWidget({
   username,
   avatarUrl,
   stats,
@@ -62,14 +63,14 @@ export default function CardWidget({
   const nextTier = nextTierLabel[tier];
   const animatedOvr = useCountUp(stats.ovr, 1200, { enabled: stats.ovr > 0 });
 
-  const statPills: { label: string; value: number; delta: number }[] = [
+  const statPills = useMemo<{ label: string; value: number; delta: number }[]>(() => [
     { label: "VIT", value: stats.pac, delta: deltas?.pac ?? 0 },
     { label: "MON", value: stats.mon, delta: deltas?.mon ?? 0 },
     { label: "TEC", value: stats.val, delta: deltas?.val ?? 0 },
     { label: "SPR", value: stats.spr, delta: deltas?.spr ?? 0 },
     { label: "END", value: stats.end, delta: deltas?.end ?? 0 },
     { label: "PUI", value: stats.res, delta: deltas?.res ?? 0 },
-  ];
+  ], [stats.pac, stats.mon, stats.val, stats.spr, stats.end, stats.res, deltas]);
 
   return (
     <Link
@@ -177,4 +178,4 @@ export default function CardWidget({
       </div>
     </Link>
   );
-}
+});

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /onboarding
+
+Sitemap: https://velocard.app/sitemap.xml

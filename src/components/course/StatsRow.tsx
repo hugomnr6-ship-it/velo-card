@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { RouteSummary, RdiResult } from "@/types";
 import type { ClimbSegment } from "@/lib/gpx-analysis";
 
@@ -28,7 +28,7 @@ interface StatBoxProps {
 
 function StatBox({ icon, value, label, color, delay }: StatBoxProps) {
   return (
-    <motion.div
+    <m.div
       className="flex snap-center flex-col items-center rounded-2xl border border-white/[0.06] bg-[#16161F] px-3 py-3.5 min-w-[100px] transition-all hover:border-[#6366F1]/20"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -44,7 +44,7 @@ function StatBox({ icon, value, label, color, delay }: StatBoxProps) {
       <span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/30">
         {label}
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 
