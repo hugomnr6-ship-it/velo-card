@@ -20,7 +20,13 @@ export async function GET(req: Request) {
     if (unreadOnly) query = query.eq('read', false);
 
     const { data, count, error } = await query;
-    if (error) return handleApiError(error, 'notifications.GET');
+    if (error) {
+      // Table may not exist yet — return empty gracefully
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        return Response.json({ notifications: [], unreadCount: 0 });
+      }
+      return handleApiError(error, 'notifications.GET');
+    }
 
     return Response.json({ notifications: data ?? [], unreadCount: count ?? 0 });
   } catch (error) {

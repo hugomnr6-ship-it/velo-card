@@ -23,7 +23,13 @@ export async function GET(request: Request) {
       `)
       .eq("week_label", weekLabel);
 
-    if (error) throw error;
+    if (error) {
+      // Table may not exist yet — return empty gracefully
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        return Response.json({ week: weekLabel, team: [] });
+      }
+      throw error;
+    }
 
     const formatted = (echappeeEntries || []).map((entry: any) => ({
       week_label: entry.week_label,
