@@ -42,17 +42,23 @@ export async function PATCH(req: Request) {
     const { notificationIds, markAllRead } = await req.json();
 
     if (markAllRead) {
-      await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('notifications')
         .update({ read: true })
         .eq('user_id', auth.profileId)
         .eq('read', false);
+      if (error && error.code !== '42P01') {
+        console.warn('[notifications.PATCH] markAllRead error:', error.message);
+      }
     } else if (notificationIds?.length) {
-      await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('notifications')
         .update({ read: true })
         .in('id', notificationIds)
         .eq('user_id', auth.profileId);
+      if (error && error.code !== '42P01') {
+        console.warn('[notifications.PATCH] markById error:', error.message);
+      }
     }
 
     return Response.json({ success: true });
