@@ -2,7 +2,7 @@
 
 import { m } from "framer-motion";
 import { useCoinsCheckout } from "@/hooks/useSubscription";
-import { COIN_PACKS } from "@/lib/stripe";
+import { COIN_PACKS } from "@/lib/stripe-constants";
 
 export default function CoinShop() {
   const buyCoins = useCoinsCheckout();
