@@ -87,6 +87,48 @@ export default function MondayReveal({
   const [showConfetti, setShowConfetti] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
+  // Phase transitions (hooks must be called unconditionally)
+  useEffect(() => {
+    if (shouldReduce) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    timers.push(setTimeout(() => setPhase(2), 2000));
+    timers.push(setTimeout(() => setPhase(3), 7000));
+    timers.push(setTimeout(() => setPhase(4), 10000));
+    timers.push(setTimeout(() => setPhase(5), 13000));
+    return () => timers.forEach(clearTimeout);
+  }, [shouldReduce]);
+
+  // Trigger confetti on tier up in phase 4
+  useEffect(() => {
+    if (shouldReduce) return;
+    if (phase === 4 && previousTier && previousTier !== tier && isTierUp(previousTier, tier)) {
+      setShowConfetti(true);
+      navigator.vibrate?.([50, 30, 100]);
+      const t = setTimeout(() => setShowConfetti(false), 3500);
+      return () => clearTimeout(t);
+    }
+    if (phase === 3) {
+      navigator.vibrate?.(50);
+    }
+  }, [phase, previousTier, tier, shouldReduce]);
+
+  // Allow dismiss after 3s in phase 5
+  useEffect(() => {
+    if (shouldReduce) return;
+    if (phase !== 5) return;
+    const t = setTimeout(() => {
+      const handleClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest("button")) {
+          onComplete();
+        }
+      };
+      document.addEventListener("click", handleClick, { once: true });
+      return () => document.removeEventListener("click", handleClick);
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [phase, onComplete, shouldReduce]);
+
   // Reduced motion: show results directly without 5-phase animation
   if (shouldReduce) {
     return (
@@ -167,54 +209,6 @@ export default function MondayReveal({
       </>
     );
   }
-
-  // Phase transitions
-  useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
-
-    // Phase 1 → 2 after 2s
-    timers.push(setTimeout(() => setPhase(2), 2000));
-
-    // Phase 2 → 3: 6 stats * 600ms stagger + 800ms animation + buffer = ~5s
-    timers.push(setTimeout(() => setPhase(3), 7000));
-
-    // Phase 3 → 4 after 3s
-    timers.push(setTimeout(() => setPhase(4), 10000));
-
-    // Phase 4 → 5 after 3s
-    timers.push(setTimeout(() => setPhase(5), 13000));
-
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
-  // Trigger confetti on tier up in phase 4
-  useEffect(() => {
-    if (phase === 4 && previousTier && previousTier !== tier && isTierUp(previousTier, tier)) {
-      setShowConfetti(true);
-      if (!shouldReduce) navigator.vibrate?.([50, 30, 100]);
-      const t = setTimeout(() => setShowConfetti(false), 3500);
-      return () => clearTimeout(t);
-    }
-    if (phase === 3 && !shouldReduce) {
-      navigator.vibrate?.(50);
-    }
-  }, [phase, previousTier, tier, shouldReduce]);
-
-  // Allow dismiss after 3s in phase 5
-  useEffect(() => {
-    if (phase !== 5) return;
-    const t = setTimeout(() => {
-      const handleClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest("button")) {
-          onComplete();
-        }
-      };
-      document.addEventListener("click", handleClick, { once: true });
-      return () => document.removeEventListener("click", handleClick);
-    }, 3000);
-    return () => clearTimeout(t);
-  }, [phase, onComplete]);
 
   const tierChanged = previousTier && previousTier !== tier;
   const tierUp = tierChanged && isTierUp(previousTier!, tier);
