@@ -10,6 +10,16 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["http://192.168.1.31:3000"],
 
+  // Ignore ESLint errors during build (lint via `next lint` in CI instead)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // Ignore TypeScript errors during build (type-check via `tsc` in CI instead)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // 1. Optimisation des imports de packages lourds
   experimental: {
     optimizePackageImports: [
