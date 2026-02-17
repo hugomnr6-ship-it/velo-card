@@ -107,17 +107,7 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // 5. Webpack optimizations
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Utilise le bundle ES réduit de framer-motion
-        "framer-motion": "framer-motion/dist/es/index.mjs",
-      };
-    }
-    return config;
-  },
+  // 5. Webpack optimizations — framer-motion est déjà optimisé via optimizePackageImports
 };
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
