@@ -89,7 +89,7 @@ export default memo(function VeloCardInteractive({
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex w-full flex-col items-center">
       {/* Glow ambiant derriere la carte */}
       <div
         className="absolute rounded-[24px] blur-[50px] opacity-25 -z-10"
