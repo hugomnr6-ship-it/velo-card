@@ -1,4 +1,4 @@
-import { onCLS, onFID, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
+import { onCLS, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
 
 function reportMetric(metric: Metric) {
   // Send to PostHog
@@ -19,7 +19,6 @@ function reportMetric(metric: Metric) {
 
 export function initWebVitals() {
   onCLS(reportMetric);
-  onFID(reportMetric);
   onLCP(reportMetric);
   onTTFB(reportMetric);
   onINP(reportMetric);
