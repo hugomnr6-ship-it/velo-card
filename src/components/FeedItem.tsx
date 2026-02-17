@@ -149,8 +149,6 @@ function CommentIcon({ size = 14 }: { size?: number }) {
 
 export default memo(function FeedItem({ event }: { event: FeedEvent }) {
   const config = eventConfig[event.event_type];
-  if (!config) return null;
-
   const username = event.profiles?.username || "Cycliste";
   const avatarUrl = event.profiles?.avatar_url;
   const [liked, setLiked] = useState(event.user_liked ?? false);
@@ -171,6 +169,8 @@ export default memo(function FeedItem({ event }: { event: FeedEvent }) {
       setLikeCount(likeCount);
     },
   });
+
+  if (!config) return null;
 
   return (
     <div className="flex items-start gap-3 px-1 py-2">
