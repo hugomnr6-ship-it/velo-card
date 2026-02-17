@@ -2,8 +2,8 @@ import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { cached } from "@/lib/cache";
 
-// Edge Runtime pour les routes lecture seule sans auth
-export const runtime = "edge";
+// NOTE: Ne PAS utiliser Edge Runtime ici — api-utils importe next-auth qui nécessite Node.js
+export const runtime = "nodejs";
 
 /**
  * GET /api/totw?week=2026-W07

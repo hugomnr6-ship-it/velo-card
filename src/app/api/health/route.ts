@@ -1,7 +1,8 @@
 import { redis } from "@/lib/cache";
 import { supabaseAdmin } from "@/lib/supabase";
 
-export const runtime = "edge";
+// NOTE: Supabase JS client utilise des APIs Node.js, incompatible Edge
+export const runtime = "nodejs";
 
 /**
  * GET /api/health — Health check endpoint
