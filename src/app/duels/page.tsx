@@ -56,8 +56,8 @@ export default function DuelsPage() {
   const [creating, setCreating] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
-  // Fetch duels via React Query hook
-  const { data: duelsData, isLoading: loading, error: duelsError, refetch: refetchDuels } = useDuels("all");
+  // Fetch duels via React Query hook — only when session is ready
+  const { data: duelsData, isLoading: loading, error: duelsError, refetch: refetchDuels } = useDuels("all", status === "authenticated");
   const duels: (DuelWithPlayers & { is_mine: boolean })[] = duelsData?.duels ?? [];
   const userId: string = duelsData?.user_id ?? "";
   const error = duelsError ? "Impossible de charger les duels" : null;
@@ -171,26 +171,7 @@ export default function DuelsPage() {
   });
 
   const pendingCount = duels.filter(d => d.status === "pending" && d.opponent_id === userId).length;
-
-  if (status === "loading" || loading) {
-    return (
-      <main className="flex min-h-screen flex-col items-center gap-4 px-4 pb-24 pt-12">
-        <div className="h-20 w-full max-w-md animate-pulse rounded-2xl bg-white/5" />
-        <div className="h-12 w-full max-w-md animate-pulse rounded-xl bg-white/5" />
-        {[1, 2, 3].map(i => (
-          <div key={i} className="h-24 w-full max-w-md animate-pulse rounded-xl bg-white/5" />
-        ))}
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
-        <ErrorState message={error} onRetry={fetchDuels} />
-      </main>
-    );
-  }
+  const isReady = status !== "loading" && !loading;
 
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
@@ -208,8 +189,8 @@ export default function DuelsPage() {
           </button>
         </div>
 
-        {/* Intro explanation (show when no duels yet) */}
-        {duels.length === 0 && (
+        {/* Intro explanation (show when no duels yet and loaded) */}
+        {isReady && duels.length === 0 && !error && (
           <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -298,47 +279,63 @@ export default function DuelsPage() {
           ))}
         </div>
 
-        {/* Duel list */}
-        <AnimatePresence mode="wait">
-          <m.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex flex-col gap-3"
-          >
-            {filteredDuels.length === 0 && (
-              <div className="py-12 text-center">
-                <p className="text-3xl mb-2 flex justify-center">
-                  <IconSwords size={28} className="text-white/20" />
-                </p>
-                <p className="text-sm text-white/30">
-                  {activeTab === "pending" ? "Aucun défi en attente" : activeTab === "active" ? "Aucun duel en cours" : "Pas encore d'historique"}
-                </p>
-                {activeTab === "pending" && (
-                  <button
-                    onClick={() => setShowCreate(true)}
-                    className="mt-3 text-xs font-bold text-[#6366F1] hover:text-[#818CF8] transition"
-                  >
-                    Lance ton premier défi →
-                  </button>
-                )}
-              </div>
-            )}
-
-            {filteredDuels.map((duel, i) => (
-              <DuelCard
-                key={duel.id}
-                duel={duel}
-                userId={userId}
-                index={i}
-                onAccept={() => handleAccept(duel.id)}
-                onDecline={() => handleDecline(duel.id)}
-                onViewProfile={(id) => router.push(`/profile/${id}`)}
-              />
+        {/* Loading skeleton — inline, not blocking the whole page */}
+        {!isReady && (
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-24 w-full animate-pulse rounded-xl bg-white/5" />
             ))}
-          </m.div>
-        </AnimatePresence>
+          </div>
+        )}
+
+        {/* Error state */}
+        {isReady && error && (
+          <ErrorState message={error} onRetry={fetchDuels} />
+        )}
+
+        {/* Duel list */}
+        {isReady && !error && (
+          <AnimatePresence mode="wait">
+            <m.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col gap-3"
+            >
+              {filteredDuels.length === 0 && (
+                <div className="py-12 text-center">
+                  <p className="text-3xl mb-2 flex justify-center">
+                    <IconSwords size={28} className="text-white/20" />
+                  </p>
+                  <p className="text-sm text-white/30">
+                    {activeTab === "pending" ? "Aucun défi en attente" : activeTab === "active" ? "Aucun duel en cours" : "Pas encore d'historique"}
+                  </p>
+                  {activeTab === "pending" && (
+                    <button
+                      onClick={() => setShowCreate(true)}
+                      className="mt-3 text-xs font-bold text-[#6366F1] hover:text-[#818CF8] transition"
+                    >
+                      Lance ton premier défi →
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {filteredDuels.map((duel, i) => (
+                <DuelCard
+                  key={duel.id}
+                  duel={duel}
+                  userId={userId}
+                  index={i}
+                  onAccept={() => handleAccept(duel.id)}
+                  onDecline={() => handleDecline(duel.id)}
+                  onViewProfile={(id) => router.push(`/profile/${id}`)}
+                />
+              ))}
+            </m.div>
+          </AnimatePresence>
+        )}
       </div>
 
       {/* ═══ Create Duel Overlay ═══ */}

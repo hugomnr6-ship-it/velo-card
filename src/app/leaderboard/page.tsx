@@ -56,8 +56,8 @@ export default function LeaderboardPage() {
   const [sort, setSort] = useState<LeaderboardSort>("weekly_km");
   // racePointsEntries + loading handled by React Query below
 
-  // Fetch profile for region
-  const { data: profileData, isLoading: profileLoading } = useProfile();
+  // Fetch profile for region — only when session is ready
+  const { data: profileData, isLoading: profileLoading } = useProfile(status === "authenticated");
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
@@ -97,7 +97,7 @@ export default function LeaderboardPage() {
     enabled: mode === "race_points",
   });
 
-  const loading = mode === "weekly" ? weeklyLoading : racePointsLoading;
+  const loading = profileLoading || (mode === "weekly" ? weeklyLoading : racePointsLoading);
 
   async function handleRegionChange(newRegion: FrenchRegion) {
     setRegion(newRegion);
@@ -116,13 +116,7 @@ export default function LeaderboardPage() {
     }
   }
 
-  if (status === "loading" || !session || profileLoading) {
-    return (
-      <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
-        <LeaderboardSkeleton />
-      </main>
-    );
-  }
+  const sessionReady = status !== "loading" && !!session;
 
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
@@ -197,7 +191,7 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        {!effectiveRegion && mode === "weekly" ? (
+        {!effectiveRegion && mode === "weekly" && !profileLoading ? (
           <EmptyState
             icon={<TrophyIcon size={48} />}
             title="Choisis ta region"
@@ -230,7 +224,7 @@ export default function LeaderboardPage() {
                     <AnimatedListItem key={entry.user_id}>
                       <LeaderboardRow
                         entry={entry}
-                        isCurrentUser={entry.user_id === session.user.id}
+                        isCurrentUser={entry.user_id === session?.user?.id}
                       />
                     </AnimatedListItem>
                   ))}
@@ -259,7 +253,7 @@ export default function LeaderboardPage() {
                   <AnimatedListItem key={entry.user_id}>
                     <m.div
                       className={`flex items-center gap-3 rounded-xl border p-3 transition ${
-                        entry.user_id === session.user.id
+                        entry.user_id === session?.user?.id
                           ? "border-[#6366F1]/30 bg-[#6366F1]/5"
                           : "border-white/[0.06] bg-[#1A1A2E]/60"
                       }`}

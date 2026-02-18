@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useDuels(filter: string) {
+export function useDuels(filter: string, enabled = true) {
   return useQuery({
     queryKey: ["duels", filter],
     queryFn: async () => {
@@ -8,6 +8,7 @@ export function useDuels(filter: string) {
       if (!res.ok) throw new Error("Erreur duels");
       return res.json();
     },
+    enabled,
   });
 }
 

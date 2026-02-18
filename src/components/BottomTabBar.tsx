@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { m } from "framer-motion";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
   HomeIcon,
   FlagIcon,
@@ -29,7 +29,12 @@ export default function BottomTabBar() {
   const router = useRouter();
   const { status } = useSession();
 
-  // Prefetch routes on hover/focus
+  // Prefetch all tab routes on mount (important for mobile — no hover)
+  useEffect(() => {
+    tabs.forEach((tab) => router.prefetch(tab.href));
+  }, [router]);
+
+  // Also prefetch on hover/focus for desktop
   const handlePrefetch = useCallback((path: string) => {
     router.prefetch(path);
   }, [router]);

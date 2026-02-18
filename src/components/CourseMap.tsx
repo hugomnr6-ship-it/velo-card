@@ -96,8 +96,17 @@ export default function CourseMap({
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 
+    // Force resize when container becomes visible (fixes black screen
+    // when map initializes inside an animated/hidden parent)
+    const ro = new ResizeObserver(() => {
+      if (mapRef.current) mapRef.current.resize();
+    });
+    ro.observe(mapContainer.current);
+
     map.on("load", () => {
       mapLoadedRef.current = true;
+      // Ensure canvas matches container after style load
+      map.resize();
       onMapReadyRef.current?.(map);
 
       // Fit to route bounds
@@ -204,6 +213,7 @@ export default function CourseMap({
     });
 
     return () => {
+      ro.disconnect();
       climbMarkersRef.current.forEach((m) => m.remove());
       climbMarkersRef.current = [];
       hoverMarkerRef.current?.remove();

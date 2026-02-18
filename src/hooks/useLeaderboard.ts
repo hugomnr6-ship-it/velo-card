@@ -10,5 +10,6 @@ export function useLeaderboard(region: string | null, sort: string) {
       return res.json();
     },
     enabled: !!region,
+    staleTime: 5 * 60 * 1000, // 5 min — weekly leaderboard
   });
 }

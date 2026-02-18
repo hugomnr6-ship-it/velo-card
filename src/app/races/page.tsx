@@ -192,8 +192,8 @@ export default function RacesCalendarPage() {
     return filters;
   }, [fedFilter, genderFilter, search]);
 
-  // Fetch races via React Query hook
-  const { data: allRaces = [], isLoading: loading } = useRaces(raceFilters);
+  // Fetch races via React Query hook — only when session is ready
+  const { data: allRaces = [], isLoading: loading } = useRaces(raceFilters, status === "authenticated");
 
   // Debounced search
   const [searchInput, setSearchInput] = useState("");
@@ -226,19 +226,6 @@ export default function RacesCalendarPage() {
   );
 
   const grouped = useMemo(() => groupByWeek(upcomingRaces), [upcomingRaces]);
-
-  if (status === "loading" || !session) {
-    return (
-      <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
-        <div className="w-full max-w-2xl">
-          <Skeleton className="mb-4 h-8 w-48" />
-          <Skeleton className="mb-4 h-10 w-full rounded-xl" />
-          <Skeleton className="mb-6 h-8 w-full" />
-          {[0, 1, 2, 3].map(i => <Skeleton key={i} className="mb-3 h-20 w-full rounded-xl" />)}
-        </div>
-      </main>
-    );
-  }
 
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
