@@ -29,10 +29,10 @@ export const rateLimiters = {
     prefix: "rl:sensitive",
   }),
 
-  // Auth : 5 requêtes par minute
+  // Auth : 30 requêtes par minute (OAuth flow hits multiple endpoints)
   auth: new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, "1 m"),
+    limiter: Ratelimit.slidingWindow(30, "1 m"),
     analytics: true,
     prefix: "rl:auth",
   }),

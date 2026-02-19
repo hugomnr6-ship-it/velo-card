@@ -13,7 +13,7 @@ import { useSeason, useMySeasonStats } from "@/hooks/useSeason";
 
 const tierAccentHex: Record<string, string> = {
   bronze: "#E8A854",
-  argent: "#B8A0D8",
+  argent: "#C0C8D4",
   platine: "#E0E8F0",
   diamant: "#00D4FF",
   legende: "#FFD700",

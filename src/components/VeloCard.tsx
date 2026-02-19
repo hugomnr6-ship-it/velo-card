@@ -55,7 +55,7 @@ interface VeloCardProps {
 /* ═══ Tier accent hex ═══ */
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#E8A854",
-  argent: "#B8A0D8",
+  argent: "#C0C8D4",
   platine: "#E0E8F0",
   diamant: "#00D4FF",
   legende: "#FFD700",
@@ -112,23 +112,23 @@ const cardVisuals: Record<CardTier, CardVisual> = {
     label: "BRONZE",
   },
   argent: {
-    accentHex: "#B8A0D8",
-    bgGradient: "linear-gradient(170deg, #14101E, #1E1430 50%, #14101E)",
-    crestGradient: "linear-gradient(180deg, #C8B0E8, #9880B8)",
-    crestTextColor: "#14101E",
-    ringGradient: "linear-gradient(180deg, #C8B0E8, #8870A8)",
-    shimmerColor: "rgba(184,160,216,0.14)",
-    statColor: "#D0C0E8",
-    glowHex: "rgba(184,160,216,0.25)",
-    borderRgba: "rgba(184,160,216,0.2)",
-    dividerRgba: "rgba(184,160,216,0.2)",
-    gaugeBgStroke: "rgba(184,160,216,0.06)",
+    accentHex: "#C0C8D4",
+    bgGradient: "linear-gradient(170deg, #12141A, #1C1F28 50%, #12141A)",
+    crestGradient: "linear-gradient(180deg, #D4D8E0, #A0A8B4)",
+    crestTextColor: "#12141A",
+    ringGradient: "linear-gradient(180deg, #D4D8E0, #8890A0)",
+    shimmerColor: "rgba(192,200,212,0.14)",
+    statColor: "#D8DCE4",
+    glowHex: "rgba(192,200,212,0.25)",
+    borderRgba: "rgba(192,200,212,0.2)",
+    dividerRgba: "rgba(192,200,212,0.2)",
+    gaugeBgStroke: "rgba(192,200,212,0.06)",
     hasSilverSweep: true,
     hasParticles: false,
     hasHoloScan: false,
     hasRainbow: false,
     particleCount: 0,
-    particleColors: ["#B8A0D8"],
+    particleColors: ["#C0C8D4"],
     label: "ARGENT",
   },
   platine: {
@@ -303,13 +303,13 @@ export const tierConfig: Record<
     particleCount: 0,
   },
   argent: {
-    bg: "from-[#14101E] via-[#1E1430] to-[#14101E]",
-    accent: "text-[#B8A0D8]",
-    accentLight: "text-[#D0C0E8]",
+    bg: "from-[#12141A] via-[#1C1F28] to-[#12141A]",
+    accent: "text-[#C0C8D4]",
+    accentLight: "text-[#D8DCE4]",
     glowClass: "card-glow-argent",
     avatarGlow: "avatar-glow-argent",
     shimmerGradient:
-      "linear-gradient(110deg, transparent 25%, rgba(184,160,216,0.18) 45%, rgba(208,192,232,0.24) 50%, rgba(184,160,216,0.18) 55%, transparent 75%)",
+      "linear-gradient(110deg, transparent 25%, rgba(192,200,212,0.18) 45%, rgba(212,216,224,0.24) 50%, rgba(192,200,212,0.18) 55%, transparent 75%)",
     label: "ARGENT",
     hasParticles: false,
     hasHoloScan: false,
@@ -362,7 +362,7 @@ export const tierConfig: Record<
 
 export const tierBorderColors: Record<CardTier, string> = {
   bronze: "border-[#E8A854]/20",
-  argent: "border-[#B8A0D8]/20",
+  argent: "border-[#C0C8D4]/20",
   platine: "border-[#E0E8F0]/18",
   diamant: "border-[#00D4FF]/22",
   legende: "border-[#ffd700]/30",
@@ -370,7 +370,7 @@ export const tierBorderColors: Record<CardTier, string> = {
 
 export const tierDividerColors: Record<CardTier, string> = {
   bronze: "from-transparent via-[#E8A854]/30 to-transparent",
-  argent: "from-transparent via-[#B8A0D8]/25 to-transparent",
+  argent: "from-transparent via-[#C0C8D4]/25 to-transparent",
   platine: "from-transparent via-[#E0E8F0]/20 to-transparent",
   diamant: "from-transparent via-[#00D4FF]/30 to-transparent",
   legende: "from-transparent via-[#ffd700]/40 to-transparent",
@@ -380,7 +380,7 @@ export const spotlightGradients: Record<CardTier, string> = {
   bronze:
     "linear-gradient(135deg, transparent 20%, rgba(232,168,84,0.08) 35%, rgba(255,255,255,0.12) 50%, rgba(232,168,84,0.08) 65%, transparent 80%)",
   argent:
-    "linear-gradient(135deg, transparent 15%, rgba(184,160,216,0.10) 30%, rgba(208,192,232,0.18) 50%, rgba(184,160,216,0.10) 70%, transparent 85%)",
+    "linear-gradient(135deg, transparent 15%, rgba(192,200,212,0.10) 30%, rgba(212,216,224,0.18) 50%, rgba(192,200,212,0.10) 70%, transparent 85%)",
   platine:
     "linear-gradient(135deg, transparent 20%, rgba(224,232,240,0.10) 35%, rgba(255,255,255,0.15) 50%, rgba(224,232,240,0.10) 65%, transparent 80%)",
   diamant:
@@ -391,7 +391,7 @@ export const spotlightGradients: Record<CardTier, string> = {
 
 export const tierPillBg: Record<CardTier, string> = {
   bronze: "rgba(26,18,8,0.85)",
-  argent: "rgba(20,16,30,0.85)",
+  argent: "rgba(18,20,26,0.85)",
   platine: "rgba(16,24,56,0.85)",
   diamant: "rgba(4,16,24,0.85)",
   legende: "rgba(26,10,40,0.85)",
@@ -399,7 +399,7 @@ export const tierPillBg: Record<CardTier, string> = {
 
 export const tierPillBorder: Record<CardTier, string> = {
   bronze: "rgba(232,168,84,0.4)",
-  argent: "rgba(184,160,216,0.4)",
+  argent: "rgba(192,200,212,0.4)",
   platine: "rgba(224,232,240,0.3)",
   diamant: "rgba(0,212,255,0.4)",
   legende: "rgba(255,215,0,0.4)",
@@ -407,7 +407,7 @@ export const tierPillBorder: Record<CardTier, string> = {
 
 export const tierOuterBorderColor: Record<CardTier, string> = {
   bronze: "rgba(232,168,84,0.25)",
-  argent: "rgba(184,160,216,0.25)",
+  argent: "rgba(192,200,212,0.25)",
   platine: "rgba(224,232,240,0.25)",
   diamant: "rgba(0,212,255,0.30)",
   legende: "rgba(255,215,0,0.30)",
@@ -415,7 +415,7 @@ export const tierOuterBorderColor: Record<CardTier, string> = {
 
 export const tierHexBg: Record<CardTier, string> = {
   bronze: "linear-gradient(180deg, rgba(30,20,10,0.9), rgba(20,12,5,0.95))",
-  argent: "linear-gradient(180deg, rgba(20,16,30,0.92), rgba(14,10,24,0.96))",
+  argent: "linear-gradient(180deg, rgba(18,20,26,0.92), rgba(14,16,22,0.96))",
   platine: "linear-gradient(180deg, rgba(16,24,56,0.9), rgba(12,20,48,0.95))",
   diamant: "linear-gradient(180deg, rgba(4,16,32,0.92), rgba(4,12,24,0.96))",
   legende: "linear-gradient(180deg, rgba(26,10,40,0.9), rgba(32,24,8,0.95))",
@@ -423,7 +423,7 @@ export const tierHexBg: Record<CardTier, string> = {
 
 export const tierValueColors: Record<CardTier, string> = {
   bronze: "text-[#E8A854]",
-  argent: "text-[#D0C0E8]",
+  argent: "text-[#D8DCE4]",
   platine: "text-[#E0E8F0]",
   diamant: "text-[#00D4FF]",
   legende: "text-[#ffe44d]",

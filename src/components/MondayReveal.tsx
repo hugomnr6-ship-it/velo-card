@@ -10,7 +10,7 @@ import type { ComputedStats, CardTier, StatDeltas, SpecialCardType } from "@/typ
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#E8A854",
-  argent: "#B8A0D8",
+  argent: "#C0C8D4",
   platine: "#E0E8F0",
   diamant: "#00D4FF",
   legende: "#FFD700",

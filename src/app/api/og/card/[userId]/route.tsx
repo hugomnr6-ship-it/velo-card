@@ -7,7 +7,7 @@ export const runtime = "edge";
 
 const tierColors: Record<string, string> = {
   bronze: "#CD7F32",
-  argent: "#B8A0D8",
+  argent: "#C0C8D4",
   platine: "#E5E4E2",
   diamant: "#00D4FF",
   legende: "#FFD700",

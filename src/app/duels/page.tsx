@@ -19,7 +19,7 @@ import { Avatar } from "@/components/Avatar";
 /* ═══ Constants ═══ */
 
 const tierAccentHex: Record<CardTier, string> = {
-  bronze: "#cd7f32", argent: "#B8A0D8", platine: "#E0E8F0", diamant: "#00D4FF", legende: "#FFD700",
+  bronze: "#cd7f32", argent: "#C0C8D4", platine: "#E0E8F0", diamant: "#00D4FF", legende: "#FFD700",
 };
 
 interface SearchResult {

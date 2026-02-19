@@ -10,7 +10,7 @@ interface RadarChartProps {
 
 const tierAccent: Record<CardTier, { stroke: string; fill: string }> = {
   bronze: { stroke: "#cd7f32", fill: "rgba(205,127,50,0.25)" },
-  argent: { stroke: "#B8A0D8", fill: "rgba(192,192,192,0.20)" },
+  argent: { stroke: "#C0C8D4", fill: "rgba(192,192,192,0.20)" },
   platine: { stroke: "#E0E8F0", fill: "rgba(224,232,240,0.25)" },
   diamant: { stroke: "#B9F2FF", fill: "rgba(185,242,255,0.25)" },
   legende: { stroke: "#FFD700", fill: "rgba(255,215,0,0.25)" },

@@ -43,7 +43,7 @@ const tierTiltConfig: Record<
     tiltMaxAngleX: 14,
     tiltMaxAngleY: 14,
     glareMaxOpacity: 0.25,
-    glareColor: "rgba(184,160,216,0.5)",
+    glareColor: "rgba(192,200,212,0.5)",
     scale: 1.03,
     perspective: 1100,
     transitionSpeed: 500,
