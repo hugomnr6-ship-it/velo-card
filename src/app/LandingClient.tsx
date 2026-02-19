@@ -230,7 +230,7 @@ export default function LandingClient() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[#0A0A0F]">
       {/* ═══ HERO ═══ */}
-      <section className="relative flex flex-col items-center px-6 pt-16 pb-20 sm:pt-24">
+      <section className="relative flex flex-col items-center px-4 pt-16 pb-20 sm:px-6 sm:pt-24">
         {/* Background glow */}
         <div
           className="pointer-events-none absolute inset-0"
@@ -256,7 +256,7 @@ export default function LandingClient() {
 
           {/* Title */}
           <m.h1
-            className="max-w-2xl text-4xl font-black tracking-tight text-white sm:text-6xl"
+            className="max-w-2xl text-[28px] font-black tracking-tight text-white sm:text-6xl leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -269,7 +269,7 @@ export default function LandingClient() {
 
           {/* Subtitle */}
           <m.p
-            className="mx-auto mt-5 max-w-lg text-base text-[#94A3B8] sm:text-lg leading-relaxed"
+            className="mx-auto mt-5 max-w-lg text-sm text-[#94A3B8] sm:text-lg leading-relaxed px-2 sm:px-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -281,21 +281,34 @@ export default function LandingClient() {
 
           {/* CTA */}
           <m.div
-            className="mt-8 flex flex-col items-center gap-3 sm:flex-row"
+            className="mt-8 flex flex-col items-center gap-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <button
-              onClick={() => signIn("strava")}
-              className="flex items-center gap-2 rounded-xl bg-[#FC4C02] px-8 py-3.5 text-sm font-bold text-white transition hover:scale-[1.02] active:scale-[0.98]"
-              style={{ boxShadow: "0 0 24px rgba(252,76,2,0.3)" }}
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-              </svg>
-              Connecter mon Strava
-            </button>
+            <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
+              <button
+                onClick={() => signIn("strava")}
+                className="flex items-center gap-2 rounded-xl bg-[#FC4C02] px-6 py-3 text-sm font-bold text-white transition hover:scale-[1.02] active:scale-[0.98]"
+                style={{ boxShadow: "0 0 24px rgba(252,76,2,0.3)" }}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                </svg>
+                Connecter Strava
+              </button>
+              <button
+                onClick={() => signIn("wahoo")}
+                className="flex items-center gap-2 rounded-xl bg-[#1A8CFF] px-6 py-3 text-sm font-bold text-white transition hover:scale-[1.02] active:scale-[0.98]"
+                style={{ boxShadow: "0 0 24px rgba(26,140,255,0.3)" }}
+              >
+                <span className="text-base font-black">W</span>
+                Connecter Wahoo
+              </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2 cursor-not-allowed">
+              <span className="text-xs font-semibold text-white/30">Garmin &mdash; Prochainement</span>
+            </div>
             <button
               onClick={handleScrollDown}
               className="text-sm font-semibold text-[#94A3B8] transition hover:text-white"
@@ -329,7 +342,7 @@ export default function LandingClient() {
                       : undefined,
                   }}
                 >
-                  <div className={isCenter ? "scale-[0.75] sm:scale-105" : "scale-[0.6] sm:scale-90 -mx-4 sm:mx-0"}>
+                  <div className={isCenter ? "scale-[0.65] sm:scale-105" : "scale-[0.5] sm:scale-90 -mx-6 sm:mx-0"}>
                     <DemoCard {...card} />
                   </div>
                 </m.div>

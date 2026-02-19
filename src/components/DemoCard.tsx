@@ -21,8 +21,8 @@ const tierBg: Record<CardTier, string> = {
   bronze: "linear-gradient(170deg, #1A1208, #241A0D 50%, #1A1208)",
   argent: "linear-gradient(170deg, #14101E, #1E1430 50%, #14101E)",
   platine: "linear-gradient(170deg, #101820, #1A2838 50%, #101820)",
-  diamant: "linear-gradient(170deg, #051525, #0A2540 50%, #051525)",
-  legende: "linear-gradient(170deg, #1A1400, #2A2000 50%, #1A1400)",
+  diamant: "linear-gradient(170deg, #041018, #0C2038 50%, #041018)",
+  legende: "linear-gradient(170deg, #1A0A28, #2A1040 30%, #201808 60%, #1A0A28)",
 };
 
 const tierLabel: Record<CardTier, string> = {
