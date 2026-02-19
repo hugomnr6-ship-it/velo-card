@@ -5,7 +5,6 @@ import { supabaseAdmin } from "./lib/supabase";
 export type AuthProvider = "strava" | "garmin" | "wahoo";
 
 const config: NextAuthConfig = {
-  debug: true,
   trustHost: true,
   providers: [
     // ——— Strava (OAuth 2.0) ———
@@ -19,6 +18,9 @@ const config: NextAuthConfig = {
       },
       token: "https://www.strava.com/oauth/token",
       userinfo: "https://www.strava.com/api/v3/athlete",
+      client: {
+        token_endpoint_auth_method: "client_secret_post",
+      },
       clientId: process.env.STRAVA_CLIENT_ID,
       clientSecret: process.env.STRAVA_CLIENT_SECRET,
       profile(profile) {
@@ -45,6 +47,9 @@ const config: NextAuthConfig = {
             userinfo: "https://api.wahooligan.com/v1/user",
             clientId: process.env.WAHOO_CLIENT_ID,
             clientSecret: process.env.WAHOO_CLIENT_SECRET,
+            client: {
+              token_endpoint_auth_method: "client_secret_post" as const,
+            },
             profile(profile: Record<string, unknown>) {
               const user = (profile.user as Record<string, unknown>) || profile;
               return {
