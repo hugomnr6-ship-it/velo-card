@@ -4,15 +4,14 @@ import type { CardTier } from "@/types";
 import type { CreateDuelInput } from "@/schemas";
 
 export async function getDuelsForUser(userId: string, filter: string) {
-  // ═══ N+1 FIX: 1 requête avec JOINs au lieu de 3 (duels + profiles + stats) ═══
+  // Fetch duels with profile JOINs (FK exists: duels.challenger_id → profiles.id)
+  // Note: no direct FK from duels → user_stats, so stats are fetched separately
   let query = supabaseAdmin
     .from("duels")
     .select(`
       *,
       challenger:profiles!challenger_id (id, username, avatar_url),
-      challenger_stats:user_stats!challenger_id (ovr, tier),
-      opponent:profiles!opponent_id (id, username, avatar_url),
-      opponent_stats:user_stats!opponent_id (ovr, tier)
+      opponent:profiles!opponent_id (id, username, avatar_url)
     `)
     .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
     .order("created_at", { ascending: false })
@@ -29,25 +28,45 @@ export async function getDuelsForUser(userId: string, filter: string) {
   const { data: duels, error } = await query;
   if (error) throw error;
 
-  const enriched = (duels || []).map((d: any) => ({
-    ...d,
-    challenger: {
-      username: d.challenger?.username || "?",
-      avatar_url: d.challenger?.avatar_url || null,
-      ovr: d.challenger_stats?.ovr || 0,
-      tier: (d.challenger_stats?.tier || "bronze") as CardTier,
-    },
-    opponent: {
-      username: d.opponent?.username || "?",
-      avatar_url: d.opponent?.avatar_url || null,
-      ovr: d.opponent_stats?.ovr || 0,
-      tier: (d.opponent_stats?.tier || "bronze") as CardTier,
-    },
-    // Remove the embedded objects from the spread
-    challenger_stats: undefined,
-    opponent_stats: undefined,
-    is_mine: d.challenger_id === userId,
-  }));
+  // Batch-fetch user_stats for all players involved
+  const playerIds = new Set<string>();
+  for (const d of duels || []) {
+    playerIds.add(d.challenger_id);
+    playerIds.add(d.opponent_id);
+  }
+
+  const statsMap = new Map<string, { ovr: number; tier: string }>();
+  if (playerIds.size > 0) {
+    const { data: stats } = await supabaseAdmin
+      .from("user_stats")
+      .select("user_id, ovr, tier")
+      .in("user_id", Array.from(playerIds));
+
+    for (const s of stats || []) {
+      statsMap.set(s.user_id, { ovr: s.ovr, tier: s.tier });
+    }
+  }
+
+  const enriched = (duels || []).map((d: any) => {
+    const cStats = statsMap.get(d.challenger_id);
+    const oStats = statsMap.get(d.opponent_id);
+    return {
+      ...d,
+      challenger: {
+        username: d.challenger?.username || "?",
+        avatar_url: d.challenger?.avatar_url || null,
+        ovr: cStats?.ovr || 0,
+        tier: (cStats?.tier || "bronze") as CardTier,
+      },
+      opponent: {
+        username: d.opponent?.username || "?",
+        avatar_url: d.opponent?.avatar_url || null,
+        ovr: oStats?.ovr || 0,
+        tier: (oStats?.tier || "bronze") as CardTier,
+      },
+      is_mine: d.challenger_id === userId,
+    };
+  });
 
   return { duels: enriched, user_id: userId };
 }
