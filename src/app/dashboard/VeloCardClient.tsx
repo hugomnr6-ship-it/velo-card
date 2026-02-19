@@ -156,7 +156,7 @@ export default function VeloCardClient({
         clubs={clubs}
         specialCard={specialCard}
       />
-      <div className="flex gap-3">
+      <div className="mt-6 flex items-center justify-center gap-3">
         <DownloadButton tier={tier} userId={userId} />
         <FeatureTooltip id="card-share" title="Partage ta carte !" description="Exporte ta VeloCard en story Instagram ou QR code.">
           <ShareButton tier={tier} userId={userId} />

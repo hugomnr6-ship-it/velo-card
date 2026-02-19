@@ -20,7 +20,7 @@ export default function ShareButton({ tier, userId, className }: ShareButtonProp
         onClick={() => setOpen(true)}
         className={
           className ??
-          "mt-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+          "rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
         }
         title="Partager"
         aria-label="Partager"

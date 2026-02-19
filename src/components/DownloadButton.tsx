@@ -25,7 +25,7 @@ export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
   return (
     <button
       onClick={handleDownload}
-      className="mt-6 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
+      className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
     >
       Partager pour Instagram
     </button>
