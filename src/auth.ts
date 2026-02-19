@@ -5,6 +5,8 @@ import { supabaseAdmin } from "./lib/supabase";
 export type AuthProvider = "strava" | "garmin" | "wahoo";
 
 const config: NextAuthConfig = {
+  debug: true,
+  trustHost: true,
   providers: [
     // ——— Strava (OAuth 2.0) ———
     {
@@ -15,28 +17,7 @@ const config: NextAuthConfig = {
         url: "https://www.strava.com/oauth/authorize",
         params: { scope: "read,activity:read" },
       },
-      token: {
-        url: "https://www.strava.com/oauth/token",
-        async request({ params }) {
-          console.log("[AUTH] Strava token exchange — code:", params.code ? "present" : "MISSING");
-          const res = await fetch("https://www.strava.com/oauth/token", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              client_id: process.env.STRAVA_CLIENT_ID,
-              client_secret: process.env.STRAVA_CLIENT_SECRET,
-              code: params.code,
-              grant_type: "authorization_code",
-            }),
-          });
-          const tokens = await res.json();
-          if (tokens.errors || tokens.message) {
-            console.error("[AUTH] Strava token error:", JSON.stringify(tokens));
-          }
-          console.log("[AUTH] Strava token exchange — success:", !!tokens.access_token);
-          return { tokens };
-        },
-      },
+      token: "https://www.strava.com/oauth/token",
       userinfo: "https://www.strava.com/api/v3/athlete",
       clientId: process.env.STRAVA_CLIENT_ID,
       clientSecret: process.env.STRAVA_CLIENT_SECRET,
@@ -270,6 +251,7 @@ const config: NextAuthConfig = {
   },
   pages: {
     signIn: "/",
+    error: "/",
   },
 };
 
