@@ -63,9 +63,9 @@
   --tier-bronze-light: #E8A854;
 
   /* Tier Argent — Silver-lavender (NOT blue) */
-  --tier-argent: #C0C8D4;
+  --tier-argent: #B8A0D8;
   --tier-argent-light: #C8D0E0;
-  --tier-argent-accent: #C0C8D4;
+  --tier-argent-accent: #B8A0D8;
 
   /* Tier Platine */
   --tier-platine: #E5E4E2;
@@ -105,7 +105,7 @@
   --color-text-secondary: #94A3B8;
   --color-text-muted: #475569;
   --color-tier-bronze: #CD7F32;
-  --color-tier-argent: #C0C8D4;
+  --color-tier-argent: #B8A0D8;
   --color-tier-platine: #E5E4E2;
   --color-tier-diamant: #B9F2FF;
   --color-tier-legende: #FFD700;
@@ -232,7 +232,7 @@
       transparent 0px, transparent 5px,
       rgba(200, 210, 228, 0.03) 5px, rgba(200, 210, 228, 0.03) 6px
     ),
-    linear-gradient(135deg, rgba(192,200,212,0.02) 0%, transparent 50%, rgba(192,200,212,0.02) 100%);
+    linear-gradient(135deg, rgba(184,160,216,0.02) 0%, transparent 50%, rgba(184,160,216,0.02) 100%);
 }
 .texture-platine {
   background-image:

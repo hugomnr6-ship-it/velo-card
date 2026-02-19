@@ -17,7 +17,7 @@ interface VeloCardInteractiveProps {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#E8A854",
-  argent: "#C0C8D4",
+  argent: "#B8A0D8",
   platine: "#E0E8F0",
   diamant: "#00D4FF",
   legende: "#FFD700",
@@ -25,7 +25,7 @@ const tierAccentHex: Record<CardTier, string> = {
 
 const tierAccentRgb: Record<CardTier, string> = {
   bronze: "232,168,84",
-  argent: "192,200,212",
+  argent: "184,160,216",
   platine: "224,232,240",
   diamant: "0,212,255",
   legende: "255,215,0",

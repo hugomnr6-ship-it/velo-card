@@ -37,7 +37,7 @@ interface RacePointsEntry {
 
 const tierAccentHex: Record<CardTier, string> = {
   bronze: "#E8A854",
-  argent: "#C0C8D4",
+  argent: "#B8A0D8",
   platine: "#E0E8F0",
   diamant: "#00D4FF",
   legende: "#FFD700",

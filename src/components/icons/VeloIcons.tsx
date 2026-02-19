@@ -182,8 +182,8 @@ export function IconMedalGold({ size = d.size, className, style }: IconProps) {
 export function IconMedalSilver({ size = d.size, className, style }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" className={className} style={style}>
-      <circle cx="12" cy="15" r="6" fill="#C0C8D4" />
-      <path d="M8 2l4 8 4-8" fill="none" stroke="#C0C8D4" strokeWidth="2" />
+      <circle cx="12" cy="15" r="6" fill="#B8A0D8" />
+      <path d="M8 2l4 8 4-8" fill="none" stroke="#B8A0D8" strokeWidth="2" />
       <text x="12" y="18" textAnchor="middle" fill="#10121E" fontSize="8" fontWeight="800" fontFamily="JetBrains Mono">2</text>
     </svg>
   );

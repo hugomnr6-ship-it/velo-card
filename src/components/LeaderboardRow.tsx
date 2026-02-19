@@ -34,7 +34,7 @@ const miniCardBg: Record<CardTier, string> = {
 
 const miniCardBorder: Record<CardTier, string> = {
   bronze: "border-[#cd7f32]/40",
-  argent: "border-[#C0C8D4]/30",
+  argent: "border-[#B8A0D8]/30",
   platine: "border-[#E0E8F0]/30",
   diamant: "border-[#B9F2FF]/30",
   legende: "border-[#ffd700]/40",
@@ -42,7 +42,7 @@ const miniCardBorder: Record<CardTier, string> = {
 
 const miniCardAccent: Record<CardTier, string> = {
   bronze: "text-[#cd7f32]",
-  argent: "text-[#C0C8D4]",
+  argent: "text-[#B8A0D8]",
   platine: "text-[#E0E8F0]",
   diamant: "text-[#B9F2FF]",
   legende: "text-[#FFD700]",

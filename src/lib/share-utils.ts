@@ -11,7 +11,7 @@ export const storyBgColors: Record<CardTier, string> = {
 
 export const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32",
-  argent: "#C0C8D4",
+  argent: "#B8A0D8",
   platine: "#E0E8F0",
   diamant: "#B9F2FF",
   legende: "#FFD700",

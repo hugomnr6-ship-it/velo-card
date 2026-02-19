@@ -207,7 +207,7 @@ function CardRevealPhase({
           Tu commences avec le tier
         </p>
         <p className="mt-1 font-['Space_Grotesk'] text-lg font-bold uppercase" style={{
-          color: tier === "bronze" ? "#E8A854" : tier === "argent" ? "#C0C8D4" : tier === "platine" ? "#E0E8F0" : tier === "diamant" ? "#00D4FF" : "#FFD700",
+          color: tier === "bronze" ? "#E8A854" : tier === "argent" ? "#B8A0D8" : tier === "platine" ? "#E0E8F0" : tier === "diamant" ? "#00D4FF" : "#FFD700",
         }}>
           {tier}
         </p>

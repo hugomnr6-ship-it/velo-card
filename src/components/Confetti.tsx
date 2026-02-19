@@ -12,7 +12,7 @@ interface ConfettiProps {
 
 const tierConfettiColors: Record<CardTier, string[]> = {
   bronze: ["#E8A854", "#D4913A", "#C07D26", "#F5C882"],
-  argent: ["#C0C8D4", "#9B82C0", "#7E64A8", "#D5C5ED"],
+  argent: ["#B8A0D8", "#9B82C0", "#7E64A8", "#D5C5ED"],
   platine: ["#E0E8F0", "#C8D8E8", "#B0C8E0", "#6366F1"],
   diamant: ["#00D4FF", "#00B8E6", "#6366F1", "#FFFFFF"],
   legende: ["#FFD700", "#FFA500", "#FF6347", "#FFFFFF", "#6366F1"],
