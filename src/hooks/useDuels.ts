@@ -8,6 +8,7 @@ export function useDuels(filter: string, enabled = true) {
       if (!res.ok) throw new Error("Erreur duels");
       return res.json();
     },
+    staleTime: 2 * 60 * 1000,
     enabled,
   });
 }

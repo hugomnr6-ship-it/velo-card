@@ -1,5 +1,3 @@
-import { toPng } from "html-to-image";
-import QRCodeLib from "qrcode";
 import type { CardTier } from "@/types";
 
 /* Story background colors matching each tier */
@@ -30,6 +28,8 @@ export async function captureCard(): Promise<string> {
   const card = document.getElementById("velo-card");
   if (!card) throw new Error("Card element not found");
 
+  const { toPng } = await import("html-to-image");
+
   try {
     return await toPng(card, {
       pixelRatio: 2.7,
@@ -51,6 +51,7 @@ export async function captureCard(): Promise<string> {
  * Generate a QR code as data URL
  */
 export async function generateQR(userId: string, tier: CardTier): Promise<string> {
+  const QRCodeLib = (await import("qrcode")).default;
   return QRCodeLib.toDataURL(`https://velocard.app/card/${userId}`, {
     width: 120,
     margin: 1,

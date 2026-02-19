@@ -14,7 +14,7 @@ export function useMotionSafe() {
     // Page transition
     pageVariants: shouldReduce
       ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
-      : { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 } },
+      : { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 } },
     // List stagger
     listVariants: shouldReduce
       ? { hidden: {}, show: {} }
@@ -34,6 +34,6 @@ export function useMotionSafe() {
     // Default transition
     transition: shouldReduce
       ? { duration: 0 }
-      : { duration: 0.3, ease: "easeOut" as const },
+      : { duration: 0.15, ease: "easeOut" as const },
   };
 }

@@ -25,9 +25,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       "framer-motion",
       "recharts",
-      "lucide-react",
-      "@heroicons/react",
-      "date-fns",
     ],
   },
 

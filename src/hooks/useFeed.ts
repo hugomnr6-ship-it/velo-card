@@ -8,5 +8,6 @@ export function useFeed() {
       if (!res.ok) throw new Error("Erreur feed");
       return res.json();
     },
+    staleTime: 5 * 60 * 1000,
   });
 }
