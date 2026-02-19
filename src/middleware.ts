@@ -54,6 +54,7 @@ export async function middleware(request: NextRequest) {
       const origin = request.headers.get("origin");
       const allowedOrigins = [
         process.env.NEXTAUTH_URL,
+        "https://velo-card.vercel.app",
         "https://velocard.app",
         "http://localhost:3000",
       ].filter(Boolean);

@@ -343,8 +343,8 @@ export default function LandingClient() {
                   }}
                 >
                   <div className={isCenter
-                    ? "w-[120px] sm:w-[210px]"
-                    : "w-[95px] sm:w-[180px] opacity-70 sm:opacity-100"
+                    ? "w-[105px] sm:w-[190px]"
+                    : "w-[80px] sm:w-[160px] opacity-70 sm:opacity-100"
                   }>
                     <DemoCard {...card} />
                   </div>
