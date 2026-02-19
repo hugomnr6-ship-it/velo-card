@@ -306,7 +306,7 @@ export default function LandingClient() {
 
           {/* Demo cards */}
           <m.div
-            className="mt-14 flex items-end justify-center gap-4 sm:gap-6"
+            className="mt-14 flex items-end justify-center gap-2 sm:gap-6 w-full max-w-full px-2"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -317,14 +317,14 @@ export default function LandingClient() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 + i * 0.15 }}
+                className={i === 1 ? "z-[2] scale-[0.95] sm:scale-105" : "z-[1] scale-[0.75] sm:scale-90"}
                 style={{
                   transform:
                     i === 0
-                      ? "perspective(1000px) rotateY(5deg) scale(0.9)"
+                      ? "perspective(1000px) rotateY(5deg)"
                       : i === 2
-                      ? "perspective(1000px) rotateY(-5deg) scale(0.9)"
-                      : "scale(1.05)",
-                  zIndex: i === 1 ? 2 : 1,
+                      ? "perspective(1000px) rotateY(-5deg)"
+                      : undefined,
                 }}
               >
                 <DemoCard {...card} />
