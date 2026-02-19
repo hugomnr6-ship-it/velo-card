@@ -29,9 +29,11 @@ export default function BottomTabBar() {
   const router = useRouter();
   const { status } = useSession();
 
-  // Prefetch all tab routes on mount (important for mobile — no hover)
+  // Prefetch all tab routes + key pages on mount (important for mobile — no hover)
   useEffect(() => {
     tabs.forEach((tab) => router.prefetch(tab.href));
+    router.prefetch("/marketplace");
+    router.prefetch("/quests");
   }, [router]);
 
   // Also prefetch on hover/focus for desktop

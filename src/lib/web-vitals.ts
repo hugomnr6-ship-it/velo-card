@@ -1,25 +1,17 @@
-import { onCLS, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
+import { onCLS, onINP, onLCP, onFCP, onTTFB } from "web-vitals";
 
-function reportMetric(metric: Metric) {
-  // Send to PostHog
-  if (typeof window !== 'undefined' && (window as any).posthog) {
-    (window as any).posthog.capture('web_vital', {
-      metric_name: metric.name,
-      metric_value: metric.value,
-      metric_rating: metric.rating,
-      metric_delta: metric.delta,
-    });
-  }
+export function reportWebVitals() {
+  const sendToAnalytics = (metric: { name: string; value: number }) => {
+    // PostHog is loaded asynchronously, check if available
+    if (typeof window !== "undefined" && (window as Record<string, unknown>).posthog) {
+      const posthog = (window as Record<string, unknown>).posthog as { capture: (event: string, props: Record<string, unknown>) => void };
+      posthog.capture("web_vital", { name: metric.name, value: metric.value });
+    }
+  };
 
-  // Log in dev
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[Web Vital] ${metric.name}: ${metric.value} (${metric.rating})`);
-  }
-}
-
-export function initWebVitals() {
-  onCLS(reportMetric);
-  onLCP(reportMetric);
-  onTTFB(reportMetric);
-  onINP(reportMetric);
+  onCLS(sendToAnalytics);
+  onINP(sendToAnalytics);
+  onLCP(sendToAnalytics);
+  onFCP(sendToAnalytics);
+  onTTFB(sendToAnalytics);
 }

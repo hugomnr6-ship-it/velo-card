@@ -58,7 +58,7 @@ export default function GhostClaimPage() {
   if (status === "loading" || claiming) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-black p-4">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-white/[0.08] border-t-white" />
+        <div role="status" aria-label="Chargement" className="h-16 w-16 animate-spin rounded-full border-4 border-white/[0.08] border-t-white" />
         <p className="text-sm text-[#94A3B8]">
           Reclamation en cours...
         </p>

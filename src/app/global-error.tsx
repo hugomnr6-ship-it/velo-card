@@ -1,34 +1,28 @@
-"use client";
+'use client';
+import * as Sentry from '@sentry/nextjs';
+import { useEffect } from 'react';
 
-import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
-
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
 
   return (
     <html lang="fr">
-      <body className="min-h-screen bg-[#0B1120] font-['Inter'] text-white antialiased">
-        <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
-          <p className="text-lg font-bold">Une erreur est survenue</p>
-          <p className="text-sm text-[#94A3B8]">
-            Nous avons ete notifies. Reessaie dans quelques instants.
+      <body>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1.5rem', padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
+          <div style={{ fontSize: '4rem' }}>💥</div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Erreur critique</h2>
+          <p style={{ fontSize: '0.875rem', color: '#888', maxWidth: '28rem', textAlign: 'center' }}>
+            L&apos;application a rencontré une erreur critique. Veuillez rafraîchir la page.
           </p>
           <button
             onClick={reset}
-            className="mt-4 rounded-full bg-[#6366F1] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#5557E0]"
+            style={{ padding: '0.75rem 1.5rem', borderRadius: '0.75rem', backgroundColor: '#ff6b00', color: 'white', fontWeight: '600', border: 'none', cursor: 'pointer' }}
           >
-            Reessayer
+            Rafraîchir
           </button>
-        </main>
+        </div>
       </body>
     </html>
   );

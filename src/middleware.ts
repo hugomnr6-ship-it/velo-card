@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { applyRateLimit, type RateLimitCategory } from "@/lib/rate-limit";
 
@@ -69,8 +69,8 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    const token = await getToken({ req: request });
-    if (!token) {
+    const session = await auth();
+    if (!session) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
@@ -82,8 +82,8 @@ export async function middleware(request: NextRequest) {
     // Si Upstash est down, on laisse passer (graceful degradation)
     if (PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))) return NextResponse.next();
 
-    const token = await getToken({ req: request });
-    if (!token) {
+    const session = await auth();
+    if (!session) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
     return NextResponse.next();

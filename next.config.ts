@@ -77,18 +77,31 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           {
+            key: "X-XSS-Protection",
+            value: "0",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-origin",
+          },
+          {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://dgalywyr863hv.cloudfront.net https://*.supabase.co https://connect.garmin.com https://*.cartocdn.com https://*.basemaps.cartocdn.com",
-              "connect-src 'self' https://*.supabase.co https://api.mapbox.com https://*.sentry.io wss://*.supabase.co https://basemaps.cartocdn.com https://*.cartocdn.com",
+              "connect-src 'self' https://*.supabase.co https://api.mapbox.com https://*.sentry.io wss://*.supabase.co https://basemaps.cartocdn.com https://*.cartocdn.com https://*.posthog.com",
               "worker-src 'self' blob:",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
+              "report-uri https://sentry.io/api/csp-report/",
             ].join("; "),
           },
         ],

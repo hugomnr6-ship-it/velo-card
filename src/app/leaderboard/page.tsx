@@ -19,6 +19,7 @@ import { TrophyIcon } from "@/components/icons/TabIcons";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useProfile } from "@/hooks/useProfile";
 import type { FrenchRegion, LeaderboardEntry, LeaderboardSort, CardTier } from "@/types";
+import { Avatar } from "@/components/Avatar";
 
 // ——— Race Points Leaderboard types ———
 interface RacePointsEntry {
@@ -271,11 +272,7 @@ export default function LeaderboardPage() {
                       </div>
 
                       {/* Avatar */}
-                      {entry.avatar_url ? (
-                        <img src={entry.avatar_url} alt="" className="h-9 w-9 rounded-full border" style={{ borderColor: tierAccentHex[entry.tier] }} />
-                      ) : (
-                        <div className="h-9 w-9 rounded-full bg-[#22223A] border" style={{ borderColor: tierAccentHex[entry.tier] }} />
-                      )}
+                      <Avatar src={entry.avatar_url} alt={entry.username || ""} size={36} className="border" style={{ borderColor: tierAccentHex[entry.tier] }} />
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">

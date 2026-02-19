@@ -46,7 +46,7 @@ function SyncPhase({ progress }: { progress: number }) {
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="text-5xl"
           >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#00F5D4]">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#00F5D4]" aria-hidden="true">
               <path d="M12 2L12 6M12 18L12 22M6 12L2 12M22 12L18 12" />
               <circle cx="12" cy="12" r="4" />
             </svg>
@@ -74,8 +74,15 @@ function SyncPhase({ progress }: { progress: number }) {
       </div>
 
       {/* Progress bar */}
-      <div className="w-64">
-        <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="w-64" role="status" aria-live="polite">
+        <div
+          className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progression de la synchronisation"
+        >
           <m.div
             className="h-full rounded-full"
             style={{

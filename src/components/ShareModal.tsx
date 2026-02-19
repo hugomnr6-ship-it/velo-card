@@ -203,6 +203,8 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-white/60">
                     {loading === action.key ? (
                       <m.div
+                        role="status"
+                        aria-label="Chargement"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="h-4 w-4 rounded-full border-2 border-white/20 border-t-white/60"

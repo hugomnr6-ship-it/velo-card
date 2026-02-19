@@ -1,9 +1,10 @@
-import type { NextAuthOptions } from "next-auth";
-import { supabaseAdmin } from "./supabase";
+import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
+import { supabaseAdmin } from "./lib/supabase";
 
 export type AuthProvider = "strava" | "garmin" | "wahoo";
 
-export const authOptions: NextAuthOptions = {
+const config: NextAuthConfig = {
   providers: [
     // ——— Strava (OAuth 2.0) ———
     {
@@ -58,12 +59,12 @@ export const authOptions: NextAuthOptions = {
             userinfo: "https://api.wahooligan.com/v1/user",
             clientId: process.env.WAHOO_CLIENT_ID,
             clientSecret: process.env.WAHOO_CLIENT_SECRET,
-            profile(profile: any) {
-              const user = profile.user || profile;
+            profile(profile: Record<string, unknown>) {
+              const user = (profile.user as Record<string, unknown>) || profile;
               return {
                 id: String(user.id),
                 name: `${user.first || ""} ${user.last || ""}`.trim() || "Wahoo User",
-                image: null, // Wahoo doesn't provide profile pictures
+                image: null,
               };
             },
           },
@@ -88,11 +89,11 @@ export const authOptions: NextAuthOptions = {
             },
             clientId: process.env.GARMIN_CONSUMER_KEY,
             clientSecret: process.env.GARMIN_CONSUMER_SECRET,
-            profile(profile: any) {
+            profile(profile: Record<string, unknown>) {
               return {
                 id: String(profile.userId || profile.id),
-                name: profile.displayName || "Garmin User",
-                image: profile.profileImageUrl || null,
+                name: (profile.displayName as string) || "Garmin User",
+                image: (profile.profileImageUrl as string) || null,
               };
             },
           },
@@ -110,32 +111,32 @@ export const authOptions: NextAuthOptions = {
         token.providerId = Number(account.providerAccountId);
 
         // For Garmin OAuth 1.0a, store the token secret too
-        if (provider === "garmin" && (account as any).oauth_token_secret) {
-          token.oauthTokenSecret = (account as any).oauth_token_secret;
+        if (provider === "garmin" && (account as Record<string, unknown>).oauth_token_secret) {
+          token.oauthTokenSecret = (account as Record<string, unknown>).oauth_token_secret as string;
         }
 
         // Store avatar URL in token so it persists
-        token.picture = user?.image ?? (profile as any).profile ?? null;
+        token.picture = user?.image ?? (profile as Record<string, unknown>).profile ?? null;
 
-        const providerProfile = profile as any;
+        const providerProfile = profile as Record<string, unknown>;
         const username =
           provider === "strava"
             ? `${providerProfile.firstname} ${providerProfile.lastname}`
             : provider === "wahoo"
-              ? `${providerProfile.user?.first || providerProfile.first || ""} ${providerProfile.user?.last || providerProfile.last || ""}`.trim() || "Wahoo User"
-              : providerProfile.displayName || user?.name || "User";
+              ? `${(providerProfile.user as Record<string, unknown>)?.first || providerProfile.first || ""} ${(providerProfile.user as Record<string, unknown>)?.last || providerProfile.last || ""}`.trim() || "Wahoo User"
+              : (providerProfile.displayName as string) || user?.name || "User";
 
         const avatarUrl =
           provider === "strava"
-            ? providerProfile.profile ?? null
+            ? (providerProfile.profile as string) ?? null
             : provider === "garmin"
-              ? providerProfile.profileImageUrl ?? null
-              : null; // Wahoo has no profile pic API
+              ? (providerProfile.profileImageUrl as string) ?? null
+              : null;
 
         // Upsert profile in Supabase on sign-in
         console.log(`[AUTH] Upserting profile for ${provider}:`, account.providerAccountId);
 
-        const upsertData: Record<string, any> = {
+        const upsertData: Record<string, unknown> = {
           username,
           avatar_url: avatarUrl,
           provider,
@@ -170,7 +171,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Backward compat: old JWT tokens may not have providerId
-      // (users who signed in before multi-provider update)
       if (!token.providerId && token.userId) {
         try {
           const { data: existingProfile } = await supabaseAdmin
@@ -256,3 +256,5 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
   },
 };
+
+export const { handlers, auth, signIn, signOut } = NextAuth(config);

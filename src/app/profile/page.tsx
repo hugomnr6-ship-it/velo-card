@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
+import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
  * /profile — redirects authenticated user to their own profile page
  */
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.accessToken) {
     redirect("/");
   }

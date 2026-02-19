@@ -6,257 +6,108 @@
     "save": "Save",
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "back": "Back",
+    "seeAll": "See all",
+    "search": "Search",
     "delete": "Delete",
     "edit": "Edit",
-    "share": "Share",
     "close": "Close",
-    "back": "Back",
-    "next": "Next",
-    "seeAll": "See all",
-    "search": "Search...",
-    "noResults": "No results",
-    "comingSoon": "Coming soon"
+    "yes": "Yes",
+    "no": "No"
   },
   "nav": {
-    "dashboard": "Home",
+    "dashboard": "Dashboard",
     "leaderboard": "Leaderboard",
     "duels": "Duels",
+    "quests": "Quests",
     "clubs": "Clubs",
     "profile": "Profile",
     "races": "Races",
-    "badges": "Badges",
-    "settings": "Settings"
-  },
-  "auth": {
-    "login": "Log in",
-    "logout": "Log out",
-    "connectStrava": "Connect Strava",
-    "connectGarmin": "Connect Garmin",
-    "connectWahoo": "Connect Wahoo"
-  },
-  "onboarding": {
-    "analyzing": "Analyzing your rides...",
-    "cardReady": "Your card is ready!",
-    "welcome": "Welcome to VeloCard",
-    "step1Title": "Your stats in one card",
-    "step1Desc": "6 attributes calculated from your real rides. Like FIFA, but for cycling.",
-    "step2Title": "Challenge your friends",
-    "step2Desc": "Start 1v1 duels, compare stats, climb the rankings.",
-    "step3Title": "Share your card",
-    "step3Desc": "Export your VeloCard as an Instagram story, QR code, or shareable link.",
-    "letsGo": "Let's go!"
+    "marketplace": "Marketplace",
+    "settings": "Settings",
+    "tournaments": "Tournaments",
+    "fantasy": "Fantasy",
+    "season": "Season"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "thisWeek": "This week",
-    "recentActivity": "Recent activity",
-    "noActivity": "No activity this week yet. Get out and ride!",
-    "syncNow": "Sync now",
-    "lastSync": "Last sync: {time}",
+    "welcome": "Welcome, {name}",
     "weeklyStats": "Weekly stats",
-    "km": "km",
-    "dplus": "elev.",
-    "rides": "rides",
-    "hours": "hours"
-  },
-  "card": {
-    "overall": "Overall",
-    "pace": "Pace",
-    "climbing": "Climbing",
-    "technique": "Technique",
-    "sprint": "Sprint",
-    "endurance": "Endurance",
-    "power": "Power",
-    "tier": {
-      "bronze": "Bronze",
-      "silver": "Silver",
-      "gold": "Gold",
-      "diamond": "Diamond",
-      "legend": "Legend"
-    },
-    "specialCards": {
-      "totw": "Team of the Week",
-      "inForm": "In Form",
-      "legendMoment": "Legend Moment"
-    }
+    "yourCard": "Your VeloCard",
+    "syncStrava": "Sync Strava",
+    "syncing": "Syncing...",
+    "lastSync": "Last sync: {date}",
+    "viewProfile": "View my profile"
   },
   "duels": {
-    "title": "Duels",
     "challenge": "Challenge",
     "accept": "Accept",
     "decline": "Decline",
     "pending": "Pending",
     "active": "Active",
-    "completed": "Completed",
-    "won": "Won!",
+    "won": "Won",
     "lost": "Lost",
     "draw": "Draw",
-    "createDuel": "Create a duel",
+    "newDuel": "New duel",
+    "noDuels": "No active duels",
     "stake": "Stake",
-    "egoPoints": "Ego points",
-    "noDuels": "No active duels. Challenge someone!",
-    "category": {
-      "distance": "Distance",
-      "elevation": "Elevation",
-      "speed": "Speed",
-      "rides": "Number of rides",
-      "time": "Saddle time",
-      "power": "Power",
-      "overall": "Overall"
-    }
+    "category": "Category"
   },
-  "clubs": {
-    "title": "Clubs",
-    "create": "Create a club",
-    "join": "Join",
-    "leave": "Leave",
-    "members": "{count} members",
-    "wars": "Club wars",
-    "noClub": "You don't have a club yet. Join one!",
-    "settings": "Club settings"
+  "pricing": {
+    "free": "Free",
+    "pro": "Pro",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "startTrial": "Start 7-day free trial",
+    "currentPlan": "Current plan",
+    "upgrade": "Upgrade to Pro",
+    "features": "Features"
+  },
+  "quests": {
+    "daily": "Daily quests",
+    "weekly": "Weekly quests",
+    "completed": "Completed",
+    "inProgress": "In progress",
+    "reward": "Reward",
+    "claim": "Claim"
   },
   "leaderboard": {
     "title": "Leaderboard",
-    "region": "Region",
+    "regional": "Regional",
     "national": "National",
-    "worldwide": "Worldwide",
-    "sortBy": "Sort by",
-    "rank": "Rank",
+    "global": "Global",
     "weekly": "Weekly",
-    "allTime": "All time"
+    "monthly": "Monthly",
+    "yearly": "Yearly"
   },
-  "races": {
-    "title": "Races",
-    "upcoming": "Upcoming",
-    "past": "Past",
-    "join": "Join",
-    "leave": "Leave",
-    "results": "Results",
-    "noRaces": "No upcoming races."
+  "marketplace": {
+    "title": "Marketplace",
+    "buy": "Buy",
+    "sell": "Sell",
+    "cancel": "Cancel listing",
+    "price": "Price",
+    "noListings": "No items for sale",
+    "myListings": "My listings",
+    "confirmBuy": "Buy for {price} VeloCoins?"
   },
-  "badges": {
-    "title": "Badges",
-    "unlocked": "Unlocked!",
-    "locked": "Locked",
-    "progress": "{current}/{total}",
-    "rarity": {
-      "common": "Common",
-      "rare": "Rare",
-      "epic": "Epic",
-      "legendary": "Legendary"
-    }
-  },
-  "profile": {
-    "title": "Profile",
-    "editProfile": "Edit profile",
-    "stats": "Statistics",
-    "history": "History",
-    "achievements": "Achievements",
-    "compareWith": "Compare with",
-    "totalKm": "Total km",
-    "totalDplus": "Total elev.",
-    "totalRides": "Total rides"
+  "notifications": {
+    "enable": "Enable notifications",
+    "enabled": "Notifications enabled",
+    "duelChallenge": "{name} challenges you to a duel!",
+    "duelWon": "You won your duel!",
+    "questComplete": "Quest completed!"
   },
   "settings": {
     "title": "Settings",
     "language": "Language",
+    "theme": "Theme",
     "notifications": "Notifications",
-    "privacy": "Privacy",
-    "dataExport": "Export my data",
+    "account": "Account",
     "deleteAccount": "Delete my account",
-    "deleteConfirm": "Are you sure? This action cannot be undone.",
-    "about": "About",
-    "version": "Version",
-    "feedback": "Give feedback",
-    "reportBug": "Report a bug",
-    "support": "Support",
-    "publicProfile": "Public profile",
-    "publicProfileDesc": "Visible in leaderboards",
-    "shareActivities": "Share my activities",
-    "shareActivitiesDesc": "Visible in feed",
-    "myData": "My data",
-    "exportDesc": "Download a JSON file",
-    "deleteDesc": "Irreversible",
-    "help": "Help",
-    "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "notifDuels": "Duels",
-    "notifDuelsDesc": "When someone challenges you",
-    "notifMonday": "Monday Reveal",
-    "notifMondayDesc": "Monday morning reminder",
-    "notifBadges": "Badges",
-    "notifBadgesDesc": "When you unlock a badge",
-    "notifSocial": "Social",
-    "notifSocialDesc": "Likes and comments"
+    "signOut": "Sign out"
   },
-  "share": {
-    "title": "Share",
-    "instagramStory": "Instagram Story",
-    "cardImage": "Card image",
-    "copyLink": "Copy link",
-    "qrCode": "QR Code",
-    "copied": "Link copied!"
-  },
-  "notifications": {
-    "title": "Notifications",
-    "empty": "No notifications",
-    "markAllRead": "Mark all as read",
-    "duelChallenge": "{name} challenged you to a duel!",
-    "duelResult": "Duel finished: you {result}!",
-    "badgeUnlocked": "New badge unlocked: {badge}",
-    "mondayReveal": "Your new stats are ready!",
-    "clubInvite": "{name} invites you to join {club}",
-    "raceResult": "Race result: {position}th place",
-    "weeklyRecap": "Weekly recap: {km}km, {dplus}m elev."
-  },
-  "monday": {
-    "title": "Monday Reveal",
-    "newStats": "New stats!",
-    "tierUp": "Promoted!",
-    "tierDown": "Demoted",
-    "unchanged": "Stats unchanged"
-  },
-  "legal": {
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Service",
-    "cookies": "Cookie Settings"
-  },
-  "feedback": {
-    "title": "Your feedback matters",
-    "type": "Type",
-    "bug": "Bug",
-    "suggestion": "Suggestion",
-    "other": "Other",
-    "message": "Describe your feedback...",
-    "send": "Send",
-    "sending": "Sending...",
-    "thanks": "Thanks for your feedback!"
-  },
-  "landing": {
-    "hero": "Turn your bike rides into a FIFA card",
-    "subtitle": "The app that centralizes everything for your ride: routes, weather, wind, rankings. And turns every pedal stroke into visible stats on your card.",
-    "cta": "Connect my Strava",
-    "howItWorks": "See how it works",
-    "features": "Features",
-    "faq": "FAQ",
-    "testimonials": "Testimonials",
-    "socialProof": "They ride with VeloCard",
-    "stayInformed": "Stay informed",
-    "stayInformedDesc": "Sign up to receive updates and new features.",
-    "subscribe": "Subscribe",
-    "emailPlaceholder": "your@email.com",
-    "faqFree": "Is it free?",
-    "faqFreeAnswer": "Yes! VeloCard is free. A Pro subscription will be available soon with advanced features.",
-    "faqStats": "How are stats calculated?",
-    "faqStatsAnswer": "Your 6 attributes (Pace, Climbing, Technique, Sprint, Endurance, Power) are calculated from your real activities on Strava, Garmin, or Wahoo.",
-    "faqData": "Is my data safe?",
-    "faqDataAnswer": "Yes. We only store data necessary for the app to function. You can export or delete your data at any time.",
-    "faqProvider": "Can I play without Strava?",
-    "faqProviderAnswer": "VeloCard supports Strava, Garmin Connect, and Wahoo. At least one account is needed to sync your activities."
-  },
-  "a11y": {
-    "skipToContent": "Skip to main content",
-    "profilePicture": "Profile picture of {name}",
-    "searchCyclist": "Search for a cyclist"
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "connectStrava": "Connect Strava"
   }
 }

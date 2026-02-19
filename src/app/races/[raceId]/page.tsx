@@ -16,6 +16,7 @@ import { useToast } from "@/contexts/ToastContext";
 import Skeleton from "@/components/Skeleton";
 import { FlagIcon } from "@/components/icons/TabIcons";
 import type { RaceDetailWithResults, GpxPoint } from "@/types";
+import { Avatar } from "@/components/Avatar";
 import type { GradientSegment, ClimbSegment } from "@/lib/gpx-analysis";
 import {
   computeSegmentGradients,
@@ -334,11 +335,7 @@ export default function RaceDetailPage() {
           {/* Creator */}
           {race.creator && (
             <div className="mt-3 flex items-center gap-2">
-              {race.creator.avatar_url ? (
-                <img src={race.creator.avatar_url} alt="" className="h-5 w-5 rounded-full" />
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-[#22223A]" />
-              )}
+              <Avatar src={race.creator.avatar_url} alt={race.creator.username || ""} size={20} />
               <span className="text-[11px] text-[#64748B]">
                 Organisee par {race.creator.username}
               </span>

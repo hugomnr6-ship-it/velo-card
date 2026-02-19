@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
-import { LazyMotion, domAnimation } from "framer-motion";
+import { LazyMotion, domAnimation, MotionConfig } from "framer-motion";
 import { ToastProvider } from "@/contexts/ToastContext";
 import QueryProvider from "./QueryProvider";
 import BottomTabBar from "./BottomTabBar";
@@ -32,6 +32,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <LazyMotion features={domAnimation} strict>
+          <MotionConfig reducedMotion="user">
           <QueryProvider>
             <ToastProvider>
               <ServiceWorkerRegistrar />
@@ -42,6 +43,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <FeedbackButton />
             </ToastProvider>
           </QueryProvider>
+        </MotionConfig>
         </LazyMotion>
       </ThemeProvider>
     </SessionProvider>

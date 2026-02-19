@@ -96,9 +96,9 @@ export default function CreateRacePage() {
       <div className="w-full max-w-lg">
         <Link
           href="/races"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-[#94A3B8] hover:text-white/80 transition"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-[#94A3B8] hover:text-white/80 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00F5D4] rounded"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <polyline points="15 18 9 12 15 6" />
           </svg>
           Retour
@@ -113,27 +113,27 @@ export default function CreateRacePage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Name */}
           <div>
-            <label className={labelClass}>Nom de la course *</label>
-            <input type="text" className={inputClass} placeholder="Grand Prix de Perpignan" value={name} onChange={(e) => setName(e.target.value)} required />
+            <label htmlFor="race-name" className={labelClass}>Nom de la course *</label>
+            <input id="race-name" type="text" className={inputClass} placeholder="Grand Prix de Perpignan" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
           {/* Date & Location */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Date *</label>
-              <input type="date" className={inputClass} min={today} value={date} onChange={(e) => setDate(e.target.value)} required />
+              <label htmlFor="race-date" className={labelClass}>Date *</label>
+              <input id="race-date" type="date" className={inputClass} min={today} value={date} onChange={(e) => setDate(e.target.value)} required />
             </div>
             <div>
-              <label className={labelClass}>Lieu *</label>
-              <input type="text" className={inputClass} placeholder="Perpignan" value={location} onChange={(e) => setLocation(e.target.value)} required />
+              <label htmlFor="race-location" className={labelClass}>Lieu *</label>
+              <input id="race-location" type="text" className={inputClass} placeholder="Perpignan" value={location} onChange={(e) => setLocation(e.target.value)} required />
             </div>
           </div>
 
           {/* Federation & Category */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className={labelClass}>Federation</label>
-              <select className={inputClass} value={federation} onChange={(e) => setFederation(e.target.value as Federation)}>
+              <label htmlFor="race-federation" className={labelClass}>Federation</label>
+              <select id="race-federation" className={inputClass} value={federation} onChange={(e) => setFederation(e.target.value as Federation)}>
                 <option value="FFC">FFC</option>
                 <option value="UFOLEP">UFOLEP</option>
                 <option value="FSGT">FSGT</option>
@@ -141,8 +141,8 @@ export default function CreateRacePage() {
               </select>
             </div>
             <div>
-              <label className={labelClass}>Categorie</label>
-              <select className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
+              <label htmlFor="race-category" className={labelClass}>Categorie</label>
+              <select id="race-category" className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="Cadets">Cadets</option>
                 <option value="Juniors">Juniors</option>
                 <option value="Access">Access</option>
@@ -157,8 +157,8 @@ export default function CreateRacePage() {
               </select>
             </div>
             <div>
-              <label className={labelClass}>Genre</label>
-              <select className={inputClass} value={gender} onChange={(e) => setGender(e.target.value as RaceGender)}>
+              <label htmlFor="race-gender" className={labelClass}>Genre</label>
+              <select id="race-gender" className={inputClass} value={gender} onChange={(e) => setGender(e.target.value as RaceGender)}>
                 <option value="MIXTE">Mixte</option>
                 <option value="H">Hommes</option>
                 <option value="F">Femmes</option>
@@ -169,16 +169,16 @@ export default function CreateRacePage() {
           {/* Distance & Elevation */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className={labelClass}>Distance (km)</label>
-              <input type="number" step="0.1" className={inputClass} placeholder="85" value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} />
+              <label htmlFor="race-distance" className={labelClass}>Distance (km)</label>
+              <input id="race-distance" type="number" step="0.1" className={inputClass} placeholder="85" value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} />
             </div>
             <div>
-              <label className={labelClass}>D+ (m)</label>
-              <input type="number" className={inputClass} placeholder="1200" value={elevationGain} onChange={(e) => setElevationGain(e.target.value)} />
+              <label htmlFor="race-elevation" className={labelClass}>D+ (m)</label>
+              <input id="race-elevation" type="number" className={inputClass} placeholder="1200" value={elevationGain} onChange={(e) => setElevationGain(e.target.value)} />
             </div>
             <div>
-              <label className={labelClass}>Departement</label>
-              <input type="text" className={inputClass} placeholder="66" value={department} onChange={(e) => setDepartment(e.target.value)} />
+              <label htmlFor="race-department" className={labelClass}>Departement</label>
+              <input id="race-department" type="text" className={inputClass} placeholder="66" value={department} onChange={(e) => setDepartment(e.target.value)} />
             </div>
           </div>
 
@@ -200,6 +200,7 @@ export default function CreateRacePage() {
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setGpxFile(null); setGpxFileName(""); }}
+                  aria-label="Supprimer le fichier GPX"
                   className="ml-auto text-xs text-white/30 hover:text-red-400 transition"
                 >
                   ✕
@@ -222,8 +223,9 @@ export default function CreateRacePage() {
 
           {/* Description */}
           <div>
-            <label className={labelClass}>Description</label>
+            <label htmlFor="race-description" className={labelClass}>Description</label>
             <textarea
+              id="race-description"
               className={`${inputClass} min-h-[80px] resize-none`}
               placeholder="Informations supplementaires..."
               value={description}

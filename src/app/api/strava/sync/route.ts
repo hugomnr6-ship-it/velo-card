@@ -1,5 +1,5 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
-import type { AuthProvider } from "@/lib/auth";
+import type { AuthProvider } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchActivities } from "@/lib/strava";
 import { fetchWahooWorkouts, wahooToActivities } from "@/lib/wahoo";

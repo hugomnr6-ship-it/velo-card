@@ -12,6 +12,7 @@ import PageHeader from "@/components/PageHeader";
 import { SwordsIcon } from "@/components/icons/TabIcons";
 import type { CardTier } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
+import { Avatar } from "@/components/Avatar";
 
 // ——— Types ———
 interface CompareUser {
@@ -423,11 +424,7 @@ function PlayerSlot({
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-          {selected.avatar_url ? (
-            <img src={selected.avatar_url} alt="" className="mx-auto h-12 w-12 rounded-full border-2" style={{ borderColor: accent }} />
-          ) : (
-            <div className="mx-auto h-12 w-12 rounded-full bg-[#22223A] border-2" style={{ borderColor: accent }} />
-          )}
+          <Avatar src={selected.avatar_url} alt={selected.username || ""} size={48} className="mx-auto border-2" style={{ borderColor: accent }} />
           <p className="mt-2 truncate text-sm font-bold text-white">{selected.username || "..."}</p>
           <p className="text-lg font-black" style={{ color: accent }}>{selected.ovr}</p>
         </div>
@@ -436,13 +433,14 @@ function PlayerSlot({
           <input
             type="text"
             placeholder="Rechercher..."
+            aria-label="Rechercher un cycliste"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl border border-white/[0.08] bg-[#111827] py-2.5 px-3 text-sm text-white placeholder-[#475569] focus:border-[#6366F1]/50 focus:outline-none"
           />
           {searching && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
+              <div role="status" aria-label="Recherche en cours" className="h-4 w-4 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
             </div>
           )}
 
@@ -455,11 +453,7 @@ function PlayerSlot({
                   onClick={() => onSelect(r)}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-white/[0.04] transition"
                 >
-                  {r.avatar_url ? (
-                    <img src={r.avatar_url} alt="" className="h-7 w-7 rounded-full" />
-                  ) : (
-                    <div className="h-7 w-7 rounded-full bg-[#22223A]" />
-                  )}
+                  <Avatar src={r.avatar_url} alt={r.username || ""} size={28} />
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-xs font-bold text-white">{r.username}</p>
                   </div>

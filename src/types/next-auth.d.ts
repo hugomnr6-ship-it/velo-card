@@ -1,5 +1,5 @@
 import "next-auth";
-import type { AuthProvider } from "@/lib/auth";
+import type { AuthProvider } from "@/auth";
 
 declare module "next-auth" {
   interface Session {

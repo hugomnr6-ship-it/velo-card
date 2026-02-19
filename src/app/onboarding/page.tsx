@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
+import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import OnboardingClient from "./OnboardingClient";
 
 export default async function OnboardingPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.accessToken) {
     redirect("/");
   }

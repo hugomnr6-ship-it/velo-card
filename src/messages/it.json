@@ -1,0 +1,113 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Si è verificato un errore",
+    "retry": "Riprova",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "seeAll": "Vedi tutto",
+    "search": "Cerca",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "close": "Chiudi",
+    "yes": "Sì",
+    "no": "No"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "leaderboard": "Classifica",
+    "duels": "Duelli",
+    "quests": "Missioni",
+    "clubs": "Club",
+    "profile": "Profilo",
+    "races": "Gare",
+    "marketplace": "Mercato",
+    "settings": "Impostazioni",
+    "tournaments": "Tornei",
+    "fantasy": "Fantasy",
+    "season": "Stagione"
+  },
+  "dashboard": {
+    "welcome": "Benvenuto, {name}",
+    "weeklyStats": "Statistiche settimanali",
+    "yourCard": "La tua VeloCard",
+    "syncStrava": "Sincronizza Strava",
+    "syncing": "Sincronizzazione...",
+    "lastSync": "Ultima sync: {date}",
+    "viewProfile": "Vedi il mio profilo"
+  },
+  "duels": {
+    "challenge": "Sfida",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "pending": "In attesa",
+    "active": "Attivo",
+    "won": "Vinto",
+    "lost": "Perso",
+    "draw": "Pareggio",
+    "newDuel": "Nuovo duello",
+    "noDuels": "Nessun duello attivo",
+    "stake": "Posta",
+    "category": "Categoria"
+  },
+  "pricing": {
+    "free": "Gratuito",
+    "pro": "Pro",
+    "perMonth": "/mese",
+    "perYear": "/anno",
+    "startTrial": "Prova gratuita 7 giorni",
+    "currentPlan": "Piano attuale",
+    "upgrade": "Passa a Pro",
+    "features": "Funzionalità"
+  },
+  "quests": {
+    "daily": "Missioni giornaliere",
+    "weekly": "Missioni settimanali",
+    "completed": "Completata",
+    "inProgress": "In corso",
+    "reward": "Ricompensa",
+    "claim": "Riscuoti"
+  },
+  "leaderboard": {
+    "title": "Classifica",
+    "regional": "Regionale",
+    "national": "Nazionale",
+    "global": "Mondiale",
+    "weekly": "Settimanale",
+    "monthly": "Mensile",
+    "yearly": "Annuale"
+  },
+  "marketplace": {
+    "title": "Mercato",
+    "buy": "Compra",
+    "sell": "Vendi",
+    "cancel": "Annulla vendita",
+    "price": "Prezzo",
+    "noListings": "Nessun oggetto in vendita",
+    "myListings": "Le mie vendite",
+    "confirmBuy": "Comprare per {price} VeloCoins?"
+  },
+  "notifications": {
+    "enable": "Attiva le notifiche",
+    "enabled": "Notifiche attive",
+    "duelChallenge": "{name} ti sfida a duello!",
+    "duelWon": "Hai vinto il duello!",
+    "questComplete": "Missione completata!"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "language": "Lingua",
+    "theme": "Tema",
+    "notifications": "Notifiche",
+    "account": "Account",
+    "deleteAccount": "Elimina il mio account",
+    "signOut": "Disconnetti"
+  },
+  "auth": {
+    "signIn": "Accedi",
+    "signOut": "Disconnetti",
+    "connectStrava": "Connetti Strava"
+  }
+}

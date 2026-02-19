@@ -123,3 +123,17 @@ export const fantasyTransferSchema = z.object({
 export const fantasyJoinSchema = z.object({
   inviteCode: z.string().min(1).max(10).optional(),
 });
+
+// ——— Marketplace ———
+export const createListingSchema = z.object({
+  itemType: z.enum(["skin", "boost", "badge_frame"]),
+  itemId: z.string().min(1),
+  price: z.number().int().min(10).max(10000),
+});
+
+export const marketplaceQuerySchema = z.object({
+  type: z.enum(["skin", "boost", "badge_frame", "all"]).default("all"),
+  sortBy: z.enum(["price_asc", "price_desc", "newest"]).default("newest"),
+  minPrice: z.coerce.number().int().min(0).optional(),
+  maxPrice: z.coerce.number().int().max(10000).optional(),
+});

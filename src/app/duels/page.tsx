@@ -9,10 +9,12 @@ import ErrorState from "@/components/ErrorState";
 import { useToast } from "@/contexts/ToastContext";
 import { trackEvent } from "@/lib/analytics";
 import { useDuels } from "@/hooks/useDuels";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { CardTier, DuelCategory, DuelWithPlayers } from "@/types";
 import { DUEL_CATEGORY_LABELS } from "@/types";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
 import { IconSwords, IconStar, IconLightning, IconMountain, IconTarget, IconWind, IconMuscle, IconFire, IconCycling, IconCalendar, STAT_ICONS } from "@/components/icons/VeloIcons";
+import { Avatar } from "@/components/Avatar";
 
 /* ═══ Constants ═══ */
 
@@ -55,6 +57,7 @@ export default function DuelsPage() {
   const [selectedStake, setSelectedStake] = useState(10);
   const [creating, setCreating] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>(null);
+  const createModalRef = useFocusTrap(showCreate, () => setShowCreate(false));
 
   // Fetch duels via React Query hook — only when session is ready
   const { data: duelsData, isLoading: loading, error: duelsError, refetch: refetchDuels } = useDuels("all", status === "authenticated");
@@ -247,7 +250,7 @@ export default function DuelsPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex glass rounded-xl p-1 mb-4">
+        <div className="flex glass rounded-xl p-1 mb-4" role="tablist" aria-label="Filtrer les duels">
           {([
             { key: "pending" as const, label: "En attente", count: pendingCount },
             { key: "active" as const, label: "En cours", count: 0 },
@@ -255,6 +258,8 @@ export default function DuelsPage() {
           ]).map((tab) => (
             <button
               key={tab.key}
+              role="tab"
+              aria-selected={activeTab === tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`relative flex-1 rounded-lg py-2 text-xs font-bold transition ${
                 activeTab === tab.key ? "text-white" : "text-white/30 hover:text-white/50"
@@ -281,7 +286,7 @@ export default function DuelsPage() {
 
         {/* Loading skeleton — inline, not blocking the whole page */}
         {!isReady && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" role="status" aria-label="Chargement des duels">
             {[1, 2, 3].map(i => (
               <div key={i} className="h-24 w-full animate-pulse rounded-xl bg-white/5" />
             ))}
@@ -349,6 +354,10 @@ export default function DuelsPage() {
             onClick={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}
           >
             <m.div
+              ref={createModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="create-duel-title"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
@@ -356,9 +365,10 @@ export default function DuelsPage() {
               className="w-full max-w-md rounded-t-3xl border-t border-white/[0.08] bg-[#0B1120] p-6 max-h-[85vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-black text-white">Nouveau Défi</h2>
+                <h2 id="create-duel-title" className="text-lg font-black text-white">Nouveau Défi</h2>
                 <button
                   onClick={() => setShowCreate(false)}
+                  aria-label="Fermer"
                   className="text-white/30 hover:text-white transition"
                 >
                   ✕
@@ -374,11 +384,12 @@ export default function DuelsPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Rechercher un pseudo..."
+                    aria-label="Rechercher un adversaire"
                     className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 px-4 text-sm text-white placeholder:text-white/25 outline-none focus:border-[#6366F1]/50 transition"
                     autoFocus
                   />
-                  <div className="mt-3 flex flex-col gap-2 max-h-[40vh] overflow-y-auto">
-                    {searchLoading && <p className="py-4 text-center text-xs text-white/30">Recherche...</p>}
+                  <div className="mt-3 flex flex-col gap-2 max-h-[40vh] overflow-y-auto" aria-live="polite">
+                    {searchLoading && <p role="status" className="py-4 text-center text-xs text-white/30">Recherche...</p>}
                     {searchResults.map((user) => (
                       <button
                         key={user.user_id}
@@ -386,11 +397,7 @@ export default function DuelsPage() {
                         className={`rounded-xl border ${tierBorderColors[user.tier]} bg-gradient-to-r ${tierConfig[user.tier].bg} p-3 text-left transition hover:scale-[1.01]`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10">
-                            {user.avatar_url ? (
-                              <img src={`/api/img?url=${encodeURIComponent(user.avatar_url)}`} alt="" className="h-full w-full object-cover" />
-                            ) : <div className="h-full w-full bg-white/10" />}
-                          </div>
+                          <Avatar src={user.avatar_url} alt={user.username || ""} size={32} className="border border-white/10" />
                           <span className="text-sm font-bold text-white flex-1">{user.username}</span>
                           <span className="text-lg font-black font-['JetBrains_Mono']" style={{ color: tierAccentHex[user.tier] }}>
                             {user.ovr}
@@ -404,11 +411,7 @@ export default function DuelsPage() {
                 <>
                   {/* Selected opponent preview */}
                   <div className="flex items-center gap-3 rounded-xl border border-[#6366F1]/25 bg-[#6366F1]/[0.08] p-3 mb-4">
-                    <div className="h-10 w-10 rounded-full overflow-hidden border-2" style={{ borderColor: tierAccentHex[selectedOpponent.tier] }}>
-                      {selectedOpponent.avatar_url ? (
-                        <img src={`/api/img?url=${encodeURIComponent(selectedOpponent.avatar_url)}`} alt="" className="h-full w-full object-cover" />
-                      ) : <div className="h-full w-full bg-white/10" />}
-                    </div>
+                    <Avatar src={selectedOpponent.avatar_url} alt={selectedOpponent.username || ""} size={40} className="border-2" style={{ borderColor: tierAccentHex[selectedOpponent.tier] }} />
                     <div className="flex-1">
                       <p className="text-sm font-bold text-white">{selectedOpponent.username}</p>
                       <p className="text-[10px]" style={{ color: tierAccentHex[selectedOpponent.tier] }}>
@@ -528,13 +531,10 @@ function DuelCard({
         {/* Me */}
         <button
           onClick={() => onViewProfile(duel.challenger_id === userId ? duel.challenger_id : duel.opponent_id)}
-          className="flex items-center gap-2 flex-1 min-w-0"
+          aria-label={`Voir le profil de ${me.username}`}
+          className="flex items-center gap-2 flex-1 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00F5D4]"
         >
-          <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden border" style={{ borderColor: `${tierAccentHex[me.tier]}50` }}>
-            {me.avatar_url ? (
-              <img src={`/api/img?url=${encodeURIComponent(me.avatar_url)}`} alt="" className="h-full w-full object-cover" />
-            ) : <div className="h-full w-full bg-white/10" />}
-          </div>
+          <Avatar src={me.avatar_url} alt={me.username || ""} size={32} className="shrink-0 border" style={{ borderColor: `${tierAccentHex[me.tier]}50` }} />
           <div className="min-w-0">
             <p className="truncate text-xs font-bold text-white">{me.username}</p>
             <p className="text-[9px]" style={{ color: tierAccentHex[me.tier] }}>{me.ovr}</p>
@@ -566,13 +566,10 @@ function DuelCard({
         {/* Them */}
         <button
           onClick={() => onViewProfile(duel.challenger_id !== userId ? duel.challenger_id : duel.opponent_id)}
-          className="flex items-center gap-2 flex-1 min-w-0 flex-row-reverse"
+          aria-label={`Voir le profil de ${them.username}`}
+          className="flex items-center gap-2 flex-1 min-w-0 flex-row-reverse rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00F5D4]"
         >
-          <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden border" style={{ borderColor: `${tierAccentHex[them.tier]}50` }}>
-            {them.avatar_url ? (
-              <img src={`/api/img?url=${encodeURIComponent(them.avatar_url)}`} alt="" className="h-full w-full object-cover" />
-            ) : <div className="h-full w-full bg-white/10" />}
-          </div>
+          <Avatar src={them.avatar_url} alt={them.username || ""} size={32} className="shrink-0 border" style={{ borderColor: `${tierAccentHex[them.tier]}50` }} />
           <div className="min-w-0 text-right">
             <p className="truncate text-xs font-bold text-white">{them.username}</p>
             <p className="text-[9px]" style={{ color: tierAccentHex[them.tier] }}>{them.ovr}</p>

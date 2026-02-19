@@ -5,11 +5,8 @@ import { z } from "zod";
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: {},
 }));
-vi.mock("@/lib/auth", () => ({
-  authOptions: {},
-}));
-vi.mock("next-auth", () => ({
-  getServerSession: vi.fn(),
+vi.mock("@/auth", () => ({
+  auth: vi.fn(),
 }));
 
 import { isValidUUID, AppError, handleApiError, validateBody } from "@/lib/api-utils";

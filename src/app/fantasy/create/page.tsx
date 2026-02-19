@@ -65,10 +65,11 @@ export default function CreateFantasyLeaguePage() {
         <div className="flex flex-col gap-4">
           {/* Name */}
           <div>
-            <label className="mb-1 block text-xs font-bold text-[#94A3B8]">
+            <label htmlFor="league-name" className="mb-1 block text-xs font-bold text-[#94A3B8]">
               Nom de la ligue
             </label>
             <input
+              id="league-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -102,10 +103,11 @@ export default function CreateFantasyLeaguePage() {
 
           {/* Max participants */}
           <div>
-            <label className="mb-1 block text-xs font-bold text-[#94A3B8]">
+            <label htmlFor="league-max-participants" className="mb-1 block text-xs font-bold text-[#94A3B8]">
               Joueurs max ({maxParticipants})
             </label>
             <input
+              id="league-max-participants"
               type="range"
               min={4}
               max={20}
@@ -152,6 +154,9 @@ export default function CreateFantasyLeaguePage() {
             </div>
             <button
               onClick={() => setIsPublic(!isPublic)}
+              role="switch"
+              aria-checked={isPublic}
+              aria-label="Ligue publique"
               className={`relative h-6 w-11 rounded-full transition ${
                 isPublic ? "bg-[#6366F1]" : "bg-white/10"
               }`}

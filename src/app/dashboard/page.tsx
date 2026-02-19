@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
+import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { VeloCardWithButtonSkeleton } from "@/components/Skeleton";
 import AnimatedPage from "@/components/AnimatedPage";
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.accessToken) {
     redirect("/");
   }

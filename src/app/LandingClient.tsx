@@ -218,7 +218,7 @@ export default function LandingClient() {
   if (status === "loading") {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0A0A0F]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
+        <div role="status" aria-label="Chargement" className="h-8 w-8 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
       </main>
     );
   }

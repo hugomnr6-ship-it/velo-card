@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
+import { auth } from "@/auth";
 import { isUserPro } from "@/services/subscription.service";
 
 /**
@@ -11,7 +11,7 @@ export async function requirePro(): Promise<{
   userId: string;
   isPro: true;
 } | NextResponse> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }

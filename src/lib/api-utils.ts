@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { ZodSchema } from "zod";
 
@@ -19,7 +18,7 @@ export interface AuthenticatedUser {
  * Économise ~100K requêtes/jour sur la table profiles.
  */
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | Response> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return Response.json({ error: "Non authentifié" }, { status: 401 });
   }

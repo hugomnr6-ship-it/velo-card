@@ -4,23 +4,16 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { m, AnimatePresence } from "framer-motion";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
+import dynamic from "next/dynamic";
+
+const StatsTab = dynamic(() => import("./StatsTab"), { ssr: false });
+const HistoryTab = dynamic(() => import("./HistoryTab"), { ssr: false });
 import AnimatedPage from "@/components/AnimatedPage";
 import ShareButton from "@/components/ShareButton";
 import BadgeGrid from "@/components/BadgeGrid";
 import ProfileEditForm from "@/components/ProfileEditForm";
 import type { CardTier, SpecialCardType } from "@/types";
+import { Avatar } from "@/components/Avatar";
 import { tierConfig, tierBorderColors } from "@/components/VeloCard";
 import { IconCycling, IconMountain, IconCalendar, IconTimer, IconStar, IconSwords, IconShield, IconChartUp, IconRocket, IconCrown, IconTrophy, IconCheck } from "@/components/icons/VeloIcons";
 
@@ -72,24 +65,7 @@ const tierAccentHex: Record<CardTier, string> = {
   bronze: "#cd7f32", argent: "#B8A0D8", platine: "#E0E8F0", diamant: "#B9F2FF", legende: "#FFD700",
 };
 
-const statLabels: Record<string, string> = {
-  pac: "Vitesse", mon: "Grimpeur", val: "Technique", spr: "Sprint", end: "Endurance", res: "Puissance",
-};
-
-const statIcons: Record<string, any> = {
-  pac: IconStar, mon: IconMountain, val: IconStar, spr: IconRocket, end: IconTrophy, res: IconChartUp,
-};
-
-/* ═══════════════ Helper components ═══════════════ */
-
-function DeltaBadge({ value }: { value: number }) {
-  if (value === 0) return null;
-  return (
-    <span className={`text-[10px] font-bold ${value > 0 ? "text-emerald-400" : "text-red-400"}`}>
-      {value > 0 ? "↑" : "↓"}{Math.abs(value)}
-    </span>
-  );
-}
+/* ═══════════════ Helpers ═══════════════ */
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -277,13 +253,7 @@ export default function UserProfilePage() {
                       className={`rounded-xl border ${tierBorderColors[user.tier]} bg-gradient-to-r ${tierConfig[user.tier].bg} p-3 text-left transition hover:scale-[1.01]`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10">
-                          {user.avatar_url ? (
-                            <img src={`/api/img?url=${encodeURIComponent(user.avatar_url)}`} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="h-full w-full bg-white/10" />
-                          )}
-                        </div>
+                        <Avatar src={user.avatar_url} alt={user.username || ""} size={32} className="border border-white/10" />
                         <span className="text-sm font-bold text-white flex-1">{user.username}</span>
                         <span className="text-lg font-black font-['JetBrains_Mono']" style={{ color: tierAccentHex[user.tier] }}>
                           {user.ovr}
@@ -566,219 +536,6 @@ export default function UserProfilePage() {
         />
       )}
     </AnimatedPage>
-  );
-}
-
-/* ═══════════════ Stats Tab ═══════════════ */
-
-function StatsTab({
-  stats, deltas, accent, tier, radarData, clubs,
-}: {
-  stats: ProfileData["stats"]; deltas: ProfileData["deltas"]; accent: string; tier: CardTier;
-  radarData: { stat: string; value: number; fullMark: number }[];
-  clubs: ProfileData["clubs"];
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Radar chart */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">RADAR DE STATS</p>
-        <ResponsiveContainer width="100%" height={240}>
-          <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="75%">
-            <PolarGrid stroke="rgba(255,255,255,0.06)" />
-            <PolarAngleAxis
-              dataKey="stat"
-              tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 700 }}
-            />
-            <Radar
-              dataKey="value"
-              stroke={accent}
-              fill={accent}
-              fillOpacity={0.15}
-              strokeWidth={2}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Stat cards grid */}
-      <div className="grid grid-cols-3 gap-2">
-        {(["pac", "mon", "val", "spr", "end", "res"] as const).map((key) => (
-          <div
-            key={key}
-            className="flex flex-col items-center rounded-xl border border-white/[0.06] bg-white/[0.03] p-3"
-          >
-            <span className="flex items-center">{(() => { const I = statIcons[key]; return I ? <I size={18} className="text-white/60" /> : null; })()}</span>
-            <span className="mt-1 text-xl font-black font-['JetBrains_Mono']" style={{ color: accent }}>
-              {stats[key]}
-            </span>
-            {deltas && <DeltaBadge value={deltas[key]} />}
-            <span className="mt-0.5 text-[8px] font-bold tracking-wider text-white/30">
-              {statLabels[key].toUpperCase()}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Clubs */}
-      {clubs.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <p className="text-[10px] font-bold tracking-wider text-white/30 mb-3">CLUBS</p>
-          <div className="flex flex-wrap gap-2">
-            {clubs.map((club) => (
-              <div
-                key={club.id}
-                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5"
-              >
-                {club.logo_url && (
-                  <img
-                    src={`/api/img?url=${encodeURIComponent(club.logo_url)}`}
-                    alt=""
-                    className="h-5 w-5 rounded-full object-cover"
-                  />
-                )}
-                <span className="text-xs font-semibold text-white/70">{club.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ═══════════════ History Tab ═══════════════ */
-
-function HistoryTab({
-  chartData, history, accent,
-}: {
-  chartData: { week: string; ovr: number; km: number }[];
-  history: ProfileData["history"];
-  accent: string;
-}) {
-  if (chartData.length === 0) {
-    return (
-      <div className="py-12 text-center">
-        <div className="text-3xl mb-2 flex justify-center"><IconChartUp size={32} className="text-white/30" /></div>
-        <p className="text-sm text-white/30">Pas encore d'historique</p>
-        <p className="text-xs text-white/20 mt-1">Les données apparaîtront après le premier Monday Update</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      {/* OVR progression chart */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">PROGRESSION OVR</p>
-        <ResponsiveContainer width="100%" height={180}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="ovrGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={accent} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={accent} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="week"
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              domain={["auto", "auto"]}
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-              width={30}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "rgba(10,10,18,0.95)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                fontSize: "11px",
-              }}
-              labelStyle={{ color: "rgba(255,255,255,0.5)" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="ovr"
-              stroke={accent}
-              strokeWidth={2}
-              fill="url(#ovrGrad)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Weekly KM chart */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">KILOMÈTRES HEBDO</p>
-        <ResponsiveContainer width="100%" height={140}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="kmGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00F5D4" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#00F5D4" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="week"
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-              width={30}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "rgba(10,10,18,0.95)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                fontSize: "11px",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="km"
-              stroke="#00F5D4"
-              strokeWidth={2}
-              fill="url(#kmGrad)"
-              name="KM"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Weekly history list */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-3">DÉTAIL PAR SEMAINE</p>
-        <div className="flex flex-col gap-2">
-          {[...history].reverse().slice(0, 8).map((h, i) => (
-            <m.div
-              key={h.week_label}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-3 rounded-lg bg-white/[0.03] px-3 py-2"
-            >
-              <span className="text-[10px] font-bold text-white/30 w-8">{formatWeekLabel(h.week_label)}</span>
-              <span className="text-sm font-black font-['JetBrains_Mono'] text-white/80 w-8">{h.ovr}</span>
-              <div className="flex-1 flex items-center gap-2 text-[10px] text-white/30">
-                <span className="flex items-center gap-1"><IconCycling size={10} /> {h.weekly_km.toFixed(1)}km</span>
-                <span className="flex items-center gap-1"><IconMountain size={10} /> {h.weekly_dplus}m</span>
-                <span>×{h.weekly_rides}</span>
-              </div>
-            </m.div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 

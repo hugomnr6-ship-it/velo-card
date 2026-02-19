@@ -153,8 +153,8 @@ export default function WindWeatherPanel({
 
         {/* ═══ Loading state ═══ */}
         {loading && (
-          <div className="mt-4 flex items-center justify-center gap-2 py-6">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
+          <div role="status" className="mt-4 flex items-center justify-center gap-2 py-6">
+            <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-[#6366F1] border-t-transparent" />
             <span className="text-xs text-white/40">Analyse en cours...</span>
           </div>
         )}

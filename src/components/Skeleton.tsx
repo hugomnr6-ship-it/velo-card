@@ -7,6 +7,7 @@ interface SkeletonProps {
 export default function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
+      aria-hidden="true"
       className={`shimmer rounded-lg bg-[#1A1A2E] ${className}`}
     />
   );
@@ -145,7 +146,7 @@ export function RacesSkeleton() {
 /** Skeleton for the full page loading state — matches real dashboard layout */
 export function DashboardSkeleton() {
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 px-4 py-12">
+    <main role="status" aria-label="Chargement du tableau de bord" className="flex min-h-screen flex-col items-center gap-6 px-4 py-12">
       {/* VeloCard skeleton */}
       <VeloCardSkeleton />
       <ButtonSkeleton />

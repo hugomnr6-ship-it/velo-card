@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
+import { auth } from "@/auth";
 import VeloCard3DWrapper from "@/components/VeloCard3DWrapper";
 import ShareButtonWrapper from "./ShareButtonWrapper";
 import Link from "next/link";
@@ -46,7 +46,7 @@ export default async function CardPage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   // Fetch profile
   const { data: profile } = await supabaseAdmin
