@@ -304,32 +304,37 @@ export default function LandingClient() {
             </button>
           </m.div>
 
-          {/* Demo cards */}
+          {/* Demo cards — mobile: scale down + negative margins to fit 3 cards */}
           <m.div
-            className="mt-14 flex items-end justify-center gap-2 sm:gap-6 w-full max-w-full px-2"
+            className="mt-14 flex items-end justify-center w-full sm:gap-6"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {demoCards.map((card, i) => (
-              <m.div
-                key={card.username}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + i * 0.15 }}
-                className={i === 1 ? "z-[2] scale-[0.95] sm:scale-105" : "z-[1] scale-[0.75] sm:scale-90"}
-                style={{
-                  transform:
-                    i === 0
+            {demoCards.map((card, i) => {
+              const isCenter = i === 1;
+              const isLeft = i === 0;
+              return (
+                <m.div
+                  key={card.username}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 + i * 0.15 }}
+                  className={`shrink-0 ${isCenter ? "z-[2]" : "z-[1]"}`}
+                  style={{
+                    transform: isLeft
                       ? "perspective(1000px) rotateY(5deg)"
-                      : i === 2
+                      : !isCenter
                       ? "perspective(1000px) rotateY(-5deg)"
                       : undefined,
-                }}
-              >
-                <DemoCard {...card} />
-              </m.div>
-            ))}
+                  }}
+                >
+                  <div className={isCenter ? "scale-[0.75] sm:scale-105" : "scale-[0.6] sm:scale-90 -mx-4 sm:mx-0"}>
+                    <DemoCard {...card} />
+                  </div>
+                </m.div>
+              );
+            })}
           </m.div>
         </div>
       </section>
