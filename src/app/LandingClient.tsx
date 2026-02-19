@@ -317,9 +317,9 @@ export default function LandingClient() {
             </button>
           </m.div>
 
-          {/* Demo cards — mobile: scale down + negative margins to fit 3 cards */}
+          {/* Demo cards — responsive: contained within viewport */}
           <m.div
-            className="mt-14 flex items-end justify-center w-full sm:gap-6"
+            className="mt-14 flex items-end justify-center w-full max-w-[100vw] overflow-hidden px-2 sm:px-0 sm:gap-6"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -333,7 +333,7 @@ export default function LandingClient() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 + i * 0.15 }}
-                  className={`shrink-0 ${isCenter ? "z-[2]" : "z-[1]"}`}
+                  className={`shrink min-w-0 ${isCenter ? "z-[2] shrink-0" : "z-[1]"}`}
                   style={{
                     transform: isLeft
                       ? "perspective(1000px) rotateY(5deg)"
@@ -342,7 +342,10 @@ export default function LandingClient() {
                       : undefined,
                   }}
                 >
-                  <div className={isCenter ? "scale-[0.65] sm:scale-105" : "scale-[0.5] sm:scale-90 -mx-6 sm:mx-0"}>
+                  <div className={isCenter
+                    ? "w-[120px] sm:w-[210px]"
+                    : "w-[95px] sm:w-[180px] opacity-70 sm:opacity-100"
+                  }>
                     <DemoCard {...card} />
                   </div>
                 </m.div>

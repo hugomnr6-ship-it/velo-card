@@ -48,7 +48,7 @@ export default function ProfileClient({
 
       {/* Header */}
       <div className="relative z-10 flex flex-col items-center">
-        <h1 className="text-lg font-bold text-white font-['Space_Grotesk']">
+        <h1 className="text-lg font-bold text-white font-['Space_Grotesk'] max-w-[90vw] truncate">
           {username}
         </h1>
         <span

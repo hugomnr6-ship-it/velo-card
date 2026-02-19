@@ -850,7 +850,7 @@ export default function VeloCard({
           </div>
 
           {/* Username */}
-          <div className="font-['Space_Grotesk'] text-[15px] font-bold text-[#F8FAFC]">
+          <div className="font-['Space_Grotesk'] text-[15px] font-bold text-[#F8FAFC] max-w-[85%] truncate text-center">
             {username}
           </div>
 
