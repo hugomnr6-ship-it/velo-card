@@ -18,6 +18,7 @@ const config: NextAuthConfig = {
       token: {
         url: "https://www.strava.com/oauth/token",
         async request({ params }) {
+          console.log("[AUTH] Strava token exchange — code:", params.code ? "present" : "MISSING");
           const res = await fetch("https://www.strava.com/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -29,6 +30,10 @@ const config: NextAuthConfig = {
             }),
           });
           const tokens = await res.json();
+          if (tokens.errors || tokens.message) {
+            console.error("[AUTH] Strava token error:", JSON.stringify(tokens));
+          }
+          console.log("[AUTH] Strava token exchange — success:", !!tokens.access_token);
           return { tokens };
         },
       },
@@ -136,37 +141,48 @@ const config: NextAuthConfig = {
         // Upsert profile in Supabase on sign-in
         console.log(`[AUTH] Upserting profile for ${provider}:`, account.providerAccountId);
 
-        const upsertData: Record<string, unknown> = {
-          username,
-          avatar_url: avatarUrl,
-          provider,
-        };
+        try {
+          const upsertData: Record<string, unknown> = {
+            username,
+            avatar_url: avatarUrl,
+            provider,
+          };
 
-        // Set provider-specific ID
-        if (provider === "strava") {
-          upsertData.strava_id = Number(account.providerAccountId);
-        } else if (provider === "garmin") {
-          upsertData.garmin_id = String(account.providerAccountId);
-        } else if (provider === "wahoo") {
-          upsertData.wahoo_id = Number(account.providerAccountId);
-        }
+          // Set provider-specific ID
+          if (provider === "strava") {
+            upsertData.strava_id = Number(account.providerAccountId);
+          } else if (provider === "garmin") {
+            upsertData.garmin_id = String(account.providerAccountId);
+          } else if (provider === "wahoo") {
+            upsertData.wahoo_id = Number(account.providerAccountId);
+          }
 
-        // Determine the conflict column
-        const conflictCol =
-          provider === "strava" ? "strava_id" :
-          provider === "garmin" ? "garmin_id" :
-          "wahoo_id";
+          // Determine the conflict column
+          const conflictCol =
+            provider === "strava" ? "strava_id" :
+            provider === "garmin" ? "garmin_id" :
+            "wahoo_id";
 
-        const { data, error } = await supabaseAdmin
-          .from("profiles")
-          .upsert(upsertData, { onConflict: conflictCol })
-          .select("id")
-          .single();
+          console.log("[AUTH] Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING");
+          console.log("[AUTH] Supabase Key:", process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING");
+          console.log("[AUTH] Upsert data:", JSON.stringify(upsertData));
 
-        console.log("[AUTH] Supabase upsert result:", { data, error });
+          const { data, error } = await supabaseAdmin
+            .from("profiles")
+            .upsert(upsertData, { onConflict: conflictCol })
+            .select("id")
+            .single();
 
-        if (data) {
-          token.userId = data.id;
+          console.log("[AUTH] Supabase upsert result:", { data, error });
+
+          if (data) {
+            token.userId = data.id;
+          } else if (error) {
+            console.error("[AUTH] Supabase upsert error:", error.message, error.details, error.hint);
+          }
+        } catch (dbError) {
+          console.error("[AUTH] Supabase upsert exception:", dbError);
+          // Don't throw — allow sign-in to proceed even if DB fails
         }
       }
 
