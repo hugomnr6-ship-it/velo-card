@@ -145,6 +145,9 @@ export default function CreateRacePage() {
               <select className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="Cadets">Cadets</option>
                 <option value="Juniors">Juniors</option>
+                <option value="Access">Access</option>
+                <option value="Open">Open</option>
+                <option value="Elite">Elite</option>
                 <option value="Espoirs">Espoirs</option>
                 <option value="Seniors">Seniors</option>
                 <option value="DN1">DN1</option>

@@ -77,7 +77,14 @@ export async function POST(request: Request) {
     const stats = computeStats(activities);
     const tier = getTier(stats);
 
-    // 6. Upsert user_stats
+    // 5b. Fetch current stats to save as prev_* (for delta tracking on card)
+    const { data: currentStats } = await supabaseAdmin
+      .from("user_stats")
+      .select("pac, end, mon, res, spr, val, ovr, tier")
+      .eq("user_id", profileId)
+      .single();
+
+    // 6. Upsert user_stats with prev_* from current values
     await supabaseAdmin
       .from("user_stats")
       .upsert(
@@ -92,6 +99,16 @@ export async function POST(request: Request) {
           ovr: stats.ovr,
           tier,
           last_synced_at: new Date().toISOString(),
+          ...(currentStats && {
+            prev_pac: currentStats.pac,
+            prev_end: currentStats.end,
+            prev_mon: currentStats.mon,
+            prev_res: currentStats.res,
+            prev_spr: currentStats.spr,
+            prev_val: currentStats.val,
+            prev_ovr: currentStats.ovr,
+            prev_tier: currentStats.tier,
+          }),
         },
         { onConflict: "user_id" },
       );

@@ -202,10 +202,15 @@ export default function RacesCalendarPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Extract unique categories from ALL races (before category filter)
+  // Extract unique categories from ALL races, sorted in racing hierarchy order
+  const CATEGORY_ORDER = ["Cadets", "Juniors", "Access", "Open", "Elite", "Espoirs", "Seniors", "DN1", "DN2", "DN3", "Pass Open"];
   const categories = useMemo(() => {
     const cats = new Set(allRaces.map(r => r.category).filter(Boolean));
-    return Array.from(cats).sort();
+    return Array.from(cats).sort((a, b) => {
+      const ia = CATEGORY_ORDER.indexOf(a);
+      const ib = CATEGORY_ORDER.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
   }, [allRaces]);
 
   // Apply category filter client-side so the pills stay visible
