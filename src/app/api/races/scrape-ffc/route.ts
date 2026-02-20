@@ -1,6 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { getAuthenticatedUser } from "@/lib/api-utils";
-import { JSDOM } from "jsdom";
 
 export const maxDuration = 60;
 
@@ -77,6 +76,67 @@ function extractCategories(name: string): string | null {
   return cats.size > 0 ? [...cats].join(",") : null;
 }
 
+// Regex-based HTML parser (no JSDOM needed)
+function parseFFCHtml(html: string) {
+  const races: { name: string; date: string; location: string; type: string }[] = [];
+
+  // Split by organisation blocks
+  const orgRegex = /<div[^>]*class="[^"]*organisation(?:\s[^"]*)?(?:"[^>]*)?>[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi;
+  const blocks = html.match(orgRegex) || [];
+
+  // Fallback: extract from organisation-titre classes directly
+  if (blocks.length === 0) {
+    // Find all libelle entries (race names) and nearby fields
+    const nameRegex = /organisation-titre-libelle[^>]*>([^<]+)</g;
+    const dateRegex = /organisation-titre-jours[^>]*>([^<]+)</g;
+    const locRegex = /organisation-titre-localisation[^>]*>([^<]+)</g;
+    const typeRegex = /organisation-titre-calendrierType[^>]*>([^<]+)</g;
+
+    const names: string[] = [];
+    const dates: string[] = [];
+    const locs: string[] = [];
+    const types: string[] = [];
+
+    let m;
+    while ((m = nameRegex.exec(html)) !== null) names.push(m[1].trim());
+    while ((m = dateRegex.exec(html)) !== null) dates.push(m[1].trim());
+    while ((m = locRegex.exec(html)) !== null) locs.push(m[1].trim());
+    while ((m = typeRegex.exec(html)) !== null) types.push(m[1].trim());
+
+    // Check for ANNULÉ near each entry
+    const annuleRegex = /badge-annule|ANNULÉ|ANNULE/gi;
+
+    for (let i = 0; i < names.length; i++) {
+      races.push({
+        name: names[i] || "",
+        date: dates[i] || "",
+        location: locs[i] || "",
+        type: types[i] || "",
+      });
+    }
+  }
+
+  return races;
+}
+
+// Filter out cancelled races
+function filterCancelled(html: string, races: { name: string; date: string; location: string; type: string }[]) {
+  // Find names of cancelled races
+  const cancelledNames = new Set<string>();
+  const cancelRegex = /ANNUL[ÉE][\s\S]{0,500}?organisation-titre-libelle[^>]*>([^<]+)/gi;
+  let m;
+  while ((m = cancelRegex.exec(html)) !== null) {
+    cancelledNames.add(m[1].trim());
+  }
+  // Also check reverse: name then ANNULÉ
+  const cancelRegex2 = /organisation-titre-libelle[^>]*>([^<]+)[\s\S]{0,200}?ANNUL[ÉE]/gi;
+  while ((m = cancelRegex2.exec(html)) !== null) {
+    cancelledNames.add(m[1].trim());
+  }
+
+  return races.filter(r => !cancelledNames.has(r.name));
+}
+
 const ALL_WINDOWS = [
   { debut: "21/02/2026", nbjours: 14 },
   { debut: "07/03/2026", nbjours: 14 },
@@ -91,13 +151,12 @@ export async function POST(request: Request) {
     return Response.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  // Accept optional window index (0-4) or "all"
   const body = await request.json().catch(() => ({}));
-  const windowIdx = body.window; // 0-4 or undefined for single window
+  const windowIdx = body.window;
 
   const windowsToScrape = windowIdx !== undefined
     ? [ALL_WINDOWS[windowIdx]]
-    : ALL_WINDOWS.slice(0, 1); // default: first window only
+    : ALL_WINDOWS.slice(0, 1);
 
   const BASE = "https://competitions.ffc.fr/calendrier/calendrier.aspx";
   const allRaw: { name: string; date: string; location: string; type: string }[] = [];
@@ -106,17 +165,9 @@ export async function POST(request: Request) {
     const url = `${BASE}?discipline=1&autourType=IP&nbjours=${w.nbjours}&debut=${encodeURIComponent(w.debut)}`;
     const resp = await fetch(url);
     const html = await resp.text();
-    const dom = new JSDOM(html);
-    const doc = dom.window.document;
-
-    doc.querySelectorAll(".organisation").forEach((org: Element) => {
-      const name = org.querySelector(".organisation-titre-libelle")?.textContent?.trim() || "";
-      const dateText = org.querySelector(".organisation-titre-jours")?.textContent?.trim() || "";
-      const location = org.querySelector(".organisation-titre-localisation")?.textContent?.trim() || "";
-      const type = org.querySelector(".organisation-titre-calendrierType")?.textContent?.trim() || "";
-      const cancelled = org.textContent?.includes("ANNULÉ") || org.textContent?.includes("ANNULE");
-      if (!cancelled) allRaw.push({ name, date: dateText, location, type });
-    });
+    const parsed = parseFFCHtml(html);
+    const filtered = filterCancelled(html, parsed);
+    allRaw.push(...filtered);
   }
 
   // Deduplicate
