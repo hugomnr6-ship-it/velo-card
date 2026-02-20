@@ -21,13 +21,13 @@ const fedColors: Record<string, { bg: string; text: string }> = {
   OTHER: { bg: "bg-gray-500/15", text: "text-gray-400" },
 };
 
-// ——— Category groups ———
+// ——— Category groups (includes legacy DB names as aliases) ———
 const CATEGORY_GROUPS: Record<string, string[]> = {
-  "Élite": ["Élite"],
-  "Open": ["Open 1", "Open 2", "Open 3"],
+  "Élite": ["Élite", "Seniors"],
+  "Open": ["Open 1", "Open 2", "Open 3", "Pass Open"],
   "Access": ["Access 1", "Access 2", "Access 3", "Access 4"],
-  "Junior": ["Junior"],
-  "Cadet": ["Cadet"],
+  "Junior": ["Junior", "Juniors"],
+  "Cadet": ["Cadet", "Cadets"],
 };
 const CATEGORY_GROUP_KEYS = Object.keys(CATEGORY_GROUPS);
 
