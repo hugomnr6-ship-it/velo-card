@@ -1,8 +1,9 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { getAuthenticatedUser, handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser } from "@/lib/api-utils";
 import { JSDOM } from "jsdom";
 
-// Département → Région mapping
+export const maxDuration = 60;
+
 const DEPT_TO_REGION: Record<string, string> = {
   "Ain":"Auvergne-Rhône-Alpes","Aisne":"Hauts-de-France","Allier":"Auvergne-Rhône-Alpes",
   "Alpes-de-Haute-Provence":"Provence-Alpes-Côte d'Azur","Hautes-Alpes":"Provence-Alpes-Côte d'Azur",
@@ -51,14 +52,12 @@ function extractCategories(name: string): string | null {
   const cats = new Set<string>();
 
   if (/[ÉE]LITE|ÉLITE/.test(n)) cats.add("Élite");
-
   if (/OPEN\s*1|\bOP\s*1\b/.test(n)) cats.add("Open 1");
   if (/OPEN\s*2|\bOP\s*2\b/.test(n)) cats.add("Open 2");
   if (/OPEN\s*3|\bOP\s*3\b/.test(n)) cats.add("Open 3");
   if (/\bOPEN\b/.test(n) && !/OPEN\s*[123]/.test(n)) {
     cats.add("Open 1"); cats.add("Open 2"); cats.add("Open 3");
   }
-
   if (/\bA\s*1\b|ACC[EÈ]S\s*1|ACCESS\s*1/.test(n)) cats.add("Access 1");
   if (/\bA\s*2\b|ACC[EÈ]S\s*2|ACCESS\s*2/.test(n)) cats.add("Access 2");
   if (/\bA\s*3\b|ACC[EÈ]S\s*3|ACCESS\s*3/.test(n)) cats.add("Access 3");
@@ -66,14 +65,8 @@ function extractCategories(name: string): string | null {
   if (/\bACC[EÈ]S\b|\bACCESS\b/.test(n) && !/ACC[EÈ]S\s*[1-4]|ACCESS\s*[1-4]/.test(n)) {
     cats.add("Access 1"); cats.add("Access 2"); cats.add("Access 3"); cats.add("Access 4");
   }
-
-  const rangeMatch = n.match(/\bA\s*([1-4])\s*[-/]\s*A?\s*([1-4])\b/);
-  if (rangeMatch) {
-    const start = parseInt(rangeMatch[1]);
-    const end = parseInt(rangeMatch[2]);
-    for (let i = start; i <= end; i++) cats.add(`Access ${i}`);
-  }
-
+  const rm = n.match(/\bA\s*([1-4])\s*[-/]\s*A?\s*([1-4])\b/);
+  if (rm) { for (let i = parseInt(rm[1]); i <= parseInt(rm[2]); i++) cats.add(`Access ${i}`); }
   if (/JUNIOR|JUN\b|U\s*19/.test(n)) cats.add("Junior");
   if (/CADET|CAD\b|U\s*17/.test(n)) cats.add("Cadet");
   if (/MINIM|U\s*15/.test(n)) cats.add("Minime");
@@ -84,45 +77,49 @@ function extractCategories(name: string): string | null {
   return cats.size > 0 ? [...cats].join(",") : null;
 }
 
+const ALL_WINDOWS = [
+  { debut: "21/02/2026", nbjours: 14 },
+  { debut: "07/03/2026", nbjours: 14 },
+  { debut: "21/03/2026", nbjours: 14 },
+  { debut: "04/04/2026", nbjours: 14 },
+  { debut: "18/04/2026", nbjours: 13 },
+];
+
 export async function POST(request: Request) {
-  // Session auth only
   const userOrRes = await getAuthenticatedUser();
   if (userOrRes instanceof Response) {
     return Response.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const BASE = "https://competitions.ffc.fr/calendrier/calendrier.aspx";
-  const windows = [
-    { debut: "21/02/2026", nbjours: 14 },
-    { debut: "07/03/2026", nbjours: 14 },
-    { debut: "21/03/2026", nbjours: 14 },
-    { debut: "04/04/2026", nbjours: 14 },
-    { debut: "18/04/2026", nbjours: 13 },
-  ];
+  // Accept optional window index (0-4) or "all"
+  const body = await request.json().catch(() => ({}));
+  const windowIdx = body.window; // 0-4 or undefined for single window
 
+  const windowsToScrape = windowIdx !== undefined
+    ? [ALL_WINDOWS[windowIdx]]
+    : ALL_WINDOWS.slice(0, 1); // default: first window only
+
+  const BASE = "https://competitions.ffc.fr/calendrier/calendrier.aspx";
   const allRaw: { name: string; date: string; location: string; type: string }[] = [];
 
-  for (const w of windows) {
+  for (const w of windowsToScrape) {
     const url = `${BASE}?discipline=1&autourType=IP&nbjours=${w.nbjours}&debut=${encodeURIComponent(w.debut)}`;
     const resp = await fetch(url);
     const html = await resp.text();
     const dom = new JSDOM(html);
     const doc = dom.window.document;
-    const orgs = doc.querySelectorAll(".organisation");
 
-    orgs.forEach((org: Element) => {
+    doc.querySelectorAll(".organisation").forEach((org: Element) => {
       const name = org.querySelector(".organisation-titre-libelle")?.textContent?.trim() || "";
       const dateText = org.querySelector(".organisation-titre-jours")?.textContent?.trim() || "";
       const location = org.querySelector(".organisation-titre-localisation")?.textContent?.trim() || "";
       const type = org.querySelector(".organisation-titre-calendrierType")?.textContent?.trim() || "";
       const cancelled = org.textContent?.includes("ANNULÉ") || org.textContent?.includes("ANNULE");
-      if (!cancelled) {
-        allRaw.push({ name, date: dateText, location, type });
-      }
+      if (!cancelled) allRaw.push({ name, date: dateText, location, type });
     });
   }
 
-  // Deduplicate by name+date
+  // Deduplicate
   const seen = new Set<string>();
   const unique = allRaw.filter((r) => {
     const key = `${r.name}|${r.date}`;
@@ -131,7 +128,7 @@ export async function POST(request: Request) {
     return true;
   });
 
-  // Format for DB
+  // Format
   const formatted = unique.map((r) => {
     let category = extractCategories(r.name);
     if (!category) {
@@ -139,60 +136,36 @@ export async function POST(request: Request) {
       else if (r.type === "National") category = "Élite,Open 1,Open 2,Open 3";
       else category = "Open 1,Open 2,Open 3";
     }
-
     return {
-      name: r.name,
-      date: parseDate(r.date),
-      location: r.location,
-      description: "",
-      department: r.location,
+      name: r.name, date: parseDate(r.date), location: r.location,
+      description: "", department: r.location,
       region: DEPT_TO_REGION[r.location] || null,
-      federation: "FFC",
-      category,
-      gender: "MIXTE",
-      is_official: true,
-      status: "upcoming",
+      federation: "FFC", category, gender: "MIXTE",
+      is_official: true, status: "upcoming",
       source_url: "https://competitions.ffc.fr/calendrier/",
-      distance_km: null,
-      elevation_gain: null,
-      rdi_score: null,
-      gpx_data: null,
-      weather_cache: null,
-      creator_id: null,
+      distance_km: null, elevation_gain: null, rdi_score: null,
+      gpx_data: null, weather_cache: null, creator_id: null,
     };
   });
 
-  // Upsert in batches of 100
+  // Upsert in batches
   let imported = 0;
-  let errors: string[] = [];
-
+  const errors: string[] = [];
   for (let i = 0; i < formatted.length; i += 100) {
     const batch = formatted.slice(i, i + 100);
     const { data, error } = await supabaseAdmin
       .from("races")
       .upsert(batch, { onConflict: "name,date" })
       .select("id");
-
-    if (error) {
-      errors.push(`Batch ${i}: ${error.message}`);
-    } else {
-      imported += data?.length || 0;
-    }
+    if (error) errors.push(`Batch ${i}: ${error.message}`);
+    else imported += data?.length || 0;
   }
 
-  // Category distribution
-  const catDist: Record<string, number> = {};
-  formatted.forEach((r) => {
-    r.category?.split(",").forEach((c: string) => {
-      catDist[c.trim()] = (catDist[c.trim()] || 0) + 1;
-    });
-  });
-
   return Response.json({
+    window: windowIdx ?? 0,
     scraped: allRaw.length,
     unique: unique.length,
     imported,
     errors,
-    categoryDistribution: catDist,
   });
 }
