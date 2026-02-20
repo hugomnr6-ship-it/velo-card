@@ -61,7 +61,7 @@ export default function GamificationWidgets() {
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span>&#127919;</span>
-              <span className="text-xs font-bold text-white">Quetes du jour</span>
+              <span className="text-xs font-bold text-white">Quêtes du jour</span>
             </div>
             <span className="text-[10px] font-bold text-[#00F5D4]">
               {completedToday}/{totalQuests}
@@ -75,7 +75,7 @@ export default function GamificationWidgets() {
             ))}
             {activeQuests.length === 0 && (
               <p className="text-[10px] text-[#00F5D4]/70">
-                Toutes les quetes sont completes !
+                Toutes les quêtes sont complétées !
               </p>
             )}
           </div>

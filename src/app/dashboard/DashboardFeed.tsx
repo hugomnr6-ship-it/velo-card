@@ -118,7 +118,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
           <div className="flex items-center gap-1.5 mb-2">
             <span className="text-[10px]" style={{ color: accent }}>●</span>
             <p className="text-[10px] font-bold tracking-wider text-white/50">
-              ACTIVITE RECENTE
+              ACTIVITÉ RÉCENTE
             </p>
           </div>
           <div className="flex flex-col divide-y divide-white/[0.04]">
@@ -155,7 +155,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
           </div>
           {weekly.km === 0 && weekly.rides === 0 ? (
             <div className="text-[11px] text-white/40 text-center py-2">
-              Pas encore de sortie cette semaine. Ta premiere sortie mettra a jour tes stats ici !
+              Pas encore de sortie cette semaine. Ta première sortie mettra à jour tes stats ici !
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-2">
@@ -239,48 +239,52 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 gap-2"
+        className="flex flex-col gap-2"
       >
-        <Link
-          href="/duels"
-          className="glass-light glass-hover rounded-xl border-[#6366F1]/15 p-3.5"
-        >
-          <IconSwords size={20} className="text-[#6366F1]" />
-          <p className="mt-1 text-xs font-bold text-white">Duels</p>
-          <p className="text-[9px] text-[#94A3B8]">Défie tes rivaux en 1v1</p>
-        </Link>
-        <Link
-          href="/clubs"
-          className="glass-light glass-hover rounded-xl p-3.5"
-        >
-          <IconShield size={20} className="text-white/60" />
-          <p className="mt-1 text-xs font-bold text-white">Clubs</p>
-          <p className="text-[9px] text-[#94A3B8]">Rejoins ou crée un club</p>
-        </Link>
-        <Link
-          href="/wars"
-          className="glass-light glass-hover rounded-xl p-3.5"
-        >
-          <IconSwords size={20} className="text-white/60" />
-          <p className="mt-1 text-xs font-bold text-white">Guerres</p>
-          <p className="text-[9px] text-[#94A3B8]">Bataille des pelotons</p>
-        </Link>
-        <Link
-          href="/races"
-          className="glass-light glass-hover rounded-xl p-3.5"
-        >
-          <IconFlag size={20} className="text-white/60" />
-          <p className="mt-1 text-xs font-bold text-white">Courses</p>
-          <p className="text-[9px] text-[#94A3B8]">Événements à venir</p>
-        </Link>
-        <Link
-          href="/leaderboard"
-          className="glass-light glass-hover rounded-xl p-3.5"
-        >
-          <IconTrophy size={20} className="text-[#FFD700]/70" />
-          <p className="mt-1 text-xs font-bold text-white">Classement</p>
-          <p className="text-[9px] text-[#94A3B8]">Ta position régionale</p>
-        </Link>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href="/duels"
+            className="glass-light glass-hover rounded-xl border-[#6366F1]/15 p-3.5"
+          >
+            <IconSwords size={20} className="text-[#6366F1]" />
+            <p className="mt-1 text-xs font-bold text-white">Duels</p>
+            <p className="text-[9px] text-[#94A3B8]">Défie tes rivaux en 1v1</p>
+          </Link>
+          <Link
+            href="/clubs"
+            className="glass-light glass-hover rounded-xl p-3.5"
+          >
+            <IconShield size={20} className="text-white/60" />
+            <p className="mt-1 text-xs font-bold text-white">Clubs</p>
+            <p className="text-[9px] text-[#94A3B8]">Rejoins ou crée un club</p>
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <Link
+            href="/wars"
+            className="glass-light glass-hover rounded-xl p-3.5"
+          >
+            <IconSwords size={20} className="text-white/60" />
+            <p className="mt-1 text-xs font-bold text-white">Guerres</p>
+            <p className="text-[9px] text-[#94A3B8]">Pelotons</p>
+          </Link>
+          <Link
+            href="/races"
+            className="glass-light glass-hover rounded-xl p-3.5"
+          >
+            <IconFlag size={20} className="text-white/60" />
+            <p className="mt-1 text-xs font-bold text-white">Courses</p>
+            <p className="text-[9px] text-[#94A3B8]">Événements</p>
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="glass-light glass-hover rounded-xl p-3.5"
+          >
+            <IconTrophy size={20} className="text-[#FFD700]/70" />
+            <p className="mt-1 text-xs font-bold text-white">Classement</p>
+            <p className="text-[9px] text-[#94A3B8]">Régional</p>
+          </Link>
+        </div>
       </m.div>
     </div>
   );

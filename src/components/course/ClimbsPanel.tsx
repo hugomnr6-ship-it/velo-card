@@ -108,7 +108,7 @@ export default function ClimbsPanel({
       <div className="max-h-[360px] overflow-y-auto flex flex-col gap-2 pr-1">
         {tab === "climbs" && climbs.length === 0 && (
           <p className="py-4 text-center text-xs text-white/20">
-            Parcours plat — aucune montee significative
+            Parcours plat — aucune montée significative
           </p>
         )}
 
