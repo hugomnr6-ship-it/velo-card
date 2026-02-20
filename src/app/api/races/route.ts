@@ -10,17 +10,23 @@ export async function GET(request: Request) {
   const params = Object.fromEntries(new URL(request.url).searchParams);
   const validated = validateBody(racesQuerySchema, params);
   if (validated instanceof Response) return validated;
-  const { federation, region, category, gender, search, upcoming, limit } = validated;
+  const { federation, region, category, gender, search, upcoming, past_only, limit } = validated;
 
   let query = supabaseAdmin
     .from("races")
     .select("*, creator:profiles!creator_id (username, avatar_url)")
-    .order("date", { ascending: true })
     .limit(limit);
 
-  // Default: upcoming only
-  if (upcoming !== "false") {
-    query = query.gte("date", new Date().toISOString().split("T")[0]);
+  const today = new Date().toISOString().split("T")[0];
+
+  if (past_only === "true") {
+    // Only past races, most recent first
+    query = query.lt("date", today).order("date", { ascending: false });
+  } else if (upcoming !== "false") {
+    // Default: upcoming only (today + future), chronological
+    query = query.gte("date", today).order("date", { ascending: true });
+  } else {
+    query = query.order("date", { ascending: true });
   }
 
   if (federation && federation !== "all") {

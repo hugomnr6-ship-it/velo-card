@@ -28,14 +28,6 @@ function isToday(dateStr: string) {
   return d.toDateString() === now.toDateString();
 }
 
-// ——— Check if a date is past ———
-function isPastDate(dateStr: string) {
-  const d = new Date(dateStr);
-  d.setHours(0, 0, 0, 0);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return d < now;
-}
 
 // ——— Group races by week (only upcoming + today) ———
 function groupByWeek(races: RaceWithCreator[]): { label: string; races: RaceWithCreator[] }[] {
@@ -60,7 +52,7 @@ function groupByWeek(races: RaceWithCreator[]): { label: string; races: RaceWith
     } else if (diffDays <= 14) {
       label = "Semaine prochaine";
     } else {
-      const monthNames = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
+      const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
       label = `${monthNames[raceDate.getMonth()]} ${raceDate.getFullYear()}`;
     }
 
@@ -126,7 +118,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
             )}
             {isPast && (
               <span className="shrink-0 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold text-white/30">
-                Terminee
+                Terminée
               </span>
             )}
           </div>
@@ -183,17 +175,29 @@ export default function RacesCalendarPage() {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
 
-  // Build filters for the hook
+  // Build filters for the hook — upcoming only (server-side filter)
   const raceFilters = useMemo(() => {
-    const filters: Record<string, string> = { limit: "300", upcoming: "false" };
+    const filters: Record<string, string> = { limit: "200" };
     if (fedFilter !== "all") filters.federation = fedFilter;
     if (genderFilter !== "all") filters.gender = genderFilter;
     if (search) filters.search = search;
     return filters;
   }, [fedFilter, genderFilter, search]);
 
-  // Fetch races via React Query hook — only when session is ready
+  // Build filters for past races (loaded separately on toggle)
+  const pastFilters = useMemo(() => {
+    const filters: Record<string, string> = { limit: "100", upcoming: "false", past_only: "true" };
+    if (fedFilter !== "all") filters.federation = fedFilter;
+    if (genderFilter !== "all") filters.gender = genderFilter;
+    if (search) filters.search = search;
+    return filters;
+  }, [fedFilter, genderFilter, search]);
+
+  // Fetch upcoming races (server-side filter: date >= today)
   const { data: allRaces = [], isLoading: loading } = useRaces(raceFilters, status === "authenticated");
+
+  // Fetch past races only when toggle is open
+  const { data: pastRacesData = [], isLoading: loadingPast } = useRaces(pastFilters, status === "authenticated" && showPast);
 
   // Debounced search
   const [searchInput, setSearchInput] = useState("");
@@ -214,21 +218,16 @@ export default function RacesCalendarPage() {
   }, [allRaces]);
 
   // Apply category filter client-side so the pills stay visible
-  const filteredRaces = useMemo(() => {
+  const upcomingRaces = useMemo(() => {
     if (catFilter === "all") return allRaces;
     return allRaces.filter(r => r.category === catFilter);
   }, [allRaces, catFilter]);
 
-  // Split into upcoming and past
-  const upcomingRaces = useMemo(
-    () => filteredRaces.filter((r) => !isPastDate(r.date)),
-    [filteredRaces]
-  );
-
-  const pastRaces = useMemo(
-    () => filteredRaces.filter((r) => isPastDate(r.date)).reverse(),
-    [filteredRaces]
-  );
+  // Past races (server-filtered, lazy-loaded)
+  const pastRaces = useMemo(() => {
+    if (catFilter === "all") return pastRacesData;
+    return pastRacesData.filter(r => r.category === catFilter);
+  }, [pastRacesData, catFilter]);
 
   const grouped = useMemo(() => groupByWeek(upcomingRaces), [upcomingRaces]);
 
@@ -285,7 +284,7 @@ export default function RacesCalendarPage() {
         {/* Race count */}
         {!loading && (
           <p className="mb-4 text-xs text-[#64748B]">
-            {upcomingRaces.length} course{upcomingRaces.length !== 1 ? "s" : ""} a venir
+            {upcomingRaces.length} course{upcomingRaces.length !== 1 ? "s" : ""} à venir
           </p>
         )}
 
@@ -294,11 +293,11 @@ export default function RacesCalendarPage() {
           <div className="flex flex-col gap-3">
             {[0, 1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
           </div>
-        ) : upcomingRaces.length === 0 && pastRaces.length === 0 ? (
+        ) : upcomingRaces.length === 0 && !showPast ? (
           <EmptyState
             icon={<FlagIcon size={48} />}
-            title="Aucune course"
-            description="Aucune course trouvee avec ces filtres."
+            title="Aucune course à venir"
+            description="Aucune course trouvée avec ces filtres."
           />
         ) : (
           <div className="flex flex-col gap-6">
@@ -316,42 +315,42 @@ export default function RacesCalendarPage() {
               </div>
             ))}
 
-            {/* No upcoming but have past */}
-            {upcomingRaces.length === 0 && pastRaces.length > 0 && (
-              <EmptyState
-                icon={<FlagIcon size={48} />}
-                title="Pas de courses a venir"
-                description="Toutes les courses sont passees. Consulte-les ci-dessous."
-              />
-            )}
-
             {/* Past races toggle */}
-            {pastRaces.length > 0 && (
-              <div className="mt-2">
-                <button
-                  onClick={() => setShowPast(!showPast)}
-                  className="w-full py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] text-white/40 text-sm font-medium active:bg-white/[0.04] transition-colors flex items-center justify-center gap-2"
-                >
-                  {showPast ? "Masquer" : "Voir"} les courses passees ({pastRaces.length})
-                  <span className={`transform transition-transform ${showPast ? "rotate-180" : ""}`}>
-                    ▼
-                  </span>
-                </button>
+            <div className="mt-2">
+              <button
+                onClick={() => setShowPast(!showPast)}
+                className="w-full py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] text-white/40 text-sm font-medium active:bg-white/[0.04] transition-colors flex items-center justify-center gap-2"
+              >
+                {showPast ? "Masquer" : "Voir"} les courses passées
+                {showPast && pastRaces.length > 0 && ` (${pastRaces.length})`}
+                <span className={`transform transition-transform ${showPast ? "rotate-180" : ""}`}>
+                  ▼
+                </span>
+              </button>
 
-                {showPast && (
-                  <m.div
-                    className="mt-3 flex flex-col gap-2"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {pastRaces.map((race) => (
+              {showPast && (
+                <m.div
+                  className="mt-3 flex flex-col gap-2"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {loadingPast ? (
+                    <div className="flex flex-col gap-2">
+                      {[0, 1, 2].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+                    </div>
+                  ) : pastRaces.length === 0 ? (
+                    <p className="py-4 text-center text-xs text-white/20">
+                      Aucune course passée trouvée.
+                    </p>
+                  ) : (
+                    pastRaces.map((race) => (
                       <RaceRow key={race.id} race={race} isPast={true} />
-                    ))}
-                  </m.div>
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                </m.div>
+              )}
+            </div>
           </div>
         )}
 
