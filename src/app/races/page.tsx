@@ -231,6 +231,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#64748B]">
             <span>{race.location}</span>
+            {race.region && <span className="text-[#818CF8]/60">· {race.region}</span>}
             {race.distance_km && <span>· {race.distance_km} km</span>}
             {race.elevation_gain && <span>· D+ {race.elevation_gain}m</span>}
           </div>
