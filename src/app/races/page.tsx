@@ -244,7 +244,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
           </span>
           {race.category && (
             <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-[#94A3B8]">
-              {race.category}
+              {race.category.split(",")[0]}
             </span>
           )}
           {race.rdi_score && (
@@ -317,12 +317,16 @@ export default function RacesCalendarPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Apply category GROUP filter client-side so the pills stay visible
+  // Apply category GROUP filter client-side
+  // category field can be comma-separated (e.g. "Élite,Open 1,Open 2,Open 3")
   const upcomingRaces = useMemo(() => {
     if (catFilter === "all") return allRaces;
     const allowed = CATEGORY_GROUPS[catFilter];
     if (!allowed) return allRaces;
-    return allRaces.filter(r => allowed.includes(r.category));
+    return allRaces.filter(r => {
+      const raceCats = r.category?.split(",") || [];
+      return raceCats.some((c: string) => allowed.includes(c.trim()));
+    });
   }, [allRaces, catFilter]);
 
   // Past races (server-filtered, lazy-loaded)
@@ -330,7 +334,10 @@ export default function RacesCalendarPage() {
     if (catFilter === "all") return pastRacesData;
     const allowed = CATEGORY_GROUPS[catFilter];
     if (!allowed) return pastRacesData;
-    return pastRacesData.filter(r => allowed.includes(r.category));
+    return pastRacesData.filter(r => {
+      const raceCats = r.category?.split(",") || [];
+      return raceCats.some((c: string) => allowed.includes(c.trim()));
+    });
   }, [pastRacesData, catFilter]);
 
   const grouped = useMemo(() => groupByWeek(upcomingRaces), [upcomingRaces]);
