@@ -152,13 +152,17 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
  * Falls back to download on desktop / unsupported browsers.
  */
 export async function shareToInstagramStory(dataUrl: string) {
-  const blob = await (await fetch(dataUrl)).blob();
-  const file = new File([blob], "velocard-story.png", { type: "image/png" });
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], "velocard-story.png", { type: "image/png" });
 
-  // Use Web Share API if available (mobile) — passes the image directly
-  if (navigator.share && navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file], title: "Ma VeloCard" });
-    return;
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Ma VeloCard" });
+      return;
+    }
+  } catch (err) {
+    // User cancelled share or API not supported — fall through to download
+    if (err instanceof Error && err.name === "AbortError") return;
   }
 
   // Fallback: download the image
