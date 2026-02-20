@@ -147,32 +147,27 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
 }
 
 /**
- * Share to Instagram Story via the native share sheet (image attached).
- * User picks Instagram → Story and the image is already loaded.
- * Falls back to download on desktop / unsupported browsers.
+ * Share to Instagram Story:
+ * 1. Save the story image to the device
+ * 2. Open Instagram story camera via deep link
+ * User swipes up in IG to pick the image from recents.
  */
 export async function shareToInstagramStory(dataUrl: string) {
+  // Convert to blob URL (works better than data URL on iOS Safari)
   const blob = await (await fetch(dataUrl)).blob();
-  const file = new File([blob], "velocard-story.png", { type: "image/png" });
+  const blobUrl = URL.createObjectURL(blob);
 
-  // Try Web Share API — opens the native share sheet with the image attached.
-  // On iOS/Android: user taps Instagram → Story and the image is pre-loaded.
-  if (navigator.share) {
-    try {
-      await navigator.share({ files: [file] });
-      return;
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") return;
-    }
-  }
-
-  // Fallback (desktop): download using blob URL for better iOS compat
-  const url = URL.createObjectURL(blob);
+  // Download the image
   const link = document.createElement("a");
   link.download = "velocard-story.png";
-  link.href = url;
+  link.href = blobUrl;
   link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+  // Open Instagram story camera after a short delay
+  setTimeout(() => {
+    window.location.href = "instagram://story-camera";
+    URL.revokeObjectURL(blobUrl);
+  }, 600);
 }
 
 /**
