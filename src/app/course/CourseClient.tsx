@@ -232,6 +232,7 @@ export default function CourseClient() {
               descents={descents}
               activeClimbIdx={activeClimbIdx}
               onClimbClick={handleClimbClick}
+              points={summary.points}
             />
           )}
 

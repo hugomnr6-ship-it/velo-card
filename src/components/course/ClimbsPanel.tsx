@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import type { ClimbSegment, DescentSegment } from "@/lib/gpx-analysis";
+import type { GpxPoint } from "@/types";
+import ClimbDetailView from "./ClimbDetailView";
 
 interface ClimbsPanelProps {
   climbs: ClimbSegment[];
   descents: DescentSegment[];
   activeClimbIdx: number | null;
   onClimbClick: (idx: number) => void;
+  points?: GpxPoint[];
 }
 
 function gradientColor(pct: number): string {
@@ -24,8 +27,20 @@ export default function ClimbsPanel({
   descents,
   activeClimbIdx,
   onClimbClick,
+  points,
 }: ClimbsPanelProps) {
   const [tab, setTab] = useState<"climbs" | "descents">("climbs");
+
+  // Show detail view when a climb is selected and points are available
+  if (activeClimbIdx !== null && points && climbs[activeClimbIdx]) {
+    return (
+      <ClimbDetailView
+        climb={climbs[activeClimbIdx]}
+        points={points}
+        onBack={() => onClimbClick(activeClimbIdx)}
+      />
+    );
+  }
 
   return (
     <div className="rounded-2xl border border-white/[0.06] bg-[#16161F] p-4">
