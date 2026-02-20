@@ -116,8 +116,18 @@ export async function GET(request: Request) {
           // Skip if the extra part contains a different category keyword
           // (e.g., "GP Milléco Elite" vs "GP Milléco Elite Open Access" → different races!)
           const catKeywords = ["u15", "u17", "u19", "cadet", "junior", "minime", "benjamin",
-            "elite", "open", "access", "feminin", "feminine", "dame"];
+            "elite", "open", "access", "feminin", "feminine", "femme", "femmes", "dame", "dames",
+            "homme", "hommes", "veteran", "master", "espoir"];
           const extraHasCat = catKeywords.some(kw => extra.includes(kw));
+
+          // If the extra part contains a gender/category keyword, the longer name
+          // is likely a different race variant (e.g., "Paris-Roubaix" vs "Paris-Roubaix Femmes")
+          // → skip to avoid deleting a legitimate different race
+          const genderKeywords = ["femme", "femmes", "feminine", "feminin", "dame", "dames",
+            "homme", "hommes"];
+          const extraHasGender = genderKeywords.some(kw => extra.includes(kw));
+          if (extraHasGender) continue;
+
           const shorterHasCat = catKeywords.some(kw => shorterNorm.includes(kw));
 
           // If shorter name already has a category keyword AND extra text also has one,
