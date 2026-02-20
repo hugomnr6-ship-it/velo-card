@@ -21,6 +21,33 @@ const fedColors: Record<string, { bg: string; text: string }> = {
   OTHER: { bg: "bg-gray-500/15", text: "text-gray-400" },
 };
 
+// ——— Category groups ———
+const CATEGORY_GROUPS: Record<string, string[]> = {
+  "Élite": ["Élite"],
+  "Open": ["Open 1", "Open 2", "Open 3"],
+  "Access": ["Access 1", "Access 2", "Access 3", "Access 4"],
+  "Junior": ["Junior"],
+  "Cadet": ["Cadet"],
+};
+const CATEGORY_GROUP_KEYS = Object.keys(CATEGORY_GROUPS);
+
+// ——— Regions (short label → API value) ———
+const REGIONS: { label: string; value: string }[] = [
+  { label: "Occitanie", value: "Occitanie" },
+  { label: "PACA", value: "Provence-Alpes-Côte d'Azur" },
+  { label: "Île-de-France", value: "Île-de-France" },
+  { label: "Auvergne-RA", value: "Auvergne-Rhône-Alpes" },
+  { label: "Nouvelle-Aquit.", value: "Nouvelle-Aquitaine" },
+  { label: "Bretagne", value: "Bretagne" },
+  { label: "Normandie", value: "Normandie" },
+  { label: "Grand Est", value: "Grand Est" },
+  { label: "Hauts-de-France", value: "Hauts-de-France" },
+  { label: "Pays de la Loire", value: "Pays de la Loire" },
+  { label: "Centre-VdL", value: "Centre-Val de Loire" },
+  { label: "Bourgogne-FC", value: "Bourgogne-Franche-Comté" },
+  { label: "Corse", value: "Corse" },
+];
+
 // ——— Check if a date is today ———
 function isToday(dateStr: string) {
   const d = new Date(dateStr);
@@ -169,6 +196,7 @@ export default function RacesCalendarPage() {
   const [fedFilter, setFedFilter] = useState<string>("all");
   const [catFilter, setCatFilter] = useState<string>("all");
   const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [regionFilter, setRegionFilter] = useState<string>("all");
   const [showPast, setShowPast] = useState(false);
 
   useEffect(() => {
@@ -180,18 +208,20 @@ export default function RacesCalendarPage() {
     const filters: Record<string, string> = { limit: "200" };
     if (fedFilter !== "all") filters.federation = fedFilter;
     if (genderFilter !== "all") filters.gender = genderFilter;
+    if (regionFilter !== "all") filters.region = regionFilter;
     if (search) filters.search = search;
     return filters;
-  }, [fedFilter, genderFilter, search]);
+  }, [fedFilter, genderFilter, regionFilter, search]);
 
   // Build filters for past races (loaded separately on toggle)
   const pastFilters = useMemo(() => {
     const filters: Record<string, string> = { limit: "100", upcoming: "false", past_only: "true" };
     if (fedFilter !== "all") filters.federation = fedFilter;
     if (genderFilter !== "all") filters.gender = genderFilter;
+    if (regionFilter !== "all") filters.region = regionFilter;
     if (search) filters.search = search;
     return filters;
-  }, [fedFilter, genderFilter, search]);
+  }, [fedFilter, genderFilter, regionFilter, search]);
 
   // Fetch upcoming races (server-side filter: date >= today)
   const { data: allRaces = [], isLoading: loading } = useRaces(raceFilters, status === "authenticated");
@@ -206,27 +236,20 @@ export default function RacesCalendarPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Extract unique categories from ALL races, sorted in racing hierarchy order
-  const categories = useMemo(() => {
-    const CATEGORY_ORDER = ["Élite", "Open 1", "Open 2", "Open 3", "Access 1", "Access 2", "Access 3", "Access 4", "Junior", "Cadet"];
-    const cats = new Set(allRaces.map(r => r.category).filter(Boolean));
-    return Array.from(cats).sort((a, b) => {
-      const ia = CATEGORY_ORDER.indexOf(a);
-      const ib = CATEGORY_ORDER.indexOf(b);
-      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    });
-  }, [allRaces]);
-
-  // Apply category filter client-side so the pills stay visible
+  // Apply category GROUP filter client-side so the pills stay visible
   const upcomingRaces = useMemo(() => {
     if (catFilter === "all") return allRaces;
-    return allRaces.filter(r => r.category === catFilter);
+    const allowed = CATEGORY_GROUPS[catFilter];
+    if (!allowed) return allRaces;
+    return allRaces.filter(r => allowed.includes(r.category));
   }, [allRaces, catFilter]);
 
   // Past races (server-filtered, lazy-loaded)
   const pastRaces = useMemo(() => {
     if (catFilter === "all") return pastRacesData;
-    return pastRacesData.filter(r => r.category === catFilter);
+    const allowed = CATEGORY_GROUPS[catFilter];
+    if (!allowed) return pastRacesData;
+    return pastRacesData.filter(r => allowed.includes(r.category));
   }, [pastRacesData, catFilter]);
 
   const grouped = useMemo(() => groupByWeek(upcomingRaces), [upcomingRaces]);
@@ -255,28 +278,50 @@ export default function RacesCalendarPage() {
           />
         </div>
 
-        {/* Federation filters */}
-        <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <FilterPill label="Toutes" active={fedFilter === "all"} onClick={() => setFedFilter("all")} />
-          <FilterPill label="FFC" active={fedFilter === "FFC"} onClick={() => setFedFilter("FFC")} />
-          <FilterPill label="UFOLEP" active={fedFilter === "UFOLEP"} onClick={() => setFedFilter("UFOLEP")} />
-          <FilterPill label="FSGT" active={fedFilter === "FSGT"} onClick={() => setFedFilter("FSGT")} />
-        </div>
+        {/* Filters — labeled rows */}
+        <div className="mb-4 flex flex-col gap-2">
+          {/* Fédération */}
+          <div className="flex items-center gap-2">
+            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Fédération</span>
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+              <FilterPill label="Tout" active={fedFilter === "all"} onClick={() => setFedFilter("all")} />
+              <FilterPill label="FFC" active={fedFilter === "FFC"} onClick={() => setFedFilter("FFC")} />
+              <FilterPill label="UFOLEP" active={fedFilter === "UFOLEP"} onClick={() => setFedFilter("UFOLEP")} />
+              <FilterPill label="FSGT" active={fedFilter === "FSGT"} onClick={() => setFedFilter("FSGT")} />
+            </div>
+          </div>
 
-        {/* Gender & Category filters */}
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <FilterPill label="H+F" active={genderFilter === "all"} onClick={() => setGenderFilter("all")} />
-          <FilterPill label="Hommes" active={genderFilter === "H"} onClick={() => setGenderFilter("H")} />
-          <FilterPill label="Femmes" active={genderFilter === "F"} onClick={() => setGenderFilter("F")} />
-          {categories.length > 1 && (
-            <>
-              <div className="w-px flex-shrink-0 bg-white/[0.06]" />
-              <FilterPill label="Toutes cat." active={catFilter === "all"} onClick={() => setCatFilter("all")} />
-              {categories.slice(0, 6).map(cat => (
-                <FilterPill key={cat} label={cat} active={catFilter === cat} onClick={() => setCatFilter(cat)} />
+          {/* Catégorie */}
+          <div className="flex items-center gap-2">
+            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Catégorie</span>
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+              <FilterPill label="Tout" active={catFilter === "all"} onClick={() => setCatFilter("all")} />
+              {CATEGORY_GROUP_KEYS.map(group => (
+                <FilterPill key={group} label={group} active={catFilter === group} onClick={() => setCatFilter(group)} />
               ))}
-            </>
-          )}
+            </div>
+          </div>
+
+          {/* Région */}
+          <div className="flex items-center gap-2">
+            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Région</span>
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+              <FilterPill label="Tout" active={regionFilter === "all"} onClick={() => setRegionFilter("all")} />
+              {REGIONS.map(r => (
+                <FilterPill key={r.value} label={r.label} active={regionFilter === r.value} onClick={() => setRegionFilter(r.value)} />
+              ))}
+            </div>
+          </div>
+
+          {/* Genre */}
+          <div className="flex items-center gap-2">
+            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Genre</span>
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+              <FilterPill label="Tout" active={genderFilter === "all"} onClick={() => setGenderFilter("all")} />
+              <FilterPill label="Hommes" active={genderFilter === "H"} onClick={() => setGenderFilter("H")} />
+              <FilterPill label="Femmes" active={genderFilter === "F"} onClick={() => setGenderFilter("F")} />
+            </div>
+          </div>
         </div>
 
         <div className="my-4 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
