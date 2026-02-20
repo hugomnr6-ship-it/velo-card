@@ -152,6 +152,17 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const windowIdx = body.window;
   const debug = body.debug === true;
+  const cleanup = body.cleanup === true;
+
+  // Cleanup mode: delete races with HTML entities in name
+  if (cleanup) {
+    const { data, error } = await supabaseAdmin
+      .from("races")
+      .delete()
+      .like("name", "%&#%")
+      .select("id");
+    return Response.json({ cleaned: data?.length || 0, error: error?.message });
+  }
 
   const windowsToScrape = windowIdx !== undefined
     ? [ALL_WINDOWS[windowIdx]]
