@@ -49,7 +49,6 @@ function parseDate(dateStr: string): string | null {
 function extractCategories(name: string): string | null {
   const n = name.toUpperCase();
   const cats = new Set<string>();
-
   if (/[ÉE]LITE|ÉLITE/.test(n)) cats.add("Élite");
   if (/OPEN\s*1|\bOP\s*1\b/.test(n)) cats.add("Open 1");
   if (/OPEN\s*2|\bOP\s*2\b/.test(n)) cats.add("Open 2");
@@ -72,69 +71,56 @@ function extractCategories(name: string): string | null {
   if (/U\s*13|PUPILLE|POUSSIN/.test(n)) cats.add("U13");
   if (/\bEDV\b|ECOLE DE V|ÉCOLE DE V/.test(n)) cats.add("EDV");
   if (/\b-?\s*EC\s*$/.test(n)) cats.add("EDV");
-
   return cats.size > 0 ? [...cats].join(",") : null;
 }
 
-// Regex-based HTML parser (no JSDOM needed)
-function parseFFCHtml(html: string) {
-  const races: { name: string; date: string; location: string; type: string }[] = [];
+/**
+ * Parse FFC HTML using regex - matches actual HTML structure:
+ * <div class="organisation ">
+ *   <a ...>
+ *     <div class="organisation-titre-calendrierType">National</div>
+ *     <div class="organisation-titre-jours">Le 21/02/2026</div>
+ *     <div class="organisation-titre-localisation">...<icon/>Vendée</div>
+ *     <div class="organisation-titre-libelle">Race Name</div>
+ *   </a>
+ * </div>
+ */
+function parseFFCHtml(html: string): { name: string; date: string; location: string; type: string; cancelled: boolean }[] {
+  const races: { name: string; date: string; location: string; type: string; cancelled: boolean }[] = [];
 
-  // Split by organisation blocks
-  const orgRegex = /<div[^>]*class="[^"]*organisation(?:\s[^"]*)?(?:"[^>]*)?>[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi;
-  const blocks = html.match(orgRegex) || [];
+  // Extract each organisation block
+  // Split on organisation blocks
+  const orgParts = html.split(/class="organisation\s/);
 
-  // Fallback: extract from organisation-titre classes directly
-  if (blocks.length === 0) {
-    // Find all libelle entries (race names) and nearby fields
-    const nameRegex = /organisation-titre-libelle[^>]*>([^<]+)</g;
-    const dateRegex = /organisation-titre-jours[^>]*>([^<]+)</g;
-    const locRegex = /organisation-titre-localisation[^>]*>([^<]+)</g;
-    const typeRegex = /organisation-titre-calendrierType[^>]*>([^<]+)</g;
+  for (let i = 1; i < orgParts.length; i++) {
+    const block = orgParts[i];
 
-    const names: string[] = [];
-    const dates: string[] = [];
-    const locs: string[] = [];
-    const types: string[] = [];
+    // Check if cancelled
+    const cancelled = /ANNUL[ÉE]/i.test(block);
 
-    let m;
-    while ((m = nameRegex.exec(html)) !== null) names.push(m[1].trim());
-    while ((m = dateRegex.exec(html)) !== null) dates.push(m[1].trim());
-    while ((m = locRegex.exec(html)) !== null) locs.push(m[1].trim());
-    while ((m = typeRegex.exec(html)) !== null) types.push(m[1].trim());
+    // Extract name from organisation-titre-libelle
+    const nameMatch = block.match(/organisation-titre-libelle[^>]*>([^<]+)/);
+    const name = nameMatch ? nameMatch[1].trim() : "";
 
-    // Check for ANNULÉ near each entry
-    const annuleRegex = /badge-annule|ANNULÉ|ANNULE/gi;
+    // Extract date from organisation-titre-jours
+    const dateMatch = block.match(/organisation-titre-jours[^>]*>([^<]+)/);
+    const date = dateMatch ? dateMatch[1].trim() : "";
 
-    for (let i = 0; i < names.length; i++) {
-      races.push({
-        name: names[i] || "",
-        date: dates[i] || "",
-        location: locs[i] || "",
-        type: types[i] || "",
-      });
+    // Extract type from organisation-titre-calendrierType
+    const typeMatch = block.match(/organisation-titre-calendrierType[^>]*>([^<]+)/);
+    const type = typeMatch ? typeMatch[1].trim() : "";
+
+    // Extract location - text after the icon inside organisation-titre-localisation
+    // Structure: <div class="...localisation">...<i class="..."></i></div>LocationText</div>
+    const locMatch = block.match(/organisation-titre-localisation[\s\S]*?<\/i>\s*<\/div>\s*([^<]+)/);
+    const location = locMatch ? locMatch[1].trim() : "";
+
+    if (name) {
+      races.push({ name, date, location, type, cancelled });
     }
   }
 
   return races;
-}
-
-// Filter out cancelled races
-function filterCancelled(html: string, races: { name: string; date: string; location: string; type: string }[]) {
-  // Find names of cancelled races
-  const cancelledNames = new Set<string>();
-  const cancelRegex = /ANNUL[ÉE][\s\S]{0,500}?organisation-titre-libelle[^>]*>([^<]+)/gi;
-  let m;
-  while ((m = cancelRegex.exec(html)) !== null) {
-    cancelledNames.add(m[1].trim());
-  }
-  // Also check reverse: name then ANNULÉ
-  const cancelRegex2 = /organisation-titre-libelle[^>]*>([^<]+)[\s\S]{0,200}?ANNUL[ÉE]/gi;
-  while ((m = cancelRegex2.exec(html)) !== null) {
-    cancelledNames.add(m[1].trim());
-  }
-
-  return races.filter(r => !cancelledNames.has(r.name));
 }
 
 const ALL_WINDOWS = [
@@ -153,6 +139,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const windowIdx = body.window;
+  const debug = body.debug === true;
 
   const windowsToScrape = windowIdx !== undefined
     ? [ALL_WINDOWS[windowIdx]]
@@ -160,14 +147,30 @@ export async function POST(request: Request) {
 
   const BASE = "https://competitions.ffc.fr/calendrier/calendrier.aspx";
   const allRaw: { name: string; date: string; location: string; type: string }[] = [];
+  let debugInfo: any = {};
 
   for (const w of windowsToScrape) {
     const url = `${BASE}?discipline=1&autourType=IP&nbjours=${w.nbjours}&debut=${encodeURIComponent(w.debut)}`;
     const resp = await fetch(url);
     const html = await resp.text();
+
+    if (debug) {
+      debugInfo = {
+        htmlLength: html.length,
+        hasOrganisation: html.includes('class="organisation'),
+        hasLibelle: html.includes('organisation-titre-libelle'),
+        sample: html.substring(0, 500),
+        orgCount: (html.match(/class="organisation\s/g) || []).length,
+      };
+    }
+
     const parsed = parseFFCHtml(html);
-    const filtered = filterCancelled(html, parsed);
-    allRaw.push(...filtered);
+    const filtered = parsed.filter(r => !r.cancelled);
+    allRaw.push(...filtered.map(({ cancelled, ...rest }) => rest));
+  }
+
+  if (debug) {
+    return Response.json({ debug: true, ...debugInfo, parsedCount: allRaw.length, sample: allRaw.slice(0, 3) });
   }
 
   // Deduplicate
