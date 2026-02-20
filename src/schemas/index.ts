@@ -98,7 +98,7 @@ export const racesQuerySchema = z.object({
   search: z.string().max(200).optional(),
   upcoming: z.string().optional(),
   past_only: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(500).default(200),
+  limit: z.coerce.number().int().min(1).max(2000).default(1500),
 });
 
 // ——— Fantasy Cycling ———

@@ -74,6 +74,19 @@ function extractCategories(name: string): string | null {
   return cats.size > 0 ? [...cats].join(",") : null;
 }
 
+/** Decode HTML entities like &#233; → é, &amp; → &, etc. */
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'");
+}
+
 /**
  * Parse FFC HTML using regex - matches actual HTML structure:
  * <div class="organisation ">
@@ -100,7 +113,7 @@ function parseFFCHtml(html: string): { name: string; date: string; location: str
 
     // Extract name from organisation-titre-libelle
     const nameMatch = block.match(/organisation-titre-libelle[^>]*>([^<]+)/);
-    const name = nameMatch ? nameMatch[1].trim() : "";
+    const name = nameMatch ? decodeHtmlEntities(nameMatch[1].trim()) : "";
 
     // Extract date from organisation-titre-jours
     const dateMatch = block.match(/organisation-titre-jours[^>]*>([^<]+)/);
@@ -111,9 +124,8 @@ function parseFFCHtml(html: string): { name: string; date: string; location: str
     const type = typeMatch ? typeMatch[1].trim() : "";
 
     // Extract location - text after the icon inside organisation-titre-localisation
-    // Structure: <div class="...localisation">...<i class="..."></i></div>LocationText</div>
     const locMatch = block.match(/organisation-titre-localisation[\s\S]*?<\/i>\s*<\/div>\s*([^<]+)/);
-    const location = locMatch ? locMatch[1].trim() : "";
+    const location = locMatch ? decodeHtmlEntities(locMatch[1].trim()) : "";
 
     if (name) {
       races.push({ name, date, location, type, cancelled });
