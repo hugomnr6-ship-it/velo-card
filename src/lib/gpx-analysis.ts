@@ -118,7 +118,7 @@ export function identifyClimbs(
   );
   const smoothed = smoothElevations(points, smoothWindow);
 
-  const rawClimbs: ClimbSegment[] = [];
+  const climbs: ClimbSegment[] = [];
 
   let valleyIdx = 0; // index of the lowest point (potential climb start)
   let peakIdx = 0; // index of the highest point after valley
@@ -144,8 +144,8 @@ export function identifyClimbs(
       }
     }
 
-    rawClimbs.push({
-      name: `Col ${rawClimbs.length + 1}`,
+    climbs.push({
+      name: `Col ${climbs.length + 1}`,
       startIdx: vIdx,
       endIdx: pIdx,
       distStart: points[vIdx].distFromStart,
@@ -165,9 +165,9 @@ export function identifyClimbs(
     const gain = smoothed[peakIdx] - smoothed[valleyIdx];
     const drop = smoothed[peakIdx] - ele;
 
-    // Dynamic threshold: must drop 50m absolute OR 25% of climb height
-    // This is generous so internal dips don't split big climbs
-    const dropThreshold = Math.max(50, gain * 0.25);
+    // Dynamic threshold: split on 30m drop OR 20% of climb height
+    // Each individual hill = its own col
+    const dropThreshold = Math.max(30, gain * 0.2);
 
     // ── Finalize climb when we've descended enough from peak ──
     if (peakIdx > valleyIdx && gain >= minGain && drop >= dropThreshold) {
@@ -202,62 +202,7 @@ export function identifyClimbs(
     tryRecord(valleyIdx, peakIdx);
   }
 
-  // ── Post-process: merge climbs separated by shallow dips ──
-  // Two parts of the same big climb that got split by an internal dip
-  // are merged back into one if the dip is shallow relative to total gain.
-  return mergeClimbs(rawClimbs, smoothed, points);
-}
-
-/** Merge consecutive climbs where the dip between them is shallow. */
-function mergeClimbs(
-  climbs: ClimbSegment[],
-  smoothed: number[],
-  points: GpxPoint[],
-): ClimbSegment[] {
-  if (climbs.length < 2) return climbs;
-
-  const merged: ClimbSegment[] = [];
-  let curr = { ...climbs[0] };
-
-  for (let i = 1; i < climbs.length; i++) {
-    const next = climbs[i];
-
-    // Dip = descent from current peak to next valley
-    const dip = curr.endEle - next.startEle;
-
-    // Overall gain if we merge (from current valley to the higher peak)
-    const mergedPeakEle = Math.max(curr.endEle, next.endEle);
-    const mergedGain = mergedPeakEle - curr.startEle;
-
-    // Merge if dip is small: <80m absolute AND <30% of total gain
-    if (dip > 0 && dip < 80 && mergedGain > 0 && dip < mergedGain * 0.3) {
-      // Determine the actual peak index (whichever climb reaches higher)
-      const peakIdx =
-        next.endEle >= curr.endEle ? next.endIdx : curr.endIdx;
-      const peakEle = Math.round(mergedPeakEle);
-      const length =
-        points[peakIdx].distFromStart - points[curr.startIdx].distFromStart;
-      const avgGrad = length > 0 ? (mergedGain / (length * 1000)) * 100 : 0;
-
-      curr = {
-        ...curr,
-        endIdx: peakIdx,
-        distEnd: points[peakIdx].distFromStart,
-        elevGain: Math.round(mergedGain),
-        length: Math.round(length * 10) / 10,
-        avgGradient: Math.round(avgGrad * 10) / 10,
-        maxGradient: Math.max(curr.maxGradient, next.maxGradient),
-        endEle: peakEle,
-      };
-    } else {
-      merged.push(curr);
-      curr = { ...next };
-    }
-  }
-  merged.push(curr);
-
-  // Rename after merge
-  return merged.map((c, i) => ({ ...c, name: `Col ${i + 1}` }));
+  return climbs;
 }
 
 /* ══════ Identify descents ══════ */
