@@ -2,9 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
-import { m } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
@@ -111,6 +111,77 @@ function FilterRow({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex gap-1 overflow-x-auto scrollbar-none">
       {children}
+    </div>
+  );
+}
+
+// ——— Region dropdown ———
+function RegionDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  const activeLabel = value === "all"
+    ? "Toutes régions"
+    : REGIONS.find(r => r.value === value)?.label ?? value;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
+          value !== "all"
+            ? "bg-[#6366F1] text-white shadow-[0_0_10px_rgba(99,102,241,0.25)]"
+            : "text-[#64748B] hover:text-[#94A3B8]"
+        }`}
+      >
+        {activeLabel}
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+          className={`transition-transform ${open ? "rotate-180" : ""}`}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <m.div
+            initial={{ opacity: 0, y: -6, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 top-full z-50 mt-1.5 w-56 rounded-xl border border-white/[0.08] bg-[#111827] py-1 shadow-2xl max-h-64 overflow-y-auto scrollbar-none"
+          >
+            <button
+              onClick={() => { onChange("all"); setOpen(false); }}
+              className={`w-full px-3 py-2 text-left text-xs font-medium transition-colors ${
+                value === "all" ? "bg-[#6366F1]/10 text-[#818CF8]" : "text-[#94A3B8] hover:bg-white/[0.04]"
+              }`}
+            >
+              Toutes régions
+            </button>
+            {REGIONS.map(r => (
+              <button
+                key={r.value}
+                onClick={() => { onChange(r.value); setOpen(false); }}
+                className={`w-full px-3 py-2 text-left text-xs font-medium transition-colors ${
+                  value === r.value ? "bg-[#6366F1]/10 text-[#818CF8]" : "text-[#94A3B8] hover:bg-white/[0.04]"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -313,13 +384,8 @@ export default function RacesCalendarPage() {
             ))}
           </FilterRow>
 
-          {/* Row 3: Région */}
-          <FilterRow>
-            <FilterPill label="Toutes régions" active={regionFilter === "all"} onClick={() => setRegionFilter("all")} />
-            {REGIONS.map(r => (
-              <FilterPill key={r.value} label={r.label} active={regionFilter === r.value} onClick={() => setRegionFilter(r.value)} />
-            ))}
-          </FilterRow>
+          {/* Row 3: Région dropdown */}
+          <RegionDropdown value={regionFilter} onChange={setRegionFilter} />
         </div>
 
         {/* Race count */}
