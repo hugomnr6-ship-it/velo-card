@@ -526,11 +526,26 @@ export interface RaceResultView {
   user_id: string | null;
 }
 
+export interface RaceEngage {
+  id: string;
+  rider_name: string;
+  user_id: string | null;
+  bib_number: number | null;
+  club: string | null;
+  category: string | null;
+  // Enriched from profile (if matched)
+  username: string | null;
+  avatar_url: string | null;
+  ovr: number | null;
+  tier: CardTier | null;
+}
+
 export interface RaceDetailWithResults extends RaceDetail {
   results: RaceResultView[];
   results_published: boolean;
   race_time: number;      // seconds (winner time)
   avg_speed: number;      // km/h
+  engages: RaceEngage[];
 }
 
 // ——— Gamification: VeloCoins ———

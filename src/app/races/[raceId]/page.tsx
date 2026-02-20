@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import ParticipantRow from "@/components/ParticipantRow";
 import ResultRow from "@/components/ResultRow";
 import RaceResultsForm from "@/components/RaceResultsForm";
+import StartlistUpload from "@/components/StartlistUpload";
 import AnimatedPage from "@/components/AnimatedPage";
 import EmptyState from "@/components/EmptyState";
 import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
@@ -623,6 +624,86 @@ export default function RaceDetailPage() {
             <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
           </section>
         )}
+
+        {/* ════════ ENGAGES / STARTLIST OCR ════════ */}
+        <section className="mb-6">
+          <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-[#64748B]">
+            Liste des engages ({race.engages?.length || 0})
+          </h2>
+
+          {race.engages && race.engages.length > 0 ? (
+            <div className="flex flex-col gap-2 mb-4">
+              {race.engages.map((eng) => (
+                <div
+                  key={eng.id}
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3"
+                >
+                  {/* Avatar or ghost icon */}
+                  {eng.user_id && eng.avatar_url ? (
+                    <Avatar src={eng.avatar_url} alt={eng.username || ""} size={32} />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06]">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#475569]">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </div>
+                  )}
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      {eng.user_id ? (
+                        <Link href={`/profile/${eng.user_id}`} className="truncate text-sm font-bold text-white hover:text-[#818CF8] transition">
+                          {eng.username || eng.rider_name}
+                        </Link>
+                      ) : (
+                        <span className="truncate text-sm font-bold text-white/70">
+                          {eng.rider_name}
+                        </span>
+                      )}
+                      {eng.bib_number && (
+                        <span className="shrink-0 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold text-[#94A3B8]">
+                          #{eng.bib_number}
+                        </span>
+                      )}
+                      {!eng.user_id && (
+                        <span className="shrink-0 rounded-md bg-[#6366F1]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#818CF8]">
+                          Fantome
+                        </span>
+                      )}
+                    </div>
+                    {eng.club && (
+                      <p className="text-[11px] text-[#64748B] truncate">{eng.club}</p>
+                    )}
+                  </div>
+
+                  {/* OVR badge if matched */}
+                  {eng.user_id && eng.ovr != null && (
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-black ${
+                      eng.tier === "legende" ? "bg-gradient-to-br from-amber-400/20 to-amber-600/20 text-amber-400" :
+                      eng.tier === "diamant" ? "bg-cyan-500/15 text-cyan-400" :
+                      eng.tier === "platine" ? "bg-purple-500/15 text-purple-400" :
+                      eng.tier === "argent" ? "bg-slate-400/15 text-slate-300" :
+                      "bg-orange-800/15 text-orange-400"
+                    }`}>
+                      {eng.ovr}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mb-4 rounded-xl border border-dashed border-white/[0.08] bg-[#1A1A2E]/30 p-4 text-center">
+              <p className="text-xs text-[#475569]">
+                Aucun engagé renseigné pour le moment
+              </p>
+            </div>
+          )}
+
+          {/* Upload form — available to all authenticated users */}
+          <StartlistUpload raceId={raceId} onImported={fetchRace} />
+        </section>
 
         {/* ════════ FAVORITES / STARTLIST ════════ */}
         <section className="mb-6">

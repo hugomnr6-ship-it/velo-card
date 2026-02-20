@@ -200,3 +200,25 @@ create index idx_race_results_position on race_results(race_id, position);
 
 alter table ghost_profiles enable row level security;
 alter table race_results enable row level security;
+
+-- ==========================================
+-- Phase: Race Startlist (Liste des engages)
+-- ==========================================
+
+create table race_engages (
+  id          uuid primary key default gen_random_uuid(),
+  race_id     uuid not null references races(id) on delete cascade,
+  rider_name  text not null,
+  user_id     uuid references profiles(id) on delete set null,
+  bib_number  smallint,
+  club        text,
+  category    text,
+  added_by    uuid references profiles(id) on delete set null,
+  created_at  timestamptz default now(),
+  unique (race_id, rider_name)
+);
+
+create index idx_race_engages_race on race_engages(race_id);
+create index idx_race_engages_user on race_engages(user_id);
+
+alter table race_engages enable row level security;

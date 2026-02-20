@@ -123,11 +123,57 @@ export async function getRaceDetail(raceId: string, userId: string) {
     }
   }
 
+  // Fetch engagés (startlist)
+  const { data: engagesRaw } = await supabaseAdmin
+    .from("race_engages")
+    .select("id, rider_name, user_id, bib_number, club, category")
+    .eq("race_id", raceId)
+    .order("bib_number", { ascending: true, nullsFirst: false });
+
+  let engages: any[] = [];
+  if (engagesRaw && engagesRaw.length > 0) {
+    const engageUserIds = engagesRaw
+      .filter((e: any) => e.user_id)
+      .map((e: any) => e.user_id);
+
+    const engageProfiles: Record<string, any> = {};
+    const engageStats: Record<string, any> = {};
+
+    if (engageUserIds.length > 0) {
+      const [epRes, esRes] = await Promise.all([
+        supabaseAdmin
+          .from("profiles")
+          .select("id, username, avatar_url")
+          .in("id", engageUserIds),
+        supabaseAdmin
+          .from("user_stats")
+          .select("user_id, ovr, tier")
+          .in("user_id", engageUserIds),
+      ]);
+      for (const p of epRes.data || []) engageProfiles[p.id] = p;
+      for (const s of esRes.data || []) engageStats[s.user_id] = s;
+    }
+
+    engages = engagesRaw.map((e: any) => ({
+      id: e.id,
+      rider_name: e.rider_name,
+      user_id: e.user_id,
+      bib_number: e.bib_number,
+      club: e.club,
+      category: e.category,
+      username: e.user_id ? engageProfiles[e.user_id]?.username || null : null,
+      avatar_url: e.user_id ? engageProfiles[e.user_id]?.avatar_url || null : null,
+      ovr: e.user_id ? engageStats[e.user_id]?.ovr || null : null,
+      tier: e.user_id ? engageStats[e.user_id]?.tier || null : null,
+    }));
+  }
+
   return {
     ...race,
     participants,
     results,
     results_published: resultsPublished,
+    engages,
     is_creator: userId === race.creator_id,
     is_participant: userIds.includes(userId),
   };
