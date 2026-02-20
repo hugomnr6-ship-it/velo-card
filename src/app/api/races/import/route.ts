@@ -100,14 +100,29 @@ export async function GET(request: Request) {
         // Skip if names are identical (already handled by upsert)
         if (nameA === nameB) continue;
 
-        // Check if one name contains the other
+        // Check if one name fully contains the other
         const aContainsB = nameA.includes(nameB);
         const bContainsA = nameB.includes(nameA);
 
         if (aContainsB || bContainsA) {
-          // Keep the longer/more complete name
           const shorter = nameA.length <= nameB.length ? a : b;
           const longer = nameA.length <= nameB.length ? b : a;
+          const shorterNorm = nameA.length <= nameB.length ? nameA : nameB;
+          const longerNorm = nameA.length <= nameB.length ? nameB : nameA;
+
+          // Get the extra part (what the longer name has that the shorter doesn't)
+          const extra = longerNorm.replace(shorterNorm, "").trim();
+
+          // Skip if the extra part contains a different category keyword
+          // (e.g., "GP Milléco Elite" vs "GP Milléco Elite Open Access" → different races!)
+          const catKeywords = ["u15", "u17", "u19", "cadet", "junior", "minime", "benjamin",
+            "elite", "open", "access", "feminin", "feminine", "dame"];
+          const extraHasCat = catKeywords.some(kw => extra.includes(kw));
+          const shorterHasCat = catKeywords.some(kw => shorterNorm.includes(kw));
+
+          // If shorter name already has a category keyword AND extra text also has one,
+          // they're likely different category races → skip
+          if (shorterHasCat && extraHasCat) continue;
 
           // Merge categories: keep the richer category set
           const catA = a.category || "";
@@ -131,23 +146,6 @@ export async function GET(request: Request) {
                 .eq("id", longer.id);
             }
           }
-          continue;
-        }
-
-        // Check high similarity (common prefix > 70% of shorter name)
-        const commonPrefix = getCommonPrefixLength(nameA, nameB);
-        const shorterLen = Math.min(nameA.length, nameB.length);
-        if (shorterLen > 10 && commonPrefix / shorterLen > 0.7) {
-          const shorter = nameA.length <= nameB.length ? a : b;
-          const longer = nameA.length <= nameB.length ? b : a;
-
-          toDelete.push({
-            id: shorter.id,
-            name: shorter.name,
-            date: shorter.date,
-            reason: `similaire à "${longer.name}" (${Math.round(commonPrefix / shorterLen * 100)}% prefixe commun)`,
-            kept: longer.name,
-          });
         }
       }
     }
@@ -188,9 +186,3 @@ function normalizeName(name: string): string {
     .trim();
 }
 
-// Get the length of the common prefix between two strings
-function getCommonPrefixLength(a: string, b: string): number {
-  let i = 0;
-  while (i < a.length && i < b.length && a[i] === b[i]) i++;
-  return i;
-}
