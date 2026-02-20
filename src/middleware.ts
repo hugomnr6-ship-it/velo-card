@@ -50,7 +50,11 @@ export async function middleware(request: NextRequest) {
     }
 
     // CSRF protection for state-changing methods
-    if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
+    // Skip for /api/auth — NextAuth handles its own CSRF protection
+    if (
+      !pathname.startsWith("/api/auth") &&
+      ["POST", "PUT", "DELETE", "PATCH"].includes(request.method)
+    ) {
       const origin = request.headers.get("origin");
       const allowedOrigins = [
         process.env.NEXTAUTH_URL,
@@ -59,7 +63,8 @@ export async function middleware(request: NextRequest) {
         "http://localhost:3000",
       ].filter(Boolean);
 
-      if (origin && !allowedOrigins.includes(origin)) {
+      // Allow Vercel preview deployments
+      if (origin && !allowedOrigins.includes(origin) && !origin.endsWith(".vercel.app")) {
         return NextResponse.json({ error: "Origin non autorisé" }, { status: 403 });
       }
     }
