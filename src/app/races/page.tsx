@@ -286,7 +286,7 @@ export default function RacesCalendarPage() {
 
   // Build filters for the hook — upcoming only (server-side filter)
   const raceFilters = useMemo(() => {
-    const filters: Record<string, string> = { limit: "200" };
+    const filters: Record<string, string> = { limit: "1500" };
     if (fedFilter !== "all") filters.federation = fedFilter;
     if (genderFilter !== "all") filters.gender = genderFilter;
     if (regionFilter !== "all") filters.region = regionFilter;
