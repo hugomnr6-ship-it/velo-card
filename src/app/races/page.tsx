@@ -134,7 +134,7 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
           <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${fed.bg} ${fed.text}`}>
             {race.federation}
           </span>
-          {race.category && race.category !== "Seniors" && (
+          {race.category && (
             <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-[#94A3B8]">
               {race.category}
             </span>
@@ -208,7 +208,7 @@ export default function RacesCalendarPage() {
 
   // Extract unique categories from ALL races, sorted in racing hierarchy order
   const categories = useMemo(() => {
-    const CATEGORY_ORDER = ["Cadets", "Juniors", "Espoirs", "Élite", "DN3", "DN2", "DN1", "Pass Open", "Toutes"];
+    const CATEGORY_ORDER = ["Élite", "Open 1", "Open 2", "Open 3", "Access 1", "Access 2", "Access 3", "Access 4", "Junior", "Cadet"];
     const cats = new Set(allRaces.map(r => r.category).filter(Boolean));
     return Array.from(cats).sort((a, b) => {
       const ia = CATEGORY_ORDER.indexOf(a);
