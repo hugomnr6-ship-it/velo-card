@@ -1,19 +1,14 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { handleApiError, getAuthenticatedUser } from "@/lib/api-utils";
+import { handleApiError } from "@/lib/api-utils";
 
 const IMPORT_SECRET = process.env.IMPORT_SECRET;
 
 export async function POST(request: Request) {
-  // Auth: accept either IMPORT_SECRET or session auth
+  // Rate limiting is now handled globally by middleware (Upstash Redis)
+  // Simple admin secret protection
   const authHeader = request.headers.get("authorization");
-  const hasSecret = IMPORT_SECRET && authHeader === `Bearer ${IMPORT_SECRET}`;
-
-  if (!hasSecret) {
-    // Fallback to session auth
-    const userOrRes = await getAuthenticatedUser();
-    if (userOrRes instanceof Response) {
-      return Response.json({ error: "Non autorisé" }, { status: 401 });
-    }
+  if (!IMPORT_SECRET || authHeader !== `Bearer ${IMPORT_SECRET}`) {
+    return Response.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   const body = await request.json();
