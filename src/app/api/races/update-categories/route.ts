@@ -1,13 +1,10 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { handleApiError } from "@/lib/api-utils";
-
-const IMPORT_SECRET = process.env.IMPORT_SECRET;
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  if (!IMPORT_SECRET || authHeader !== `Bearer ${IMPORT_SECRET}`) {
-    return Response.json({ error: "Non autorisé" }, { status: 401 });
-  }
+  // Use session auth — only logged-in users can call this
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
 
   const body = await request.json();
   const { updates } = body; // Array of { id, category }
@@ -19,19 +16,15 @@ export async function POST(request: Request) {
   let updated = 0;
   const errors: string[] = [];
 
-  // Batch update in chunks of 50
-  for (let i = 0; i < updates.length; i += 50) {
-    const chunk = updates.slice(i, i + 50);
-    for (const u of chunk) {
-      const { error } = await supabaseAdmin
-        .from("races")
-        .update({ category: u.category })
-        .eq("id", u.id);
-      if (error) {
-        errors.push(`${u.id}: ${error.message}`);
-      } else {
-        updated++;
-      }
+  for (const u of updates) {
+    const { error } = await supabaseAdmin
+      .from("races")
+      .update({ category: u.category })
+      .eq("id", u.id);
+    if (error) {
+      errors.push(`${u.id}: ${error.message}`);
+    } else {
+      updated++;
     }
   }
 
