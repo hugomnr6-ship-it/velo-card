@@ -1,6 +1,13 @@
 "use client";
 
-import { captureCard, generateQR, drawStoryCanvas, shareToInstagramStory } from "@/lib/share-utils";
+import { useState } from "react";
+import {
+  captureCard,
+  generateQR,
+  drawStoryCanvas,
+  dataUrlToBlob,
+  shareToInstagramStory,
+} from "@/lib/share-utils";
 import type { CardTier } from "@/types";
 
 interface DownloadButtonProps {
@@ -9,26 +16,49 @@ interface DownloadButtonProps {
 }
 
 export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
-  async function handleDownload() {
+  const [storyBlob, setStoryBlob] = useState<Blob | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleClick() {
+    // Step 2: story is ready → share immediately (fresh user gesture)
+    if (storyBlob) {
+      try {
+        await shareToInstagramStory(storyBlob);
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        alert("Erreur partage: " + (err instanceof Error ? err.message : String(err)));
+      }
+      setStoryBlob(null);
+      return;
+    }
+
+    // Step 1: generate the story image
+    setLoading(true);
     try {
       const [cardData, qrData] = await Promise.all([
         captureCard(),
         generateQR(userId, tier),
       ]);
       const storyData = await drawStoryCanvas(cardData, tier, qrData);
-      await shareToInstagramStory(storyData);
+      setStoryBlob(dataUrlToBlob(storyData));
     } catch (err) {
       console.error("Export error:", err);
       alert("Erreur export: " + (err instanceof Error ? err.message : String(err)));
     }
+    setLoading(false);
   }
 
   return (
     <button
-      onClick={handleDownload}
-      className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
+      onClick={handleClick}
+      disabled={loading}
+      className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-60"
     >
-      Partager pour Instagram
+      {loading
+        ? "Préparation..."
+        : storyBlob
+          ? "📲 Poster en Story"
+          : "Partager pour Instagram"}
     </button>
   );
 }

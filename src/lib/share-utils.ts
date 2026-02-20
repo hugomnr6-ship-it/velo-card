@@ -147,18 +147,36 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
 }
 
 /**
- * Share to Instagram Story:
- * 1. Save the story image to the device
- * 2. Open Instagram story camera via deep link
- * User swipes up in IG to pick the image from recents.
+ * Convert a data URL to a Blob without using fetch (iOS Safari compatible)
  */
-export async function shareToInstagramStory(dataUrl: string) {
-  // Save the image to the device
-  downloadDataUrl(dataUrl, "velocard-story.png");
+export function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, base64] = dataUrl.split(",");
+  const mime = header.match(/:(.*?);/)?.[1] ?? "image/png";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 
-  // Wait for download to start, then open Instagram
-  await new Promise((r) => setTimeout(r, 400));
-  window.location.href = "instagram://story-camera";
+/**
+ * Share a Blob to Instagram Story via the native share sheet.
+ * Must be called directly from a user gesture (click) to work on iOS.
+ */
+export async function shareToInstagramStory(blob: Blob) {
+  const file = new File([blob], "velocard-story.png", { type: "image/png" });
+
+  if (navigator.share) {
+    await navigator.share({ files: [file] });
+    return;
+  }
+
+  // Fallback desktop: download
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.download = "velocard-story.png";
+  link.href = url;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 /**

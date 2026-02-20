@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   captureCard,
   generateQR,
   drawStoryCanvas,
+  dataUrlToBlob,
   shareOrDownload,
   shareToInstagramStory,
   downloadDataUrl,
@@ -27,20 +28,50 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
   const [loading, setLoading] = useState<ShareAction | null>(null);
   const [copied, setCopied] = useState(false);
   const modalRef = useFocusTrap(isOpen, onClose);
+  const storyBlobRef = useRef<Blob | null>(null);
 
   const cardUrl = `https://velocard.app/card/${userId}`;
+
+  // Pre-generate story image when modal opens so share is instant on click
+  useEffect(() => {
+    if (!isOpen) {
+      storyBlobRef.current = null;
+      return;
+    }
+    let cancelled = false;
+    Promise.all([captureCard(), generateQR(userId, tier)])
+      .then(([cardData, qrData]) => drawStoryCanvas(cardData, tier, qrData))
+      .then((dataUrl) => {
+        if (!cancelled) storyBlobRef.current = dataUrlToBlob(dataUrl);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isOpen, userId, tier]);
 
   async function handleStory() {
     setLoading("story");
     try {
+      // If pre-generated, share immediately (user gesture preserved)
+      if (storyBlobRef.current) {
+        await shareToInstagramStory(storyBlobRef.current);
+        trackEvent("card_shared", { method: "story", tier });
+        setLoading(null);
+        return;
+      }
+      // Fallback: generate now (share might not work due to gesture timeout)
       const [cardData, qrData] = await Promise.all([
         captureCard(),
         generateQR(userId, tier),
       ]);
       const storyData = await drawStoryCanvas(cardData, tier, qrData);
-      await shareToInstagramStory(storyData);
+      const blob = dataUrlToBlob(storyData);
+      await shareToInstagramStory(blob);
       trackEvent("card_shared", { method: "story", tier });
     } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        setLoading(null);
+        return;
+      }
       console.error("Story export error:", err);
       alert("Erreur story: " + (err instanceof Error ? err.message : String(err)));
     }
@@ -92,11 +123,13 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
     setLoading(null);
   }
 
+  const storyReady = storyBlobRef.current !== null;
+
   const actions: { key: ShareAction; label: string; sublabel: string; icon: React.ReactNode; handler: () => void }[] = [
     {
       key: "story",
       label: "Story Instagram",
-      sublabel: "1080 x 1920px",
+      sublabel: storyReady ? "Prêt à partager" : "1080 x 1920px",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" />
