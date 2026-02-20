@@ -161,6 +161,8 @@ export default function ElevationProfile({
 
             <XAxis
               dataKey="km"
+              type="number"
+              domain={["dataMin", "dataMax"]}
               tick={{
                 fill: "rgba(255,255,255,0.2)",
                 fontSize: 9,
@@ -168,7 +170,6 @@ export default function ElevationProfile({
               }}
               axisLine={false}
               tickLine={false}
-              interval="preserveStartEnd"
             />
             <YAxis
               domain={["auto", "auto"]}
