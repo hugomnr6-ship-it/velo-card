@@ -56,7 +56,7 @@ export default function BottomTabBar() {
       aria-label="Navigation principale"
       style={{ WebkitBackdropFilter: "blur(24px) saturate(180%)", backdropFilter: "blur(24px) saturate(180%)" }}
     >
-      <div className="mx-auto flex max-w-lg items-center justify-around pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto flex max-w-lg items-center justify-around pb-[max(4px,env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
           const isActive =
             pathname === tab.href || pathname.startsWith(tab.href + "/");
