@@ -153,21 +153,12 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
  * User swipes up in IG to pick the image from recents.
  */
 export async function shareToInstagramStory(dataUrl: string) {
-  // Convert to blob URL (works better than data URL on iOS Safari)
-  const blob = await (await fetch(dataUrl)).blob();
-  const blobUrl = URL.createObjectURL(blob);
+  // Save the image to the device
+  downloadDataUrl(dataUrl, "velocard-story.png");
 
-  // Download the image
-  const link = document.createElement("a");
-  link.download = "velocard-story.png";
-  link.href = blobUrl;
-  link.click();
-
-  // Open Instagram story camera after a short delay
-  setTimeout(() => {
-    window.location.href = "instagram://story-camera";
-    URL.revokeObjectURL(blobUrl);
-  }, 600);
+  // Wait for download to start, then open Instagram
+  await new Promise((r) => setTimeout(r, 400));
+  window.location.href = "instagram://story-camera";
 }
 
 /**
