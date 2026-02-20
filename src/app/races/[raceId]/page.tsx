@@ -17,11 +17,13 @@ import Skeleton from "@/components/Skeleton";
 import { FlagIcon } from "@/components/icons/TabIcons";
 import type { RaceDetailWithResults, GpxPoint } from "@/types";
 import { Avatar } from "@/components/Avatar";
-import type { GradientSegment, ClimbSegment } from "@/lib/gpx-analysis";
+import type { GradientSegment, ClimbSegment, DescentSegment } from "@/lib/gpx-analysis";
 import {
   computeSegmentGradients,
   identifyClimbs,
+  identifyDescents,
 } from "@/lib/gpx-analysis";
+import ClimbsPanel from "@/components/course/ClimbsPanel";
 
 // Dynamic import for map (heavy)
 const CourseMap = dynamic(() => import("@/components/CourseMap"), { ssr: false });
@@ -132,6 +134,13 @@ export default function RaceDetailPage() {
     () => (hasGpx ? identifyClimbs(gpxPoints) : []),
     [gpxPoints, hasGpx]
   );
+
+  const descents: DescentSegment[] = useMemo(
+    () => (hasGpx ? identifyDescents(gpxPoints) : []),
+    [gpxPoints, hasGpx]
+  );
+
+  const [activeClimbIdx, setActiveClimbIdx] = useState<number | null>(null);
 
   const routeStats = useMemo(() => {
     if (!hasGpx) return null;
@@ -513,65 +522,16 @@ export default function RaceDetailPage() {
           <Skeleton className="mb-6 h-32 w-full rounded-2xl" />
         )}
 
-        {/* ════════ DIFFICULT PASSAGES ════════ */}
-        {climbs.length > 0 && (
+        {/* ════════ CLIMBS / DESCENTS PANEL ════════ */}
+        {(climbs.length > 0 || descents.length > 0) && (
           <section className="mb-6">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-[#64748B]">
-              Passages difficiles ({climbs.length})
-            </h2>
-            <div className="flex flex-col gap-2">
-              {climbs.map((climb, i) => (
-                <m.div
-                  key={i}
-                  className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-3"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-black ${
-                        climb.avgGradient >= 8 ? "bg-red-500/15 text-red-400" :
-                        climb.avgGradient >= 5 ? "bg-orange-500/15 text-orange-400" :
-                        "bg-yellow-500/15 text-yellow-400"
-                      }`}>
-                        {climb.avgGradient}%
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-white">{climb.name}</p>
-                        <p className="text-[10px] text-[#64748B]">
-                          km {climb.distStart.toFixed(1)} → {climb.distEnd.toFixed(1)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 text-right">
-                      <div>
-                        <p className="text-xs font-bold text-white">{climb.length} km</p>
-                        <p className="text-[9px] text-[#475569]">Distance</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white">{climb.elevGain} m</p>
-                        <p className="text-[9px] text-[#475569]">D+</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-red-400">{climb.maxGradient}%</p>
-                        <p className="text-[9px] text-[#475569]">Max</p>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Gradient bar */}
-                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.04]">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${Math.min(100, (climb.avgGradient / 15) * 100)}%`,
-                        background: climb.avgGradient >= 8 ? "#EF4444" : climb.avgGradient >= 5 ? "#F97316" : "#EAB308",
-                      }}
-                    />
-                  </div>
-                </m.div>
-              ))}
-            </div>
+            <ClimbsPanel
+              climbs={climbs}
+              descents={descents}
+              activeClimbIdx={activeClimbIdx}
+              onClimbClick={(idx) => setActiveClimbIdx((prev) => (prev === idx ? null : idx))}
+              points={gpxPoints}
+            />
           </section>
         )}
 
