@@ -42,6 +42,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
       trackEvent("card_shared", { method: "story", tier });
     } catch (err) {
       console.error("Story export error:", err);
+      alert("Erreur story: " + (err instanceof Error ? err.message : String(err)));
     }
     setLoading(null);
   }

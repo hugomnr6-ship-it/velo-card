@@ -19,6 +19,7 @@ export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
       await shareToInstagramStory(storyData);
     } catch (err) {
       console.error("Export error:", err);
+      alert("Erreur export: " + (err instanceof Error ? err.message : String(err)));
     }
   }
 
