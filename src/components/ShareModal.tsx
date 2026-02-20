@@ -8,6 +8,7 @@ import {
   generateQR,
   drawStoryCanvas,
   shareOrDownload,
+  shareToInstagramStory,
   downloadDataUrl,
 } from "@/lib/share-utils";
 import type { CardTier } from "@/types";
@@ -37,7 +38,7 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
         generateQR(userId, tier),
       ]);
       const storyData = await drawStoryCanvas(cardData, tier, qrData);
-      await shareOrDownload(storyData, "velocard-story.png");
+      await shareToInstagramStory(storyData);
       trackEvent("card_shared", { method: "story", tier });
     } catch (err) {
       console.error("Story export error:", err);

@@ -1,6 +1,6 @@
 "use client";
 
-import { captureCard, generateQR, drawStoryCanvas, shareOrDownload } from "@/lib/share-utils";
+import { captureCard, generateQR, drawStoryCanvas, shareToInstagramStory } from "@/lib/share-utils";
 import type { CardTier } from "@/types";
 
 interface DownloadButtonProps {
@@ -16,7 +16,7 @@ export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
         generateQR(userId, tier),
       ]);
       const storyData = await drawStoryCanvas(cardData, tier, qrData);
-      await shareOrDownload(storyData, "velocard-story.png");
+      await shareToInstagramStory(storyData);
     } catch (err) {
       console.error("Export error:", err);
     }

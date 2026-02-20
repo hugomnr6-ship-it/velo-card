@@ -147,6 +147,22 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
 }
 
 /**
+ * Share to Instagram Story: download the image then open Instagram story camera.
+ * On mobile the deep link opens the app directly; user picks the image from recents.
+ * Falls back to download-only on desktop.
+ */
+export async function shareToInstagramStory(dataUrl: string) {
+  // Download the image so it appears in gallery / recent downloads
+  downloadDataUrl(dataUrl, "velocard-story.png");
+
+  // Small delay to let the download start, then open Instagram
+  await new Promise((r) => setTimeout(r, 400));
+
+  // Try the Instagram deep link (works on iOS + Android if app installed)
+  window.location.href = "instagram://story-camera";
+}
+
+/**
  * Download a data URL as a file
  */
 export function downloadDataUrl(dataUrl: string, filename: string) {
