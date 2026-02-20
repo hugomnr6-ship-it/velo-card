@@ -95,14 +95,23 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+      className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
         active
-          ? "bg-[#6366F1] text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
-          : "border border-white/[0.08] text-[#64748B] hover:border-white/[0.15] hover:text-[#94A3B8]"
+          ? "bg-[#6366F1] text-white shadow-[0_0_10px_rgba(99,102,241,0.25)]"
+          : "text-[#64748B] hover:text-[#94A3B8]"
       }`}
     >
       {label}
     </button>
+  );
+}
+
+// ——— Filter row ———
+function FilterRow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-1 overflow-x-auto scrollbar-none">
+      {children}
+    </div>
   );
 }
 
@@ -278,53 +287,40 @@ export default function RacesCalendarPage() {
           />
         </div>
 
-        {/* Filters — labeled rows */}
-        <div className="mb-4 flex flex-col gap-2">
-          {/* Fédération */}
-          <div className="flex items-center gap-2">
-            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Fédération</span>
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+        {/* Filters */}
+        <div className="mb-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-2.5 flex flex-col gap-1.5">
+          {/* Row 1: Fédération + Genre */}
+          <div className="flex items-center gap-1">
+            <FilterRow>
               <FilterPill label="Tout" active={fedFilter === "all"} onClick={() => setFedFilter("all")} />
               <FilterPill label="FFC" active={fedFilter === "FFC"} onClick={() => setFedFilter("FFC")} />
               <FilterPill label="UFOLEP" active={fedFilter === "UFOLEP"} onClick={() => setFedFilter("UFOLEP")} />
               <FilterPill label="FSGT" active={fedFilter === "FSGT"} onClick={() => setFedFilter("FSGT")} />
-            </div>
-          </div>
-
-          {/* Catégorie */}
-          <div className="flex items-center gap-2">
-            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Catégorie</span>
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-              <FilterPill label="Tout" active={catFilter === "all"} onClick={() => setCatFilter("all")} />
-              {CATEGORY_GROUP_KEYS.map(group => (
-                <FilterPill key={group} label={group} active={catFilter === group} onClick={() => setCatFilter(group)} />
-              ))}
-            </div>
-          </div>
-
-          {/* Région */}
-          <div className="flex items-center gap-2">
-            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Région</span>
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-              <FilterPill label="Tout" active={regionFilter === "all"} onClick={() => setRegionFilter("all")} />
-              {REGIONS.map(r => (
-                <FilterPill key={r.value} label={r.label} active={regionFilter === r.value} onClick={() => setRegionFilter(r.value)} />
-              ))}
-            </div>
-          </div>
-
-          {/* Genre */}
-          <div className="flex items-center gap-2">
-            <span className="w-20 flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">Genre</span>
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-              <FilterPill label="Tout" active={genderFilter === "all"} onClick={() => setGenderFilter("all")} />
+            </FilterRow>
+            <div className="h-4 w-px flex-shrink-0 bg-white/[0.08]" />
+            <FilterRow>
+              <FilterPill label="H+F" active={genderFilter === "all"} onClick={() => setGenderFilter("all")} />
               <FilterPill label="Hommes" active={genderFilter === "H"} onClick={() => setGenderFilter("H")} />
               <FilterPill label="Femmes" active={genderFilter === "F"} onClick={() => setGenderFilter("F")} />
-            </div>
+            </FilterRow>
           </div>
-        </div>
 
-        <div className="my-4 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          {/* Row 2: Catégorie */}
+          <FilterRow>
+            <FilterPill label="Tout" active={catFilter === "all"} onClick={() => setCatFilter("all")} />
+            {CATEGORY_GROUP_KEYS.map(group => (
+              <FilterPill key={group} label={group} active={catFilter === group} onClick={() => setCatFilter(group)} />
+            ))}
+          </FilterRow>
+
+          {/* Row 3: Région */}
+          <FilterRow>
+            <FilterPill label="Toutes régions" active={regionFilter === "all"} onClick={() => setRegionFilter("all")} />
+            {REGIONS.map(r => (
+              <FilterPill key={r.value} label={r.label} active={regionFilter === r.value} onClick={() => setRegionFilter(r.value)} />
+            ))}
+          </FilterRow>
+        </div>
 
         {/* Race count */}
         {!loading && (
