@@ -94,105 +94,111 @@ export function computeSegmentGradients(
 
 /* ══════ Identify climbs ══════ */
 
+/**
+ * Robust climb detection using running valley/peak tracking.
+ *
+ * Instead of relying on per-point up/down transitions (which break on
+ * flat sections and internal dips), we track the deepest valley and
+ * highest peak seen so far. A climb is finalized when we descend far
+ * enough from the peak — with a *proportional* drop threshold so that
+ * small dips inside a big climb don't split it prematurely.
+ */
 export function identifyClimbs(
   points: GpxPoint[],
-  minGain = 50,
+  minGain = 40,
 ): ClimbSegment[] {
   if (points.length < 10) return [];
 
   // Adaptive smoothing: target ~500m window regardless of point density
   const totalDist = points[points.length - 1].distFromStart;
   const avgSpacing = totalDist / points.length; // km per point
-  const smoothWindow = Math.max(5, Math.min(80, Math.round(0.5 / Math.max(avgSpacing, 0.001))));
+  const smoothWindow = Math.max(
+    5,
+    Math.min(80, Math.round(0.5 / Math.max(avgSpacing, 0.001))),
+  );
   const smoothed = smoothElevations(points, smoothWindow);
 
   const climbs: ClimbSegment[] = [];
 
-  let climbStart: number | null = null;
-  let runningGain = 0;
-  let maxGrad = 0;
-  let highPoint = 0; // running maximum elevation in current climb
+  let valleyIdx = 0; // index of the lowest point (potential climb start)
+  let peakIdx = 0; // index of the highest point after valley
+
+  /** Try to record a climb from valleyIdx→peakIdx. */
+  function tryRecord(vIdx: number, pIdx: number): boolean {
+    const gain = smoothed[pIdx] - smoothed[vIdx];
+    if (gain < minGain || pIdx <= vIdx) return false;
+
+    const length = points[pIdx].distFromStart - points[vIdx].distFromStart;
+    if (length <= 0.15) return false; // too short
+
+    const avgGrad = (gain / (length * 1000)) * 100;
+    if (avgGrad < 2) return false; // too gentle
+
+    // Compute max gradient over the climb
+    let maxGrad = 0;
+    for (let j = vIdx + 1; j <= pIdx; j++) {
+      const d = points[j].distFromStart - points[j - 1].distFromStart;
+      if (d > 0.001) {
+        const g = ((smoothed[j] - smoothed[j - 1]) / (d * 1000)) * 100;
+        if (g > maxGrad) maxGrad = g;
+      }
+    }
+
+    climbs.push({
+      name: `Col ${climbs.length + 1}`,
+      startIdx: vIdx,
+      endIdx: pIdx,
+      distStart: points[vIdx].distFromStart,
+      distEnd: points[pIdx].distFromStart,
+      elevGain: Math.round(gain),
+      length: Math.round(length * 10) / 10,
+      avgGradient: Math.round(avgGrad * 10) / 10,
+      maxGradient: Math.round(maxGrad * 10) / 10,
+      startEle: Math.round(smoothed[vIdx]),
+      endEle: Math.round(smoothed[pIdx]),
+    });
+    return true;
+  }
 
   for (let i = 1; i < points.length; i++) {
-    const diff = smoothed[i] - smoothed[i - 1];
-    const distKm = points[i].distFromStart - points[i - 1].distFromStart;
+    const ele = smoothed[i];
+    const gain = smoothed[peakIdx] - smoothed[valleyIdx];
+    const drop = smoothed[peakIdx] - ele;
 
-    if (diff > 0) {
-      if (climbStart === null) {
-        climbStart = i - 1;
-        runningGain = 0;
-        maxGrad = 0;
-        highPoint = smoothed[i - 1];
-      }
-      runningGain += diff;
-      highPoint = Math.max(highPoint, smoothed[i]);
-      if (distKm > 0.001) {
-        const grad = (diff / (distKm * 1000)) * 100;
-        maxGrad = Math.max(maxGrad, grad);
-      }
-    } else if (diff < 0 && climbStart !== null) {
-      // Measure the drop from the highest point in this climb
-      const dropFromPeak = highPoint - smoothed[i];
+    // Dynamic threshold: must drop 30m absolute OR 20% of climb height
+    const dropThreshold = Math.max(30, gain * 0.2);
 
-      // End climb if we've descended significantly from the peak
-      if (dropFromPeak > 30 || (runningGain > 0 && dropFromPeak > runningGain * 0.3)) {
-        if (runningGain >= minGain) {
-          // Find the actual peak index
-          let peakIdx = climbStart;
-          for (let j = climbStart; j <= i; j++) {
-            if (smoothed[j] > smoothed[peakIdx]) peakIdx = j;
-          }
-          const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
-          const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-          const avgGrad = length > 0 ? (actualGain / (length * 1000)) * 100 : 0;
-          // Only record if real climb: ≥50m gain, ≥200m long, ≥2% avg gradient
-          if (actualGain >= minGain && length > 0.2 && avgGrad >= 2) {
-            climbs.push({
-              name: `Col ${climbs.length + 1}`,
-              startIdx: climbStart,
-              endIdx: peakIdx,
-              distStart: points[climbStart].distFromStart,
-              distEnd: points[peakIdx].distFromStart,
-              elevGain: Math.round(actualGain),
-              length: Math.round(length * 10) / 10,
-              avgGradient: Math.round(avgGrad * 10) / 10,
-              maxGradient: Math.round(maxGrad * 10) / 10,
-              startEle: Math.round(smoothed[climbStart]),
-              endEle: Math.round(smoothed[peakIdx]),
-            });
-          }
-        }
-        climbStart = null;
-        runningGain = 0;
-        maxGrad = 0;
+    // ── Finalize climb when we've descended enough from peak ──
+    if (peakIdx > valleyIdx && gain >= minGain && drop >= dropThreshold) {
+      tryRecord(valleyIdx, peakIdx);
+
+      // Reset: find new valley & peak between old peak and current point
+      valleyIdx = peakIdx;
+      for (let j = peakIdx + 1; j <= i; j++) {
+        if (smoothed[j] < smoothed[valleyIdx]) valleyIdx = j;
       }
+      peakIdx = valleyIdx;
+      for (let j = valleyIdx + 1; j <= i; j++) {
+        if (smoothed[j] > smoothed[peakIdx]) peakIdx = j;
+      }
+    }
+
+    // ── Update valley / peak tracking ──
+    if (ele < smoothed[valleyIdx]) {
+      // Going to a new low — if there's a pending significant climb, save it
+      if (peakIdx > valleyIdx && gain >= minGain) {
+        tryRecord(valleyIdx, peakIdx);
+      }
+      valleyIdx = i;
+      peakIdx = i;
+    } else if (ele > smoothed[peakIdx]) {
+      peakIdx = i;
     }
   }
 
-  // Close final climb if still open
-  if (climbStart !== null && runningGain >= minGain) {
-    let peakIdx = climbStart;
-    for (let j = climbStart; j < points.length; j++) {
-      if (smoothed[j] > smoothed[peakIdx]) peakIdx = j;
-    }
-    const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
-    const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-    const avgGrad = length > 0 ? (actualGain / (length * 1000)) * 100 : 0;
-    if (actualGain >= minGain && length > 0.2 && avgGrad >= 2) {
-      climbs.push({
-        name: `Col ${climbs.length + 1}`,
-        startIdx: climbStart,
-        endIdx: peakIdx,
-        distStart: points[climbStart].distFromStart,
-        distEnd: points[peakIdx].distFromStart,
-        elevGain: Math.round(actualGain),
-        length: Math.round(length * 10) / 10,
-        avgGradient: Math.round(avgGrad * 10) / 10,
-        maxGradient: Math.round(maxGrad * 10) / 10,
-        startEle: Math.round(smoothed[climbStart]),
-        endEle: Math.round(smoothed[peakIdx]),
-      });
-    }
+  // Handle final open climb at the end of the route
+  if (peakIdx > valleyIdx) {
+    tryRecord(valleyIdx, peakIdx);
   }
 
   return climbs;
@@ -200,69 +206,84 @@ export function identifyClimbs(
 
 /* ══════ Identify descents ══════ */
 
+/**
+ * Robust descent detection — mirror of climb detection.
+ * Tracks running peak (descent start) and valley (descent end).
+ */
 export function identifyDescents(
   points: GpxPoint[],
-  minDrop = 50,
+  minDrop = 40,
 ): DescentSegment[] {
   if (points.length < 10) return [];
 
-  // Adaptive smoothing: same as climbs (~500m window)
   const totalDist = points[points.length - 1].distFromStart;
   const avgSpacing = totalDist / points.length;
-  const smoothWindow = Math.max(5, Math.min(80, Math.round(0.5 / Math.max(avgSpacing, 0.001))));
+  const smoothWindow = Math.max(
+    5,
+    Math.min(80, Math.round(0.5 / Math.max(avgSpacing, 0.001))),
+  );
   const smoothed = smoothElevations(points, smoothWindow);
 
   const descents: DescentSegment[] = [];
 
-  let descentStart: number | null = null;
-  let runningDrop = 0;
-  let runningGain = 0;
+  let peakIdx = 0; // highest point (descent start)
+  let valleyIdx = 0; // lowest point after peak (descent end)
+
+  function tryRecord(pIdx: number, vIdx: number): boolean {
+    const drop = smoothed[pIdx] - smoothed[vIdx];
+    if (drop < minDrop || vIdx <= pIdx) return false;
+    const length = points[vIdx].distFromStart - points[pIdx].distFromStart;
+    if (length <= 0.15) return false;
+    const avgGrad = (-drop / (length * 1000)) * 100;
+
+    descents.push({
+      startIdx: pIdx,
+      endIdx: vIdx,
+      distStart: points[pIdx].distFromStart,
+      distEnd: points[vIdx].distFromStart,
+      elevDrop: Math.round(drop),
+      length: Math.round(length * 10) / 10,
+      avgGradient: Math.round(avgGrad * 10) / 10,
+    });
+    return true;
+  }
 
   for (let i = 1; i < points.length; i++) {
-    const diff = smoothed[i] - smoothed[i - 1];
+    const ele = smoothed[i];
+    const drop = smoothed[peakIdx] - smoothed[valleyIdx];
+    const rise = ele - smoothed[valleyIdx];
 
-    if (diff < 0) {
-      if (descentStart === null) {
-        descentStart = i - 1;
-        runningDrop = 0;
-        runningGain = 0;
+    const riseThreshold = Math.max(30, drop * 0.2);
+
+    // Finalize descent when we've risen enough from valley
+    if (valleyIdx > peakIdx && drop >= minDrop && rise >= riseThreshold) {
+      tryRecord(peakIdx, valleyIdx);
+
+      peakIdx = valleyIdx;
+      for (let j = valleyIdx + 1; j <= i; j++) {
+        if (smoothed[j] > smoothed[peakIdx]) peakIdx = j;
       }
-      runningDrop += Math.abs(diff);
-      runningGain = 0; // Reset: only track current ascent depth
-    } else if (diff > 0 && descentStart !== null) {
-      runningGain += diff;
-      if (runningGain > 30 || (runningDrop > 0 && runningGain > runningDrop * 0.3)) {
-        if (runningDrop >= minDrop) {
-          const length = points[i - 1].distFromStart - points[descentStart].distFromStart;
-          descents.push({
-            startIdx: descentStart,
-            endIdx: i - 1,
-            distStart: points[descentStart].distFromStart,
-            distEnd: points[i - 1].distFromStart,
-            elevDrop: Math.round(runningDrop),
-            length: Math.round(length * 10) / 10,
-            avgGradient: length > 0 ? Math.round((-runningDrop / (length * 1000)) * 1000) / 10 : 0,
-          });
-        }
-        descentStart = null;
-        runningDrop = 0;
-        runningGain = 0;
+      valleyIdx = peakIdx;
+      for (let j = peakIdx + 1; j <= i; j++) {
+        if (smoothed[j] < smoothed[valleyIdx]) valleyIdx = j;
       }
+    }
+
+    // Update tracking
+    if (ele > smoothed[peakIdx]) {
+      if (valleyIdx > peakIdx && drop >= minDrop) {
+        tryRecord(peakIdx, valleyIdx);
+      }
+      peakIdx = i;
+      valleyIdx = i;
+    } else if (ele < smoothed[valleyIdx]) {
+      valleyIdx = i;
     }
   }
 
-  if (descentStart !== null && runningDrop >= minDrop) {
-    const lastIdx = points.length - 1;
-    const length = points[lastIdx].distFromStart - points[descentStart].distFromStart;
-    descents.push({
-      startIdx: descentStart,
-      endIdx: lastIdx,
-      distStart: points[descentStart].distFromStart,
-      distEnd: points[lastIdx].distFromStart,
-      elevDrop: Math.round(runningDrop),
-      length: Math.round(length * 10) / 10,
-      avgGradient: length > 0 ? Math.round((-runningDrop / (length * 1000)) * 1000) / 10 : 0,
-    });
+  // Final descent
+  if (valleyIdx > peakIdx) {
+    tryRecord(peakIdx, valleyIdx);
   }
 
   return descents;
