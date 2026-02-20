@@ -208,7 +208,7 @@ export default function RacesCalendarPage() {
 
   // Extract unique categories from ALL races, sorted in racing hierarchy order
   const categories = useMemo(() => {
-    const CATEGORY_ORDER = ["Cadets", "Juniors", "Access", "Open", "Elite", "Espoirs", "Seniors", "DN1", "DN2", "DN3", "Pass Open"];
+    const CATEGORY_ORDER = ["Cadets", "Juniors", "Espoirs", "Élite", "DN3", "DN2", "DN1", "Pass Open", "Toutes"];
     const cats = new Set(allRaces.map(r => r.category).filter(Boolean));
     return Array.from(cats).sort((a, b) => {
       const ia = CATEGORY_ORDER.indexOf(a);
