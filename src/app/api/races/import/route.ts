@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 
 const IMPORT_SECRET = process.env.IMPORT_SECRET;
 
@@ -51,4 +52,145 @@ export async function POST(request: Request) {
     imported: data?.length || 0,
     races: data,
   });
+}
+
+// GET — Dedup mode: find and remove near-duplicate races
+export async function GET(request: Request) {
+  // Auth: session-based (any logged-in user can trigger for now)
+  const auth = await getAuthenticatedUser();
+  if (isErrorResponse(auth)) return auth;
+
+  const url = new URL(request.url);
+  const dryRun = url.searchParams.get("dry") !== "false";
+
+  // Fetch all races
+  const { data: allRaces, error } = await supabaseAdmin
+    .from("races")
+    .select("id, name, date, department, location, category, region")
+    .order("date", { ascending: true });
+
+  if (error) return handleApiError(error, "DEDUP_FETCH");
+  if (!allRaces || allRaces.length === 0) {
+    return Response.json({ message: "Aucune course", duplicates: [] });
+  }
+
+  // Group by (date, department)
+  const groups: Record<string, typeof allRaces> = {};
+  for (const race of allRaces) {
+    const key = `${race.date}|${race.department || race.location || "?"}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(race);
+  }
+
+  // Within each group, find near-duplicates
+  const toDelete: { id: string; name: string; date: string; reason: string; kept: string }[] = [];
+
+  for (const [key, races] of Object.entries(groups)) {
+    if (races.length < 2) continue;
+
+    // Compare all pairs
+    for (let i = 0; i < races.length; i++) {
+      for (let j = i + 1; j < races.length; j++) {
+        const a = races[i];
+        const b = races[j];
+
+        const nameA = normalizeName(a.name);
+        const nameB = normalizeName(b.name);
+
+        // Skip if names are identical (already handled by upsert)
+        if (nameA === nameB) continue;
+
+        // Check if one name contains the other
+        const aContainsB = nameA.includes(nameB);
+        const bContainsA = nameB.includes(nameA);
+
+        if (aContainsB || bContainsA) {
+          // Keep the longer/more complete name
+          const shorter = nameA.length <= nameB.length ? a : b;
+          const longer = nameA.length <= nameB.length ? b : a;
+
+          // Merge categories: keep the richer category set
+          const catA = a.category || "";
+          const catB = b.category || "";
+          const mergedCat = catA.length >= catB.length ? catA : catB;
+
+          toDelete.push({
+            id: shorter.id,
+            name: shorter.name,
+            date: shorter.date,
+            reason: `contenu dans "${longer.name}"`,
+            kept: longer.name,
+          });
+
+          // Update the kept race to have merged categories if needed
+          if (mergedCat && mergedCat !== (longer === a ? catA : catB)) {
+            if (!dryRun) {
+              await supabaseAdmin
+                .from("races")
+                .update({ category: mergedCat })
+                .eq("id", longer.id);
+            }
+          }
+          continue;
+        }
+
+        // Check high similarity (common prefix > 70% of shorter name)
+        const commonPrefix = getCommonPrefixLength(nameA, nameB);
+        const shorterLen = Math.min(nameA.length, nameB.length);
+        if (shorterLen > 10 && commonPrefix / shorterLen > 0.7) {
+          const shorter = nameA.length <= nameB.length ? a : b;
+          const longer = nameA.length <= nameB.length ? b : a;
+
+          toDelete.push({
+            id: shorter.id,
+            name: shorter.name,
+            date: shorter.date,
+            reason: `similaire à "${longer.name}" (${Math.round(commonPrefix / shorterLen * 100)}% prefixe commun)`,
+            kept: longer.name,
+          });
+        }
+      }
+    }
+  }
+
+  // Deduplicate the deletion list (a race might match multiple others)
+  const uniqueDeletes = [...new Map(toDelete.map(d => [d.id, d])).values()];
+
+  // Actually delete if not dry run
+  if (!dryRun && uniqueDeletes.length > 0) {
+    const idsToDelete = uniqueDeletes.map(d => d.id);
+    // Delete in batches of 50
+    for (let i = 0; i < idsToDelete.length; i += 50) {
+      const batch = idsToDelete.slice(i, i + 50);
+      await supabaseAdmin
+        .from("races")
+        .delete()
+        .in("id", batch);
+    }
+  }
+
+  return Response.json({
+    mode: dryRun ? "dry_run" : "executed",
+    total_races: allRaces.length,
+    duplicates_found: uniqueDeletes.length,
+    remaining: allRaces.length - uniqueDeletes.length,
+    duplicates: uniqueDeletes,
+  });
+}
+
+// Normalize a race name for comparison
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // remove accents
+    .replace(/[^a-z0-9\s]/g, " ")  // keep only alphanumeric
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Get the length of the common prefix between two strings
+function getCommonPrefixLength(a: string, b: string): number {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i;
 }
