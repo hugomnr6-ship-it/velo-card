@@ -147,19 +147,22 @@ export async function shareOrDownload(dataUrl: string, filename = "velocard.png"
 }
 
 /**
- * Share to Instagram Story: download the image then open Instagram story camera.
- * On mobile the deep link opens the app directly; user picks the image from recents.
- * Falls back to download-only on desktop.
+ * Share to Instagram Story via the native share sheet (image attached).
+ * User picks Instagram → Story and the image is already loaded.
+ * Falls back to download on desktop / unsupported browsers.
  */
 export async function shareToInstagramStory(dataUrl: string) {
-  // Download the image so it appears in gallery / recent downloads
+  const blob = await (await fetch(dataUrl)).blob();
+  const file = new File([blob], "velocard-story.png", { type: "image/png" });
+
+  // Use Web Share API if available (mobile) — passes the image directly
+  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    await navigator.share({ files: [file], title: "Ma VeloCard" });
+    return;
+  }
+
+  // Fallback: download the image
   downloadDataUrl(dataUrl, "velocard-story.png");
-
-  // Small delay to let the download start, then open Instagram
-  await new Promise((r) => setTimeout(r, 400));
-
-  // Try the Instagram deep link (works on iOS + Android if app installed)
-  window.location.href = "instagram://story-camera";
 }
 
 /**
