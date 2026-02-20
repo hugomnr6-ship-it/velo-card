@@ -1,20 +1,36 @@
 import type { RouteSummary, WeatherData, RdiResult, RdiLabel } from "@/types";
 
 /**
- * Compute the Route Difficulty Index (RDI)
- * Formula: [(D+(m) / 300) + (Distance(km) / 50)] × Coefficient Météo
- * Score: 0-10, arrondi au 0.5 près
+ * Route Difficulty Index (RDI) — v2
+ *
+ * 3 composantes additives avec courbes √ (saturent lentement) :
+ *   • D+       → max 7 pts  (70 %)  — facteur dominant
+ *   • Distance → max 2.5 pts (25 %) — secondaire
+ *   • Vent     → max 0.5 pt  (5 %)  — bonus léger
+ *
+ * Référence 10/10 : étape de haute montagne du Tour de France
+ *   ~180 km, ~4 500 m D+, vent fort ≈ 10
+ *
+ * Score : 0-10, arrondi au 0.5 le plus proche
  */
 export function computeRdi(
   summary: RouteSummary,
   weather: WeatherData | null,
 ): RdiResult {
-  const base =
-    summary.totalElevationGain / 300 + summary.totalDistanceKm / 50;
+  // ── D+ : 0-7 pts (référence = 4500 m) ──
+  const dplusNorm = Math.min(1, summary.totalElevationGain / 4500);
+  const dplusScore = 7 * Math.sqrt(dplusNorm);
 
-  const windFactor = weather ? 1 + weather.windSpeedKmh / 100 : 1;
+  // ── Distance : 0-2.5 pts (référence = 200 km) ──
+  const distNorm = Math.min(1, summary.totalDistanceKm / 200);
+  const distScore = 2.5 * Math.sqrt(distNorm);
 
-  const rawScore = base * windFactor;
+  // ── Vent : 0-0.5 pt (bonus additif, référence = 50 km/h) ──
+  const windSpeed = weather?.windSpeedKmh ?? 0;
+  const windNorm = Math.min(1, windSpeed / 50);
+  const windScore = 0.5 * Math.sqrt(windNorm);
+
+  const rawScore = dplusScore + distScore + windScore;
 
   // Arrondi au 0.5 le plus proche, plafonné à 10
   const score = Math.min(Math.round(rawScore * 2) / 2, 10);
