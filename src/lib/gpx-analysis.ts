@@ -110,9 +110,8 @@ export function identifyClimbs(
 
   let climbStart: number | null = null;
   let runningGain = 0;
-  let runningLoss = 0;
   let maxGrad = 0;
-  let peakEle = 0; // track highest point in current climb
+  let highPoint = 0; // running maximum elevation in current climb
 
   for (let i = 1; i < points.length; i++) {
     const diff = smoothed[i] - smoothed[i - 1];
@@ -122,47 +121,47 @@ export function identifyClimbs(
       if (climbStart === null) {
         climbStart = i - 1;
         runningGain = 0;
-        runningLoss = 0;
         maxGrad = 0;
-        peakEle = smoothed[i - 1];
+        highPoint = smoothed[i - 1];
       }
       runningGain += diff;
-      runningLoss = 0; // Reset: only track current descent depth, not accumulated
-      peakEle = Math.max(peakEle, smoothed[i]);
+      highPoint = Math.max(highPoint, smoothed[i]);
       if (distKm > 0.001) {
         const grad = (diff / (distKm * 1000)) * 100;
         maxGrad = Math.max(maxGrad, grad);
       }
     } else if (diff < 0 && climbStart !== null) {
-      runningLoss += Math.abs(diff);
+      // Measure the drop from the highest point in this climb
+      const dropFromPeak = highPoint - smoothed[i];
 
-      // End climb if current descent exceeds 30m or 30% of total gain
-      if (runningLoss > 30 || (runningGain > 0 && runningLoss > runningGain * 0.3)) {
+      // End climb if we've descended significantly from the peak
+      if (dropFromPeak > 30 || (runningGain > 0 && dropFromPeak > runningGain * 0.3)) {
         if (runningGain >= minGain) {
-          // Find the actual peak index (highest smoothed elevation in climb range)
+          // Find the actual peak index
           let peakIdx = climbStart;
-          for (let j = climbStart; j <= i - 1; j++) {
+          for (let j = climbStart; j <= i; j++) {
             if (smoothed[j] > smoothed[peakIdx]) peakIdx = j;
           }
           const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
           const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-          climbs.push({
-            name: `Col ${climbs.length + 1}`,
-            startIdx: climbStart,
-            endIdx: peakIdx,
-            distStart: points[climbStart].distFromStart,
-            distEnd: points[peakIdx].distFromStart,
-            elevGain: Math.round(actualGain > 0 ? actualGain : runningGain),
-            length: Math.round(length * 10) / 10,
-            avgGradient: length > 0 ? Math.round((actualGain / (length * 1000)) * 1000) / 10 : 0,
-            maxGradient: Math.round(maxGrad * 10) / 10,
-            startEle: Math.round(smoothed[climbStart]),
-            endEle: Math.round(smoothed[peakIdx]),
-          });
+          if (actualGain >= minGain && length > 0.2) {
+            climbs.push({
+              name: `Col ${climbs.length + 1}`,
+              startIdx: climbStart,
+              endIdx: peakIdx,
+              distStart: points[climbStart].distFromStart,
+              distEnd: points[peakIdx].distFromStart,
+              elevGain: Math.round(actualGain),
+              length: Math.round(length * 10) / 10,
+              avgGradient: Math.round((actualGain / (length * 1000)) * 1000) / 10,
+              maxGradient: Math.round(maxGrad * 10) / 10,
+              startEle: Math.round(smoothed[climbStart]),
+              endEle: Math.round(smoothed[peakIdx]),
+            });
+          }
         }
         climbStart = null;
         runningGain = 0;
-        runningLoss = 0;
         maxGrad = 0;
       }
     }
@@ -176,19 +175,21 @@ export function identifyClimbs(
     }
     const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
     const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-    climbs.push({
-      name: `Col ${climbs.length + 1}`,
-      startIdx: climbStart,
-      endIdx: peakIdx,
-      distStart: points[climbStart].distFromStart,
-      distEnd: points[peakIdx].distFromStart,
-      elevGain: Math.round(actualGain > 0 ? actualGain : runningGain),
-      length: Math.round(length * 10) / 10,
-      avgGradient: length > 0 ? Math.round((actualGain / (length * 1000)) * 1000) / 10 : 0,
-      maxGradient: Math.round(maxGrad * 10) / 10,
-      startEle: Math.round(smoothed[climbStart]),
-      endEle: Math.round(smoothed[peakIdx]),
-    });
+    if (actualGain >= minGain && length > 0.2) {
+      climbs.push({
+        name: `Col ${climbs.length + 1}`,
+        startIdx: climbStart,
+        endIdx: peakIdx,
+        distStart: points[climbStart].distFromStart,
+        distEnd: points[peakIdx].distFromStart,
+        elevGain: Math.round(actualGain),
+        length: Math.round(length * 10) / 10,
+        avgGradient: Math.round((actualGain / (length * 1000)) * 1000) / 10,
+        maxGradient: Math.round(maxGrad * 10) / 10,
+        startEle: Math.round(smoothed[climbStart]),
+        endEle: Math.round(smoothed[peakIdx]),
+      });
+    }
   }
 
   return climbs;
