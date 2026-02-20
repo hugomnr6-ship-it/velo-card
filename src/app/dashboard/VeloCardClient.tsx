@@ -158,7 +158,7 @@ export default function VeloCardClient({
       />
       <div className="mt-6 flex items-center justify-center gap-3">
         <DownloadButton tier={tier} userId={userId} />
-        <FeatureTooltip id="card-share" title="Partage ta carte !" description="Exporte ta VeloCard en story Instagram ou QR code.">
+        <FeatureTooltip id="card-share" title="Partage ta carte !" description="Exporte ta VeloCard en story Instagram ou QR code." position="top">
           <ShareButton tier={tier} userId={userId} />
         </FeatureTooltip>
       </div>
