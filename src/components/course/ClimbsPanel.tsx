@@ -32,13 +32,49 @@ export default function ClimbsPanel({
   const [tab, setTab] = useState<"climbs" | "descents">("climbs");
 
   // Show detail view when a climb is selected and points are available
-  if (activeClimbIdx !== null && points && climbs[activeClimbIdx]) {
+  const activeClimb = activeClimbIdx !== null ? climbs[activeClimbIdx] : null;
+  if (activeClimb) {
+    const hasPoints = !!(points && points.length > 0);
     return (
-      <ClimbDetailView
-        climb={climbs[activeClimbIdx]}
-        points={points}
-        onBack={() => onClimbClick(activeClimbIdx)}
-      />
+      <div className="rounded-2xl border border-white/[0.06] bg-[#16161F] p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <button
+            onClick={() => onClimbClick(activeClimbIdx!)}
+            className="flex items-center justify-center h-7 w-7 rounded-lg border border-white/[0.06] bg-white/[0.03] text-white/40 hover:text-white/70 transition"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <span className="text-xs font-bold text-white">{activeClimb.name}</span>
+        </div>
+        {hasPoints ? (
+          <ClimbDetailView
+            climb={activeClimb}
+            points={points!}
+            onBack={() => onClimbClick(activeClimbIdx!)}
+          />
+        ) : (
+          <div className="grid grid-cols-4 gap-1.5">
+            <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black font-['JetBrains_Mono'] text-white">{activeClimb.length}</p>
+              <p className="text-[7px] text-white/25">KM</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black font-['JetBrains_Mono'] text-white">{activeClimb.elevGain}</p>
+              <p className="text-[7px] text-white/25">D+</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black font-['JetBrains_Mono'] text-white">{activeClimb.avgGradient}%</p>
+              <p className="text-[7px] text-white/25">MOY.</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black font-['JetBrains_Mono'] text-white">{activeClimb.maxGradient}%</p>
+              <p className="text-[7px] text-white/25">MAX</p>
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
