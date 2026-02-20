@@ -26,7 +26,7 @@ export default function FeatureTooltip({ id, title, description, children, posit
 
   const positionClasses = {
     bottom: 'top-full mt-2 left-1/2 -translate-x-1/2',
-    top: 'bottom-full mb-2 left-1/2 -translate-x-1/2',
+    top: 'bottom-full mb-3 left-1/2 -translate-x-1/2',
     right: 'left-full ml-2 top-1/2 -translate-y-1/2',
     left: 'right-full mr-2 top-1/2 -translate-y-1/2',
   };
@@ -40,7 +40,7 @@ export default function FeatureTooltip({ id, title, description, children, posit
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
-            className={`absolute z-50 w-64 bg-accent text-bg-primary rounded-xl p-3 shadow-xl ${positionClasses[position]}`}
+            className={`absolute z-50 w-48 bg-accent text-bg-primary rounded-lg px-3 py-2 shadow-xl ${positionClasses[position]}`}
             role="tooltip"
           >
             <button
@@ -52,8 +52,8 @@ export default function FeatureTooltip({ id, title, description, children, posit
                 <path d="M18 6 6 18" /><path d="m6 6 12 12" />
               </svg>
             </button>
-            <p className="font-semibold text-sm">{title}</p>
-            <p className="text-xs opacity-80 mt-1">{description}</p>
+            <p className="font-semibold text-[11px]">{title}</p>
+            <p className="text-[10px] opacity-80 mt-0.5 leading-tight">{description}</p>
           </m.div>
         )}
       </AnimatePresence>
