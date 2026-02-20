@@ -39,7 +39,8 @@ export async function GET(request: Request) {
     query = query.eq("category", category);
   }
   if (gender && gender !== "all") {
-    query = query.eq("gender", gender);
+    // "H" → show H + MIXTE races, "F" → show F + MIXTE races
+    query = query.in("gender", [gender, "MIXTE"]);
   }
   if (search) {
     // Sanitize search for Supabase ilike
