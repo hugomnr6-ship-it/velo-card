@@ -21,6 +21,9 @@ npm-debug.log*
 # vercel
 .vercel
 
+# scripts (may contain secrets)
+/scripts/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
