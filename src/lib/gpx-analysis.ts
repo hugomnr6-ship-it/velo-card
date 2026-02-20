@@ -144,7 +144,9 @@ export function identifyClimbs(
           }
           const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
           const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-          if (actualGain >= minGain && length > 0.2) {
+          const avgGrad = length > 0 ? (actualGain / (length * 1000)) * 100 : 0;
+          // Only record if real climb: ≥50m gain, ≥200m long, ≥2% avg gradient
+          if (actualGain >= minGain && length > 0.2 && avgGrad >= 2) {
             climbs.push({
               name: `Col ${climbs.length + 1}`,
               startIdx: climbStart,
@@ -153,7 +155,7 @@ export function identifyClimbs(
               distEnd: points[peakIdx].distFromStart,
               elevGain: Math.round(actualGain),
               length: Math.round(length * 10) / 10,
-              avgGradient: Math.round((actualGain / (length * 1000)) * 1000) / 10,
+              avgGradient: Math.round(avgGrad * 10) / 10,
               maxGradient: Math.round(maxGrad * 10) / 10,
               startEle: Math.round(smoothed[climbStart]),
               endEle: Math.round(smoothed[peakIdx]),
@@ -175,7 +177,8 @@ export function identifyClimbs(
     }
     const length = points[peakIdx].distFromStart - points[climbStart].distFromStart;
     const actualGain = smoothed[peakIdx] - smoothed[climbStart];
-    if (actualGain >= minGain && length > 0.2) {
+    const avgGrad = length > 0 ? (actualGain / (length * 1000)) * 100 : 0;
+    if (actualGain >= minGain && length > 0.2 && avgGrad >= 2) {
       climbs.push({
         name: `Col ${climbs.length + 1}`,
         startIdx: climbStart,
@@ -184,7 +187,7 @@ export function identifyClimbs(
         distEnd: points[peakIdx].distFromStart,
         elevGain: Math.round(actualGain),
         length: Math.round(length * 10) / 10,
-        avgGradient: Math.round((actualGain / (length * 1000)) * 1000) / 10,
+        avgGradient: Math.round(avgGrad * 10) / 10,
         maxGradient: Math.round(maxGrad * 10) / 10,
         startEle: Math.round(smoothed[climbStart]),
         endEle: Math.round(smoothed[peakIdx]),
