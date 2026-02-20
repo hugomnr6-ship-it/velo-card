@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { m, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
 
 function BellIcon({ size = 20 }: { size?: number }) {
   return (
@@ -17,8 +16,6 @@ function BellIcon({ size = 20 }: { size?: number }) {
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
-  const t = useTranslations('notifications');
-
   const { data } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
@@ -45,7 +42,7 @@ export default function NotificationBell() {
       <button
         onClick={() => { setIsOpen(!isOpen); if (unreadCount > 0) markReadMutation.mutate(); }}
         className="relative p-2 rounded-xl hover:bg-bg-elevated transition-colors"
-        aria-label={`${t('title')}${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
+        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
       >
         <BellIcon />
         {unreadCount > 0 && (
@@ -66,19 +63,19 @@ export default function NotificationBell() {
               className="absolute right-0 top-12 w-80 max-h-96 overflow-y-auto glass rounded-2xl shadow-2xl z-50 border border-white/[0.06]"
               role="dialog"
               aria-modal="true"
-              aria-label={t('title')}
+              aria-label="Notifications"
             >
               <div className="p-3 border-b border-white/[0.06] flex justify-between items-center">
-                <span className="font-semibold text-sm">{t('title')}</span>
+                <span className="font-semibold text-sm">Notifications</span>
                 {unreadCount > 0 && (
                   <button onClick={() => markReadMutation.mutate()} className="text-xs text-accent">
-                    {t('markAllRead')}
+                    Tout marquer lu
                   </button>
                 )}
               </div>
               <div className="divide-y divide-white/[0.04]">
                 {data?.notifications?.length === 0 && (
-                  <p className="p-4 text-center text-text-muted text-sm">{t('empty')}</p>
+                  <p className="p-4 text-center text-text-muted text-sm">Aucune notification</p>
                 )}
                 {data?.notifications?.map((notif: any) => (
                   <div key={notif.id} className={`p-3 ${!notif.read ? 'bg-bg-elevated/50' : ''}`}>
