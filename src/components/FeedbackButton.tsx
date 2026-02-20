@@ -1,125 +1,190 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { m, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { m, AnimatePresence } from "framer-motion";
 
-function MessageIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-      <path d="M8 12h.01" /><path d="M12 12h.01" /><path d="M16 12h.01" />
-    </svg>
-  );
-}
+const TYPES = [
+  { key: "bug", label: "🐛 Bug", color: "#EF4444" },
+  { key: "suggestion", label: "💡 Idée", color: "#6366F1" },
+  { key: "other", label: "💬 Autre", color: "#94A3B8" },
+] as const;
 
-function XIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-    </svg>
-  );
-}
+type FeedbackType = (typeof TYPES)[number]["key"];
 
 export default function FeedbackButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<'bug' | 'suggestion' | 'other'>('suggestion');
-  const [message, setMessage] = useState('');
+  const [type, setType] = useState<FeedbackType>("suggestion");
+  const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
-  const t = useTranslations('feedback');
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message, pageUrl: window.location.pathname }),
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          message,
+          pageUrl: window.location.pathname,
+        }),
       });
       if (!res.ok) throw new Error();
     },
     onSuccess: () => {
       setSent(true);
-      setMessage('');
-      setTimeout(() => { setSent(false); setIsOpen(false); }, 2000);
+      setMessage("");
+      setTimeout(() => {
+        setSent(false);
+        setIsOpen(false);
+      }, 2000);
     },
   });
 
-  const typeLabels = { bug: t('bug'), suggestion: t('suggestion'), other: t('other') };
+  const close = () => {
+    setIsOpen(false);
+    mutation.reset();
+  };
 
   return (
     <>
+      {/* ─── Floating button ─── */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-4 z-40 w-12 h-12 bg-accent rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-        aria-label={t('title')}
+        className="fixed bottom-24 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[#16161F] shadow-lg transition-transform hover:scale-110 active:scale-95"
+        aria-label="Donner un feedback"
       >
-        <MessageIcon size={20} />
+        <svg
+          width={18}
+          height={18}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#6366F1"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+          <path d="M8 12h.01" />
+          <path d="M12 12h.01" />
+          <path d="M16 12h.01" />
+        </svg>
       </button>
 
+      {/* ─── Modal ─── */}
       <AnimatePresence>
         {isOpen && (
           <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50"
-            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+            onClick={close}
           >
             <m.div
-              initial={{ y: 100, opacity: 0 }}
+              initial={{ y: 60, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
+              exit={{ y: 60, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md glass border border-white/[0.06] rounded-2xl p-6"
+              className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#16161F] p-5 shadow-2xl"
               role="dialog"
               aria-modal="true"
               aria-labelledby="feedback-title"
             >
               {sent ? (
-                <div className="text-center py-8">
-                  <p className="text-2xl mb-2" aria-hidden="true">&#127881;</p>
-                  <p className="font-semibold">{t('thanks')}</p>
+                /* ─── Success state ─── */
+                <div className="py-8 text-center">
+                  <p className="text-3xl mb-2">🎉</p>
+                  <p className="text-sm font-bold text-white">
+                    Merci pour ton retour !
+                  </p>
+                  <p className="mt-1 text-[11px] text-white/40">
+                    On le prend en compte.
+                  </p>
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 id="feedback-title" className="font-bold text-lg">{t('title')}</h3>
-                    <button onClick={() => setIsOpen(false)} aria-label="Fermer">
-                      <XIcon size={20} />
+                  {/* ─── Header ─── */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3
+                      id="feedback-title"
+                      className="text-sm font-bold text-white"
+                    >
+                      Ton feedback
+                    </h3>
+                    <button
+                      onClick={close}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.03] text-white/40 transition hover:text-white/70"
+                      aria-label="Fermer"
+                    >
+                      <svg
+                        width={14}
+                        height={14}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                      </svg>
                     </button>
                   </div>
 
-                  <div className="flex gap-2 mb-4">
-                    {(['bug', 'suggestion', 'other'] as const).map((t_type) => (
+                  {/* ─── Type pills ─── */}
+                  <div className="mb-4 flex gap-2">
+                    {TYPES.map((t) => (
                       <button
-                        key={t_type}
-                        onClick={() => setType(t_type)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          type === t_type ? 'bg-accent text-bg-primary' : 'bg-bg-elevated text-text-secondary'
+                        key={t.key}
+                        onClick={() => setType(t.key)}
+                        className={`flex-1 rounded-lg px-2 py-2 text-[11px] font-bold transition ${
+                          type === t.key
+                            ? "border-2 bg-white/[0.06]"
+                            : "border border-white/[0.04] bg-white/[0.02] text-white/40"
                         }`}
+                        style={
+                          type === t.key
+                            ? { borderColor: t.color, color: t.color }
+                            : {}
+                        }
                       >
-                        {typeLabels[t_type]}
+                        {t.label}
                       </button>
                     ))}
                   </div>
 
+                  {/* ─── Textarea ─── */}
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder={t('message')}
+                    placeholder="Décris le problème ou ton idée..."
                     rows={4}
-                    className="w-full bg-bg-elevated border border-white/[0.06] rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent"
-                    aria-label={t('message')}
+                    className="w-full resize-none rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#6366F1]/50"
+                    aria-label="Message"
                   />
 
+                  {/* ─── Error ─── */}
+                  {mutation.isError && (
+                    <p className="mt-2 text-[11px] text-red-400">
+                      Erreur d&apos;envoi, réessaie.
+                    </p>
+                  )}
+
+                  {/* ─── Submit ─── */}
                   <button
                     onClick={() => mutation.mutate()}
                     disabled={message.length < 10 || mutation.isPending}
-                    className="w-full mt-3 py-3 bg-accent text-bg-primary font-semibold rounded-xl disabled:opacity-50 transition-opacity"
+                    className="mt-3 w-full rounded-xl bg-[#6366F1] py-3 text-xs font-bold text-white transition disabled:opacity-30"
                   >
-                    {mutation.isPending ? t('sending') : t('send')}
+                    {mutation.isPending ? "Envoi..." : "Envoyer"}
                   </button>
+
+                  <p className="mt-2 text-center text-[9px] text-white/15">
+                    {message.length < 10
+                      ? `Encore ${10 - message.length} caractères min.`
+                      : ""}
+                  </p>
                 </>
               )}
             </m.div>
