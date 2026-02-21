@@ -58,8 +58,8 @@ export default async function VeloCardSection({
     }));
 
     // Parallelize: upsert activities + fetch existing stats + fetch clubs + fetch beta
-    const [, { data: existingStats }, { data: clubJoinRowsParallel }, { data: betaInfo }] = await Promise.all([
-      // Upsert activities (fire & await but don't use result)
+    const [upsertResult, { data: existingStats }, { data: clubJoinRowsParallel }, { data: betaInfo }] = await Promise.all([
+      // Upsert activities
       activityRows.length > 0
         ? supabaseAdmin
             .from("strava_activities")
@@ -83,6 +83,13 @@ export default async function VeloCardSection({
         .eq("user_id", profile.id)
         .single(),
     ]);
+
+    // Log si l'upsert des activités a échoué
+    if (upsertResult && 'error' in upsertResult && upsertResult.error) {
+      console.error("[SYNC] Erreur upsert strava_activities:", upsertResult.error.message, upsertResult.error.details, upsertResult.error.hint);
+    } else {
+      console.log("[SYNC] Upserted", activityRows.length, "activities to DB");
+    }
 
     // 4. Compute stats
     const stats = computeStats(activities);
