@@ -168,6 +168,76 @@ export async function updateQuestProgress(
 }
 
 /**
+ * Enregistre un événement contextuel pour les quêtes (visite page, action...).
+ * Appelé depuis les API routes quand l'utilisateur effectue une action trackée.
+ */
+export async function trackQuestEvent(
+  userId: string,
+  metric: string,
+): Promise<string[]> {
+  const today = new Date().toISOString().split("T")[0];
+  const completedQuests: string[] = [];
+
+  // Début de la semaine (lundi)
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diffToMonday);
+  const mondayStr = monday.toISOString().split("T")[0];
+
+  // Chercher les quêtes actives qui correspondent à cette metric
+  const { data: activeQuests } = await supabaseAdmin
+    .from("user_quests")
+    .select("*, quest_definitions(*)")
+    .eq("user_id", userId)
+    .eq("is_completed", false)
+    .gte("assigned_date", mondayStr);
+
+  if (!activeQuests) return [];
+
+  for (const uq of activeQuests) {
+    const def = (uq as any).quest_definitions;
+    if (!def || def.target_metric !== metric) continue;
+
+    const newValue = uq.current_value + 1;
+    const isNowComplete = newValue >= def.target_value;
+
+    await supabaseAdmin
+      .from("user_quests")
+      .update({
+        current_value: newValue,
+        is_completed: isNowComplete,
+        completed_at: isNowComplete ? new Date().toISOString() : null,
+      })
+      .eq("id", uq.id);
+
+    if (isNowComplete) {
+      await addCoins(userId, def.coin_reward, "quest_complete", {
+        questId: def.id,
+        questTitle: def.title,
+      });
+
+      await supabaseAdmin
+        .from("user_quests")
+        .update({ coin_claimed: true })
+        .eq("id", uq.id);
+
+      insertFeedEvent(userId, "quest_completed", {
+        questId: def.id,
+        questTitle: def.title,
+        coinReward: def.coin_reward,
+      });
+
+      await addSeasonPoints(userId, SEASON_POINTS.quest_complete, "quests_completed", 1);
+      completedQuests.push(def.id);
+    }
+  }
+
+  return completedQuests;
+}
+
+/**
  * Get a user's active quests (daily + weekly) with progress.
  */
 export async function getUserQuests(userId: string) {

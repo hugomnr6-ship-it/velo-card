@@ -16,7 +16,7 @@ import {
 } from "./icons/TabIcons";
 import type { ReactNode } from "react";
 
-const tabs: { href: string; label: string; icon: ReactNode }[] = [
+const baseTabs: { href: string; label: string; icon: ReactNode }[] = [
   { href: "/dashboard", label: "Home", icon: <HomeIcon size={22} /> },
   { href: "/races", label: "Courses", icon: <FlagIcon size={22} /> },
   { href: "/duels", label: "Duels", icon: <SwordsIcon size={22} /> },
@@ -27,14 +27,21 @@ const tabs: { href: string; label: string; icon: ReactNode }[] = [
 export default function BottomTabBar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+
+  // Résout le lien profil vers /profile/{userId} si la session est disponible
+  const profileId = session?.user?.id;
+  const tabs = baseTabs.map((tab) =>
+    tab.href === "/profile" && profileId
+      ? { ...tab, href: `/profile/${profileId}` }
+      : tab,
+  );
 
   // Prefetch all tab routes + key pages on mount (important for mobile — no hover)
   useEffect(() => {
     tabs.forEach((tab) => router.prefetch(tab.href));
-    router.prefetch("/marketplace");
     router.prefetch("/quests");
-  }, [router]);
+  }, [router, profileId]);
 
   // Also prefetch on hover/focus for desktop
   const handlePrefetch = useCallback((path: string) => {
@@ -58,8 +65,10 @@ export default function BottomTabBar() {
     >
       <div className="mx-auto flex max-w-lg items-center justify-around pb-[max(4px,env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
+          // Profil tab: highlight pour /profile ET /profile/[userId]
+          const baseHref = tab.label === "Profil" ? "/profile" : tab.href;
           const isActive =
-            pathname === tab.href || pathname.startsWith(tab.href + "/");
+            pathname === tab.href || pathname.startsWith(baseHref + "/");
           return (
             <Link
               key={tab.href}

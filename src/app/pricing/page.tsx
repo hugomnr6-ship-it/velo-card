@@ -10,15 +10,16 @@ import { useToast } from "@/contexts/ToastContext";
 
 const features = [
   { name: "Carte de base & stats hebdo", free: true, pro: true },
-  { name: "Duels", free: "3/semaine", pro: "Illimités" },
+  { name: "Duels actifs", free: "1 actif", pro: "Illimités" },
   { name: "Clubs", free: "1 club", pro: "5 clubs" },
+  { name: "Leaderboard", free: "Top 20", pro: "Complet + position" },
+  { name: "Quêtes quotidiennes", free: "3/jour", pro: "Illimitées + x2" },
   { name: "Historique stats", free: "4 semaines", pro: "52 semaines" },
+  { name: "Analyse GPX", free: "Distance + D+", pro: "Complète" },
+  { name: "Partage de carte", free: "Avec watermark", pro: "Sans watermark" },
   { name: "Cartes spéciales (TOTW, IF, Légende)", free: false, pro: true },
   { name: "Stats avancées (FTP, puissance, zones)", free: false, pro: true },
   { name: "Customisation de carte complète", free: false, pro: true },
-  { name: "Classement mondial", free: false, pro: true },
-  { name: "Export PDF de stats", free: false, pro: true },
-  { name: "Fantasy Cycling", free: false, pro: true },
   { name: "Badge Pro exclusif", free: false, pro: true },
   { name: "Support prioritaire", free: false, pro: true },
 ];
@@ -87,11 +88,11 @@ export default function PricingPage() {
             <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8"
+              className="bg-gray-800/70 border border-gray-600 rounded-2xl p-8"
             >
-              <h3 className="text-xl font-semibold mb-2">Free</h3>
-              <div className="text-3xl font-bold mb-1">0&euro;</div>
-              <p className="text-gray-400 text-sm mb-6">Pour toujours</p>
+              <h3 className="text-xl font-semibold text-white mb-2">Free</h3>
+              <div className="text-3xl font-bold text-white mb-1">0&euro;</div>
+              <p className="text-gray-300 text-sm mb-6">Pour toujours</p>
               <button
                 disabled
                 className="w-full py-3 rounded-xl bg-gray-700 text-gray-400 cursor-not-allowed"
@@ -111,13 +112,13 @@ export default function PricingPage() {
                 POPULAIRE
               </div>
               <h3 className="text-xl font-semibold mb-2">Pro</h3>
-              <div className="text-3xl font-bold mb-1">
+              <div className="text-3xl font-bold text-white mb-1">
                 {billing === "monthly" ? "4,99\u20AC" : "39,99\u20AC"}
-                <span className="text-base font-normal text-gray-400">
+                <span className="text-base font-normal text-gray-300">
                   /{billing === "monthly" ? "mois" : "an"}
                 </span>
               </div>
-              <p className="text-gray-400 text-sm mb-6">
+              <p className="text-gray-300 text-sm mb-6">
                 {billing === "yearly" ? "Soit 3,33\u20AC/mois \u2014 économise 33%" : "7 jours d'essai gratuit"}
               </p>
 
@@ -143,15 +144,15 @@ export default function PricingPage() {
           {/* Feature comparison */}
           <div className="mt-16 max-w-3xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-8">Comparaison détaillée</h2>
-            <div className="bg-gray-800/30 rounded-2xl overflow-hidden">
-              <div className="grid grid-cols-3 gap-4 p-4 bg-gray-800/50 font-semibold text-sm">
-                <div>Feature</div>
-                <div className="text-center">Free</div>
-                <div className="text-center text-indigo-400">Pro</div>
+            <div className="bg-gray-800/50 rounded-2xl overflow-hidden border border-gray-700">
+              <div className="grid grid-cols-3 gap-4 p-4 bg-gray-700/50 font-semibold text-sm">
+                <div className="text-white">Feature</div>
+                <div className="text-center text-white">Free</div>
+                <div className="text-center text-indigo-300">Pro</div>
               </div>
               {features.map((f, i) => (
-                <div key={i} className="grid grid-cols-3 gap-4 p-4 border-t border-gray-800 text-sm">
-                  <div className="text-gray-300">{f.name}</div>
+                <div key={i} className="grid grid-cols-3 gap-4 p-4 border-t border-gray-700/50 text-sm">
+                  <div className="text-white/90">{f.name}</div>
                   <div className="text-center">
                     {f.free === true ? (
                       <span className="text-green-400" aria-label="Inclus">&#10003;</span>

@@ -32,22 +32,22 @@ const features = [
   {
     icon: "\u2694\uFE0F",
     title: "Duels",
-    desc: "Defie n'importe quel cycliste en 1v1. Compare vos stats. Le perdant voit sa carte rouge de honte.",
+    desc: "Défie n'importe quel cycliste en 1v1. Compare vos stats. Le perdant voit sa carte rouge de honte.",
   },
   {
     icon: "\uD83C\uDFC6",
     title: "Classements",
-    desc: "Regional, national, par club. Trie par vitesse, montagne, endurance. Ou te situes-tu ?",
+    desc: "Regional, national, par club. Trie par vitesse, montagne, endurance. Où te situes-tu ?",
   },
   {
     icon: "\uD83D\uDDFA\uFE0F",
     title: "Analyse de parcours",
-    desc: "Upload un GPX, visualise le profil d'elevation, le vent, les sections dures. Prepare ta course comme un pro.",
+    desc: "Upload un GPX, visualise le profil d'élévation, le vent, les sections dures. Prépare ta course comme un pro.",
   },
   {
     icon: "\uD83D\uDC7B",
     title: "Ghost Cards",
-    desc: "Meme les coureurs sans compte ont une carte. Resultats de course = carte automatique.",
+    desc: "Meme les coureurs sans compte ont une carte. Résultats de course = carte automatique.",
   },
   {
     icon: "\uD83C\uDFD4\uFE0F",
@@ -57,7 +57,7 @@ const features = [
   {
     icon: "\uD83D\uDCF1",
     title: "Partage Instagram",
-    desc: "Ta carte en format Story. QR code pour defier au depart. Le design qui fait jalouser le peloton.",
+    desc: "Ta carte en format Story. QR code pour défier au départ. Le design qui fait jalouser le peloton.",
   },
 ];
 
@@ -65,7 +65,7 @@ const steps = [
   {
     num: "01",
     title: "Connecte ton Strava",
-    desc: "On analyse tes 50 dernieres sorties velo automatiquement",
+    desc: "On analyse tes 50 dernières sorties vélo automatiquement",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8 text-[#FC4C02]">
         <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
@@ -74,8 +74,8 @@ const steps = [
   },
   {
     num: "02",
-    title: "Decouvre ta carte",
-    desc: "6 stats, un OVR, un tier de Bronze a Legende. C'est ta carte FIFA, version velo.",
+    title: "Découvre ta carte",
+    desc: "6 stats, un OVR, un tier de Bronze à Légende. C'est ta carte FIFA, version vélo.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-[#6366F1]">
         <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -87,7 +87,7 @@ const steps = [
   {
     num: "03",
     title: "Progresse chaque lundi",
-    desc: "Tes stats sont recalculees chaque lundi. Defie tes potes, monte dans le classement.",
+    desc: "Tes stats sont recalculées chaque lundi. Défie tes potes, monte dans le classement.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-[#22C55E]">
         <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -250,7 +250,7 @@ export default function LandingClient() {
           >
             <span className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse" />
             <span className="text-xs font-semibold text-[#6366F1]">
-              Beta ouverte
+              Bêta ouverte
             </span>
           </m.div>
 
@@ -261,7 +261,7 @@ export default function LandingClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Transforme tes sorties velo en{" "}
+            Transforme tes sorties vélo en{" "}
             <span className="bg-gradient-to-r from-[#6366F1] to-[#00D4FF] bg-clip-text text-transparent">
               carte FIFA
             </span>
@@ -274,8 +274,8 @@ export default function LandingClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            L&apos;app qui centralise tout pour ta course : parcours, meteo, vent,
-            classements. Et qui transforme chaque coup de pedale en stats visibles
+            L&apos;app qui centralise tout pour ta course : parcours, météo, vent,
+            classements. Et qui transforme chaque coup de pédale en stats visibles
             sur ta carte.
           </m.p>
 
@@ -313,7 +313,7 @@ export default function LandingClient() {
               onClick={handleScrollDown}
               className="text-sm font-semibold text-[#94A3B8] transition hover:text-white"
             >
-              Voir comment ca marche &darr;
+              Voir comment ça marche &darr;
             </button>
           </m.div>
 
@@ -375,8 +375,8 @@ export default function LandingClient() {
                 </div>
                 <h3 className="text-lg font-bold text-white">Tout pour ta course</h3>
                 <p className="mt-2 text-sm text-[#94A3B8] leading-relaxed">
-                  Parcours interactif, meteo du jour J, vent sur le circuit, passages
-                  difficiles, favoris au depart. Plus besoin de 5 apps differentes.
+                  Parcours interactif, météo du jour J, vent sur le circuit, passages
+                  difficiles, favoris au départ. Plus besoin de 5 apps différentes.
                 </p>
               </div>
             </AnimatedSection>
@@ -389,10 +389,10 @@ export default function LandingClient() {
                     Addictif
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white">Ta carte evolue</h3>
+                <h3 className="text-lg font-bold text-white">Ta carte évolue</h3>
                 <p className="mt-2 text-sm text-[#94A3B8] leading-relaxed">
-                  6 stats calculees automatiquement, tier qui monte (ou descend),
-                  duels head-to-head, classements regionaux. Tu veux monter ton OVR.
+                  6 stats calculées automatiquement, tier qui monte (ou descend),
+                  duels head-to-head, classements régionaux. Tu veux monter ton OVR.
                 </p>
               </div>
             </AnimatedSection>
@@ -400,12 +400,12 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* ═══ SECTION 3 — 3 Etapes ═══ */}
+      {/* ═══ SECTION 3 — 3 Étapes ═══ */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-4xl">
           <AnimatedSection className="mb-12 text-center">
             <h2 className="text-3xl font-black text-white sm:text-4xl">
-              3 etapes, 30 secondes
+              3 étapes, 30 secondes
             </h2>
           </AnimatedSection>
 
@@ -581,10 +581,10 @@ export default function LandingClient() {
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                 <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
               </svg>
-              Creer ma carte gratuitement
+              Créer ma carte gratuitement
             </button>
             <p className="mt-4 text-[11px] text-[#475569]">
-              Aucune donnee personnelle stockee. On lit tes activites velo, c&apos;est tout.
+              Aucune donnée personnelle stockée. On lit tes activités vélo, c&apos;est tout.
             </p>
           </AnimatedSection>
         </div>

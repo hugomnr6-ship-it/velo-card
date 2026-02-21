@@ -195,8 +195,8 @@ export default function LeaderboardPage() {
         {!effectiveRegion && mode === "weekly" && !profileLoading ? (
           <EmptyState
             icon={<TrophyIcon size={48} />}
-            title="Choisis ta region"
-            description="Selectionne ta region pour voir le classement."
+            title="Choisis ta région"
+            description="Sélectionne ta région pour voir le classement."
           />
         ) : mode === "weekly" ? (
           /* ═══ Weekly Leaderboard ═══ */
@@ -245,8 +245,8 @@ export default function LeaderboardPage() {
             ) : racePointsEntries.length === 0 ? (
               <EmptyState
                 icon={<TrophyIcon size={48} />}
-                title="Aucun resultat"
-                description="Participe a des courses pour gagner des points !"
+                title="Aucun résultat"
+                description="Participe à des courses pour gagner des points !"
               />
             ) : (
               <AnimatedList className="flex flex-col gap-2">

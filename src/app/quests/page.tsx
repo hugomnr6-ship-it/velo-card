@@ -47,18 +47,18 @@ export default function QuestsPage() {
       <div className="w-full max-w-md">
         <PageHeader
           icon={<span className="text-2xl">&#127919;</span>}
-          title="Quetes"
+          title="Quêtes"
           subtitle={coins ? `${coins.balance} VeloCoins` : undefined}
         />
 
         {/* Daily Quests */}
         <div className="mb-6">
           <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#00F5D4]">
-            Quetes du jour
+            Quêtes du jour
           </p>
           {dailyQuests.length === 0 ? (
             <div className="rounded-xl border border-white/[0.06] bg-[#111827]/60 p-4 text-center text-sm text-[#94A3B8]">
-              Synchronise tes activites pour debloquer les quetes du jour
+              Synchronise tes activités pour débloquer les quêtes du jour
             </div>
           ) : (
             <AnimatedList className="flex flex-col gap-2">
@@ -74,11 +74,11 @@ export default function QuestsPage() {
         {/* Weekly Quests */}
         <div>
           <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#6366F1]">
-            Quetes de la semaine
+            Quêtes de la semaine
           </p>
           {weeklyQuests.length === 0 ? (
             <div className="rounded-xl border border-white/[0.06] bg-[#111827]/60 p-4 text-center text-sm text-[#94A3B8]">
-              Les quetes hebdo arrivent chaque lundi
+              Les quêtes hebdo arrivent chaque lundi
             </div>
           ) : (
             <AnimatedList className="flex flex-col gap-2">

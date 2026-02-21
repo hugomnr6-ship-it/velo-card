@@ -342,7 +342,7 @@ function CompareContent() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <p className="text-xs text-[#64748B] mb-2">Stats remportees</p>
+                  <p className="text-xs text-[#64748B] mb-2">Stats remportées</p>
                   <div className="flex items-center justify-center gap-4">
                     <span className="text-2xl font-black text-[#22C55E]">{wins1}</span>
                     <span className="text-sm text-[#475569]">-</span>
@@ -353,7 +353,7 @@ function CompareContent() {
                       ? `${compareData.user1.username} domine !`
                       : wins2 > wins1
                         ? `${compareData.user2.username} domine !`
-                        : "Egalite parfaite !"
+                        : "Égalité parfaite !"
                     }
                   </p>
                 </m.div>
@@ -366,7 +366,7 @@ function CompareContent() {
               className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-[#6366F1] py-3 text-sm font-bold text-white transition hover:bg-[#6366F1]/80 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
             >
               <SwordsIcon size={16} />
-              Defier en duel
+              Défier en duel
             </Link>
           </div>
         )}

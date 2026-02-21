@@ -48,11 +48,147 @@ const REGIONS: { label: string; value: string }[] = [
   { label: "Corse", value: "Corse" },
 ];
 
+// ——— Noms des mois en français ———
+const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const DAY_NAMES = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
 // ——— Check if a date is today ———
 function isToday(dateStr: string) {
   const d = new Date(dateStr);
   const now = new Date();
   return d.toDateString() === now.toDateString();
+}
+
+// ——— Calendrier mois ———
+function MonthCalendar({
+  races,
+  currentMonth,
+  currentYear,
+  onPrevMonth,
+  onNextMonth,
+}: {
+  races: RaceWithCreator[];
+  currentMonth: number;
+  currentYear: number;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
+}) {
+  // Indexer les courses par date (YYYY-MM-DD)
+  const racesByDate = useMemo(() => {
+    const map = new Map<string, RaceWithCreator[]>();
+    for (const race of races) {
+      const dateKey = race.date.split("T")[0];
+      if (!map.has(dateKey)) map.set(dateKey, []);
+      map.get(dateKey)!.push(race);
+    }
+    return map;
+  }, [races]);
+
+  // Calculer les jours du mois
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // Lundi = 0
+  const daysInMonth = lastDay.getDate();
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const selectedRaces = selectedDate ? racesByDate.get(selectedDate) || [] : [];
+
+  return (
+    <div>
+      {/* Mois navigation */}
+      <div className="mb-3 flex items-center justify-between">
+        <button onClick={onPrevMonth} className="rounded-lg p-2 text-[#94A3B8] transition hover:bg-white/[0.04] hover:text-white">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <h3 className="text-sm font-bold text-white">
+          {MONTH_NAMES[currentMonth]} {currentYear}
+        </h3>
+        <button onClick={onNextMonth} className="rounded-lg p-2 text-[#94A3B8] transition hover:bg-white/[0.04] hover:text-white">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+
+      {/* Grille jours */}
+      <div className="grid grid-cols-7 gap-px rounded-xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
+        {/* En-tête jours */}
+        {DAY_NAMES.map(d => (
+          <div key={d} className="bg-[#111827] py-1.5 text-center text-[10px] font-bold text-[#475569]">
+            {d}
+          </div>
+        ))}
+        {/* Jours vides avant le 1er */}
+        {Array.from({ length: startDow }).map((_, i) => (
+          <div key={`empty-${i}`} className="bg-[#0D1117] p-1 min-h-[44px]" />
+        ))}
+        {/* Jours du mois */}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dayRaces = racesByDate.get(dateStr) || [];
+          const isSelected = selectedDate === dateStr;
+          const isTodayDate = dateStr === todayStr;
+
+          return (
+            <button
+              key={day}
+              onClick={() => setSelectedDate(isSelected ? null : dateStr)}
+              className={`relative flex flex-col items-center p-1 min-h-[44px] transition-colors ${
+                isSelected
+                  ? "bg-[#6366F1]/15"
+                  : isTodayDate
+                    ? "bg-[#6366F1]/[0.06]"
+                    : "bg-[#0D1117] hover:bg-white/[0.03]"
+              }`}
+            >
+              <span className={`text-xs font-medium ${
+                isTodayDate
+                  ? "font-black text-[#818CF8]"
+                  : dayRaces.length > 0
+                    ? "text-white"
+                    : "text-[#475569]"
+              }`}>
+                {day}
+              </span>
+              {dayRaces.length > 0 && (
+                <div className="mt-0.5 flex gap-0.5">
+                  {dayRaces.slice(0, 3).map((r, j) => {
+                    const color = r.federation === "FFC" ? "bg-blue-400" : r.federation === "UFOLEP" ? "bg-green-400" : r.federation === "FSGT" ? "bg-orange-400" : "bg-gray-400";
+                    return <div key={j} className={`h-1.5 w-1.5 rounded-full ${color}`} />;
+                  })}
+                  {dayRaces.length > 3 && (
+                    <span className="text-[8px] text-[#64748B]">+{dayRaces.length - 3}</span>
+                  )}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Courses du jour sélectionné */}
+      <AnimatePresence>
+        {selectedDate && (
+          <m.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-3 flex flex-col gap-2"
+          >
+            <p className="text-xs font-bold text-[#94A3B8]">
+              {new Date(selectedDate + "T00:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+              {" — "}{selectedRaces.length} course{selectedRaces.length !== 1 ? "s" : ""}
+            </p>
+            {selectedRaces.length === 0 ? (
+              <p className="py-2 text-center text-xs text-white/20">Aucune course ce jour.</p>
+            ) : (
+              selectedRaces.map(race => <RaceRow key={race.id} race={race} />)
+            )}
+          </m.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 
@@ -79,8 +215,7 @@ function groupByWeek(races: RaceWithCreator[]): { label: string; races: RaceWith
     } else if (diffDays <= 14) {
       label = "Semaine prochaine";
     } else {
-      const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-      label = `${monthNames[raceDate.getMonth()]} ${raceDate.getFullYear()}`;
+      label = `${MONTH_NAMES[raceDate.getMonth()]} ${raceDate.getFullYear()}`;
     }
 
     if (!groups.has(label)) groups.set(label, []);
@@ -279,6 +414,29 @@ export default function RacesCalendarPage() {
   const [genderFilter, setGenderFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [showPast, setShowPast] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "month">("month");
+
+  // État du calendrier mois
+  const now = new Date();
+  const [calMonth, setCalMonth] = useState(now.getMonth());
+  const [calYear, setCalYear] = useState(now.getFullYear());
+
+  function handlePrevMonth() {
+    if (calMonth === 0) {
+      setCalMonth(11);
+      setCalYear(calYear - 1);
+    } else {
+      setCalMonth(calMonth - 1);
+    }
+  }
+  function handleNextMonth() {
+    if (calMonth === 11) {
+      setCalMonth(0);
+      setCalYear(calYear + 1);
+    } else {
+      setCalMonth(calMonth + 1);
+    }
+  }
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
@@ -396,27 +554,56 @@ export default function RacesCalendarPage() {
           <RegionDropdown value={regionFilter} onChange={setRegionFilter} />
         </div>
 
-        {/* Race count */}
-        {!loading && (
-          <p className="mb-4 text-xs text-[#64748B]">
-            {upcomingRaces.length} course{upcomingRaces.length !== 1 ? "s" : ""} à venir
-          </p>
-        )}
+        {/* Vue toggle: Liste / Mois */}
+        <div className="mb-4 flex items-center justify-between">
+          {!loading && (
+            <p className="text-xs text-[#64748B]">
+              {upcomingRaces.length} course{upcomingRaces.length !== 1 ? "s" : ""} à venir
+            </p>
+          )}
+          <div className="flex rounded-lg border border-white/[0.08] overflow-hidden">
+            <button
+              onClick={() => setViewMode("month")}
+              className={`px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                viewMode === "month" ? "bg-[#6366F1] text-white" : "text-[#64748B] hover:text-[#94A3B8]"
+              }`}
+            >
+              Mois
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                viewMode === "list" ? "bg-[#6366F1] text-white" : "text-[#64748B] hover:text-[#94A3B8]"
+              }`}
+            >
+              Liste
+            </button>
+          </div>
+        </div>
 
-        {/* Races grouped by week */}
+        {/* Contenu principal */}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[0, 1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
           </div>
-        ) : upcomingRaces.length === 0 && !showPast ? (
+        ) : upcomingRaces.length === 0 && viewMode === "list" && !showPast ? (
           <EmptyState
             icon={<FlagIcon size={48} />}
             title="Aucune course à venir"
             description="Aucune course trouvée avec ces filtres."
           />
+        ) : viewMode === "month" ? (
+          /* ═══ VUE MOIS ═══ */
+          <MonthCalendar
+            races={upcomingRaces}
+            currentMonth={calMonth}
+            currentYear={calYear}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+          />
         ) : (
+          /* ═══ VUE LISTE ═══ */
           <div className="flex flex-col gap-6">
-            {/* Upcoming races */}
             {grouped.map((group) => (
               <div key={group.label}>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-[#64748B]">

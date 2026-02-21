@@ -200,10 +200,10 @@ export default function RaceDetailPage() {
     try {
       const res = await fetch(`/api/races/${raceId}/join`, { method: "POST" });
       if (!res.ok) throw new Error("Erreur lors de l'inscription");
-      toast("Inscription confirmee !", "success");
+      toast("Inscription confirmée !", "success");
       await fetchRace();
     } catch (err: any) {
-      toast(err.message || "Erreur reseau", "error");
+      toast(err.message || "Erreur réseau", "error");
     } finally {
       setActionLoading(false);
     }
@@ -213,11 +213,11 @@ export default function RaceDetailPage() {
     setActionLoading(true);
     try {
       const res = await fetch(`/api/races/${raceId}/leave`, { method: "POST" });
-      if (!res.ok) throw new Error("Erreur lors de la desinscription");
-      toast("Desinscription effectuee", "info");
+      if (!res.ok) throw new Error("Erreur lors de la désinscription");
+      toast("Désinscription effectuée", "info");
       await fetchRace();
     } catch (err: any) {
-      toast(err.message || "Erreur reseau", "error");
+      toast(err.message || "Erreur réseau", "error");
     } finally {
       setActionLoading(false);
     }
@@ -229,10 +229,10 @@ export default function RaceDetailPage() {
     try {
       const res = await fetch(`/api/races/${raceId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Erreur lors de la suppression");
-      toast("Course supprimee", "info");
+      toast("Course supprimée", "info");
       router.replace("/races");
     } catch (err: any) {
-      toast(err.message || "Erreur reseau", "error");
+      toast(err.message || "Erreur réseau", "error");
     } finally {
       setActionLoading(false);
     }
@@ -347,7 +347,7 @@ export default function RaceDetailPage() {
             <div className="mt-3 flex items-center gap-2">
               <Avatar src={race.creator.avatar_url} alt={race.creator.username || ""} size={20} />
               <span className="text-[11px] text-[#64748B]">
-                Organisee par {race.creator.username}
+                Organisée par {race.creator.username}
               </span>
             </div>
           )}
@@ -387,7 +387,7 @@ export default function RaceDetailPage() {
           )}
           {!distKm && !elevGain && climbs.length === 0 && !routeStats && (
             <div className="col-span-4 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/40 p-4 text-center">
-              <p className="text-xs text-[#475569]">Pas de donnees de parcours disponibles</p>
+              <p className="text-xs text-[#475569]">Pas de données de parcours disponibles</p>
             </div>
           )}
         </div>
@@ -410,7 +410,7 @@ export default function RaceDetailPage() {
               disabled={actionLoading}
               className="rounded-xl border border-red-500/30 px-5 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
             >
-              {actionLoading ? "..." : "Se desinscrire"}
+              {actionLoading ? "..." : "Se désinscrire"}
             </button>
           )}
           {race.is_participant && (
@@ -472,7 +472,7 @@ export default function RaceDetailPage() {
         {forecast && (
           <section className="mb-6">
             <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-[#64748B]">
-              Meteo jour J
+              Météo jour J
             </h2>
             <div className="rounded-2xl border border-white/[0.06] bg-[#1A1A2E]/60 p-4">
               {/* Main weather */}
@@ -541,7 +541,7 @@ export default function RaceDetailPage() {
           <section className="mb-6">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-xs font-bold uppercase tracking-widest text-[#64748B]">
-                Resultats ({race.results.length})
+                Résultats ({race.results.length})
               </h2>
               {race.is_creator && (
                 <button
@@ -628,7 +628,7 @@ export default function RaceDetailPage() {
         {/* ════════ ENGAGES / STARTLIST OCR ════════ */}
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-[#64748B]">
-            Liste des engages ({race.engages?.length || 0})
+            Liste des engagés ({race.engages?.length || 0})
           </h2>
 
           {race.engages && race.engages.length > 0 ? (
@@ -669,7 +669,7 @@ export default function RaceDetailPage() {
                       )}
                       {!eng.user_id && (
                         <span className="shrink-0 rounded-md bg-[#6366F1]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#818CF8]">
-                          Fantome
+                          Fantôme
                         </span>
                       )}
                     </div>
@@ -708,14 +708,14 @@ export default function RaceDetailPage() {
         {/* ════════ FAVORITES / STARTLIST ════════ */}
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-[#64748B]">
-            {isPast ? "Participants" : "Favoris au depart"} ({race.participants.length})
+            {isPast ? "Participants" : "Favoris au départ"} ({race.participants.length})
           </h2>
 
           {race.participants.length === 0 ? (
             <EmptyState
               icon={<FlagIcon size={36} />}
               title="Aucun participant"
-              description="Sois le premier a t'inscrire !"
+              description="Sois le premier à t'inscrire !"
             />
           ) : (
             <AnimatedList className="flex flex-col gap-2">
@@ -742,7 +742,7 @@ export default function RaceDetailPage() {
               </div>
               <p className="text-sm font-semibold text-[#94A3B8]">Pas de GPX disponible</p>
               <p className="mt-1 text-xs text-[#475569]">
-                Contribue le parcours GPX pour aider la communaute !
+                Contribue le parcours GPX pour aider la communauté !
               </p>
               <label
                 className={`mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#6366F1]/30 bg-[#6366F1]/10 px-4 py-2 text-xs font-semibold text-[#6366F1] transition hover:bg-[#6366F1]/20 ${gpxUploading ? "opacity-50 pointer-events-none" : ""}`}
@@ -770,7 +770,7 @@ export default function RaceDetailPage() {
                       });
                       if (res.ok) {
                         const data = await res.json();
-                        toast(`GPX ajoute ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
+                        toast(`GPX ajouté ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
                         await fetchRace();
                       } else {
                         const err = await res.json().catch(() => null);
@@ -813,7 +813,7 @@ export default function RaceDetailPage() {
                       });
                       if (res.ok) {
                         const data = await res.json();
-                        toast(`GPX remplace ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
+                        toast(`GPX remplacé ! ${data.stats.distanceKm} km, D+ ${data.stats.elevationGain}m`, "success");
                         await fetchRace();
                       } else {
                         const err = await res.json().catch(() => null);

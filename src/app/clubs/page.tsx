@@ -266,11 +266,11 @@ export default function ClubsPage() {
         ) : otherClubs.length === 0 ? (
           <EmptyState
             icon={<ShieldIcon size={48} />}
-            title={search ? "Aucun resultat" : "Aucun club"}
+            title={search ? "Aucun résultat" : "Aucun club"}
             description={
               search
-                ? "Aucun club ne correspond a ta recherche."
-                : "Aucun club pour le moment. Cree le premier !"
+                ? "Aucun club ne correspond à ta recherche."
+                : "Aucun club pour le moment. Crée le premier !"
             }
           />
         ) : (

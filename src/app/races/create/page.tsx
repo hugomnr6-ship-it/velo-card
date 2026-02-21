@@ -239,7 +239,7 @@ export default function CreateRacePage() {
             disabled={submitting}
             className="mt-2 w-full rounded-xl bg-[#6366F1] py-3 text-sm font-bold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
           >
-            {submitting ? "Creation en cours..." : "Creer la course"}
+            {submitting ? "Création en cours..." : "Créer la course"}
           </button>
         </form>
       </div>

@@ -5,7 +5,7 @@
  */
 export const ECONOMY = {
   // ——— Gains de coins ———
-  COINS_PER_KM: 10,
+  COINS_PER_KM: 5,
   COINS_DUEL_WIN: 50,
   COINS_WAR_WIN: 100,
   COINS_TOTW_SELECTED: 200,
@@ -26,6 +26,9 @@ export const ECONOMY = {
     epic: 900,
     legendary: 1500,
   } as Record<string, number>,
+
+  // ——— Skins réservés aux abonnés Pro ———
+  PREMIUM_SKIN_RARITIES: ["epic", "legendary"] as readonly string[],
 
   SHOP_ROTATION_DAYS: 7,
 

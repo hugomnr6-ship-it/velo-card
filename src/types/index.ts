@@ -767,6 +767,18 @@ export interface FantasyTransfer {
   transferred_at: string;
 }
 
+// ——— Favorites ———
+
+export type FavoriteEntityType = "race" | "route" | "profile";
+
+export interface Favorite {
+  id: string;
+  user_id: string;
+  entity_type: FavoriteEntityType;
+  entity_id: string;
+  created_at: string;
+}
+
 // ——— Subscription types ———
 
 export interface Subscription {

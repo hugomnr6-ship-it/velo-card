@@ -15,31 +15,31 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     id: "card",
     title: "Ta VeloCard",
     description:
-      "Voici ta carte de cycliste. Tes 6 stats sont calculees depuis tes sorties Strava. Roule pour les ameliorer !",
+      "Voici ta carte de cycliste. Tes 6 stats sont calculées depuis tes sorties Strava. Roule pour les améliorer !",
   },
   {
     id: "stats",
     title: "Tes 6 Stats",
     description:
-      "PAC (vitesse), END (endurance), MON (montagne), RES (puissance), SPR (sprint), VAL (technique). Chaque sortie les met a jour.",
+      "PAC (vitesse), END (endurance), MON (montagne), RES (puissance), SPR (sprint), VAL (technique). Chaque sortie les met à jour.",
   },
   {
     id: "tier",
     title: "Ton Tier",
     description:
-      "Bronze \u2192 Argent \u2192 Platine \u2192 Diamant \u2192 Legende. Monte en ameliorant ton OVR !",
+      "Bronze \u2192 Argent \u2192 Platine \u2192 Diamant \u2192 Légende. Monte en améliorant ton OVR !",
   },
   {
     id: "duels",
     title: "Duels 1v1",
     description:
-      "Defie d'autres cyclistes et mise tes ego points ! Instantane ou hebdomadaire.",
+      "Défie d'autres cyclistes et mise tes ego points ! Instantané ou hebdomadaire.",
   },
   {
     id: "quests",
-    title: "Quetes du Jour",
+    title: "Quêtes du Jour",
     description:
-      "Complete des micro-objectifs pour gagner des VeloCoins et des badges.",
+      "Complète des micro-objectifs pour gagner des VeloCoins et des badges.",
   },
 ];
 

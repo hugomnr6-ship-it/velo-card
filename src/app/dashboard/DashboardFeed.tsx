@@ -261,12 +261,12 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Link
-            href="/wars"
+            href="/gpx"
             className="glass-light glass-hover rounded-xl p-3.5"
           >
-            <IconSwords size={20} className="text-white/60" />
-            <p className="mt-1 text-xs font-bold text-white">Guerres</p>
-            <p className="text-[9px] text-[#94A3B8]">Pelotons</p>
+            <IconMountain size={20} className="text-white/60" />
+            <p className="mt-1 text-xs font-bold text-white">GPX</p>
+            <p className="text-[9px] text-[#94A3B8]">Analyse parcours</p>
           </Link>
           <Link
             href="/races"

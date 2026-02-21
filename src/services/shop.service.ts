@@ -1,5 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { ECONOMY } from "@/lib/economy";
 import { addCoins } from "./coins.service";
+import { isUserPro } from "./subscription.service";
 import { insertFeedEvent } from "@/lib/feed";
 
 /**
@@ -55,7 +57,7 @@ export async function buySkin(userId: string, shopItemId: string) {
 
   const { data: shopItem } = await supabaseAdmin
     .from("shop_rotation_items")
-    .select("*, shop_rotations!inner(id, starts_at, ends_at, is_active)")
+    .select("*, shop_rotations!inner(id, starts_at, ends_at, is_active), card_skins(rarity)")
     .eq("id", shopItemId)
     .single();
 
@@ -66,7 +68,16 @@ export async function buySkin(userId: string, shopItemId: string) {
     throw new Error("Cette rotation du shop a expiré");
   }
 
-  // 2. Check user doesn't already own this skin
+  // 2. Vérifier si le skin est premium-only (epic/legendary)
+  const skinRarity = (shopItem as any).card_skins?.rarity as string | undefined;
+  if (skinRarity && ECONOMY.PREMIUM_SKIN_RARITIES.includes(skinRarity)) {
+    const isPro = await isUserPro(userId);
+    if (!isPro) {
+      throw new Error("Ce skin est réservé aux abonnés Pro");
+    }
+  }
+
+  // 3. Check user doesn't already own this skin
   const { data: existing } = await supabaseAdmin
     .from("user_inventory")
     .select("id")
@@ -78,7 +89,7 @@ export async function buySkin(userId: string, shopItemId: string) {
     throw new Error("Tu possèdes déjà ce skin !");
   }
 
-  // 3. Deduct coins
+  // 4. Deduct coins
   const idemKey = `shop_buy_${userId}_${shopItemId}_${Date.now()}`;
   await addCoins(userId, -shopItem.price_coins, "skin_purchase", {
     skinId: shopItem.skin_id,
@@ -86,7 +97,7 @@ export async function buySkin(userId: string, shopItemId: string) {
     rotationId: rotation.id,
   }, idemKey);
 
-  // 4. Add to inventory
+  // 5. Add to inventory
   await supabaseAdmin.from("user_inventory").insert({
     user_id: userId,
     item_id: shopItem.skin_id,
@@ -95,7 +106,7 @@ export async function buySkin(userId: string, shopItemId: string) {
     equipped: false,
   });
 
-  // 5. Log purchase
+  // 6. Log purchase
   await supabaseAdmin.from("skin_purchases").insert({
     user_id: userId,
     skin_id: shopItem.skin_id,
@@ -103,7 +114,7 @@ export async function buySkin(userId: string, shopItemId: string) {
     rotation_id: rotation.id,
   });
 
-  // 6. Feed event
+  // 7. Feed event
   insertFeedEvent(userId, "skin_purchased", {
     skinId: shopItem.skin_id,
     skinName: shopItem.skin_id,

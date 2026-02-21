@@ -162,7 +162,7 @@ export default function RaceResultsForm({
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!validTypes.includes(file.type)) {
-        toast(`Format non supporte : ${file.name}`, "error");
+        toast(`Format non supporté : ${file.name}`, "error");
         continue;
       }
       if (file.size > 10 * 1024 * 1024) {
@@ -220,14 +220,14 @@ export default function RaceResultsForm({
         const duplicatesRemoved = combined.length - deduped.length;
         setLines(deduped);
         toast(
-          `${deduped.length} coureur(s) au total${duplicatesRemoved > 0 ? ` (${duplicatesRemoved} doublon(s) retire(s))` : ""} — verifie avant de publier`,
+          `${deduped.length} coureur(s) au total${duplicatesRemoved > 0 ? ` (${duplicatesRemoved} doublon(s) retiré(s))` : ""} — vérifie avant de publier`,
           "success",
         );
       } else {
-        toast("Aucun resultat detecte", "error");
+        toast("Aucun résultat détecté", "error");
       }
     } catch (err: any) {
-      toast(err.message || "Erreur reseau", "error");
+      toast(err.message || "Erreur réseau", "error");
     } finally {
       setOcrLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -240,7 +240,7 @@ export default function RaceResultsForm({
     const filledLines = lines.filter((l) => l.rider_name.trim());
 
     if (filledLines.length === 0) {
-      toast("Ajoute au moins un resultat", "error");
+      toast("Ajoute au moins un résultat", "error");
       return;
     }
 
@@ -299,8 +299,8 @@ export default function RaceResultsForm({
         const data = await res.json();
         toast(
           isEditing
-            ? "Resultats mis a jour !"
-            : `Resultats publies ! ${data.ghost_count > 0 ? `${data.ghost_count} carte(s) fantome(s) creee(s)` : ""}`,
+            ? "Résultats mis à jour !"
+            : `Résultats publiés ! ${data.ghost_count > 0 ? `${data.ghost_count} carte(s) fantôme(s) créée(s)` : ""}`,
           "success",
         );
         onPublished();
@@ -309,7 +309,7 @@ export default function RaceResultsForm({
         toast(err.error || "Erreur lors de la publication", "error");
       }
     } catch {
-      toast("Erreur reseau", "error");
+      toast("Erreur réseau", "error");
     } finally {
       setSubmitting(false);
     }
@@ -319,7 +319,7 @@ export default function RaceResultsForm({
     <div className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-5">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-bold uppercase tracking-widest text-[#94A3B8]">
-          {isEditing ? "Modifier les resultats" : "Publier les resultats"}
+          {isEditing ? "Modifier les résultats" : "Publier les résultats"}
         </h3>
 
         {/* OCR Upload Buttons */}
@@ -484,7 +484,7 @@ export default function RaceResultsForm({
       <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
         <p className="text-xs text-[#475569]">
           {isEditing
-            ? "Les anciennes Ghost Cards seront remplacees"
+            ? "Les anciennes Ghost Cards seront remplacées"
             : "Les coureurs du Top 10 non-inscrits recevront une Ghost Card"}
         </p>
         <button
@@ -495,8 +495,8 @@ export default function RaceResultsForm({
           {submitting
             ? "Publication..."
             : isEditing
-              ? "Mettre a jour"
-              : "Publier les resultats"}
+              ? "Mettre à jour"
+              : "Publier les résultats"}
         </button>
       </div>
     </div>

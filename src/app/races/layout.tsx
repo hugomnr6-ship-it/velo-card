@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Courses",
-  description: "Calendrier des courses et resultats",
+  description: "Calendrier des courses et résultats",
   openGraph: {
     title: "Courses | VeloCard",
-    description: "Calendrier des courses et resultats",
+    description: "Calendrier des courses et résultats",
     type: "website",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Courses | VeloCard",
-    description: "Calendrier des courses et resultats",
+    description: "Calendrier des courses et résultats",
     images: ["/og-image.png"],
   },
 };

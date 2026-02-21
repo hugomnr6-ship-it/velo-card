@@ -45,13 +45,13 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
       const res = await fetch("/api/clubs", { method: "POST", body: fd });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Erreur lors de la creation");
+        throw new Error(data.error || "Erreur lors de la création");
       }
       setName("");
       setLogoFile(null);
       setLogoPreview(null);
       if (fileRef.current) fileRef.current.value = "";
-      toast("Club cree !", "success");
+      toast("Club créé !", "success");
       onCreated();
     } catch (err: any) {
       setError(err.message);
@@ -69,7 +69,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
       className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-5"
     >
       <p className="mb-4 text-sm font-bold tracking-wide text-white">
-        Creer un club
+        Créer un club
       </p>
 
       <div className="flex flex-col gap-3">
@@ -117,7 +117,7 @@ export default function CreateClubForm({ onCreated }: CreateClubFormProps) {
           disabled={submitting}
           className="mt-1 rounded-lg bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6366F1]/80 disabled:opacity-50"
         >
-          {submitting ? "Creation..." : "Creer le club"}
+          {submitting ? "Création..." : "Créer le club"}
         </button>
       </div>
     </form>

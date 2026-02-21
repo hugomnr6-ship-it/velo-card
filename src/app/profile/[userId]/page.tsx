@@ -105,11 +105,16 @@ export default function UserProfilePage() {
   const fetchProfile = useCallback(() => {
     setLoading(true);
     fetch(`/api/users/${userId}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((json) => {
         if (json.profile) setData(json);
       })
-      .catch(console.error)
+      .catch(() => {
+        // Erreur réseau ou API — data reste null → affiche "Profil introuvable"
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 
@@ -165,11 +170,12 @@ export default function UserProfilePage() {
   if (!data) {
     return (
       <AnimatedPage className="flex min-h-screen flex-col items-center justify-center px-4">
-        <div className="mb-4 text-4xl"><IconStar size={32} className="text-white/40" /></div>
-        <p className="text-sm text-white/40">Profil introuvable</p>
+        <div className="mb-4"><IconStar size={40} className="text-white/60" /></div>
+        <p className="text-lg font-bold text-white">Profil introuvable</p>
+        <p className="mt-1 text-sm text-[#94A3B8]">Ce profil n&apos;existe pas ou n&apos;est pas encore disponible.</p>
         <button
           onClick={() => router.push("/dashboard")}
-          className="mt-4 rounded-full bg-[#6366F1] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5557E0]"
+          className="mt-6 rounded-full bg-[#6366F1] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5557E0]"
         >
           Retour au dashboard
         </button>
@@ -178,8 +184,8 @@ export default function UserProfilePage() {
   }
 
   const { profile, stats, deltas, history, clubs, weekly, career } = data;
-  const accent = tierAccentHex[stats.tier];
-  const config = tierConfig[stats.tier];
+  const accent = tierAccentHex[stats.tier] ?? "#cd7f32";
+  const config = tierConfig[stats.tier] ?? tierConfig.bronze;
 
   const displayAvatarUrl = profile.custom_avatar_url || profile.avatar_url;
 
@@ -568,19 +574,19 @@ function CareerTab({
     { iconKey: "mountain", label: "Total D+", value: `${(career.totalDplus ?? 0).toLocaleString()} m`, condition: (career.totalDplus ?? 0) > 0 },
     { iconKey: "calendar", label: "Sorties", value: (career.totalRides ?? 0).toString(), condition: (career.totalRides ?? 0) > 0 },
     { iconKey: "timer", label: "Temps Total", value: formatTime(career.totalTime ?? 0), condition: (career.totalTime ?? 0) > 0 },
-    { iconKey: "star", label: "Echappees", value: (career.echappeeSelections ?? 0).toString(), condition: (career.echappeeSelections ?? 0) > 0 },
+    { iconKey: "star", label: "Échappées", value: (career.echappeeSelections ?? 0).toString(), condition: (career.echappeeSelections ?? 0) > 0 },
     { iconKey: "swords", label: "Guerres", value: (career.warsParticipated ?? 0).toString(), condition: (career.warsParticipated ?? 0) > 0 },
     { iconKey: "calendar", label: "Membre depuis", value: `${months} mois`, condition: true },
   ];
 
   const milestones = [
-    { iconKey: "star", name: "Premier Coup de Pedale", desc: "1ere sortie enregistree", unlocked: (career.totalRides ?? 0) >= 1 },
-    { iconKey: "trophy", name: "Centurion", desc: "100 km cumules", unlocked: (career.totalKm ?? 0) >= 100 },
-    { iconKey: "mountain", name: "Col Hunter", desc: "1000 m D+ cumules", unlocked: (career.totalDplus ?? 0) >= 1000 },
-    { iconKey: "chartup", name: "Machine", desc: "1000 km cumules", unlocked: (career.totalKm ?? 0) >= 1000 },
-    { iconKey: "star", name: "Echappe", desc: "Selectionne dans L'Echappee", unlocked: (career.echappeeSelections ?? 0) >= 1 },
-    { iconKey: "swords", name: "Guerrier", desc: "Participer a une Guerre", unlocked: (career.warsParticipated ?? 0) >= 1 },
-    { iconKey: "rocket", name: "Ultra", desc: "5000 km cumules", unlocked: (career.totalKm ?? 0) >= 5000 },
+    { iconKey: "star", name: "Premier Coup de Pédale", desc: "1ère sortie enregistrée", unlocked: (career.totalRides ?? 0) >= 1 },
+    { iconKey: "trophy", name: "Centurion", desc: "100 km cumulés", unlocked: (career.totalKm ?? 0) >= 100 },
+    { iconKey: "mountain", name: "Col Hunter", desc: "1000 m D+ cumulés", unlocked: (career.totalDplus ?? 0) >= 1000 },
+    { iconKey: "chartup", name: "Machine", desc: "1000 km cumulés", unlocked: (career.totalKm ?? 0) >= 1000 },
+    { iconKey: "star", name: "Échappé", desc: "Sélectionné dans L'Échappée", unlocked: (career.echappeeSelections ?? 0) >= 1 },
+    { iconKey: "swords", name: "Guerrier", desc: "Participer à une Guerre", unlocked: (career.warsParticipated ?? 0) >= 1 },
+    { iconKey: "rocket", name: "Ultra", desc: "5000 km cumulés", unlocked: (career.totalKm ?? 0) >= 5000 },
     { iconKey: "crown", name: "Roi de la Montagne", desc: "10 000 m D+", unlocked: (career.totalDplus ?? 0) >= 10000 },
   ];
 
@@ -616,7 +622,7 @@ function CareerTab({
         {/* Recent Results */}
         {hasRaceData && career.recentResults && career.recentResults.length > 0 && (
           <div className="mt-3">
-            <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">DERNIERS RESULTATS</p>
+            <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">DERNIERS RÉSULTATS</p>
             <div className="flex flex-col gap-1.5">
               {career.recentResults.map((r, i) => (
                 <m.div
@@ -646,7 +652,7 @@ function CareerTab({
         )}
 
         {!hasRaceData && (
-          <p className="text-[11px] text-white/20 text-center py-4">Aucun resultat de course enregistre</p>
+          <p className="text-[11px] text-white/20 text-center py-4">Aucun résultat de course enregistré</p>
         )}
       </div>
 
