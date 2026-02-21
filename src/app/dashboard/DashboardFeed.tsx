@@ -261,7 +261,7 @@ export default function DashboardFeed({ userId, tier }: DashboardFeedProps) {
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Link
-            href="/gpx"
+            href="/course"
             className="glass-light glass-hover rounded-xl p-3.5"
           >
             <IconMountain size={20} className="text-white/60" />
