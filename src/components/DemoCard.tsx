@@ -365,6 +365,24 @@ export default function DemoCard({ username, ovr, tier, stats }: DemoCardProps) 
             }}
           />
           <div
+            className="flex items-center justify-center gap-1.5 font-['Space_Grotesk'] tracking-[0.05em] text-white/[0.25]"
+            style={{ fontSize: "clamp(3px, 2.8cqw, 8px)", marginBottom: "1%" }}
+          >
+            <span className="truncate max-w-[80px]">CC Vélo Sprint</span>
+            <span className="text-white/[0.15]">·</span>
+            <div className="flex items-center gap-0.5">
+              <div
+                className="rounded-[1.5px]"
+                style={{
+                  width: 12, height: 8,
+                  background: "linear-gradient(90deg, #002395 0% 33%, #fff 33% 66%, #ED2939 66% 100%)",
+                  boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)",
+                }}
+              />
+              <span>France</span>
+            </div>
+          </div>
+          <div
             className="tracking-[0.2em] text-white/[0.08]"
             style={{ fontSize: "clamp(3px, 2.5cqw, 7px)", paddingBottom: "4%" }}
           >

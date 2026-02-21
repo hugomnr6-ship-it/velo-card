@@ -932,6 +932,36 @@ export default function VeloCard({
             opacity: 0.5,
           }}
         />
+        {(currentClub || country) && (
+          <div className="mb-1 flex items-center justify-center gap-1.5 font-['Space_Grotesk'] text-[8px] tracking-[0.05em] text-white/[0.25]">
+            {currentClub && (
+              <span className="truncate max-w-[80px]">{currentClub.name}</span>
+            )}
+            {currentClub && country && (
+              <span className="text-white/[0.15]">·</span>
+            )}
+            {country && (
+              <div className="flex items-center gap-0.5">
+                {countryCode === "FR" ? (
+                  <div
+                    className="rounded-[1.5px]"
+                    style={{
+                      width: 12, height: 8,
+                      background: "linear-gradient(90deg, #002395 0% 33%, #fff 33% 66%, #ED2939 66% 100%)",
+                      boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)",
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-[1.5px] bg-white/10"
+                    style={{ width: 12, height: 8, boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}
+                  />
+                )}
+                <span>{country}</span>
+              </div>
+            )}
+          </div>
+        )}
         <div className="pb-3 text-[7px] tracking-[0.2em] text-white/[0.08]">
           VELOCARD.APP
         </div>
