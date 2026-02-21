@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 type NotificationType =
   | 'duel_challenge' | 'duel_result' | 'badge_unlocked'
@@ -21,7 +22,7 @@ export async function createNotification(notification: CreateNotification) {
     body: notification.body,
     data: notification.data || {},
   });
-  if (error) console.error('[Notification] Error:', error);
+  if (error) logger.error('[Notification] Error', { error: String(error) });
 }
 
 export async function createBatchNotifications(notifications: CreateNotification[]) {
@@ -36,6 +37,6 @@ export async function createBatchNotifications(notifications: CreateNotification
   for (let i = 0; i < rows.length; i += 500) {
     const batch = rows.slice(i, i + 500);
     const { error } = await supabaseAdmin.from('notifications').insert(batch);
-    if (error) console.error(`[Notification] Batch error at ${i}:`, error);
+    if (error) logger.error(`[Notification] Batch error at ${i}`, { error: String(error) });
   }
 }

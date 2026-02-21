@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { getRaceBonus } from "@/lib/race-points";
 import { insertFeedEvent } from "@/lib/feed";
+import { logger } from "@/lib/logger";
 
 /**
  * Apply race result bonuses to a user's card stats.
@@ -57,7 +58,7 @@ export async function applyRaceBonusToStats(
       });
     }
   } catch (err) {
-    console.error("[RACE BONUS] Error applying stats boost:", err);
+    logger.error("[RACE BONUS] Error applying stats boost", { error: String(err) });
   }
 }
 
@@ -179,7 +180,7 @@ export async function evaluateRaceBadges(userId: string): Promise<string[]> {
       }
     }
   } catch (err) {
-    console.error("[RACE BADGES] Error evaluating badges:", err);
+    logger.error("[RACE BADGES] Error evaluating badges", { error: String(err) });
   }
 
   return newBadges;
@@ -232,7 +233,7 @@ export async function checkInFormStatus(userId: string): Promise<boolean> {
 
     return false;
   } catch (err) {
-    console.error("[IN-FORM] Error checking status:", err);
+    logger.error("[IN-FORM] Error checking status", { error: String(err) });
     return false;
   }
 }

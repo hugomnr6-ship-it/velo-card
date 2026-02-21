@@ -1,5 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 
 /**
@@ -46,7 +47,7 @@ export async function GET() {
       time, // in seconds
     });
   } catch (err: any) {
-    console.error("[WEEKLY STATS] Error:", err);
+    logger.error("[WEEKLY STATS] Error", { error: String(err) });
     return NextResponse.json({ km: 0, dplus: 0, rides: 0, time: 0 });
   }
 }

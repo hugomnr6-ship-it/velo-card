@@ -36,6 +36,7 @@ export async function GET(
     rider_name: ghost.rider_name,
     gen_score: ghost.gen_score,
     tier: ghost.tier,
+    race_id: ghost.race_id,
     race_name: race?.name || "Course inconnue",
     race_date: race?.date || null,
     position: result?.position || null,

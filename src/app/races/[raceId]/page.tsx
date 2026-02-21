@@ -11,6 +11,7 @@ import ResultRow from "@/components/ResultRow";
 import RaceResultsForm from "@/components/RaceResultsForm";
 import StartlistUpload from "@/components/StartlistUpload";
 import AnimatedPage from "@/components/AnimatedPage";
+import BookmarkButton from "@/components/BookmarkButton";
 import EmptyState from "@/components/EmptyState";
 import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
 import { useToast } from "@/contexts/ToastContext";
@@ -322,7 +323,10 @@ export default function RaceDetailPage() {
           </div>
 
           {/* Title & info */}
-          <h1 className="text-xl font-bold text-white leading-tight">{race.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-white leading-tight">{race.name}</h1>
+            <BookmarkButton entityType="race" entityId={race.id} />
+          </div>
           <div className="mt-2 flex flex-col gap-1">
             <p className="flex items-center gap-2 text-sm text-[#94A3B8]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0">
@@ -455,6 +459,20 @@ export default function RaceDetailPage() {
           <section className="mb-6">
             <ElevationProfile points={gpxPoints} climbs={climbs} />
           </section>
+        )}
+
+        {/* Lien analyse détaillée du parcours */}
+        {hasGpx && (
+          <Link
+            href={`/course?race_id=${raceId}`}
+            className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl border border-[#6366F1]/20 bg-[#6366F1]/10 py-3 text-sm font-bold text-[#818CF8] transition hover:bg-[#6366F1]/20"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+            </svg>
+            Analyse detaillee du parcours
+          </Link>
         )}
 
         {/* ════════ WIND OVERLAY ════════ */}
@@ -608,6 +626,18 @@ export default function RaceDetailPage() {
               ))}
             </AnimatedList>
 
+            <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          </section>
+        )}
+
+        {/* Empty state pour courses passées sans résultats (non-créateur) */}
+        {!race.is_creator && !race.results_published && isPast && (
+          <section className="mb-6">
+            <EmptyState
+              icon="🏁"
+              title="Resultats a venir"
+              description="Les resultats seront disponibles apres publication par l'organisateur."
+            />
             <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
           </section>
         )}

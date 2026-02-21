@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { badgeMap } from "@/lib/badges";
+import { useCoinReward } from "@/contexts/CoinRewardContext";
+import { ECONOMY } from "@/lib/economy";
 
 interface BadgeToastProps {
   userId: string;
@@ -20,6 +22,7 @@ interface RecentBadge {
 export default function BadgeToast({ userId }: BadgeToastProps) {
   const [newBadges, setNewBadges] = useState<RecentBadge[]>([]);
   const [visibleIndex, setVisibleIndex] = useState(0);
+  const { showReward } = useCoinReward();
 
   useEffect(() => {
     const lastCheck = sessionStorage.getItem("velocard-badge-check");
@@ -38,10 +41,16 @@ export default function BadgeToast({ userId }: BadgeToastProps) {
           const earned = new Date(b.earned_at).getTime();
           return now - earned < 60_000;
         });
-        if (recent.length > 0) setNewBadges(recent);
+        if (recent.length > 0) {
+          setNewBadges(recent);
+          // Afficher la bulle coin pour chaque badge
+          recent.forEach(() => {
+            showReward(ECONOMY.COINS_BADGE_EARNED, "Badge");
+          });
+        }
       })
       .catch(() => {});
-  }, [userId]);
+  }, [userId, showReward]);
 
   // Auto-advance through badges
   useEffect(() => {

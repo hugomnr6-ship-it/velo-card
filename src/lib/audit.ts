@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabase";
+import { logger } from "./logger";
 
 export async function logAudit(params: {
   userId?: string;
@@ -18,6 +19,6 @@ export async function logAudit(params: {
       ip_address: params.ipAddress ?? null,
     });
   } catch (error) {
-    console.error("[AUDIT] Failed to log:", error);
+    logger.error("[AUDIT] Failed to log", { error: String(error) });
   }
 }

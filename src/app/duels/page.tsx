@@ -6,7 +6,12 @@ import { useSession } from "next-auth/react";
 import { m, AnimatePresence } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import ErrorState from "@/components/ErrorState";
+import ProGateOverlay from "@/components/ProGateOverlay";
+import { useIsPro } from "@/hooks/useSubscription";
 import { useToast } from "@/contexts/ToastContext";
+import { useCoinReward } from "@/contexts/CoinRewardContext";
+import { ECONOMY } from "@/lib/economy";
+import { PRO_GATES } from "@/lib/pro-gates";
 import { trackEvent } from "@/lib/analytics";
 import { useDuels } from "@/hooks/useDuels";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -44,8 +49,13 @@ export default function DuelsPage() {
   const router = useRouter();
   const { status } = useSession();
   const { toast } = useToast();
+  const { showReward } = useCoinReward();
   const [stats, setStats] = useState<DuelStatsData | null>(null);
   const [activeTab, setActiveTab] = useState<"pending" | "active" | "history">("pending");
+
+  // Pro gate
+  const isPro = useIsPro();
+  const [showProGate, setShowProGate] = useState(false);
 
   // Create duel state
   const [showCreate, setShowCreate] = useState(false);
@@ -147,8 +157,13 @@ export default function DuelsPage() {
     try {
       const res = await fetch(`/api/duels/${duelId}/accept`, { method: "POST" });
       if (!res.ok) throw new Error("Erreur lors de l'acceptation");
+      const data = await res.json().catch(() => ({}));
       toast("Defi accepte !", "success");
       trackEvent("duel_accepted", { duel_id: duelId });
+      // Afficher la bulle coins si le duel instantané a été gagné
+      if (data.duel?.winner_id === userId && data.duel?.stake) {
+        showReward(ECONOMY.COINS_DUEL_WIN, "Duel");
+      }
       fetchDuels();
     } catch (err: any) {
       toast(err.message || "Erreur reseau", "error");
@@ -178,6 +193,15 @@ export default function DuelsPage() {
 
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
+      {/* Pro Gate Overlay */}
+      {showProGate && (
+        <ProGateOverlay
+          feature="duels"
+          trigger="Tu as deja un duel en cours"
+          onClose={() => setShowProGate(false)}
+        />
+      )}
+
       {/* ═══ Header + Stats ═══ */}
       <div className="w-full max-w-md">
         <div className="flex items-center justify-between mb-2">
@@ -185,7 +209,17 @@ export default function DuelsPage() {
             <IconSwords size={22} className="text-[#6366F1] inline-block mr-2" />Duels
           </h1>
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={() => {
+              // Vérifier le gate free : 1 duel actif max
+              if (!isPro) {
+                const activeDuels = duels.filter((d) => d.status === "accepted" || d.status === "pending");
+                if (activeDuels.length >= PRO_GATES.duels.freeMaxActive) {
+                  setShowProGate(true);
+                  return;
+                }
+              }
+              setShowCreate(true);
+            }}
             className="rounded-full bg-[#6366F1] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#5557E0] active:scale-95"
           >
             + Défier

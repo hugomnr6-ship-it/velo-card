@@ -9,6 +9,7 @@ import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
+import BookmarkButton from "@/components/BookmarkButton";
 import { FlagIcon } from "@/components/icons/TabIcons";
 import { useRaces } from "@/hooks/useRaces";
 import type { RaceWithCreator } from "@/types";
@@ -392,6 +393,9 @@ function RaceRow({ race, isPast }: { race: RaceWithCreator; isPast?: boolean }) 
             </span>
           )}
         </div>
+
+        {/* Favori */}
+        <BookmarkButton entityType="race" entityId={race.id} size="sm" />
 
         {/* Chevron */}
         {!isPast && (

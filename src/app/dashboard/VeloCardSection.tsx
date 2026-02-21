@@ -4,6 +4,9 @@ import { computeStats, getTier } from "@/lib/stats";
 import { computeBadges } from "@/lib/badges";
 import { checkBadges } from "@/lib/checkBadges";
 import { updateWarProgressForUser } from "@/lib/wars";
+import { isUserPro } from "@/services/subscription.service";
+import { PRO_GATES } from "@/lib/pro-gates";
+import { logger } from "@/lib/logger";
 import VeloCardClient from "./VeloCardClient";
 import RetryButton from "./RetryButton";
 import type { StatDeltas, CardTier, SpecialCardType } from "@/types";
@@ -21,11 +24,6 @@ export default async function VeloCardSection({
   userInfo: UserInfo;
 }) {
   try {
-    // 1. Fetch last 50 activities from Strava API
-    console.log("[SYNC] Fetching activities for strava_id:", userInfo.stravaId);
-    const activities = await fetchActivities(userInfo.accessToken);
-    console.log("[SYNC] Fetched", activities.length, "activities from provider");
-
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
@@ -39,6 +37,20 @@ export default async function VeloCardSection({
           Profil introuvable. Reconnecte-toi.
         </p>
       );
+    }
+
+    // Vérifier si le user est Pro pour conditionner le sync Strava
+    const isPro = await isUserPro(profile.id);
+    const canRefresh = isPro || PRO_GATES.stats.freeCanRefreshStats();
+
+    // 1. Fetch activities from Strava API uniquement si refresh autorisé
+    let activities: Awaited<ReturnType<typeof fetchActivities>> = [];
+    if (canRefresh) {
+      logger.info("[SYNC] Fetching activities", { stravaId: userInfo.stravaId });
+      activities = await fetchActivities(userInfo.accessToken);
+      logger.info("[SYNC] Fetched activities", { count: activities.length });
+    } else {
+      logger.debug("[SYNC] Skipping sync — free user, not Monday");
     }
 
     // 3. Cache activities + fetch previous stats + clubs in PARALLEL
@@ -59,16 +71,16 @@ export default async function VeloCardSection({
 
     // Parallelize: upsert activities + fetch existing stats + fetch clubs + fetch beta
     const [upsertResult, { data: existingStats }, { data: clubJoinRowsParallel }, { data: betaInfo }] = await Promise.all([
-      // Upsert activities
+      // Upsert activities (uniquement si on a sync)
       activityRows.length > 0
         ? supabaseAdmin
             .from("strava_activities")
             .upsert(activityRows, { onConflict: "user_id,strava_activity_id" })
         : Promise.resolve(null),
-      // Fetch previous stats for delta display
+      // Fetch previous stats for delta display + fallback quand pas de sync
       supabaseAdmin
         .from("user_stats")
-        .select("prev_pac, prev_end, prev_mon, prev_res, prev_spr, prev_val, prev_ovr, prev_tier, special_card, active_weeks_streak")
+        .select("pac, end, mon, res, spr, val, ovr, tier, prev_pac, prev_end, prev_mon, prev_res, prev_spr, prev_val, prev_ovr, prev_tier, special_card, active_weeks_streak")
         .eq("user_id", profile.id)
         .single(),
       // Fetch clubs via JOIN (moved from step 9)
@@ -86,14 +98,36 @@ export default async function VeloCardSection({
 
     // Log si l'upsert des activités a échoué
     if (upsertResult && 'error' in upsertResult && upsertResult.error) {
-      console.error("[SYNC] Erreur upsert strava_activities:", upsertResult.error.message, upsertResult.error.details, upsertResult.error.hint);
-    } else {
-      console.log("[SYNC] Upserted", activityRows.length, "activities to DB");
+      logger.error("[SYNC] Erreur upsert strava_activities", { message: upsertResult.error.message, details: upsertResult.error.details });
+    } else if (canRefresh) {
+      logger.info("[SYNC] Upserted activities", { count: activityRows.length });
     }
 
-    // 4. Compute stats
-    const stats = computeStats(activities);
-    const tier = getTier(stats);
+    // 4. Compute stats (ou lire depuis la DB si pas de sync)
+    let stats: ReturnType<typeof computeStats>;
+    let tier: ReturnType<typeof getTier>;
+
+    if (canRefresh && activities.length > 0) {
+      // Sync actif : recalculer depuis les activités fraîches
+      stats = computeStats(activities);
+      tier = getTier(stats);
+    } else if (existingStats) {
+      // Pas de sync : utiliser les stats du dernier lundi depuis la DB
+      stats = {
+        pac: existingStats.pac ?? 0,
+        mon: existingStats.mon ?? 0,
+        val: existingStats.val ?? 0,
+        spr: existingStats.spr ?? 0,
+        end: existingStats.end ?? 0,
+        res: existingStats.res ?? 0,
+        ovr: existingStats.ovr ?? 0,
+      };
+      tier = (existingStats.tier as CardTier) ?? getTier(stats);
+    } else {
+      // Aucune donnée — fallback vide
+      stats = computeStats([]);
+      tier = getTier(stats);
+    }
 
     // Compute deltas
     let deltas: StatDeltas | null = null;
@@ -119,35 +153,37 @@ export default async function VeloCardSection({
       ? (existingStats.prev_tier as CardTier)
       : null;
 
-    // 6. Upsert user_stats (preserve prev_ fields from Monday Update)
-    await supabaseAdmin
-      .from("user_stats")
-      .upsert(
-        {
-          user_id: profile.id,
-          pac: stats.pac,
-          end: stats.end,
-          mon: stats.mon,
-          res: stats.res,
-          spr: stats.spr,
-          val: stats.val,
-          ovr: stats.ovr,
-          tier,
-          last_synced_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+    // 6. Upsert user_stats uniquement si on a sync (preserve prev_ fields from Monday Update)
+    if (canRefresh) {
+      await supabaseAdmin
+        .from("user_stats")
+        .upsert(
+          {
+            user_id: profile.id,
+            pac: stats.pac,
+            end: stats.end,
+            mon: stats.mon,
+            res: stats.res,
+            spr: stats.spr,
+            val: stats.val,
+            ovr: stats.ovr,
+            tier,
+            last_synced_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" },
+        );
 
-    // 7. Update Squad Wars progress (non-blocking, don't break card render)
-    updateWarProgressForUser(profile.id).catch(() => {});
+      // 7. Update Squad Wars progress (non-blocking, don't break card render)
+      updateWarProgressForUser(profile.id).catch(() => {});
 
-    // 7b. Check achievement badges (non-blocking)
-    checkBadges({
-      userId: profile.id,
-      stats,
-      tier,
-      streak,
-    }).catch(() => {});
+      // 7b. Check achievement badges (non-blocking)
+      checkBadges({
+        userId: profile.id,
+        stats,
+        tier,
+        streak,
+      }).catch(() => {});
+    }
 
     // 8. Compute PlayStyle badges
     const badges = computeBadges(stats);
@@ -177,10 +213,11 @@ export default async function VeloCardSection({
         serverPreviousTier={serverPreviousTier}
         skin={profile.equipped_skin || undefined}
         betaNumber={betaInfo?.beta_number || null}
+        isPro={isPro}
       />
     );
   } catch (err: any) {
-    console.error("[SYNC] Erreur de synchronisation:", err.message || err);
+    logger.error("[SYNC] Erreur de synchronisation", { error: err.message || String(err) });
     return (
       <div className="flex flex-col items-center gap-3">
         <p className="text-sm text-red-400">

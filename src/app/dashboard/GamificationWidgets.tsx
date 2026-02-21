@@ -88,7 +88,7 @@ export default function GamificationWidgets() {
           { href: "/shop", icon: "\uD83D\uDED2", label: "Boutique" },
           { href: "/badges", icon: "\uD83C\uDFC5", label: "Badges" },
           { href: "/quests", icon: "\uD83C\uDF1F", label: "Quêtes" },
-          { href: "/inventory", icon: "\uD83C\uDF92", label: "Inventaire" },
+          { href: "/favorites", icon: "\u2764\uFE0F", label: "Favoris" },
         ].map((item) => (
           <Link
             key={item.href}

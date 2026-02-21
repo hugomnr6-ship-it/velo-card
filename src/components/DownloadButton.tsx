@@ -7,15 +7,17 @@ import {
   drawStoryCanvas,
   dataUrlToBlob,
   shareToInstagramStory,
+  addWatermark,
 } from "@/lib/share-utils";
 import type { CardTier } from "@/types";
 
 interface DownloadButtonProps {
   tier: CardTier;
   userId: string;
+  isPro?: boolean;
 }
 
-export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
+export default function DownloadButton({ tier, userId, isPro = false }: DownloadButtonProps) {
   const [storyBlob, setStoryBlob] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +41,8 @@ export default function DownloadButton({ tier, userId }: DownloadButtonProps) {
         captureCard(),
         generateQR(userId, tier),
       ]);
-      const storyData = await drawStoryCanvas(cardData, tier, qrData);
+      let storyData = await drawStoryCanvas(cardData, tier, qrData);
+      if (!isPro) storyData = await addWatermark(storyData);
       setStoryBlob(dataUrlToBlob(storyData));
     } catch (err) {
       console.error("Export error:", err);

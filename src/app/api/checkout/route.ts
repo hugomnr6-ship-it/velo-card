@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { createProCheckout } from "@/services/subscription.service";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error: unknown) {
-    console.error("[Checkout Error]", error);
+    logger.error("[Checkout] Error", { error: String(error) });
     const message = error instanceof Error ? error.message : "Erreur inconnue";
     return NextResponse.json({ error: message }, { status: 500 });
   }

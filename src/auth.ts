@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import { supabaseAdmin } from "./lib/supabase";
 import { enrollBetaTester } from "./services/beta.service";
+import { logger } from "./lib/logger";
 
 export type AuthProvider = "strava" | "garmin" | "wahoo";
 
@@ -126,7 +127,7 @@ const config: NextAuthConfig = {
               : null;
 
         // Upsert profile in Supabase on sign-in
-        console.log(`[AUTH] Upserting profile for ${provider}:`, account.providerAccountId);
+        logger.info("[AUTH] Upserting profile", { provider, providerAccountId: account.providerAccountId });
 
         try {
           const upsertData: Record<string, unknown> = {
@@ -150,9 +151,10 @@ const config: NextAuthConfig = {
             provider === "garmin" ? "garmin_id" :
             "wahoo_id";
 
-          console.log("[AUTH] Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING");
-          console.log("[AUTH] Supabase Key:", process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING");
-          console.log("[AUTH] Upsert data:", JSON.stringify(upsertData));
+          logger.debug("[AUTH] Supabase config", {
+            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING",
+            serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING",
+          });
 
           const { data, error } = await supabaseAdmin
             .from("profiles")
@@ -160,7 +162,7 @@ const config: NextAuthConfig = {
             .select("id")
             .single();
 
-          console.log("[AUTH] Supabase upsert result:", { data, error });
+          logger.debug("[AUTH] Supabase upsert result", { userId: data?.id, error: error?.message });
 
           if (data) {
             token.userId = data.id;
@@ -170,13 +172,13 @@ const config: NextAuthConfig = {
               await enrollBetaTester(data.id);
             } catch (e) {
               // Silently fail — beta might be full, that's OK
-              console.warn("[AUTH] Beta enrollment:", e);
+              logger.warn("[AUTH] Beta enrollment failed", { error: String(e) });
             }
           } else if (error) {
-            console.error("[AUTH] Supabase upsert error:", error.message, error.details, error.hint);
+            logger.error("[AUTH] Supabase upsert error", { message: error.message, details: error.details, hint: error.hint });
           }
         } catch (dbError) {
-          console.error("[AUTH] Supabase upsert exception:", dbError);
+          logger.error("[AUTH] Supabase upsert exception", { error: String(dbError) });
           // Don't throw — allow sign-in to proceed even if DB fails
         }
       }
@@ -224,7 +226,7 @@ const config: NextAuthConfig = {
               token.expiresAt = refreshed.expires_at;
             }
           } catch (err) {
-            console.error("[AUTH] Strava token refresh failed:", err);
+            logger.error("[AUTH] Strava token refresh failed", { error: String(err) });
           }
         } else if (provider === "wahoo") {
           try {
@@ -245,7 +247,7 @@ const config: NextAuthConfig = {
               token.expiresAt = Math.floor(Date.now() / 1000) + (refreshed.expires_in || 7200);
             }
           } catch (err) {
-            console.error("[AUTH] Wahoo token refresh failed:", err);
+            logger.error("[AUTH] Wahoo token refresh failed", { error: String(err) });
           }
         }
         // Garmin uses OAuth 1.0a — tokens don't expire

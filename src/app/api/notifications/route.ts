@@ -1,5 +1,6 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from '@/lib/api-utils';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: Request) {
   try {
@@ -48,7 +49,7 @@ export async function PATCH(req: Request) {
         .eq('user_id', auth.profileId)
         .eq('read', false);
       if (error && error.code !== '42P01') {
-        console.warn('[notifications.PATCH] markAllRead error:', error.message);
+        logger.warn('[notifications.PATCH] markAllRead error', { error: error.message });
       }
     } else if (notificationIds?.length) {
       const { error } = await supabaseAdmin
@@ -57,7 +58,7 @@ export async function PATCH(req: Request) {
         .in('id', notificationIds)
         .eq('user_id', auth.profileId);
       if (error && error.code !== '42P01') {
-        console.warn('[notifications.PATCH] markById error:', error.message);
+        logger.warn('[notifications.PATCH] markById error', { error: error.message });
       }
     }
 

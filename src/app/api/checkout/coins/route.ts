@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createCoinsCheckout } from "@/services/subscription.service";
 import { COIN_PACKS } from "@/lib/stripe";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error: unknown) {
-    console.error("[Coins Checkout Error]", error);
+    logger.error("[Coins Checkout] Error", { error: String(error) });
     const message = error instanceof Error ? error.message : "Erreur inconnue";
     return NextResponse.json({ error: message }, { status: 500 });
   }

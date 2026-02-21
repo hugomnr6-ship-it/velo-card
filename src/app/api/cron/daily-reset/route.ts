@@ -2,6 +2,7 @@ import { handleApiError } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase";
 import { assignDailyQuests } from "@/services/quests.service";
+import { generateDailyDuelsForAllUsers } from "@/services/daily-duel.service";
 
 export const maxDuration = 120; // 2 minutes max
 
@@ -34,24 +35,34 @@ export async function GET(request: Request) {
       return Response.json({ usersProcessed: 0 });
     }
 
-    let assigned = 0;
-    let errors = 0;
+    // Phase 1 : Assigner les quêtes daily
+    let questsAssigned = 0;
+    let questsErrors = 0;
 
     for (const user of activeUsers) {
       try {
         await assignDailyQuests(user.user_id);
-        assigned++;
+        questsAssigned++;
       } catch {
-        errors++;
+        questsErrors++;
       }
     }
 
-    const duration = timer.end({ assigned, errors, total: activeUsers.length });
+    // Phase 2 : Générer les duels du jour
+    const duelsResult = await generateDailyDuelsForAllUsers(activeUsers);
+
+    const duration = timer.end({
+      questsAssigned,
+      questsErrors,
+      duelsGenerated: duelsResult.generated,
+      duelsErrors: duelsResult.errors,
+      total: activeUsers.length,
+    });
 
     return Response.json({
       usersProcessed: activeUsers.length,
-      assigned,
-      errors,
+      quests: { assigned: questsAssigned, errors: questsErrors },
+      duels: { generated: duelsResult.generated, errors: duelsResult.errors },
       durationMs: duration,
     });
   } catch (err) {

@@ -16,7 +16,9 @@ import { trackEvent } from "@/lib/analytics";
 
 const MondayReveal = dynamic(() => import("@/components/MondayReveal"), { ssr: false });
 const GamificationWidgets = dynamic(() => import("./GamificationWidgets"), { ssr: false });
+const WeekendRacesWidget = dynamic(() => import("./WeekendRacesWidget"), { ssr: false });
 const RouteAnalysisSection = dynamic(() => import("./RouteAnalysisSection"), { ssr: false });
+import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo, StatDeltas, SpecialCardType } from "@/types";
 import type { CardSkinId } from "@/components/VeloCard";
 
@@ -51,6 +53,7 @@ interface VeloCardClientProps {
   serverPreviousTier?: CardTier | null;
   skin?: CardSkinId;
   betaNumber?: number | null;
+  isPro?: boolean;
 }
 
 export default function VeloCardClient({
@@ -69,6 +72,7 @@ export default function VeloCardClient({
   serverPreviousTier,
   skin,
   betaNumber,
+  isPro = false,
 }: VeloCardClientProps) {
   const [previousTier, setPreviousTier] = useState<CardTier | null>(null);
   const [showMondayReveal, setShowMondayReveal] = useState(false);
@@ -152,6 +156,21 @@ export default function VeloCardClient({
         deltas={deltas}
       />
 
+      {/* Bandeau mise à jour stats — free users uniquement */}
+      {!isPro && (
+        <div className="flex w-full max-w-sm items-center justify-between rounded-lg border border-[#6366F1]/10 bg-[#6366F1]/[0.04] px-4 py-2">
+          <p className="text-[11px] text-[#94A3B8]">
+            Prochaine mise à jour lundi
+          </p>
+          <Link
+            href="/pricing"
+            className="text-[11px] font-semibold text-[#6366F1] transition hover:text-[#6366F1]/80"
+          >
+            Temps réel avec Pro →
+          </Link>
+        </div>
+      )}
+
       {/* Tier progress bar */}
       <TierProgress ovr={stats.ovr} tier={tier} />
 
@@ -170,14 +189,17 @@ export default function VeloCardClient({
         skin={skin}
       />
       <div className="mt-6 flex items-center justify-center gap-3">
-        <DownloadButton tier={tier} userId={userId} />
+        <DownloadButton tier={tier} userId={userId} isPro={isPro} />
         <FeatureTooltip id="card-share" title="Partage ta carte !" description="Exporte ta VeloCard en story Instagram ou QR code." position="top">
-          <ShareButton tier={tier} userId={userId} />
+          <ShareButton tier={tier} userId={userId} isPro={isPro} />
         </FeatureTooltip>
       </div>
 
       {/* Gamification widgets — coins, quests, season, quick links */}
       <GamificationWidgets />
+
+      {/* Widget courses à venir cette semaine */}
+      <WeekendRacesWidget />
 
       {/* Dashboard feed — weekly stats, Échappée teaser, quick links */}
       <DashboardFeed userId={userId} tier={tier} />

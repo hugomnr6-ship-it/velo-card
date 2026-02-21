@@ -34,7 +34,7 @@ export async function getDailyDuel(userId: string) {
 /**
  * Génère un nouveau duel du jour via matchmaking OVR ±5.
  */
-async function generateDailyDuel(userId: string, today: string) {
+export async function generateDailyDuel(userId: string, today: string) {
   // Récupérer l'OVR de l'utilisateur
   const { data: userStats } = await supabaseAdmin
     .from("user_stats")
@@ -162,6 +162,29 @@ export async function declineDailyDuel(userId: string) {
     .eq("user_id", userId)
     .eq("duel_date", today)
     .eq("status", "proposed");
+}
+
+/**
+ * Génère un duel du jour pour tous les utilisateurs actifs.
+ * Appelé par le cron daily-reset.
+ */
+export async function generateDailyDuelsForAllUsers(
+  users: { user_id: string }[],
+): Promise<{ generated: number; errors: number }> {
+  const today = new Date().toISOString().split("T")[0];
+  let generated = 0;
+  let errors = 0;
+
+  for (const user of users) {
+    try {
+      const result = await getDailyDuel(user.user_id);
+      if (result) generated++;
+    } catch {
+      errors++;
+    }
+  }
+
+  return { generated, errors };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -521,6 +521,7 @@ export interface RaceResultView {
   gen_score: number;
   is_ghost: boolean;
   ghost_claim_token: string | null;
+  ghost_claimed: boolean;
   avatar_url: string | null;
   tier: CardTier;
   user_id: string | null;

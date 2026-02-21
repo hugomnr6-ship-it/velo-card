@@ -127,6 +127,38 @@ export function drawStoryCanvas(
 }
 
 /**
+ * Ajoute un watermark "VeloCard" semi-transparent en bas à droite de l'image.
+ * Utilisé pour les users free uniquement.
+ */
+export function addWatermark(dataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d")!;
+
+      ctx.drawImage(img, 0, 0);
+
+      // Watermark texte — bas droite, opacité 0.35
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = "#FFFFFF";
+      const fontSize = Math.max(14, Math.round(img.width * 0.04));
+      ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("VeloCard", img.width - fontSize * 0.6, img.height - fontSize * 0.4);
+      ctx.restore();
+
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/**
  * Share via Web Share API or fallback to download
  */
 export async function shareOrDownload(dataUrl: string, filename = "velocard.png") {

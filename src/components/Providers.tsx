@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { LazyMotion, domAnimation, MotionConfig } from "framer-motion";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { CoinRewardProvider } from "@/contexts/CoinRewardContext";
 import QueryProvider from "./QueryProvider";
 import BottomTabBar from "./BottomTabBar";
 import FeedbackButton from "./FeedbackButton";
@@ -35,12 +36,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <MotionConfig reducedMotion="user">
           <QueryProvider>
             <ToastProvider>
-              <ServiceWorkerRegistrar />
-              <PosthogProvider />
-              <WebVitalsReporter />
-              {children}
-              <BottomTabBar />
-              <FeedbackButton />
+              <CoinRewardProvider>
+                <ServiceWorkerRegistrar />
+                <PosthogProvider />
+                <WebVitalsReporter />
+                {children}
+                <BottomTabBar />
+                <FeedbackButton />
+              </CoinRewardProvider>
             </ToastProvider>
           </QueryProvider>
         </MotionConfig>

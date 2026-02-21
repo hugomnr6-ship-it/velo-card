@@ -4,6 +4,7 @@ import { stripe, COIN_PACKS } from "@/lib/stripe";
 import { syncSubscription } from "@/services/subscription.service";
 import { addCoins } from "@/services/coins.service";
 import { supabaseAdmin } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import Stripe from "stripe";
 
 // Disable body parsing — Stripe needs raw body
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[Stripe Webhook] Signature verification failed:", message);
+    logger.error("[Stripe Webhook] Signature verification failed", { error: message });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error: unknown) {
-    console.error("[Stripe Webhook Error]", error);
+    logger.error("[Stripe Webhook] Error", { error: String(error) });
     const message = error instanceof Error ? error.message : "Erreur inconnue";
     return NextResponse.json({ error: message }, { status: 500 });
   }

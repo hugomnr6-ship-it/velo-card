@@ -128,13 +128,13 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
         </div>
       )}
 
-      {/* Ghost claim link */}
+      {/* Ghost card link — réclamer ou voir */}
       {result.is_ghost && result.ghost_claim_token && (
         <Link
           href={`/ghost/${result.ghost_claim_token}`}
           className="shrink-0 rounded-lg bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-white/20"
         >
-          Reclamer
+          {result.ghost_claimed ? "Voir" : "Reclamer"}
         </Link>
       )}
     </div>

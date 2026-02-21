@@ -1,5 +1,6 @@
 import { handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/echappee?week=2026-W07
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
 
     if (error) {
       // Any DB error (missing table, bad join, etc.) → return empty gracefully
-      console.warn("[ECHAPPEE_GET] Supabase error:", error.code, error.message);
+      logger.warn("[ECHAPPEE_GET] Supabase error", { code: error.code, message: error.message });
       return Response.json({ week: weekLabel, team: [] });
     }
 

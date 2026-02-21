@@ -8,9 +8,10 @@ interface ShareButtonProps {
   tier: CardTier;
   userId: string;
   className?: string;
+  isPro?: boolean;
 }
 
-export default function ShareButton({ tier, userId, className }: ShareButtonProps) {
+export default function ShareButton({ tier, userId, className, isPro = false }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
   const isCompact = !!className;
 
@@ -48,6 +49,7 @@ export default function ShareButton({ tier, userId, className }: ShareButtonProp
         onClose={() => setOpen(false)}
         tier={tier}
         userId={userId}
+        isPro={isPro}
       />
     </>
   );

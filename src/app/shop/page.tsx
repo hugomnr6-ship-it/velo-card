@@ -6,9 +6,12 @@ import { useEffect, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
+import ProGateOverlay from "@/components/ProGateOverlay";
 import Skeleton from "@/components/Skeleton";
 import { useCoins } from "@/hooks/useCoins";
+import { useIsPro } from "@/hooks/useSubscription";
 import { useShop, useBuySkin, type ShopItem } from "@/hooks/useShop";
+import { ECONOMY } from "@/lib/economy";
 import { useBeta } from "@/hooks/useBeta";
 import { useCardPreview } from "@/hooks/useCardPreview";
 import { useToast } from "@/contexts/ToastContext";
@@ -60,8 +63,10 @@ export default function ShopPage() {
   const { data: betaInfo } = useBeta();
   const { data: cardData } = useCardPreview();
   const buySkin = useBuySkin();
+  const isPro = useIsPro();
   const [previewSkin, setPreviewSkin] = useState<ShopItem | null>(null);
   const [buying, setBuying] = useState<string | null>(null);
+  const [showProGate, setShowProGate] = useState(false);
 
   const countdown = useCountdown(shop?.rotation?.ends_at);
 
@@ -70,6 +75,11 @@ export default function ShopPage() {
   }, [status, router]);
 
   async function handleBuy(item: ShopItem) {
+    // Vérifier gate Pro pour les skins epic/legendary
+    if (!isPro && ECONOMY.PREMIUM_SKIN_RARITIES.includes(item.rarity)) {
+      setShowProGate(true);
+      return;
+    }
     setBuying(item.id);
     try {
       await buySkin.mutateAsync(item.id);
@@ -103,6 +113,15 @@ export default function ShopPage() {
 
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
+      {/* Pro Gate Overlay — skin premium */}
+      {showProGate && (
+        <ProGateOverlay
+          feature="gpx"
+          trigger="Ce skin est reserve aux abonnes Pro"
+          onClose={() => setShowProGate(false)}
+        />
+      )}
+
       <div className="w-full max-w-md">
         {/* Header */}
         <PageHeader

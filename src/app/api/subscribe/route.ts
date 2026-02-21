@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
 const emailSchema = z.object({
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
       .upsert({ email: parsed.data.email }, { onConflict: 'email' });
 
     if (error) {
-      console.error('[Subscribe] Error:', error);
+      logger.error('[Subscribe] Error', { error: String(error) });
       return Response.json({ error: 'Erreur' }, { status: 500 });
     }
 

@@ -11,6 +11,7 @@ import {
   shareOrDownload,
   shareToInstagramStory,
   downloadDataUrl,
+  addWatermark,
 } from "@/lib/share-utils";
 import type { CardTier } from "@/types";
 import { trackEvent } from "@/lib/analytics";
@@ -20,11 +21,12 @@ interface ShareModalProps {
   onClose: () => void;
   tier: CardTier;
   userId: string;
+  isPro?: boolean;
 }
 
 type ShareAction = "story" | "card" | "link" | "qr";
 
-export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModalProps) {
+export default function ShareModal({ isOpen, onClose, tier, userId, isPro = false }: ShareModalProps) {
   const [loading, setLoading] = useState<ShareAction | null>(null);
   const [copied, setCopied] = useState(false);
   const modalRef = useFocusTrap(isOpen, onClose);
@@ -41,12 +43,14 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
     let cancelled = false;
     Promise.all([captureCard(), generateQR(userId, tier)])
       .then(([cardData, qrData]) => drawStoryCanvas(cardData, tier, qrData))
-      .then((dataUrl) => {
-        if (!cancelled) storyBlobRef.current = dataUrlToBlob(dataUrl);
+      .then(async (dataUrl) => {
+        // Watermark pour les users free
+        const final = isPro ? dataUrl : await addWatermark(dataUrl);
+        if (!cancelled) storyBlobRef.current = dataUrlToBlob(final);
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [isOpen, userId, tier]);
+  }, [isOpen, userId, tier, isPro]);
 
   async function handleStory() {
     setLoading("story");
@@ -63,7 +67,8 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
         captureCard(),
         generateQR(userId, tier),
       ]);
-      const storyData = await drawStoryCanvas(cardData, tier, qrData);
+      let storyData = await drawStoryCanvas(cardData, tier, qrData);
+      if (!isPro) storyData = await addWatermark(storyData);
       const blob = dataUrlToBlob(storyData);
       await shareToInstagramStory(blob);
       trackEvent("card_shared", { method: "story", tier });
@@ -81,7 +86,8 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
   async function handleCard() {
     setLoading("card");
     try {
-      const cardData = await captureCard();
+      let cardData = await captureCard();
+      if (!isPro) cardData = await addWatermark(cardData);
       await shareOrDownload(cardData, "velocard-card.png");
       trackEvent("card_shared", { method: "card_image", tier });
     } catch (err) {
@@ -224,6 +230,21 @@ export default function ShareModal({ isOpen, onClose, tier, userId }: ShareModal
                 </svg>
               </button>
             </div>
+
+            {/* Watermark notice pour free users */}
+            {!isPro && (
+              <div className="mb-3 flex items-center justify-between rounded-lg border border-[#6366F1]/15 bg-[#6366F1]/[0.05] px-3 py-2">
+                <p className="text-[11px] text-[#94A3B8]">
+                  Export avec watermark
+                </p>
+                <a
+                  href="/pricing"
+                  className="text-[11px] font-semibold text-[#6366F1] transition hover:text-[#818CF8]"
+                >
+                  Sans watermark avec Pro →
+                </a>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex flex-col gap-2">

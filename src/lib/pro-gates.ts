@@ -7,12 +7,17 @@
  */
 
 export const PRO_GATES = {
-  // Stats : Free = lundi uniquement, Pro = 24/7 + mini-chart
+  // Stats : Free = toujours visibles (dernière maj lundi), Pro = refresh temps réel
   stats: {
     freeLabel: "Stats mises à jour chaque lundi",
     proLabel: "Stats en temps réel + mini-charts",
+    refreshLabel: "Rafraîchir les stats en temps réel",
     freeCanViewStats: () => {
-      // Free users ne voient les stats que le lundi
+      // Les stats du dernier lundi sont toujours visibles
+      return true;
+    },
+    freeCanRefreshStats: () => {
+      // Le refresh mid-week est réservé aux Pro — free uniquement le lundi
       return new Date().getDay() === 1; // 1 = Monday
     },
   },
@@ -56,6 +61,14 @@ export const PRO_GATES = {
     proFeatures: ["distance", "elevation_gain", "climbs", "weather", "rdi", "hourly_weather"] as string[],
     freeLabel: "Distance + D+ uniquement",
     proLabel: "Analyse complète : cols, météo, RDI",
+  },
+
+  // Routes sauvegardées : Free = 3 max, Pro = illimité
+  routes: {
+    freeMaxSaved: 3,
+    proMaxSaved: Infinity,
+    freeLabel: "3 parcours sauvegardés maximum",
+    proLabel: "Parcours illimités",
   },
 } as const;
 

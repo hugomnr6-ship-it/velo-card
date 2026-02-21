@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════
 // Cache Layer Redis — Cache-Aside Pattern
@@ -33,7 +34,7 @@ export async function cached<T>(
     }
   } catch (e) {
     // Si Redis est down, on continue sans cache
-    console.warn("[Cache] Redis read failed:", e);
+    logger.warn("[Cache] Redis read failed", { error: String(e) });
   }
 
   // 2. Exécute la fonction
@@ -43,7 +44,7 @@ export async function cached<T>(
   try {
     await redis.set(cacheKey, JSON.stringify(result), { ex: options.ttl });
   } catch (e) {
-    console.warn("[Cache] Redis write failed:", e);
+    logger.warn("[Cache] Redis write failed", { error: String(e) });
   }
 
   return result;
@@ -64,7 +65,7 @@ export async function invalidateCache(pattern: string): Promise<void> {
       await redis.del(pattern);
     }
   } catch (e) {
-    console.warn("[Cache] Invalidation failed:", e);
+    logger.warn("[Cache] Invalidation failed", { error: String(e) });
   }
 }
 

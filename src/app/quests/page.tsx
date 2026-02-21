@@ -2,15 +2,19 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { m } from "framer-motion";
 import AnimatedPage from "@/components/AnimatedPage";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
+import ProGateOverlay from "@/components/ProGateOverlay";
 import { AnimatedList, AnimatedListItem } from "@/components/AnimatedList";
 import Skeleton from "@/components/Skeleton";
 import { useQuests } from "@/hooks/useQuests";
 import { useCoins } from "@/hooks/useCoins";
+import { useIsPro } from "@/hooks/useSubscription";
+import { useCoinReward } from "@/contexts/CoinRewardContext";
+import { PRO_GATES } from "@/lib/pro-gates";
 
 const rarityColors: Record<string, string> = {
   daily: "#00F5D4",
@@ -22,10 +26,30 @@ export default function QuestsPage() {
   const router = useRouter();
   const { data: quests, isLoading } = useQuests();
   const { data: coins } = useCoins();
+  const isPro = useIsPro();
+  const { showReward } = useCoinReward();
+  const [showProGate, setShowProGate] = useState(false);
+  const celebratedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/");
   }, [status, router]);
+
+  // Afficher la bulle coins pour les quêtes récemment complétées
+  useEffect(() => {
+    if (!quests) return;
+    for (const q of quests) {
+      if (q.is_completed && q.coin_claimed && !celebratedRef.current.has(q.id)) {
+        celebratedRef.current.add(q.id);
+        // Seulement si la quête a été complétée récemment (session courante)
+        const key = `quest_celebrated_${q.id}`;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          showReward(q.quest_definitions.coin_reward, "Quete");
+        }
+      }
+    }
+  }, [quests, showReward]);
 
   if (status === "loading" || isLoading) {
     return (
@@ -42,8 +66,31 @@ export default function QuestsPage() {
   const dailyQuests = (quests || []).filter((q) => q.quest_definitions.quest_type === "daily");
   const weeklyQuests = (quests || []).filter((q) => q.quest_definitions.quest_type === "weekly");
 
+  // Vérifier si toutes les quêtes daily sont complétées (gate free)
+  const allDailyComplete = dailyQuests.length > 0 && dailyQuests.every((q) => q.is_completed);
+  const dailyAtLimit = !isPro && allDailyComplete && dailyQuests.length >= PRO_GATES.quests.freeMaxDaily;
+
+  // Afficher le gate quand les 3 quêtes sont complétées (free users)
+  useEffect(() => {
+    if (dailyAtLimit && !showProGate) {
+      // Petit délai pour que l'user voie la complétion
+      const t = setTimeout(() => setShowProGate(true), 1500);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dailyAtLimit]);
+
   return (
     <AnimatedPage className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
+      {/* Pro Gate Overlay — quêtes daily complétées */}
+      {showProGate && (
+        <ProGateOverlay
+          feature="quests"
+          trigger="Tu as complete tes 3 quetes du jour"
+          onClose={() => setShowProGate(false)}
+        />
+      )}
+
       <div className="w-full max-w-md">
         <PageHeader
           icon={<span className="text-2xl">&#127919;</span>}
