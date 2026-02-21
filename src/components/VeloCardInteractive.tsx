@@ -12,6 +12,8 @@ interface VeloCardInteractiveProps {
   tier: CardTier;
   badges: Badge[];
   clubs?: ClubInfo[];
+  country?: string;
+  countryCode?: string;
   specialCard?: SpecialCardType | null;
 }
 
@@ -38,6 +40,8 @@ export default memo(function VeloCardInteractive({
   tier,
   badges,
   clubs,
+  country,
+  countryCode,
   specialCard,
 }: VeloCardInteractiveProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -132,6 +136,8 @@ export default memo(function VeloCardInteractive({
             tier={tier}
             badges={badges}
             clubs={clubs}
+            country={country}
+            countryCode={countryCode}
             specialCard={specialCard}
           />
 

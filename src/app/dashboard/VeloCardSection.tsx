@@ -27,7 +27,7 @@ export default async function VeloCardSection({
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, avatar_url")
+      .select("id, avatar_url, country, country_code")
       .eq("strava_id", userInfo.stravaId)
       .single();
 
@@ -153,6 +153,8 @@ export default async function VeloCardSection({
         tier={tier}
         badges={badges}
         clubs={clubs}
+        country={profile.country || undefined}
+        countryCode={profile.country_code || undefined}
         userId={profile.id}
         deltas={deltas}
         specialCard={specialCard}

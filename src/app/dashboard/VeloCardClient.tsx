@@ -41,6 +41,8 @@ interface VeloCardClientProps {
   tier: CardTier;
   badges: Badge[];
   clubs?: ClubInfo[];
+  country?: string;
+  countryCode?: string;
   userId: string;
   deltas?: StatDeltas | null;
   specialCard?: SpecialCardType | null;
@@ -55,6 +57,8 @@ export default function VeloCardClient({
   tier,
   badges,
   clubs,
+  country,
+  countryCode,
   userId,
   deltas,
   specialCard,
@@ -154,6 +158,8 @@ export default function VeloCardClient({
         tier={tier}
         badges={badges}
         clubs={clubs}
+        country={country}
+        countryCode={countryCode}
         specialCard={specialCard}
       />
       <div className="mt-6 flex items-center justify-center gap-3">

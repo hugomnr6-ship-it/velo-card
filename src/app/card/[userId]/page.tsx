@@ -51,7 +51,7 @@ export default async function CardPage({
   // Fetch profile
   const { data: profile } = await supabaseAdmin
     .from("profiles")
-    .select("id, username, avatar_url")
+    .select("id, username, avatar_url, country, country_code")
     .eq("id", userId)
     .single();
 
@@ -141,6 +141,8 @@ export default async function CardPage({
           tier={tier}
           badges={badges}
           clubs={clubs}
+          country={profile.country || undefined}
+          countryCode={profile.country_code || undefined}
         />
       </div>
 

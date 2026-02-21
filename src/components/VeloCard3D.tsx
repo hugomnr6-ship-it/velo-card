@@ -91,6 +91,8 @@ export default function VeloCard3D(props: VeloCard3DProps) {
         tier={props.tier}
         badges={props.badges}
         clubs={props.clubs}
+        country={props.country}
+        countryCode={props.countryCode}
         specialCard={props.specialCard}
       />
     );
@@ -146,6 +148,8 @@ export default function VeloCard3D(props: VeloCard3DProps) {
             tier={props.tier}
             badges={props.badges}
             clubs={props.clubs}
+            country={props.country}
+            countryCode={props.countryCode}
             specialCard={props.specialCard}
           />
         </div>
