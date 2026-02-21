@@ -38,6 +38,7 @@ interface WahooUser {
 export async function fetchWahooUser(accessToken: string): Promise<WahooUser> {
   const res = await fetch(`${WAHOO_API}/user`, {
     headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(`Wahoo user API error: ${res.status}`);
   const data = await res.json();
@@ -53,7 +54,7 @@ export async function fetchWahooWorkouts(
 ): Promise<WahooWorkout[]> {
   const res = await fetch(
     `${WAHOO_API}/workouts?per_page=${perPage}&order=descending`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
   );
   if (!res.ok) throw new Error(`Wahoo API error: ${res.status}`);
   const data = await res.json();

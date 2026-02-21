@@ -8,7 +8,7 @@ export async function fetchActivities(
 ): Promise<StravaActivity[]> {
   const res = await fetch(
     `${STRAVA_API}/athlete/activities?per_page=${perPage}`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
   );
   if (!res.ok) throw new Error(`Strava API error: ${res.status}`);
   return res.json();

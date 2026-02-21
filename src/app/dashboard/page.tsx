@@ -10,6 +10,9 @@ import NotificationBell from "@/components/NotificationBell";
 import VeloCardSection from "./VeloCardSection";
 import SignOutButton from "./SignOutButton";
 
+// Forcer le rendu dynamique — jamais de cache pour le dashboard (sync Strava à chaque visite)
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Dashboard | VeloCard",
   description: "Ta carte de cycliste — stats, duels, classement",

@@ -108,6 +108,7 @@ export async function fetchGarminActivities(
 
   const res = await fetch(url, {
     headers: { Authorization: authHeader },
+    cache: "no-store",
   });
 
   if (!res.ok) {
