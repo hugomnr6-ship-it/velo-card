@@ -1,16 +1,15 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
-import { openPack } from "@/services/packs.service";
+import { buySkin } from "@/services/shop.service";
 import { checkBadges } from "@/lib/checkBadges";
 import { supabaseAdmin } from "@/lib/supabase";
 import { z } from "zod";
 
-const openPackSchema = z.object({
-  packId: z.string().min(1),
+const buySchema = z.object({
+  shopItemId: z.string().min(1),
 });
 
 /**
- * @deprecated — replaced by /api/shop/buy. Kept for backward compatibility.
- * POST /api/packs/open — open a pack
+ * POST /api/shop/buy — buy a skin from the current rotation
  */
 export async function POST(request: Request) {
   const auth = await getAuthenticatedUser();
@@ -23,13 +22,13 @@ export async function POST(request: Request) {
     return Response.json({ error: "Body JSON invalide" }, { status: 400 });
   }
 
-  const validated = validateBody(openPackSchema, body);
+  const validated = validateBody(buySchema, body);
   if (validated instanceof Response) return validated;
 
   try {
-    const result = await openPack(auth.profileId, validated.packId);
+    const result = await buySkin(auth.profileId, validated.shopItemId);
 
-    // Trigger badge check (first_pack, pack_legendary) — fire-and-forget
+    // Trigger badge check — fire-and-forget
     supabaseAdmin
       .from("user_stats")
       .select("pac, end, mon, res, spr, val, ovr, tier, active_weeks_streak")
@@ -51,6 +50,6 @@ export async function POST(request: Request) {
     if (err instanceof Error && err.message === "Solde insuffisant") {
       return Response.json({ error: "Solde insuffisant" }, { status: 400 });
     }
-    return handleApiError(err, "PACK_OPEN");
+    return handleApiError(err, "SHOP_BUY");
   }
 }

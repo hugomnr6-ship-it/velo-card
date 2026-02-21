@@ -123,8 +123,8 @@ export default function InventoryPage() {
           <EmptyState
             icon={<span className="text-4xl">&#128230;</span>}
             title="Inventaire vide"
-            description="Ouvre des packs pour obtenir des items !"
-            action={{ label: "Voir les packs", href: "/packs" }}
+            description="Visite la boutique pour obtenir des skins !"
+            action={{ label: "Voir la boutique", href: "/shop" }}
           />
         ) : (
           <AnimatedList className="flex flex-col gap-2">

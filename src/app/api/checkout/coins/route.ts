@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
       session.user.id,
       coinPackId,
       pack.priceId,
-      `${origin}/packs?coins_success=true`,
-      `${origin}/packs?coins_canceled=true`,
+      `${origin}/shop?coins_success=true`,
+      `${origin}/shop?coins_canceled=true`,
     );
 
     return NextResponse.json({ url: checkoutSession.url });

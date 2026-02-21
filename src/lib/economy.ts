@@ -16,8 +16,18 @@ export const ECONOMY = {
   STREAK_BONUS_INTERVAL: 5, // every N weeks
   STREAK_BONUS_MULTIPLIER: 10, // streak × multiplier
 
-  // ——— Pack costs ———
+  // @deprecated — replaced by shop rotation system
   PACK_COST: { bronze: 150, silver: 300, gold: 750 } as Record<string, number>,
+
+  // ——— Shop skin prices (reference) ———
+  SKIN_PRICE: {
+    common: 300,
+    rare: 500,
+    epic: 900,
+    legendary: 1500,
+  } as Record<string, number>,
+
+  SHOP_ROTATION_DAYS: 7,
 
   // ——— Season points ———
   SEASON_POINTS_PER_KM: 1,

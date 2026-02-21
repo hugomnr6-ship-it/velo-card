@@ -365,21 +365,31 @@ export default function DemoCard({ username, ovr, tier, stats }: DemoCardProps) 
             }}
           />
           <div
-            className="flex items-center justify-center gap-1.5 font-['Space_Grotesk'] tracking-[0.05em] text-white/[0.25]"
-            style={{ fontSize: "clamp(3px, 2.8cqw, 8px)", marginBottom: "1%" }}
+            className="flex items-center justify-center gap-2"
+            style={{ marginBottom: "1%" }}
           >
-            <span className="truncate max-w-[80px]">CC Vélo Sprint</span>
-            <span className="text-white/[0.15]">·</span>
-            <div className="flex items-center gap-0.5">
+            <span
+              className="truncate max-w-[90px] font-['JetBrains_Mono'] font-semibold uppercase"
+              style={{ fontSize: "clamp(3px, 3cqw, 9px)", letterSpacing: "0.08em", color: `${v.accent}90` }}
+            >
+              CC Vélo Sprint
+            </span>
+            <span style={{ fontSize: "clamp(2px, 2cqw, 6px)", color: `${v.accent}40` }}>&#9670;</span>
+            <div className="flex items-center gap-1">
               <div
-                className="rounded-[1.5px]"
+                className="rounded-[2px] overflow-hidden"
                 style={{
-                  width: 12, height: 8,
+                  width: 14, height: 10,
                   background: "linear-gradient(90deg, #002395 0% 33%, #fff 33% 66%, #ED2939 66% 100%)",
-                  boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)",
+                  boxShadow: `0 0 0 0.5px ${v.accent}20, 0 1px 2px rgba(0,0,0,0.3)`,
                 }}
               />
-              <span>France</span>
+              <span
+                className="font-['JetBrains_Mono'] font-medium uppercase"
+                style={{ fontSize: "clamp(3px, 3cqw, 9px)", letterSpacing: "0.06em", color: `${v.accent}70` }}
+              >
+                FR
+              </span>
             </div>
           </div>
           <div

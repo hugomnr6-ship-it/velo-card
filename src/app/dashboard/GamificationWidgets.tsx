@@ -21,7 +21,7 @@ export default function GamificationWidgets() {
       <div className="flex gap-2">
         {/* Coins balance */}
         <Link
-          href="/packs"
+          href="/shop"
           className="flex flex-1 items-center gap-2.5 rounded-xl border border-[#FFD700]/15 bg-[#FFD700]/5 p-3 transition hover:bg-[#FFD700]/8"
         >
           <span className="text-xl">&#128176;</span>
@@ -85,7 +85,7 @@ export default function GamificationWidgets() {
       {/* Quick nav row */}
       <div className="flex gap-2">
         {[
-          { href: "/packs", icon: "\uD83D\uDCE6", label: "Packs" },
+          { href: "/shop", icon: "\uD83D\uDED2", label: "Boutique" },
           { href: "/badges", icon: "\uD83C\uDFC5", label: "Badges" },
           { href: "/tournaments", icon: "\uD83C\uDFC6", label: "Tournois" },
           { href: "/inventory", icon: "\uD83C\uDF92", label: "Inventaire" },

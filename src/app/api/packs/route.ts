@@ -2,6 +2,7 @@ import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api
 import { getAvailablePacks } from "@/services/packs.service";
 
 /**
+ * @deprecated — replaced by /api/shop. Kept for backward compatibility.
  * GET /api/packs — list available packs with costs
  */
 export async function GET() {

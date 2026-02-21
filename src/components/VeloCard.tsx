@@ -933,31 +933,49 @@ export default function VeloCard({
           }}
         />
         {(currentClub || country) && (
-          <div className="mb-1 flex items-center justify-center gap-1.5 font-['Space_Grotesk'] text-[8px] tracking-[0.05em] text-white/[0.25]">
+          <div className="mb-1.5 flex items-center justify-center gap-2">
             {currentClub && (
-              <span className="truncate max-w-[80px]">{currentClub.name}</span>
+              <span
+                className="truncate max-w-[90px] font-['JetBrains_Mono'] text-[9px] font-semibold uppercase tracking-[0.08em]"
+                style={{ color: `${accentHex}90` }}
+              >
+                {currentClub.name}
+              </span>
             )}
             {currentClub && country && (
-              <span className="text-white/[0.15]">·</span>
+              <span
+                className="text-[6px]"
+                style={{ color: `${accentHex}40` }}
+              >
+                &#9670;
+              </span>
             )}
             {country && (
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1">
                 {countryCode === "FR" ? (
                   <div
-                    className="rounded-[1.5px]"
+                    className="rounded-[2px] overflow-hidden"
                     style={{
-                      width: 12, height: 8,
+                      width: 14, height: 10,
                       background: "linear-gradient(90deg, #002395 0% 33%, #fff 33% 66%, #ED2939 66% 100%)",
-                      boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)",
+                      boxShadow: `0 0 0 0.5px ${accentHex}20, 0 1px 2px rgba(0,0,0,0.3)`,
                     }}
                   />
                 ) : (
                   <div
-                    className="rounded-[1.5px] bg-white/10"
-                    style={{ width: 12, height: 8, boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}
+                    className="rounded-[2px] bg-white/10"
+                    style={{
+                      width: 14, height: 10,
+                      boxShadow: `0 0 0 0.5px ${accentHex}20, 0 1px 2px rgba(0,0,0,0.3)`,
+                    }}
                   />
                 )}
-                <span>{country}</span>
+                <span
+                  className="font-['JetBrains_Mono'] text-[9px] font-medium uppercase tracking-[0.06em]"
+                  style={{ color: `${accentHex}70` }}
+                >
+                  {countryCode || country.slice(0, 3)}
+                </span>
               </div>
             )}
           </div>
