@@ -15,7 +15,7 @@ const config: NextAuthConfig = {
       type: "oauth",
       authorization: {
         url: "https://www.strava.com/oauth/authorize",
-        params: { scope: "read,activity:read" },
+        params: { scope: "read,activity:read_all" },
       },
       token: "https://www.strava.com/oauth/token",
       userinfo: "https://www.strava.com/api/v3/athlete",
