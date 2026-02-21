@@ -15,6 +15,7 @@ interface VeloCardInteractiveProps {
   country?: string;
   countryCode?: string;
   specialCard?: SpecialCardType | null;
+  betaNumber?: number | null;
 }
 
 const tierAccentHex: Record<CardTier, string> = {
@@ -43,6 +44,7 @@ export default memo(function VeloCardInteractive({
   country,
   countryCode,
   specialCard,
+  betaNumber,
 }: VeloCardInteractiveProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tilt } = useGyroscope(wrapperRef);
@@ -139,6 +141,7 @@ export default memo(function VeloCardInteractive({
             country={country}
             countryCode={countryCode}
             specialCard={specialCard}
+            betaNumber={betaNumber}
           />
 
           {/* Holographic overlay — reacts to tilt */}

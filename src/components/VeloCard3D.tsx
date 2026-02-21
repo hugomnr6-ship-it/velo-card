@@ -15,6 +15,7 @@ interface VeloCard3DProps {
   specialCard?: SpecialCardType | null;
   country?: string;
   countryCode?: string;
+  betaNumber?: number | null;
 }
 
 // Config AGRESSIVE par tier — plus c'est haut, plus c'est dramatique
@@ -94,6 +95,7 @@ export default function VeloCard3D(props: VeloCard3DProps) {
         country={props.country}
         countryCode={props.countryCode}
         specialCard={props.specialCard}
+        betaNumber={props.betaNumber}
       />
     );
   }
@@ -151,6 +153,7 @@ export default function VeloCard3D(props: VeloCard3DProps) {
             country={props.country}
             countryCode={props.countryCode}
             specialCard={props.specialCard}
+            betaNumber={props.betaNumber}
           />
         </div>
       </Tilt>

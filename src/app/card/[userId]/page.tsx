@@ -98,6 +98,20 @@ export default async function CardPage({
     }));
   }
 
+  // Fetch beta tester info
+  const { data: betaInfo } = await supabaseAdmin
+    .from("beta_testers")
+    .select("beta_number")
+    .eq("user_id", userId)
+    .single();
+
+  // Fetch special card
+  const { data: specialCardData } = await supabaseAdmin
+    .from("user_stats")
+    .select("special_card")
+    .eq("user_id", userId)
+    .single();
+
   const computedStats: ComputedStats = {
     pac: stats?.pac || 0,
     end: stats?.end || 0,
@@ -143,6 +157,8 @@ export default async function CardPage({
           clubs={clubs}
           country={profile.country || undefined}
           countryCode={profile.country_code || undefined}
+          specialCard={specialCardData?.special_card || undefined}
+          betaNumber={betaInfo?.beta_number || null}
         />
       </div>
 

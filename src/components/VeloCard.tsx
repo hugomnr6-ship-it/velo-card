@@ -8,7 +8,7 @@ import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "
    VeloCard — Design B "Shield" + Circular Gauges
    ════════════════════════════════════════════ */
 
-export type CardSkinId = "neon" | "flames" | "holographic" | "gold_border" | null;
+export type CardSkinId = "neon" | "flames" | "holographic" | "gold_border" | "prototype" | null;
 
 interface SkinOverlay {
   borderColor: string;
@@ -37,6 +37,11 @@ const skinOverlays: Record<string, SkinOverlay> = {
     glowColor: "rgba(255,215,0,0.3)",
     extraClass: "skin-gold",
   },
+  prototype: {
+    borderColor: "rgba(255,255,255,0.15)",
+    glowColor: "rgba(255,255,255,0.06)",
+    extraClass: "skin-prototype",
+  },
 };
 
 interface VeloCardProps {
@@ -50,6 +55,7 @@ interface VeloCardProps {
   country?: string;
   countryCode?: string;
   skin?: CardSkinId;
+  betaNumber?: number | null;
 }
 
 /* ═══ Tier accent hex ═══ */
@@ -66,6 +72,7 @@ const specialAccentHex: Record<SpecialCardType, string> = {
   totw: "#00F5A0",
   in_form: "#FF6B35",
   legend_moment: "#B9F2FF",
+  beta_tester: "#FFFFFF",
 };
 
 /* ═══ DESIGN B — Internal visual config per tier ═══ */
@@ -263,6 +270,23 @@ const specialVisuals: Record<SpecialCardType, SpecialVisual> = {
     hasRainbow: true,
     particleCount: 30,
     particleColors: ["#B9F2FF", "#6366F1", "#A78BFA", "#818CF8"],
+  },
+  beta_tester: {
+    accentHex: "#FFFFFF",
+    bgGradient: "linear-gradient(170deg, #080808, #121212 50%, #080808)",
+    crestGradient: "linear-gradient(180deg, #FFFFFF, #808080)",
+    crestTextColor: "#080808",
+    ringGradient: "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(128,128,128,0.6))",
+    statColor: "#FFFFFF",
+    glowHex: "rgba(255,255,255,0.15)",
+    borderRgba: "rgba(255,255,255,0.15)",
+    dividerRgba: "rgba(255,255,255,0.12)",
+    pillLabel: "PROTOTYPE",
+    hasParticles: false,
+    hasHoloScan: false,
+    hasRainbow: false,
+    particleCount: 0,
+    particleColors: ["#FFFFFF"],
   },
 };
 
@@ -574,6 +598,7 @@ export default function VeloCard({
   country,
   countryCode,
   skin,
+  betaNumber,
 }: VeloCardProps) {
   const cv = cardVisuals[tier];
   const sv = specialCard ? specialVisuals[specialCard] : null;
@@ -737,8 +762,69 @@ export default function VeloCard({
         </div>
       )}
 
+      {/* ── Beta Prototype: Grid pattern (z-2) ── */}
+      {specialCard === "beta_tester" && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[2] rounded-[18px]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+      )}
+
+      {/* ── Beta Prototype: Data rain (z-3) ── */}
+      {specialCard === "beta_tester" && (
+        <div className="pointer-events-none absolute inset-0 z-[3] overflow-hidden rounded-[18px]">
+          {["10%", "25%", "48%", "68%", "85%"].map((left, i) => (
+            <div
+              key={`rain-${i}`}
+              className="data-rain-col absolute top-0"
+              style={{
+                left,
+                animationDelay: `${i * 1.5}s`,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "8px",
+                lineHeight: "12px",
+                color: "rgba(255,255,255,0.06)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {"01001\n10110\n01101\n10010\n11001\n00110\n10101\n01010".split("\n").map((line, j) => (
+                <div key={j}>{line}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── CONTENT (z-20) ── */}
       <div className="relative z-20 flex h-full flex-col items-center">
+
+        {/* ── Beta badge + number (top-left) ── */}
+        {specialCard === "beta_tester" && (
+          <>
+            <div
+              className="absolute left-3 top-3 z-[25] flex h-7 w-7 items-center justify-center rounded-full font-['JetBrains_Mono'] text-[6px] font-extrabold tracking-[0.1em]"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                color: "#FFFFFF",
+              }}
+            >
+              BETA
+            </div>
+            {betaNumber && (
+              <div
+                className="absolute left-12 top-[14px] z-[25] font-['JetBrains_Mono'] text-[8px] font-semibold"
+                style={{ color: "rgba(255,255,255,0.2)", letterSpacing: "0.05em" }}
+              >
+                #{String(betaNumber).padStart(3, "0")}/050
+              </div>
+            )}
+          </>
+        )}
 
         {/* Crest — V-shaped shield at top */}
         <div
@@ -881,9 +967,11 @@ export default function VeloCard({
           {/* Tier label */}
           <div
             className="text-[8px] font-bold tracking-[0.25em] mt-[3px]"
-            style={{ color: accentHex, opacity: 0.4 }}
+            style={{ color: specialCard === "beta_tester" ? "#FFFFFF" : accentHex, opacity: 0.4 }}
           >
-            {sv ? `${sv.pillLabel} · ${cv.label}` : cv.label}
+            {specialCard === "beta_tester"
+              ? `PROTOTYPE v0.1${betaNumber ? ` — #${String(betaNumber).padStart(3, "0")}` : ""}`
+              : sv ? `${sv.pillLabel} · ${cv.label}` : cv.label}
           </div>
 
           {/* Divider */}
@@ -921,6 +1009,20 @@ export default function VeloCard({
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Beta version tag */}
+        {specialCard === "beta_tester" && (
+          <div
+            className="mb-2 rounded-[4px] px-2 py-[2px] font-['JetBrains_Mono'] text-[7px] tracking-[0.15em]"
+            style={{
+              color: "rgba(255,255,255,0.25)",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            BUILD 0.1.0-BETA
+          </div>
+        )}
 
         {/* Footer */}
         <div

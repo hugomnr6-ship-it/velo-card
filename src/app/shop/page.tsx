@@ -9,6 +9,7 @@ import PageHeader from "@/components/PageHeader";
 import Skeleton from "@/components/Skeleton";
 import { useCoins } from "@/hooks/useCoins";
 import { useShop, useBuySkin, type ShopItem } from "@/hooks/useShop";
+import { useBeta } from "@/hooks/useBeta";
 import { useToast } from "@/contexts/ToastContext";
 import CoinShop from "@/components/CoinShop";
 
@@ -54,6 +55,7 @@ export default function ShopPage() {
   const { toast } = useToast();
   const { data: coins } = useCoins();
   const { data: shop, isLoading } = useShop();
+  const { data: betaInfo } = useBeta();
   const buySkin = useBuySkin();
   const [previewSkin, setPreviewSkin] = useState<ShopItem | null>(null);
   const [buying, setBuying] = useState<string | null>(null);
@@ -111,6 +113,37 @@ export default function ShopPage() {
           <div className="mb-4 flex items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-[#1A1A2E]/60 py-2">
             <span className="text-xs text-[#64748B]">Rotation dans</span>
             <span className="font-mono text-sm font-bold text-[#6366F1]">{countdown}</span>
+          </div>
+        )}
+
+        {/* Beta card banner */}
+        {betaInfo && betaInfo.isBetaTester && (
+          <div className="mb-4 rounded-xl border border-white/[0.12] bg-gradient-to-br from-[#121212] to-[#080808] p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 font-['JetBrains_Mono'] text-[8px] font-extrabold text-white">
+                BETA
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Carte PROTOTYPE</p>
+                <p className="text-[10px] text-white/40">
+                  Beta Testeur #{String(betaInfo.betaNumber).padStart(3, "0")}/050 — Exclusive, jamais reproductible
+                </p>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-white/30">
+              Tu fais partie des {betaInfo.totalBetaTesters} premiers testeurs. Cette carte ne sera plus jamais disponible après la beta.
+            </p>
+          </div>
+        )}
+
+        {/* If not beta tester but spots left */}
+        {betaInfo && !betaInfo.isBetaTester && betaInfo.spotsLeft > 0 && (
+          <div className="mb-4 rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-4">
+            <p className="text-sm font-bold text-white">Carte PROTOTYPE — Edition limitée</p>
+            <p className="text-[11px] text-white/40">
+              Plus que {betaInfo.spotsLeft} places pour obtenir cette carte exclusive.
+              Elle ne sera plus JAMAIS disponible après la beta.
+            </p>
           </div>
         )}
 

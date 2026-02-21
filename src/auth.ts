@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import { supabaseAdmin } from "./lib/supabase";
+import { enrollBetaTester } from "./services/beta.service";
 
 export type AuthProvider = "strava" | "garmin" | "wahoo";
 
@@ -163,6 +164,14 @@ const config: NextAuthConfig = {
 
           if (data) {
             token.userId = data.id;
+
+            // TODO: REMOVE THIS WHEN BETA ENDS — Hugo decides when
+            try {
+              await enrollBetaTester(data.id);
+            } catch (e) {
+              // Silently fail — beta might be full, that's OK
+              console.warn("[AUTH] Beta enrollment:", e);
+            }
           } else if (error) {
             console.error("[AUTH] Supabase upsert error:", error.message, error.details, error.hint);
           }

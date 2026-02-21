@@ -15,6 +15,7 @@ interface Props {
   specialCard?: SpecialCardType | null;
   country?: string;
   countryCode?: string;
+  betaNumber?: number | null;
 }
 
 export default function VeloCard3DWrapper(props: Props) {

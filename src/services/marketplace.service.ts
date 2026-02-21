@@ -9,6 +9,11 @@ export async function listItem(
   itemId: string,
   price: number,
 ) {
+  // Block prototype skin from being listed on marketplace
+  if (itemType === "skin" && itemId === "prototype") {
+    throw new AppError("PROTOTYPE_LOCKED", "La carte PROTOTYPE ne peut pas être vendue. Elle est exclusive et liée à ton compte.", 400);
+  }
+
   // Verify seller owns the item
   const { data: inventory } = await supabaseAdmin
     .from("user_inventory")
