@@ -27,7 +27,7 @@ export default async function VeloCardSection({
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, avatar_url, country, country_code")
+      .select("id, avatar_url, country, country_code, equipped_skin")
       .eq("strava_id", userInfo.stravaId)
       .single();
 
@@ -55,8 +55,8 @@ export default async function VeloCardSection({
       activity_type: a.type,
     }));
 
-    // Parallelize: upsert activities + fetch existing stats + fetch clubs
-    const [, { data: existingStats }, { data: clubJoinRowsParallel }] = await Promise.all([
+    // Parallelize: upsert activities + fetch existing stats + fetch clubs + fetch beta
+    const [, { data: existingStats }, { data: clubJoinRowsParallel }, { data: betaInfo }] = await Promise.all([
       // Upsert activities (fire & await but don't use result)
       activityRows.length > 0
         ? supabaseAdmin
@@ -74,6 +74,12 @@ export default async function VeloCardSection({
         .from("club_members")
         .select("club:clubs(name, logo_url)")
         .eq("user_id", profile.id),
+      // Fetch beta tester info
+      supabaseAdmin
+        .from("beta_testers")
+        .select("beta_number")
+        .eq("user_id", profile.id)
+        .single(),
     ]);
 
     // 4. Compute stats
@@ -160,6 +166,8 @@ export default async function VeloCardSection({
         specialCard={specialCard}
         streak={streak}
         serverPreviousTier={serverPreviousTier}
+        skin={profile.equipped_skin || undefined}
+        betaNumber={betaInfo?.beta_number || null}
       />
     );
   } catch (err: any) {

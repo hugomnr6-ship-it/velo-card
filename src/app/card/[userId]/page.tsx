@@ -6,6 +6,7 @@ import VeloCard3DWrapper from "@/components/VeloCard3DWrapper";
 import ShareButtonWrapper from "./ShareButtonWrapper";
 import Link from "next/link";
 import type { ComputedStats, CardTier, Badge, ClubInfo } from "@/types";
+import type { CardSkinId } from "@/components/VeloCard";
 
 export async function generateMetadata({
   params,
@@ -51,7 +52,7 @@ export default async function CardPage({
   // Fetch profile
   const { data: profile } = await supabaseAdmin
     .from("profiles")
-    .select("id, username, avatar_url, country, country_code")
+    .select("id, username, avatar_url, country, country_code, equipped_skin")
     .eq("id", userId)
     .single();
 
@@ -159,6 +160,7 @@ export default async function CardPage({
           countryCode={profile.country_code || undefined}
           specialCard={specialCardData?.special_card || undefined}
           betaNumber={betaInfo?.beta_number || null}
+          skin={(profile.equipped_skin as CardSkinId) || undefined}
         />
       </div>
 

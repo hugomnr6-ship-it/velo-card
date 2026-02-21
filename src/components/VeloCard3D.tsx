@@ -4,6 +4,7 @@ import Tilt from "react-parallax-tilt";
 import VeloCard from "./VeloCard";
 import { useMotionSafe } from "@/hooks/useReducedMotion";
 import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "@/types";
+import type { CardSkinId } from "./VeloCard";
 
 interface VeloCard3DProps {
   username: string;
@@ -16,6 +17,7 @@ interface VeloCard3DProps {
   country?: string;
   countryCode?: string;
   betaNumber?: number | null;
+  skin?: CardSkinId;
 }
 
 // Config AGRESSIVE par tier — plus c'est haut, plus c'est dramatique
@@ -96,6 +98,7 @@ export default function VeloCard3D(props: VeloCard3DProps) {
         countryCode={props.countryCode}
         specialCard={props.specialCard}
         betaNumber={props.betaNumber}
+        skin={props.skin}
       />
     );
   }
@@ -154,6 +157,7 @@ export default function VeloCard3D(props: VeloCard3DProps) {
             countryCode={props.countryCode}
             specialCard={props.specialCard}
             betaNumber={props.betaNumber}
+            skin={props.skin}
           />
         </div>
       </Tilt>

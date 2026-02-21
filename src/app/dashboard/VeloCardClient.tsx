@@ -18,6 +18,7 @@ const MondayReveal = dynamic(() => import("@/components/MondayReveal"), { ssr: f
 const GamificationWidgets = dynamic(() => import("./GamificationWidgets"), { ssr: false });
 const RouteAnalysisSection = dynamic(() => import("./RouteAnalysisSection"), { ssr: false });
 import type { ComputedStats, CardTier, Badge, ClubInfo, StatDeltas, SpecialCardType } from "@/types";
+import type { CardSkinId } from "@/components/VeloCard";
 
 function getISOWeek(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -48,6 +49,8 @@ interface VeloCardClientProps {
   specialCard?: SpecialCardType | null;
   streak?: number;
   serverPreviousTier?: CardTier | null;
+  skin?: CardSkinId;
+  betaNumber?: number | null;
 }
 
 export default function VeloCardClient({
@@ -64,6 +67,8 @@ export default function VeloCardClient({
   specialCard,
   streak = 0,
   serverPreviousTier,
+  skin,
+  betaNumber,
 }: VeloCardClientProps) {
   const [previousTier, setPreviousTier] = useState<CardTier | null>(null);
   const [showMondayReveal, setShowMondayReveal] = useState(false);
@@ -161,6 +166,8 @@ export default function VeloCardClient({
         country={country}
         countryCode={countryCode}
         specialCard={specialCard}
+        betaNumber={betaNumber}
+        skin={skin}
       />
       <div className="mt-6 flex items-center justify-center gap-3">
         <DownloadButton tier={tier} userId={userId} />

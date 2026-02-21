@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "@/types";
+import type { CardSkinId } from "./VeloCard";
 
 const VeloCard3D = dynamic(() => import("./VeloCard3D"), { ssr: false });
 
@@ -16,6 +17,7 @@ interface Props {
   country?: string;
   countryCode?: string;
   betaNumber?: number | null;
+  skin?: CardSkinId;
 }
 
 export default function VeloCard3DWrapper(props: Props) {

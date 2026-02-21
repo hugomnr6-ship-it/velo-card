@@ -54,9 +54,6 @@ BEGIN
   VALUES (p_user_id, 'prototype', 'beta_reward', true, false)
   ON CONFLICT DO NOTHING;
 
-  -- Set special_card on profile
-  UPDATE profiles SET special_card = 'beta_tester' WHERE id = p_user_id;
-
   -- Log coin transaction (0 coins, just for the record)
   INSERT INTO coin_transactions (user_id, amount, reason, metadata)
   VALUES (p_user_id, 0, 'badge_earned', '{"type": "beta_tester", "beta_number": ' || v_next_number || '}');

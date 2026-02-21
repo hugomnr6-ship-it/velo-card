@@ -4,6 +4,7 @@ import { memo, useRef } from "react";
 import { useGyroscope } from "@/hooks/useGyroscope";
 import type { ComputedStats, CardTier, Badge, ClubInfo, SpecialCardType } from "@/types";
 import VeloCard from "./VeloCard";
+import type { CardSkinId } from "./VeloCard";
 
 interface VeloCardInteractiveProps {
   username: string;
@@ -16,6 +17,7 @@ interface VeloCardInteractiveProps {
   countryCode?: string;
   specialCard?: SpecialCardType | null;
   betaNumber?: number | null;
+  skin?: CardSkinId;
 }
 
 const tierAccentHex: Record<CardTier, string> = {
@@ -45,6 +47,7 @@ export default memo(function VeloCardInteractive({
   countryCode,
   specialCard,
   betaNumber,
+  skin,
 }: VeloCardInteractiveProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tilt } = useGyroscope(wrapperRef);
@@ -142,6 +145,7 @@ export default memo(function VeloCardInteractive({
             countryCode={countryCode}
             specialCard={specialCard}
             betaNumber={betaNumber}
+            skin={skin}
           />
 
           {/* Holographic overlay — reacts to tilt */}

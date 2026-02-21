@@ -72,7 +72,6 @@ const specialAccentHex: Record<SpecialCardType, string> = {
   totw: "#00F5A0",
   in_form: "#FF6B35",
   legend_moment: "#B9F2FF",
-  beta_tester: "#FFFFFF",
 };
 
 /* ═══ DESIGN B — Internal visual config per tier ═══ */
@@ -271,23 +270,25 @@ const specialVisuals: Record<SpecialCardType, SpecialVisual> = {
     particleCount: 30,
     particleColors: ["#B9F2FF", "#6366F1", "#A78BFA", "#818CF8"],
   },
-  beta_tester: {
-    accentHex: "#FFFFFF",
-    bgGradient: "linear-gradient(170deg, #080808, #121212 50%, #080808)",
-    crestGradient: "linear-gradient(180deg, #FFFFFF, #808080)",
-    crestTextColor: "#080808",
-    ringGradient: "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(128,128,128,0.6))",
-    statColor: "#FFFFFF",
-    glowHex: "rgba(255,255,255,0.15)",
-    borderRgba: "rgba(255,255,255,0.15)",
-    dividerRgba: "rgba(255,255,255,0.12)",
-    pillLabel: "PROTOTYPE",
-    hasParticles: false,
-    hasHoloScan: false,
-    hasRainbow: false,
-    particleCount: 0,
-    particleColors: ["#FFFFFF"],
-  },
+};
+
+/* ═══ PROTOTYPE SKIN — Full visual override ═══ */
+const protoSkinVisuals = {
+  accentHex: "#FFFFFF",
+  bgGradient: "linear-gradient(170deg, #080808, #121212 50%, #080808)",
+  crestGradient: "linear-gradient(180deg, #FFFFFF, #808080)",
+  crestTextColor: "#080808",
+  ringGradient: "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(128,128,128,0.6))",
+  statColor: "#FFFFFF",
+  glowHex: "rgba(255,255,255,0.15)",
+  borderRgba: "rgba(255,255,255,0.15)",
+  dividerRgba: "rgba(255,255,255,0.12)",
+  gaugeBgStroke: "rgba(255,255,255,0.04)",
+  hasParticles: false,
+  hasHoloScan: false,
+  hasRainbow: false,
+  particleCount: 0,
+  particleColors: ["#FFFFFF"],
 };
 
 /* ════════════════════════════════════════════
@@ -603,26 +604,28 @@ export default function VeloCard({
   const cv = cardVisuals[tier];
   const sv = specialCard ? specialVisuals[specialCard] : null;
   const skinOv = skin ? skinOverlays[skin] : null;
+  const isProto = skin === "prototype";
+  const pv = isProto ? protoSkinVisuals : null;
   const animatedOvr = useCountUp(stats.ovr, 1500, { enabled: stats.ovr > 0 });
 
-  /* Resolve — special overrides tier */
-  const accentHex   = sv ? sv.accentHex   : cv.accentHex;
-  const bgGradient  = sv ? sv.bgGradient  : cv.bgGradient;
-  const crestGrad   = sv ? sv.crestGradient : cv.crestGradient;
-  const crestTxtClr = sv ? sv.crestTextColor : cv.crestTextColor;
-  const ringGrad    = sv ? sv.ringGradient  : cv.ringGradient;
-  const statClr     = sv ? sv.statColor    : cv.statColor;
-  const glowHex     = sv ? sv.glowHex     : cv.glowHex;
-  const borderClr   = sv ? sv.borderRgba   : cv.borderRgba;
-  const dividerClr  = sv ? sv.dividerRgba  : cv.dividerRgba;
-  const gaugeBg     = cv.gaugeBgStroke;
+  /* Resolve — prototype skin > special card > tier */
+  const accentHex   = pv ? pv.accentHex   : sv ? sv.accentHex   : cv.accentHex;
+  const bgGradient  = pv ? pv.bgGradient  : sv ? sv.bgGradient  : cv.bgGradient;
+  const crestGrad   = pv ? pv.crestGradient : sv ? sv.crestGradient : cv.crestGradient;
+  const crestTxtClr = pv ? pv.crestTextColor : sv ? sv.crestTextColor : cv.crestTextColor;
+  const ringGrad    = pv ? pv.ringGradient  : sv ? sv.ringGradient  : cv.ringGradient;
+  const statClr     = pv ? pv.statColor    : sv ? sv.statColor    : cv.statColor;
+  const glowHex     = pv ? pv.glowHex     : sv ? sv.glowHex     : cv.glowHex;
+  const borderClr   = pv ? pv.borderRgba   : sv ? sv.borderRgba   : cv.borderRgba;
+  const dividerClr  = pv ? pv.dividerRgba  : sv ? sv.dividerRgba  : cv.dividerRgba;
+  const gaugeBg     = pv ? pv.gaugeBgStroke : cv.gaugeBgStroke;
   const pillLabel   = sv ? sv.pillLabel    : cv.label;
-  const hasParticles= sv ? sv.hasParticles : cv.hasParticles;
-  const hasHoloScan = sv ? sv.hasHoloScan  : cv.hasHoloScan;
-  const hasRainbow  = sv ? sv.hasRainbow   : cv.hasRainbow;
-  const pCount      = sv ? sv.particleCount : cv.particleCount;
-  const pColors     = sv ? sv.particleColors : cv.particleColors;
-  const hasSilverSweep = !sv && cv.hasSilverSweep;
+  const hasParticles= pv ? pv.hasParticles : sv ? sv.hasParticles : cv.hasParticles;
+  const hasHoloScan = pv ? pv.hasHoloScan  : sv ? sv.hasHoloScan  : cv.hasHoloScan;
+  const hasRainbow  = pv ? pv.hasRainbow   : sv ? sv.hasRainbow   : cv.hasRainbow;
+  const pCount      = pv ? pv.particleCount : sv ? sv.particleCount : cv.particleCount;
+  const pColors     = pv ? pv.particleColors : sv ? sv.particleColors : cv.particleColors;
+  const hasSilverSweep = !sv && !pv && cv.hasSilverSweep;
 
   /* Rotating club logo */
   const [clubIndex, setClubIndex] = useState(0);
@@ -633,7 +636,7 @@ export default function VeloCard({
   }, [clubs.length]);
   const currentClub = clubs.length > 0 ? clubs[clubIndex] : null;
 
-  const isAnimated = hasHoloScan || hasRainbow || tier === "diamant" || tier === "legende" || tier === "argent" || !!sv || !!skinOv;
+  const isAnimated = hasHoloScan || hasRainbow || tier === "diamant" || tier === "legende" || tier === "argent" || !!sv || !!skinOv || isProto;
 
   // Skin overrides for border and glow
   const finalBorder = skinOv
@@ -675,7 +678,7 @@ export default function VeloCard({
       />
 
       {/* ── Texture overlay (z-5) ── */}
-      <div className={`pointer-events-none absolute inset-0 z-[5] rounded-[18px] texture-${sv ? `${specialCard}` : tier}`} />
+      <div className={`pointer-events-none absolute inset-0 z-[5] rounded-[18px] texture-${isProto ? "prototype" : sv ? `${specialCard}` : tier}`} />
 
       {/* ── Scan-lines (z-6) ── */}
       <div className="scan-lines pointer-events-none absolute inset-0 z-[6] rounded-[18px]" />
@@ -762,8 +765,8 @@ export default function VeloCard({
         </div>
       )}
 
-      {/* ── Beta Prototype: Grid pattern (z-2) ── */}
-      {specialCard === "beta_tester" && (
+      {/* ── Prototype Skin: Grid pattern (z-2) ── */}
+      {isProto && (
         <div
           className="pointer-events-none absolute inset-0 z-[2] rounded-[18px]"
           style={{
@@ -774,8 +777,8 @@ export default function VeloCard({
         />
       )}
 
-      {/* ── Beta Prototype: Data rain (z-3) ── */}
-      {specialCard === "beta_tester" && (
+      {/* ── Prototype Skin: Data rain (z-3) ── */}
+      {isProto && (
         <div className="pointer-events-none absolute inset-0 z-[3] overflow-hidden rounded-[18px]">
           {["10%", "25%", "48%", "68%", "85%"].map((left, i) => (
             <div
@@ -802,8 +805,8 @@ export default function VeloCard({
       {/* ── CONTENT (z-20) ── */}
       <div className="relative z-20 flex h-full flex-col items-center">
 
-        {/* ── Beta badge + number (top-left) ── */}
-        {specialCard === "beta_tester" && (
+        {/* ── Prototype badge + number (top-left) ── */}
+        {isProto && (
           <>
             <div
               className="absolute left-3 top-3 z-[25] flex h-7 w-7 items-center justify-center rounded-full font-['JetBrains_Mono'] text-[6px] font-extrabold tracking-[0.1em]"
@@ -967,9 +970,9 @@ export default function VeloCard({
           {/* Tier label */}
           <div
             className="text-[8px] font-bold tracking-[0.25em] mt-[3px]"
-            style={{ color: specialCard === "beta_tester" ? "#FFFFFF" : accentHex, opacity: 0.4 }}
+            style={{ color: isProto ? "#FFFFFF" : accentHex, opacity: 0.4 }}
           >
-            {specialCard === "beta_tester"
+            {isProto
               ? `PROTOTYPE v0.1${betaNumber ? ` — #${String(betaNumber).padStart(3, "0")}` : ""}`
               : sv ? `${sv.pillLabel} · ${cv.label}` : cv.label}
           </div>
@@ -1010,8 +1013,8 @@ export default function VeloCard({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Beta version tag */}
-        {specialCard === "beta_tester" && (
+        {/* Prototype version tag */}
+        {isProto && (
           <div
             className="mb-2 rounded-[4px] px-2 py-[2px] font-['JetBrains_Mono'] text-[7px] tracking-[0.15em]"
             style={{

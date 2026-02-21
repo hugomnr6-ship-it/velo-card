@@ -96,7 +96,7 @@ export interface UserStats {
 }
 
 // ——— Special Card Types ———
-export type SpecialCardType = "totw" | "in_form" | "legend_moment" | "beta_tester";
+export type SpecialCardType = "totw" | "in_form" | "legend_moment";
 
 // ——— Stat Deltas (computed client-side) ———
 export interface StatDeltas {
