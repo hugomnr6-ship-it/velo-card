@@ -77,6 +77,10 @@ function computeRes(activities: StravaActivity[]): number {
 
 /**
  * SPR — Sprint/Explosivity score based on max_speed / average_speed ratio.
+ *
+ * Normalisé pour que la plage soit réaliste :
+ *   ratio 1.2 → 0  |  ratio 1.8 → 40  |  ratio 2.0 → 53
+ *   ratio 2.3 → 73  |  ratio 2.7 → 99
  */
 function computeSpr(activities: StravaActivity[]): number {
   const rides = activities.filter(
@@ -84,7 +88,8 @@ function computeSpr(activities: StravaActivity[]): number {
   );
   if (rides.length === 0) return 0;
 
-  const maxSpeedCap = 80 / 3.6;
+  // Cap à 70 km/h pour éviter les pics GPS et les descentes
+  const maxSpeedCap = 70 / 3.6;
 
   const ratios = rides.map((a) => {
     const cappedMax = Math.min(a.max_speed, maxSpeedCap);
@@ -92,12 +97,17 @@ function computeSpr(activities: StravaActivity[]): number {
   });
 
   const avgRatio = ratios.reduce((s, v) => s + v, 0) / ratios.length;
-  const normalized = Math.max(0, avgRatio - 1.0);
-  return Math.round(Math.min((normalized / 1.0) * 99, 99));
+  // Plage élargie : un ratio de 2.0 (très courant) donne ~53 au lieu de 99
+  const normalized = Math.max(0, avgRatio - 1.2);
+  return Math.round(Math.min((normalized / 1.5) * 99, 99));
 }
 
 /**
  * VAL — Technique/Vallonné score based on pacing efficiency + consistency.
+ *
+ * Normalisé avec puissance carrée pour être plus discriminant :
+ *   combined 0.70 → 49  |  combined 0.80 → 63  |  combined 0.85 → 71
+ *   combined 0.90 → 80  |  combined 0.95 → 89  |  combined 1.00 → 99
  */
 function computeVal(activities: StravaActivity[]): number {
   const rides = activities.filter(
@@ -123,7 +133,8 @@ function computeVal(activities: StravaActivity[]): number {
   const consistencyScore = Math.max(0, 1 - cv);
 
   const combined = avgEfficiency * 0.7 + consistencyScore * 0.3;
-  return Math.round(Math.min((combined / 0.95) * 99, 99));
+  // Puissance carrée pour pénaliser l'imperfection — 0.85 → 71, 0.90 → 80
+  return Math.round(Math.min(Math.pow(combined, 2) * 99, 99));
 }
 
 /**

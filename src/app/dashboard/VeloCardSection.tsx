@@ -22,7 +22,9 @@ export default async function VeloCardSection({
 }) {
   try {
     // 1. Fetch last 50 activities from Strava API
+    console.log("[SYNC] Fetching activities for strava_id:", userInfo.stravaId);
     const activities = await fetchActivities(userInfo.accessToken);
+    console.log("[SYNC] Fetched", activities.length, "activities from provider");
 
     // 2. Get profile from Supabase (including avatar_url as fallback)
     const { data: profile } = await supabaseAdmin
@@ -171,6 +173,7 @@ export default async function VeloCardSection({
       />
     );
   } catch (err: any) {
+    console.error("[SYNC] Erreur de synchronisation:", err.message || err);
     return (
       <div className="flex flex-col items-center gap-3">
         <p className="text-sm text-red-400">
