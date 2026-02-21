@@ -10,8 +10,10 @@ import Skeleton from "@/components/Skeleton";
 import { useCoins } from "@/hooks/useCoins";
 import { useShop, useBuySkin, type ShopItem } from "@/hooks/useShop";
 import { useBeta } from "@/hooks/useBeta";
+import { useCardPreview } from "@/hooks/useCardPreview";
 import { useToast } from "@/contexts/ToastContext";
 import CoinShop from "@/components/CoinShop";
+import SkinPreviewCard from "./SkinPreviewCard";
 
 const rarityColors: Record<string, string> = {
   common: "#94A3B8",
@@ -56,6 +58,7 @@ export default function ShopPage() {
   const { data: coins } = useCoins();
   const { data: shop, isLoading } = useShop();
   const { data: betaInfo } = useBeta();
+  const { data: cardData } = useCardPreview();
   const buySkin = useBuySkin();
   const [previewSkin, setPreviewSkin] = useState<ShopItem | null>(null);
   const [buying, setBuying] = useState<string | null>(null);
@@ -83,10 +86,10 @@ export default function ShopPage() {
       <main className="flex min-h-screen flex-col items-center px-4 pb-24 pt-12">
         <div className="w-full max-w-md">
           <Skeleton className="mb-4 h-10 w-48" />
-          <Skeleton className="mb-4 h-56 w-full rounded-xl" />
+          <Skeleton className="mb-4 h-80 w-full rounded-xl" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-44 rounded-xl" />
+              <Skeleton key={i} className="h-64 rounded-xl" />
             ))}
           </div>
         </div>
@@ -130,8 +133,14 @@ export default function ShopPage() {
                 </p>
               </div>
             </div>
+            {/* Preview de la carte prototype dans le banner */}
+            {cardData && (
+              <div className="mt-3 flex justify-center">
+                <SkinPreviewCard cardData={cardData} skinId="prototype" size="sm" />
+              </div>
+            )}
             <p className="mt-2 text-[11px] text-white/30">
-              Tu fais partie des {betaInfo.totalBetaTesters} premiers testeurs. Cette carte ne sera plus jamais disponible après la beta.
+              Tu fais partie des {betaInfo.totalBetaTesters} premiers testeurs. Cette carte ne sera plus jamais disponible.
             </p>
           </div>
         )}
@@ -168,7 +177,7 @@ export default function ShopPage() {
             }}
           >
             <div
-              className="relative flex flex-col items-center p-6"
+              className="relative flex cursor-pointer flex-col items-center p-5"
               onClick={() => setPreviewSkin(featured)}
             >
               {/* Glow */}
@@ -188,15 +197,23 @@ export default function ShopPage() {
                   En vedette
                 </span>
               </div>
-              {/* Skin preview placeholder */}
-              <div
-                className="relative mb-3 flex h-32 w-24 items-center justify-center rounded-lg"
-                style={{
-                  background: `linear-gradient(135deg, ${rarityColors[featured.rarity]}20, transparent)`,
-                  border: `1px solid ${rarityColors[featured.rarity]}30`,
-                }}
-              >
-                <span className="text-4xl opacity-60">&#127912;</span>
+              {/* Card preview */}
+              <div className="relative mb-3">
+                {cardData ? (
+                  <SkinPreviewCard cardData={cardData} skinId={featured.skinId} size="lg" />
+                ) : (
+                  <div
+                    className="flex items-center justify-center rounded-lg"
+                    style={{
+                      width: 163,
+                      height: 273,
+                      background: `linear-gradient(135deg, ${rarityColors[featured.rarity]}20, transparent)`,
+                      border: `1px solid ${rarityColors[featured.rarity]}30`,
+                    }}
+                  >
+                    <span className="text-4xl opacity-60">&#127912;</span>
+                  </div>
+                )}
               </div>
               <p className="relative text-lg font-bold text-white">{featured.name}</p>
               <p className="relative text-xs text-[#94A3B8]">{featured.description}</p>
@@ -228,23 +245,30 @@ export default function ShopPage() {
                 className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60"
               >
                 <div
-                  className="flex flex-col items-center p-4"
+                  className="flex cursor-pointer flex-col items-center p-3"
                   onClick={() => setPreviewSkin(item)}
                 >
-                  {/* Skin preview placeholder */}
-                  <div
-                    className="mb-2 flex h-20 w-16 items-center justify-center rounded-lg"
-                    style={{
-                      background: `linear-gradient(135deg, ${rarityColors[item.rarity]}15, transparent)`,
-                      border: `1px solid ${rarityColors[item.rarity]}20`,
-                    }}
-                  >
-                    <span className="text-2xl opacity-50">&#127912;</span>
+                  {/* Card preview */}
+                  <div className="mb-2">
+                    {cardData ? (
+                      <SkinPreviewCard cardData={cardData} skinId={item.skinId} size="sm" />
+                    ) : (
+                      <div
+                        className="flex items-center justify-center rounded-lg"
+                        style={{
+                          width: 107,
+                          height: 179,
+                          background: `linear-gradient(135deg, ${rarityColors[item.rarity]}15, transparent)`,
+                          border: `1px solid ${rarityColors[item.rarity]}20`,
+                        }}
+                      >
+                        <span className="text-2xl opacity-50">&#127912;</span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm font-bold text-white">{item.name}</p>
-                  <p className="text-[10px] text-[#94A3B8]">{item.description}</p>
                   <span
-                    className="mt-1 text-[9px] font-bold uppercase tracking-widest"
+                    className="mt-0.5 text-[9px] font-bold uppercase tracking-widest"
                     style={{ color: rarityColors[item.rarity] }}
                   >
                     {rarityLabels[item.rarity]}
@@ -265,7 +289,7 @@ export default function ShopPage() {
         <CoinShop />
       </div>
 
-      {/* Preview modal */}
+      {/* Preview modal — full card with skin */}
       <AnimatePresence>
         {previewSkin && (
           <m.div
@@ -276,34 +300,57 @@ export default function ShopPage() {
             onClick={() => setPreviewSkin(null)}
           >
             <m.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="flex flex-col items-center gap-4"
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="flex flex-col items-center gap-3"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Glow behind the card */}
               <div
-                className="flex h-60 w-44 flex-col items-center justify-center rounded-2xl border-2"
+                className="pointer-events-none absolute -inset-10 opacity-25 blur-[60px]"
                 style={{
-                  borderColor: `${rarityColors[previewSkin.rarity]}60`,
-                  background: `linear-gradient(135deg, #1A1A2E, ${rarityColors[previewSkin.rarity]}15)`,
-                  boxShadow: `0 0 60px ${rarityColors[previewSkin.rarity]}20`,
+                  background: `radial-gradient(ellipse at center, ${rarityColors[previewSkin.rarity]}, transparent 70%)`,
                 }}
-              >
-                <span className="text-5xl">&#127912;</span>
-                <p className="mt-3 text-center text-base font-bold text-white">{previewSkin.name}</p>
-                <p className="mt-1 text-center text-xs text-[#94A3B8]">{previewSkin.description}</p>
+              />
+
+              {/* Card preview */}
+              <div className="relative">
+                {cardData ? (
+                  <SkinPreviewCard cardData={cardData} skinId={previewSkin.skinId} size="lg" />
+                ) : (
+                  <div
+                    className="flex h-[273px] w-[163px] flex-col items-center justify-center rounded-2xl border-2"
+                    style={{
+                      borderColor: `${rarityColors[previewSkin.rarity]}60`,
+                      background: `linear-gradient(135deg, #1A1A2E, ${rarityColors[previewSkin.rarity]}15)`,
+                    }}
+                  >
+                    <span className="text-5xl">&#127912;</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Skin info */}
+              <div className="text-center">
+                <p className="text-lg font-bold text-white">{previewSkin.name}</p>
+                <p className="text-xs text-[#94A3B8]">{previewSkin.description}</p>
                 <span
-                  className="mt-2 text-[10px] font-bold uppercase tracking-widest"
+                  className="mt-1 inline-block text-[10px] font-bold uppercase tracking-widest"
                   style={{ color: rarityColors[previewSkin.rarity] }}
                 >
                   {rarityLabels[previewSkin.rarity]}
                 </span>
               </div>
+
+              {/* Price */}
               <div className="flex items-center gap-2">
                 <span>&#128176;</span>
                 <span className="text-lg font-bold text-[#FFD700]">{previewSkin.priceCoins}</span>
               </div>
+
+              {/* Actions */}
               {!previewSkin.owned && balance >= previewSkin.priceCoins && (
                 <button
                   onClick={() => {
@@ -314,6 +361,11 @@ export default function ShopPage() {
                 >
                   Acheter
                 </button>
+              )}
+              {!previewSkin.owned && balance < previewSkin.priceCoins && (
+                <p className="text-xs text-[#64748B]">
+                  Il te manque {previewSkin.priceCoins - balance} VeloCoins
+                </p>
               )}
               {previewSkin.owned && (
                 <span className="text-sm font-bold text-[#00F5D4]">Deja possédé</span>
