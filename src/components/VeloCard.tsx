@@ -38,8 +38,8 @@ const skinOverlays: Record<string, SkinOverlay> = {
     extraClass: "skin-gold",
   },
   prototype: {
-    borderColor: "rgba(255,255,255,0.15)",
-    glowColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(0,255,65,0.25)",
+    glowColor: "rgba(0,255,65,0.10)",
     extraClass: "skin-prototype",
   },
 };
@@ -272,23 +272,23 @@ const specialVisuals: Record<SpecialCardType, SpecialVisual> = {
   },
 };
 
-/* ═══ PROTOTYPE SKIN — Full visual override ═══ */
+/* ═══ PROTOTYPE SKIN — GLITCH green neon #00FF41 ═══ */
 const protoSkinVisuals = {
-  accentHex: "#FFFFFF",
-  bgGradient: "linear-gradient(170deg, #080808, #121212 50%, #080808)",
-  crestGradient: "linear-gradient(180deg, #FFFFFF, #808080)",
-  crestTextColor: "#080808",
-  ringGradient: "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(128,128,128,0.6))",
-  statColor: "#FFFFFF",
-  glowHex: "rgba(255,255,255,0.15)",
-  borderRgba: "rgba(255,255,255,0.15)",
-  dividerRgba: "rgba(255,255,255,0.12)",
-  gaugeBgStroke: "rgba(255,255,255,0.04)",
-  hasParticles: false,
+  accentHex: "#00FF41",
+  bgGradient: "linear-gradient(170deg, #030A04, #081408 50%, #030A04)",
+  crestGradient: "linear-gradient(180deg, #00FF41, #009926)",
+  crestTextColor: "#030A04",
+  ringGradient: "linear-gradient(180deg, rgba(0,255,65,0.9), rgba(0,153,38,0.6))",
+  statColor: "#00FF41",
+  glowHex: "rgba(0,255,65,0.25)",
+  borderRgba: "rgba(0,255,65,0.18)",
+  dividerRgba: "rgba(0,255,65,0.14)",
+  gaugeBgStroke: "rgba(0,255,65,0.05)",
+  hasParticles: true,
   hasHoloScan: false,
   hasRainbow: false,
-  particleCount: 0,
-  particleColors: ["#FFFFFF"],
+  particleCount: 10,
+  particleColors: ["#00FF41", "#00CC33", "#33FF66"],
 };
 
 /* ════════════════════════════════════════════
@@ -771,7 +771,7 @@ export default function VeloCard({
           className="pointer-events-none absolute inset-0 z-[2] rounded-[18px]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+              "linear-gradient(rgba(0,255,65,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.02) 1px, transparent 1px)",
             backgroundSize: "20px 20px",
           }}
         />
@@ -790,7 +790,7 @@ export default function VeloCard({
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "8px",
                 lineHeight: "12px",
-                color: "rgba(255,255,255,0.06)",
+                color: "rgba(0,255,65,0.04)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -802,6 +802,16 @@ export default function VeloCard({
         </div>
       )}
 
+      {/* ── Prototype Skin: CRT Scanline (z-7) ── */}
+      {isProto && (
+        <div className="proto-crt-scan pointer-events-none absolute inset-0 z-[7] rounded-[18px]" />
+      )}
+
+      {/* ── Prototype Skin: Glitch flash (z-24) ── */}
+      {isProto && (
+        <div className="proto-glitch-flash pointer-events-none absolute inset-0 z-[24] rounded-[18px]" />
+      )}
+
       {/* ── CONTENT (z-20) ── */}
       <div className="relative z-20 flex h-full flex-col items-center">
 
@@ -811,9 +821,9 @@ export default function VeloCard({
             <div
               className="absolute left-3 top-3 z-[25] flex h-7 w-7 items-center justify-center rounded-full font-['JetBrains_Mono'] text-[6px] font-extrabold tracking-[0.1em]"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.25)",
-                color: "#FFFFFF",
+                background: "rgba(0,255,65,0.08)",
+                border: "1px solid rgba(0,255,65,0.30)",
+                color: "#00FF41",
               }}
             >
               BETA
@@ -821,7 +831,7 @@ export default function VeloCard({
             {betaNumber && (
               <div
                 className="absolute left-12 top-[14px] z-[25] font-['JetBrains_Mono'] text-[8px] font-semibold"
-                style={{ color: "rgba(255,255,255,0.2)", letterSpacing: "0.05em" }}
+                style={{ color: "rgba(0,255,65,0.25)", letterSpacing: "0.05em" }}
               >
                 #{String(betaNumber).padStart(3, "0")}/050
               </div>
@@ -861,6 +871,19 @@ export default function VeloCard({
             }}
           >
             {sv.pillLabel}
+          </div>
+        )}
+        {/* Prototype pill (top-right) — separate from sv pill */}
+        {isProto && (
+          <div
+            className="proto-pill-glitch absolute right-[14px] top-[50px] z-[25] rounded-[10px] px-2 py-[3px] text-[7px] font-extrabold tracking-[0.12em]"
+            style={{
+              color: "#00FF41",
+              background: "rgba(0,255,65,0.06)",
+              border: "1px solid rgba(0,255,65,0.25)",
+            }}
+          >
+            PROTOTYPE
           </div>
         )}
 
@@ -970,7 +993,7 @@ export default function VeloCard({
           {/* Tier label */}
           <div
             className="text-[8px] font-bold tracking-[0.25em] mt-[3px]"
-            style={{ color: isProto ? "#FFFFFF" : accentHex, opacity: 0.4 }}
+            style={{ color: isProto ? "#00FF41" : accentHex, opacity: 0.4 }}
           >
             {isProto
               ? `PROTOTYPE v0.1${betaNumber ? ` — #${String(betaNumber).padStart(3, "0")}` : ""}`
@@ -1018,9 +1041,9 @@ export default function VeloCard({
           <div
             className="mb-2 rounded-[4px] px-2 py-[2px] font-['JetBrains_Mono'] text-[7px] tracking-[0.15em]"
             style={{
-              color: "rgba(255,255,255,0.25)",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(0,255,65,0.30)",
+              background: "rgba(0,255,65,0.04)",
+              border: "1px solid rgba(0,255,65,0.12)",
             }}
           >
             BUILD 0.1.0-BETA

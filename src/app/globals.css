@@ -816,6 +816,9 @@
   .skin-holographic::after,
   .skin-gold,
   .skin-prototype,
+  .proto-crt-scan::after,
+  .proto-glitch-flash,
+  .proto-pill-glitch,
   .data-rain-col,
   .animate-fade-in,
   .animate-slide-up {
@@ -880,7 +883,7 @@
 }
 
 /* ========================================
-   BETA PROTOTYPE CARD — Exclusive Effects
+   BETA PROTOTYPE CARD — GLITCH Green #00FF41
    ======================================== */
 
 /* Data rain animation */
@@ -895,10 +898,10 @@
   animation: data-rain-fall 8s linear infinite;
 }
 
-/* Beta prototype pulse */
+/* Beta prototype pulse — green */
 @keyframes beta-prototype-pulse {
-  0%, 100% { box-shadow: inset 0 0 30px rgba(255,255,255,0.04), 0 0 15px rgba(255,255,255,0.02); }
-  50% { box-shadow: inset 0 0 40px rgba(255,255,255,0.10), 0 0 25px rgba(255,255,255,0.06); }
+  0%, 100% { box-shadow: inset 0 0 30px rgba(0,255,65,0.06), 0 0 15px rgba(0,255,65,0.04); }
+  50% { box-shadow: inset 0 0 40px rgba(0,255,65,0.14), 0 0 25px rgba(0,255,65,0.08); }
 }
 
 /* Skin class — applied via extraClass */
@@ -906,8 +909,43 @@
   animation: beta-prototype-pulse 2s ease-in-out infinite;
 }
 
-/* Pill glitch effect for PROTOTYPE */
-@keyframes prototype-glitch {
+/* ── CRT Scanline — moving green line ── */
+.proto-crt-scan {
+  overflow: hidden;
+}
+.proto-crt-scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,65,0.10), transparent);
+  animation: proto-crt-move 4s linear infinite;
+}
+@keyframes proto-crt-move {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* ── Glitch flash — random green flash ── */
+.proto-glitch-flash {
+  opacity: 0;
+  background: rgba(0,255,65,0.03);
+  animation: proto-glitch-flash 6s step-end infinite;
+}
+@keyframes proto-glitch-flash {
+  0%, 100% { opacity: 0; }
+  42% { opacity: 1; }
+  44% { opacity: 0; }
+  78% { opacity: 1; }
+  79% { opacity: 0; }
+}
+
+/* ── Pill glitch effect for PROTOTYPE ── */
+.proto-pill-glitch {
+  animation: proto-pill-glitch 5s step-end infinite;
+}
+@keyframes proto-pill-glitch {
   0%, 90%, 100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
   92% { clip-path: inset(20% 0 60% 0); transform: translateX(-2px); }
   94% { clip-path: inset(50% 0 20% 0); transform: translateX(2px); }
@@ -915,24 +953,24 @@
   98% { clip-path: inset(0 0 80% 0); transform: translateX(1px); }
 }
 
-/* Card glow for beta/prototype */
+/* Card glow for prototype — green */
 .card-glow-prototype {
   box-shadow:
-    0 0 40px rgba(255, 255, 255, 0.08),
-    0 0 80px rgba(255, 255, 255, 0.03),
+    0 0 40px rgba(0, 255, 65, 0.12),
+    0 0 80px rgba(0, 255, 65, 0.05),
     0 24px 48px rgba(0, 0, 0, 0.50),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 1px 0 rgba(0, 255, 65, 0.15),
     inset 0 -1px 0 rgba(0, 0, 0, 0.40);
 }
 
-/* Texture for prototype skin */
+/* Texture for prototype skin — green */
 .texture-prototype {
   background: repeating-linear-gradient(
     0deg,
     transparent,
     transparent 3px,
-    rgba(255, 255, 255, 0.008) 3px,
-    rgba(255, 255, 255, 0.008) 4px
+    rgba(0, 255, 65, 0.010) 3px,
+    rgba(0, 255, 65, 0.010) 4px
   );
 }
 
