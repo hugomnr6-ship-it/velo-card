@@ -83,7 +83,7 @@ export default function ShopPage() {
     setBuying(item.id);
     try {
       await buySkin.mutateAsync(item.id);
-      toast(`${item.name} acheté !`, "success");
+      toast(`${item.name} débloqué ! Ta carte va changer de style`, "success");
     } catch (err: any) {
       toast(err.message || "Erreur achat", "error");
     } finally {
@@ -117,7 +117,7 @@ export default function ShopPage() {
       {showProGate && (
         <ProGateOverlay
           feature="gpx"
-          trigger="Ce skin est reserve aux abonnes Pro"
+          trigger="Ce design exclusif est réservé aux membres Pro"
           onClose={() => setShowProGate(false)}
         />
       )}
@@ -133,8 +133,9 @@ export default function ShopPage() {
         {/* Countdown */}
         {countdown && (
           <div className="mb-4 flex items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-[#1A1A2E]/60 py-2">
-            <span className="text-xs text-[#64748B]">Rotation dans</span>
+            <span className="text-xs text-[#64748B]">Prochaine collection dans</span>
             <span className="font-mono text-sm font-bold text-[#6366F1]">{countdown}</span>
+            <span className="text-[10px] text-[#64748B]/60">&#8987;</span>
           </div>
         )}
 
@@ -148,7 +149,7 @@ export default function ShopPage() {
               <div>
                 <p className="text-sm font-bold text-[#00FF41]">Carte PROTOTYPE</p>
                 <p className="text-[10px] text-[#00FF41]/40">
-                  Beta Testeur #{String(betaInfo.betaNumber).padStart(3, "0")}/050 — Exclusive, jamais reproductible
+                  Beta Testeur #{String(betaInfo.betaNumber).padStart(3, "0")}/050 — Introuvable, jamais reproductible
                 </p>
               </div>
             </div>
@@ -159,7 +160,7 @@ export default function ShopPage() {
               </div>
             )}
             <p className="mt-2 text-[11px] text-[#00FF41]/25">
-              Tu fais partie des {betaInfo.totalBetaTesters} premiers testeurs. Cette carte ne sera plus jamais disponible.
+              Seulement {betaInfo.totalBetaTesters} cyclistes au monde possèdent ce design. Il ne reviendra jamais.
             </p>
           </div>
         )}
@@ -169,8 +170,8 @@ export default function ShopPage() {
           <div className="mb-4 rounded-xl border border-[#00FF41]/10 bg-gradient-to-br from-[#030A04]/60 to-[#081408]/60 p-4">
             <p className="text-sm font-bold text-[#00FF41]">Carte PROTOTYPE — Edition limitée</p>
             <p className="text-[11px] text-[#00FF41]/35">
-              Plus que {betaInfo.spotsLeft} places pour obtenir cette carte exclusive.
-              Elle ne sera plus JAMAIS disponible après la beta.
+              Plus que {betaInfo.spotsLeft} places. Rejoins la beta pour débloquer
+              un design que personne d&#39;autre n&#39;aura jamais.
             </p>
           </div>
         )}
@@ -179,8 +180,8 @@ export default function ShopPage() {
         {!shop?.rotation && (!shop?.items || shop.items.length === 0) && (
           <div className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-8 text-center">
             <p className="text-lg">&#128683;</p>
-            <p className="mt-2 text-sm text-[#94A3B8]">Nouvelle collection en préparation...</p>
-            <p className="mt-1 text-xs text-[#64748B]">Reviens bientôt !</p>
+            <p className="mt-2 text-sm text-[#94A3B8]">On prépare quelque chose de spécial...</p>
+            <p className="mt-1 text-xs text-[#64748B]">Nouvelle collection bientôt disponible</p>
           </div>
         )}
 
@@ -219,7 +220,7 @@ export default function ShopPage() {
                   className="text-[10px] font-bold uppercase tracking-widest"
                   style={{ color: rarityColors[featured.rarity] }}
                 >
-                  En vedette
+                  Pièce du moment
                 </span>
               </div>
               {/* Card preview avec glow */}
@@ -410,16 +411,16 @@ export default function ShopPage() {
                   }}
                   className="rounded-full bg-[#6366F1] px-8 py-2.5 text-sm font-bold text-white transition hover:bg-[#6366F1]/80"
                 >
-                  Acheter
+                  Débloquer ce design
                 </button>
               )}
               {!previewSkin.owned && balance < previewSkin.priceCoins && (
                 <p className="text-xs text-[#64748B]">
-                  Il te manque {previewSkin.priceCoins - balance} VeloCoins
+                  Encore {previewSkin.priceCoins - balance} VeloCoins et il est à toi
                 </p>
               )}
               {previewSkin.owned && (
-                <span className="text-sm font-bold text-[#00F5D4]">Deja possédé</span>
+                <span className="text-sm font-bold text-[#00F5D4]">&#10024; Dans ta collection</span>
               )}
               <button
                 onClick={() => setPreviewSkin(null)}
@@ -450,7 +451,7 @@ function ShopBuyButton({
     return (
       <div className="flex w-full items-center justify-center gap-2 rounded-b-2xl bg-[#00F5D4]/10 py-2.5 text-sm font-bold text-[#00F5D4]">
         <span>&#10003;</span>
-        <span>Possédé</span>
+        <span>Dans ta collection</span>
       </div>
     );
   }
@@ -494,7 +495,7 @@ function ShopBuyButton({
         <>
           <span>&#128176;</span>
           <span>{item.priceCoins}</span>
-          {!canAfford && <span className="text-[10px] opacity-60">Pas assez</span>}
+          {!canAfford && <span className="text-[10px] opacity-60">Coins insuffisants</span>}
         </>
       )}
     </button>
