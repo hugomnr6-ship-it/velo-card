@@ -71,7 +71,7 @@ export default function MondayUpdateBanner({
           className="w-full max-w-md"
         >
           <div
-            className={`relative overflow-hidden rounded-2xl border p-4 ${
+            className={`relative overflow-hidden rounded-2xl border px-3.5 py-3 ${
               isPositive
                 ? "border-emerald-500/20 bg-emerald-950/30"
                 : "border-red-500/20 bg-red-950/30"
@@ -80,10 +80,13 @@ export default function MondayUpdateBanner({
             {/* Close button */}
             <button
               onClick={handleDismiss}
-              aria-label="Fermer la bannière"
-              className="absolute right-3 top-3 text-white/30 hover:text-white/60 transition"
+              aria-label="Fermer"
+              className="absolute right-2.5 top-2.5 rounded-full p-1 text-white/30 transition hover:bg-white/[0.08] hover:text-white/60"
             >
-              \u2715
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
 
             {/* Special card badge */}
@@ -108,24 +111,24 @@ export default function MondayUpdateBanner({
               </span>
               <div>
                 <p className="text-sm font-bold text-white">
-                  Monday Update
+                  Mise à jour Hebdo
                 </p>
-                <p className="text-xs text-white/50">
+                <p className="text-[11px] text-white/50">
                   Ta carte a {isPositive ? "progressé" : "baissé"} cette semaine
                 </p>
               </div>
             </div>
 
             {/* OVR Delta — big number */}
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-2 flex items-center gap-3">
               <span
-                className={`text-3xl font-black font-['JetBrains_Mono'] ${
+                className={`text-2xl font-black font-['JetBrains_Mono'] ${
                   isPositive ? "text-emerald-400" : "text-red-400"
                 }`}
               >
                 {isPositive ? "+" : ""}{deltas.ovr}
               </span>
-              <span className="text-sm text-white/40">OVR</span>
+              <span className="text-xs text-white/40">OVR</span>
 
               {/* Streak badge */}
               {streak > 1 && (
@@ -136,7 +139,7 @@ export default function MondayUpdateBanner({
             </div>
 
             {/* Stat deltas */}
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               <DeltaChip label="VIT" value={deltas.pac} />
               <DeltaChip label="MON" value={deltas.mon} />
               <DeltaChip label="TEC" value={deltas.val} />
@@ -151,7 +154,7 @@ export default function MondayUpdateBanner({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="mt-3 rounded-lg bg-white/5 p-2 text-center"
+                className="mt-2 rounded-lg bg-white/5 p-1.5 text-center"
               >
                 <p className="text-xs font-bold text-white/80">
                   {isPositive ? <><IconCelebration size={14} className="inline-block mr-1" />Changement de tier !</> : "Tier modifié"}

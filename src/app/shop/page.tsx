@@ -175,11 +175,11 @@ export default function ShopPage() {
           </div>
         )}
 
-        {/* No rotation */}
-        {!shop?.rotation && (
+        {/* No rotation — seulement si aucun item n'est disponible */}
+        {!shop?.rotation && (!shop?.items || shop.items.length === 0) && (
           <div className="rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60 p-8 text-center">
             <p className="text-lg">&#128683;</p>
-            <p className="mt-2 text-sm text-[#94A3B8]">Aucune rotation active pour le moment.</p>
+            <p className="mt-2 text-sm text-[#94A3B8]">Nouvelle collection en préparation...</p>
             <p className="mt-1 text-xs text-[#64748B]">Reviens bientôt !</p>
           </div>
         )}
@@ -189,25 +189,31 @@ export default function ShopPage() {
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 overflow-hidden rounded-xl border-2"
+            className="relative mb-4 overflow-hidden rounded-2xl border"
             style={{
-              borderColor: `${rarityColors[featured.rarity]}40`,
-              background: `linear-gradient(135deg, #1A1A2E, ${rarityColors[featured.rarity]}10)`,
+              borderColor: `${rarityColors[featured.rarity]}30`,
+              background: `linear-gradient(160deg, #1A1A2E, ${rarityColors[featured.rarity]}08, #1A1A2E)`,
             }}
           >
             <div
-              className="relative flex cursor-pointer flex-col items-center p-5"
+              className="relative flex cursor-pointer flex-col items-center px-5 pb-4 pt-5"
               onClick={() => setPreviewSkin(featured)}
             >
-              {/* Glow */}
+              {/* Ambient glow derrière la carte */}
               <div
-                className="absolute inset-0 opacity-20"
+                className="pointer-events-none absolute inset-0"
                 style={{
-                  background: `radial-gradient(ellipse at center, ${rarityColors[featured.rarity]}40, transparent 70%)`,
+                  background: `radial-gradient(ellipse 70% 60% at 50% 55%, ${rarityColors[featured.rarity]}25, transparent 70%)`,
                 }}
               />
               {/* Featured badge */}
-              <div className="relative mb-3 flex items-center gap-1.5">
+              <div
+                className="relative mb-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1"
+                style={{
+                  background: `${rarityColors[featured.rarity]}12`,
+                  border: `1px solid ${rarityColors[featured.rarity]}25`,
+                }}
+              >
                 <span className="text-xs">&#11088;</span>
                 <span
                   className="text-[10px] font-bold uppercase tracking-widest"
@@ -216,28 +222,38 @@ export default function ShopPage() {
                   En vedette
                 </span>
               </div>
-              {/* Card preview */}
-              <div className="relative mb-3">
-                {cardData ? (
-                  <SkinPreviewCard cardData={cardData} skinId={featured.skinId} size="lg" />
-                ) : (
-                  <div
-                    className="flex items-center justify-center rounded-lg"
-                    style={{
-                      width: 163,
-                      height: 273,
-                      background: `linear-gradient(135deg, ${rarityColors[featured.rarity]}20, transparent)`,
-                      border: `1px solid ${rarityColors[featured.rarity]}30`,
-                    }}
-                  >
-                    <span className="text-4xl opacity-60">&#127912;</span>
-                  </div>
-                )}
+              {/* Card preview avec glow */}
+              <div className="relative mb-4">
+                {/* Glow derrière la carte */}
+                <div
+                  className="pointer-events-none absolute -inset-8 rounded-3xl"
+                  style={{
+                    background: `radial-gradient(ellipse at center, ${rarityColors[featured.rarity]}30, transparent 70%)`,
+                    filter: "blur(20px)",
+                  }}
+                />
+                <div className="relative">
+                  {cardData ? (
+                    <SkinPreviewCard cardData={cardData} skinId={featured.skinId} size="lg" />
+                  ) : (
+                    <div
+                      className="flex items-center justify-center rounded-lg"
+                      style={{
+                        width: 163,
+                        height: 273,
+                        background: `linear-gradient(135deg, ${rarityColors[featured.rarity]}20, transparent)`,
+                        border: `1px solid ${rarityColors[featured.rarity]}30`,
+                      }}
+                    >
+                      <span className="text-4xl opacity-60">&#127912;</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="relative text-lg font-bold text-white">{featured.name}</p>
-              <p className="relative text-xs text-[#94A3B8]">{featured.description}</p>
+              <p className="relative mt-0.5 text-xs text-[#94A3B8]">{featured.description}</p>
               <span
-                className="relative mt-1 text-[10px] font-bold uppercase tracking-widest"
+                className="relative mt-1.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{ color: rarityColors[featured.rarity] }}
               >
                 {rarityLabels[featured.rarity]}
@@ -261,33 +277,49 @@ export default function ShopPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
-                className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#1A1A2E]/60"
+                className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#1A1A2E]/60"
               >
                 <div
-                  className="flex cursor-pointer flex-col items-center p-3"
+                  className="relative flex cursor-pointer flex-col items-center p-3"
                   onClick={() => setPreviewSkin(item)}
                 >
+                  {/* Glow subtil */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
+                    style={{
+                      background: `radial-gradient(ellipse at 50% 60%, ${rarityColors[item.rarity]}15, transparent 70%)`,
+                    }}
+                  />
                   {/* Card preview */}
-                  <div className="mb-2">
-                    {cardData ? (
-                      <SkinPreviewCard cardData={cardData} skinId={item.skinId} size="sm" />
-                    ) : (
-                      <div
-                        className="flex items-center justify-center rounded-lg"
-                        style={{
-                          width: 107,
-                          height: 179,
-                          background: `linear-gradient(135deg, ${rarityColors[item.rarity]}15, transparent)`,
-                          border: `1px solid ${rarityColors[item.rarity]}20`,
-                        }}
-                      >
-                        <span className="text-2xl opacity-50">&#127912;</span>
-                      </div>
-                    )}
+                  <div className="relative mb-2">
+                    <div
+                      className="pointer-events-none absolute -inset-4 rounded-2xl"
+                      style={{
+                        background: `radial-gradient(ellipse at center, ${rarityColors[item.rarity]}18, transparent 70%)`,
+                        filter: "blur(10px)",
+                      }}
+                    />
+                    <div className="relative">
+                      {cardData ? (
+                        <SkinPreviewCard cardData={cardData} skinId={item.skinId} size="sm" />
+                      ) : (
+                        <div
+                          className="flex items-center justify-center rounded-lg"
+                          style={{
+                            width: 107,
+                            height: 179,
+                            background: `linear-gradient(135deg, ${rarityColors[item.rarity]}15, transparent)`,
+                            border: `1px solid ${rarityColors[item.rarity]}20`,
+                          }}
+                        >
+                          <span className="text-2xl opacity-50">&#127912;</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm font-bold text-white">{item.name}</p>
+                  <p className="relative text-sm font-bold text-white">{item.name}</p>
                   <span
-                    className="mt-0.5 text-[9px] font-bold uppercase tracking-widest"
+                    className="relative mt-0.5 text-[9px] font-bold uppercase tracking-widest"
                     style={{ color: rarityColors[item.rarity] }}
                   >
                     {rarityLabels[item.rarity]}
@@ -416,7 +448,7 @@ function ShopBuyButton({
 }) {
   if (item.owned) {
     return (
-      <div className="flex w-full items-center justify-center gap-2 bg-[#00F5D4]/10 py-2.5 text-sm font-bold text-[#00F5D4]">
+      <div className="flex w-full items-center justify-center gap-2 rounded-b-2xl bg-[#00F5D4]/10 py-2.5 text-sm font-bold text-[#00F5D4]">
         <span>&#10003;</span>
         <span>Possédé</span>
       </div>
@@ -425,6 +457,7 @@ function ShopBuyButton({
 
   const canAfford = balance >= item.priceCoins;
   const isBuying = buying === item.id;
+  const color = rarityColors[item.rarity] || "#6366F1";
 
   return (
     <button
@@ -433,14 +466,30 @@ function ShopBuyButton({
         onBuy(item);
       }}
       disabled={!canAfford || !!buying}
-      className={`flex w-full items-center justify-center gap-2 py-2.5 text-sm font-bold transition ${
+      className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-b-2xl py-3 text-sm font-extrabold tracking-wide transition-all duration-200 ${
         canAfford && !buying
-          ? "bg-[#6366F1] text-white hover:bg-[#6366F1]/80"
+          ? "text-white hover:brightness-110"
           : "cursor-not-allowed bg-white/[0.04] text-[#475569]"
       }`}
+      style={
+        canAfford && !buying
+          ? {
+              background: `linear-gradient(135deg, ${color}CC, ${color}90)`,
+            }
+          : undefined
+      }
     >
+      {/* Effet de brillance au survol */}
+      {canAfford && !buying && (
+        <span
+          className="pointer-events-none absolute inset-0 -translate-x-full opacity-0 transition-all duration-500 group-hover:translate-x-full group-hover:opacity-100"
+          style={{
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
+          }}
+        />
+      )}
       {isBuying ? (
-        <span className="animate-pulse">Achat...</span>
+        <span className="animate-pulse">Achat en cours...</span>
       ) : (
         <>
           <span>&#128176;</span>

@@ -51,27 +51,42 @@ export default function StoryCanvas({
         backgroundColor: bg,
       }}
     >
-      {/* Radial glow */}
+      {/* Mesh gradient background */}
       <div
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(ellipse at 50% 42%, ${accent}12 0%, transparent 60%)`,
+          background: [
+            `radial-gradient(ellipse 80% 60% at 25% 20%, ${accent}18 0%, transparent 70%)`,
+            `radial-gradient(ellipse 60% 50% at 75% 70%, ${accent}10 0%, transparent 65%)`,
+            `radial-gradient(ellipse 90% 70% at 50% 42%, ${accent}14 0%, transparent 60%)`,
+            `radial-gradient(circle at 80% 15%, ${accent}0C 0%, transparent 40%)`,
+            `radial-gradient(circle at 20% 80%, ${accent}0A 0%, transparent 45%)`,
+          ].join(", "),
+        }}
+      />
+
+      {/* Subtle noise texture overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
         }}
       />
 
       {/* Floating particles (static for capture) */}
       {config.hasParticles &&
-        Array.from({ length: 30 }).map((_, i) => (
+        Array.from({ length: 40 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              width: `${2 + Math.random() * 3}px`,
-              height: `${2 + Math.random() * 3}px`,
+              width: `${1.5 + Math.random() * 4}px`,
+              height: `${1.5 + Math.random() * 4}px`,
               background: accent,
-              opacity: 0.3 + Math.random() * 0.4,
+              opacity: 0.15 + Math.random() * 0.45,
+              filter: Math.random() > 0.7 ? `blur(${1 + Math.random() * 2}px)` : "none",
             }}
           />
         ))}
@@ -86,14 +101,40 @@ export default function StoryCanvas({
         </p>
       </div>
 
-      {/* Card centered */}
+      {/* Card centered — glassmorphism container */}
       <div className="absolute left-1/2 top-[200px] -translate-x-1/2">
-        <VeloCard
-          username={username}
-          avatarUrl={avatarUrl}
-          stats={stats}
-          tier={tier}
+        {/* Outer glow */}
+        <div
+          className="absolute -inset-[60px] rounded-[40px]"
+          style={{
+            background: `radial-gradient(ellipse at center, ${accent}20 0%, ${accent}08 40%, transparent 70%)`,
+            filter: "blur(30px)",
+          }}
         />
+        {/* Glass panel behind card */}
+        <div
+          className="absolute -inset-[30px] rounded-[28px]"
+          style={{
+            background: `linear-gradient(135deg, ${accent}08, rgba(255,255,255,0.02), ${accent}05)`,
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: `1px solid ${accent}15`,
+          }}
+        />
+        {/* Card with deep drop-shadow */}
+        <div
+          className="relative"
+          style={{
+            filter: `drop-shadow(0 20px 40px ${accent}30) drop-shadow(0 8px 16px rgba(0,0,0,0.5))`,
+          }}
+        >
+          <VeloCard
+            username={username}
+            avatarUrl={avatarUrl}
+            stats={stats}
+            tier={tier}
+          />
+        </div>
       </div>
 
       {/* Stats bar at bottom */}

@@ -158,16 +158,16 @@ export default memo(function CardWidget({
           </div>
 
           {/* Stat pills */}
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-2 grid grid-cols-3 gap-1">
             {statPills.map((s) => (
               <span
                 key={s.label}
-                className="rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-medium text-white/60"
+                className="inline-flex items-center gap-0.5 rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-medium text-white/60"
               >
-                <span className="text-white/40">{s.label}</span>{" "}
-                <span style={{ color: `${accent}cc` }}>{s.value}</span>
+                <span className="shrink-0 text-white/40">{s.label}</span>
+                <span className="shrink-0" style={{ color: `${accent}cc` }}>{s.value}</span>
                 {s.delta !== 0 && (
-                  <span className={`ml-0.5 ${s.delta > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  <span className={`inline-flex shrink-0 items-center ${s.delta > 0 ? "text-emerald-400" : "text-red-400"}`}>
                     <span className="inline-flex items-center">{s.delta > 0 ? <IconArrowUp size={8} /> : <IconArrowDown size={8} />}</span>{Math.abs(s.delta)}
                   </span>
                 )}
