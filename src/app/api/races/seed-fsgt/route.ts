@@ -441,44 +441,41 @@ export async function POST(request: Request) {
   }
 
   try {
-    let inserted = 0;
-    let skipped = 0;
-
-    for (const race of FSGT_RACES) {
+    // Préparer toutes les courses en un seul batch
+    const rows = FSGT_RACES.map((race) => {
       const region = deptToRegion[race.dept] || "Autre";
       const location = cleanName(race.name);
+      return {
+        name: `FSGT — ${race.name}`,
+        date: race.date,
+        location,
+        department: race.dept,
+        region,
+        federation: "FSGT" as const,
+        category: "Seniors",
+        gender: "MIXTE" as const,
+        status: "upcoming",
+        is_official: true,
+        source_url: race.url,
+        description: `Course FSGT route — ${race.name}. Source : ${new URL(race.url).hostname.replace("www.", "")}`,
+      };
+    });
 
-      const { error } = await supabaseAdmin.from("races").upsert(
-        {
-          name: `FSGT — ${race.name}`,
-          date: race.date,
-          location: location,
-          department: race.dept,
-          region: region,
-          federation: "FSGT" as const,
-          category: "Seniors",
-          gender: "MIXTE" as const,
-          status: "upcoming",
-          is_official: true,
-          source_url: race.url,
-          description: `Course FSGT route — ${race.name}. Source : ${new URL(race.url).hostname.replace("www.", "")}`,
-        },
-        { onConflict: "name,date" }
-      );
+    // Upsert batch (Supabase accepte un tableau)
+    const { data, error } = await supabaseAdmin
+      .from("races")
+      .upsert(rows, { onConflict: "name,date" })
+      .select("id");
 
-      if (!error) {
-        inserted++;
-      } else {
-        skipped++;
-      }
-    }
+    if (error) return handleApiError(error, "RACES_SEED_FSGT");
+
+    const inserted = data?.length ?? 0;
 
     return Response.json({
       success: true,
       total: FSGT_RACES.length,
       inserted,
-      skipped,
-      message: `${inserted} courses FSGT route importées (${skipped} ignorées/doublons)`,
+      message: `${inserted} courses FSGT route importées`,
     });
   } catch (err) {
     return handleApiError(err, "RACES_SEED_FSGT");
