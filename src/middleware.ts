@@ -12,6 +12,8 @@ const PUBLIC_API_ROUTES = [
   "/api/subscribe",
   "/api/webhooks/stripe",
   "/api/races/seed-fsgt",
+  "/api/admin/seed-ufolep",
+  "/api/admin/scrape-ufolep",
 ];
 
 export async function middleware(request: NextRequest) {
