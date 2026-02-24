@@ -139,6 +139,17 @@ export default async function CardPage({
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0B1120] px-4 py-12">
+      {/* Bouton retour */}
+      <Link
+        href={session ? `/profile/${userId}` : "/"}
+        className="absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition"
+        aria-label="Retour"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </Link>
+
       {/* Radial glow */}
       <div
         className="pointer-events-none absolute inset-0"
