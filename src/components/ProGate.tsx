@@ -1,13 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { m } from "framer-motion";
 import { useIsPro } from "@/hooks/useSubscription";
+import ProPaywallModal from "@/components/ProPaywallModal";
+import type { PRO_GATES } from "@/lib/pro-gates";
 
 interface ProGateProps {
   children: React.ReactNode;
   /** Description de la feature Pro (affichée dans le CTA) */
   feature: string;
+  /** Clé du gate pour le paywall modal contextuel */
+  gateKey?: keyof typeof PRO_GATES;
   /** Contenu alternatif pour les free users (version limitée) */
   fallback?: React.ReactNode;
   /** Si true : bloque complètement avec overlay. Si false : montre + bandeau CTA. */
@@ -19,8 +23,9 @@ interface ProGateProps {
  * Règle CLAUDE.md : montrer la feature, flouter/limiter l'accès,
  * afficher un CTA "Passer Pro" contextuel. Ne jamais cacher complètement.
  */
-export default function ProGate({ children, feature, fallback, block = true }: ProGateProps) {
+export default function ProGate({ children, feature, gateKey, fallback, block = true }: ProGateProps) {
   const isPro = useIsPro();
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Les Pro voient tout
   if (isPro) return <>{children}</>;
@@ -36,13 +41,21 @@ export default function ProGate({ children, feature, fallback, block = true }: P
           className="mt-3 flex items-center justify-between rounded-lg border border-[#6366F1]/15 bg-[#6366F1]/[0.05] px-4 py-2.5"
         >
           <p className="text-xs text-[#94A3B8]">{feature}</p>
-          <Link
-            href="/pricing"
+          <button
+            onClick={() => setShowPaywall(true)}
             className="shrink-0 rounded-md bg-[#6366F1] px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#6366F1]/80"
           >
             Passer Pro
-          </Link>
+          </button>
         </m.div>
+        {gateKey && (
+          <ProPaywallModal
+            isOpen={showPaywall}
+            feature={gateKey}
+            trigger={feature}
+            onClose={() => setShowPaywall(false)}
+          />
+        )}
       </div>
     );
   }
@@ -71,14 +84,23 @@ export default function ProGate({ children, feature, fallback, block = true }: P
           <p className="mb-4 text-[10px] text-[#64748B]">
             7 jours d&apos;essai gratuit
           </p>
-          <Link
-            href="/pricing"
+          <button
+            onClick={() => setShowPaywall(true)}
             className="inline-block rounded-lg bg-[#6366F1] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#6366F1]/80"
           >
             Passer Pro
-          </Link>
+          </button>
         </div>
       </div>
+
+      {gateKey && (
+        <ProPaywallModal
+          isOpen={showPaywall}
+          feature={gateKey}
+          trigger={feature}
+          onClose={() => setShowPaywall(false)}
+        />
+      )}
     </m.div>
   );
 }

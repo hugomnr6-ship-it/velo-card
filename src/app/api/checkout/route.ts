@@ -11,17 +11,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { plan } = await req.json();
+    const { plan, returnPath } = await req.json();
     if (!["pro_monthly", "pro_yearly"].includes(plan)) {
       return NextResponse.json({ error: "Plan invalide" }, { status: 400 });
     }
 
     const origin = req.headers.get("origin") || "https://velocard.app";
+    // Rediriger vers la page d'origine après checkout (ou /pricing par défaut)
+    const safePath = typeof returnPath === "string" && returnPath.startsWith("/") ? returnPath : "/pricing";
     const checkoutSession = await createProCheckout(
       session.user.id,
       plan,
-      `${origin}/pricing?success=true`,
-      `${origin}/pricing?canceled=true`,
+      `${origin}${safePath}?success=true`,
+      `${origin}${safePath}?canceled=true`,
     );
 
     return NextResponse.json({ url: checkoutSession.url });

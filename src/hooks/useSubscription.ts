@@ -21,11 +21,11 @@ export function useIsPro() {
 
 export function useCheckout() {
   return useMutation({
-    mutationFn: async ({ plan }: { plan: "pro_monthly" | "pro_yearly" }) => {
+    mutationFn: async ({ plan, returnPath }: { plan: "pro_monthly" | "pro_yearly"; returnPath?: string }) => {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, returnPath }),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
