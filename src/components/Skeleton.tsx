@@ -15,38 +15,34 @@ export default function Skeleton({ className = "" }: SkeletonProps) {
 
 /* ——— Pre-built skeleton layouts ——— */
 
-/** Skeleton that mimics the VeloCard shape */
+/** Skeleton that mimics the VeloCard Design B Shield shape */
 export function VeloCardSkeleton() {
   return (
     <div className="relative w-full max-w-[280px] aspect-[280/470] rounded-2xl border border-white/[0.06] bg-[#111827] overflow-hidden">
       <div className="flex h-full flex-col items-center px-6 pt-6 pb-5">
-        {/* Top bar */}
+        {/* Top bar — tier badge + OVR */}
         <div className="flex w-full items-center justify-between">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
 
-        {/* Avatar */}
-        <div className="mt-8 flex flex-col items-center">
-          <Skeleton className="h-24 w-24 rounded-full" />
-          <Skeleton className="mt-4 h-5 w-32" />
-          <Skeleton className="mt-2 h-3 w-20" />
+        {/* Avatar + username */}
+        <div className="mt-6 flex flex-col items-center">
+          <Skeleton className="h-20 w-20 rounded-full" />
+          <Skeleton className="mt-3 h-4 w-28" />
+          <Skeleton className="mt-1.5 h-3 w-16" />
         </div>
 
         {/* Divider */}
-        <Skeleton className="mt-6 h-px w-full" />
+        <Skeleton className="mt-5 h-px w-full" />
 
-        {/* Stats row */}
-        <div className="mt-8 flex w-full justify-center gap-5">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-[100px] w-[90px]" />
-          ))}
-        </div>
-
-        {/* Locked stats row */}
-        <div className="mt-5 flex w-full justify-center gap-5">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-[100px] w-[90px] opacity-30" />
+        {/* Circular gauges 3×2 grid */}
+        <div className="mt-4 grid w-full grid-cols-3 gap-x-1 gap-y-2 px-2">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <Skeleton className="h-14 w-14 rounded-full" />
+              <Skeleton className="h-2 w-8" />
+            </div>
           ))}
         </div>
       </div>

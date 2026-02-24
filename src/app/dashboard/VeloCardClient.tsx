@@ -158,16 +158,28 @@ export default function VeloCardClient({
 
       {/* Bandeau mise à jour stats — free users uniquement */}
       {!isPro && (
-        <div className="flex w-full max-w-sm items-center justify-between rounded-lg border border-[#6366F1]/10 bg-[#6366F1]/[0.04] px-4 py-2">
-          <p className="text-[11px] text-[#94A3B8]">
-            Prochaine mise à jour lundi
+        <div className="flex w-full max-w-sm flex-col gap-1 rounded-lg border border-[#6366F1]/10 bg-[#6366F1]/[0.04] px-4 py-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] text-[#94A3B8]">
+              Prochaine mise à jour lundi
+            </p>
+            <Link
+              href="/pricing"
+              className="text-[11px] font-semibold text-[#6366F1] transition hover:text-[#6366F1]/80"
+            >
+              Temps réel avec Pro →
+            </Link>
+          </div>
+          <p className="text-[10px] text-white/20">
+            Dernière MAJ : {(() => {
+              const now = new Date();
+              const day = now.getDay();
+              const diff = day === 0 ? 6 : day - 1;
+              const lastMonday = new Date(now);
+              lastMonday.setDate(now.getDate() - diff);
+              return lastMonday.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+            })()}
           </p>
-          <Link
-            href="/pricing"
-            className="text-[11px] font-semibold text-[#6366F1] transition hover:text-[#6366F1]/80"
-          >
-            Temps réel avec Pro →
-          </Link>
         </div>
       )}
 

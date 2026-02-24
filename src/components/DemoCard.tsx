@@ -125,7 +125,8 @@ function MiniGauge({
   glow: string;
   gaugeBg: string;
 }) {
-  const offset = CIRC * (1 - value / 100);
+  // Diviser par 99 (max stat) pour qu'une stat de 99 remplisse 100% du cercle
+  const offset = CIRC * (1 - Math.min(value / 99, 1));
   return (
     <div className="flex flex-col items-center">
       <div className="relative" style={{ width: "100%", aspectRatio: "1" }}>

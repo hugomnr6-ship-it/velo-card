@@ -112,7 +112,7 @@ export default function FlipCard({
                     <div
                       className="h-full rounded-full"
                       style={{
-                        width: `${statValues[i]}%`,
+                        width: `${Math.min((statValues[i] / 99) * 100, 100)}%`,
                         background: `linear-gradient(90deg, ${accent}60, ${accent})`,
                       }}
                     />

@@ -27,13 +27,13 @@ const eventConfig: Record<string, { icon: string; color: string; label: (meta: a
     icon: "\u2B50",
     color: "#FFD700",
     label: (meta, username) =>
-      `${username} est dans l'Echappee (${meta.category})`,
+      `${username} est dans l'Échappée (${meta.category})`,
   },
   streak_milestone: {
     icon: "\uD83D\uDD25",
     color: "#FF6B35",
     label: (meta, username) =>
-      `${username} : ${meta.weeks} semaines d'affilee !`,
+      `${username} : ${meta.weeks} semaines d'affilée !`,
   },
   badge_earned: {
     icon: "\uD83C\uDFC5",

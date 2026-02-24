@@ -21,7 +21,7 @@ const tierLabel: Record<CardTier, string> = {
   argent: "Argent",
   platine: "Platine",
   diamant: "Diamant",
-  legende: "Legende",
+  legende: "Légende",
 };
 
 const STAT_META = [
@@ -265,7 +265,7 @@ export default function MondayReveal({
                   }}
                 >
                   <p className="text-center text-lg font-semibold text-white/80">
-                    Tes stats ont ete recalculees...
+                    Tes stats ont été recalculées...
                   </p>
                 </div>
               </m.div>
@@ -485,9 +485,9 @@ export default function MondayReveal({
                             : "#FFD700",
                       }}
                     >
-                      {specialCard === "totw" && "Echappee de la Semaine !"}
+                      {specialCard === "totw" && "Échappée de la Semaine !"}
                       {specialCard === "in_form" && "En Forme !"}
-                      {specialCard === "legend_moment" && "Moment de Legende !"}
+                      {specialCard === "legend_moment" && "Moment de Légende !"}
                     </span>
                   </m.div>
                 )}

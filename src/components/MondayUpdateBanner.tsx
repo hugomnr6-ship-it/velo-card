@@ -148,6 +148,13 @@ export default function MondayUpdateBanner({
               <DeltaChip label="PUI" value={deltas.res} />
             </div>
 
+            {/* Decay explanation — quand les stats baissent par inactivité */}
+            {!isPositive && streak === 0 && (
+              <p className="mt-2 text-[10px] text-white/30">
+                Tes stats ont diminué de 3 % suite à une semaine sans activité.
+              </p>
+            )}
+
             {/* Tier change */}
             {deltas.tierChanged && (
               <m.div

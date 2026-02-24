@@ -23,7 +23,7 @@ const tierThresholds: Record<
   bronze: { min: 0, max: 49, next: "argent", nextLabel: "Argent" },
   argent: { min: 50, max: 64, next: "platine", nextLabel: "Platine" },
   platine: { min: 65, max: 79, next: "diamant", nextLabel: "Diamant" },
-  diamant: { min: 80, max: 89, next: "legende", nextLabel: "Legende" },
+  diamant: { min: 80, max: 89, next: "legende", nextLabel: "Légende" },
   legende: { min: 90, max: 99, next: null, nextLabel: "MAX" },
 };
 
@@ -32,7 +32,7 @@ const tierLabel: Record<CardTier, string> = {
   argent: "Argent",
   platine: "Platine",
   diamant: "Diamant",
-  legende: "Legende",
+  legende: "Légende",
 };
 
 const tierEmoji: Record<CardTier, string> = {
