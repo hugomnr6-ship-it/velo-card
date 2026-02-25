@@ -509,7 +509,7 @@ export default function UserProfilePage() {
               <StatsTab stats={stats} deltas={deltas} accent={accent} tier={stats.tier} radarData={radarData} clubs={clubs} />
             )}
             {activeTab === "history" && (
-              <HistoryTab chartData={chartData} history={history} accent={accent} />
+              <HistoryTab chartData={chartData} history={history} accent={accent} isOwner={isOwner} />
             )}
             {activeTab === "career" && (
               <CareerTab career={career} profile={profile} accent={accent} />

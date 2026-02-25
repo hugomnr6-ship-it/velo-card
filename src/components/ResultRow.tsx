@@ -3,14 +3,6 @@
 import Link from "next/link";
 import type { RaceResultView } from "@/types";
 
-function formatTime(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
-
 const positionBadge: Record<number, string> = {
   1: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40",
   2: "bg-[#94A3B8]/20 text-white/80 border-[#94A3B8]/40",
@@ -100,33 +92,16 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
             </span>
           )}
         </div>
-        {result.finish_time > 0 && (
-          <p className="text-xs text-[#94A3B8]">
-            {formatTime(result.finish_time)}
-          </p>
-        )}
       </div>
 
-      {/* GEN score badge */}
-      {result.is_ghost ? (
-        <div className="flex items-center gap-1.5 rounded-full border border-white/[0.10] bg-[#22223A]/20 px-2.5 py-1">
-          <span className="text-xs font-bold text-[#94A3B8]">?</span>
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">
-            GEN
-          </span>
-        </div>
-      ) : (
-        <div
-          className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${tierBg[result.tier]}`}
-        >
-          <span className={`text-xs font-bold ${tierColors[result.tier]}`}>
-            {result.gen_score}
-          </span>
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">
-            GEN
-          </span>
-        </div>
-      )}
+      {/* Tier badge */}
+      <div
+        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${tierBg[result.tier]}`}
+      >
+        <span className={`text-xs font-bold ${tierColors[result.tier]}`}>
+          {result.tier.toUpperCase()}
+        </span>
+      </div>
 
       {/* Ghost card link — réclamer ou voir */}
       {result.is_ghost && result.ghost_claim_token && (
@@ -134,7 +109,7 @@ export default function ResultRow({ result, currentUserId }: ResultRowProps) {
           href={`/ghost/${result.ghost_claim_token}`}
           className="shrink-0 rounded-lg bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-white/20"
         >
-          {result.ghost_claimed ? "Voir" : "Reclamer"}
+          Voir
         </Link>
       )}
     </div>

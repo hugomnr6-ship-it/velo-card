@@ -23,6 +23,7 @@ interface HistoryTabProps {
   chartData: { week: string; ovr: number; km: number }[];
   history: HistoryEntry[];
   accent: string;
+  isOwner?: boolean;
 }
 
 /* ═══ Helpers ═══ */
@@ -35,7 +36,7 @@ function formatWeekLabel(label: string): string {
 /* ═══ Component ═══ */
 
 export default function HistoryTab({
-  chartData, history, accent,
+  chartData, history, accent, isOwner = false,
 }: HistoryTabProps) {
   if (chartData.length === 0) {
     return (
@@ -93,48 +94,50 @@ export default function HistoryTab({
         </ResponsiveContainer>
       </div>
 
-      {/* Weekly KM chart */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">KILOMETRES HEBDO</p>
-        <ResponsiveContainer width="100%" height={140}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="kmGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00F5D4" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#00F5D4" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="week"
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-              axisLine={false}
-              tickLine={false}
-              width={30}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "rgba(10,10,18,0.95)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                fontSize: "11px",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="km"
-              stroke="#00F5D4"
-              strokeWidth={2}
-              fill="url(#kmGrad)"
-              name="KM"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Weekly KM chart — données Strava, uniquement pour le propriétaire */}
+      {isOwner && (
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+          <p className="text-[10px] font-bold tracking-wider text-white/30 mb-2">KILOMETRES HEBDO</p>
+          <ResponsiveContainer width="100%" height={140}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="kmGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00F5D4" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#00F5D4" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="week"
+                tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+                width={30}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(10,10,18,0.95)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  fontSize: "11px",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="km"
+                stroke="#00F5D4"
+                strokeWidth={2}
+                fill="url(#kmGrad)"
+                name="KM"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Weekly history list */}
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
@@ -150,11 +153,13 @@ export default function HistoryTab({
             >
               <span className="text-[10px] font-bold text-white/30 w-8">{formatWeekLabel(h.week_label)}</span>
               <span className="text-sm font-black font-['JetBrains_Mono'] text-white/80 w-8">{h.ovr}</span>
-              <div className="flex-1 flex items-center gap-2 text-[10px] text-white/30">
-                <span className="flex items-center gap-1"><IconCycling size={10} /> {h.weekly_km.toFixed(1)}km</span>
-                <span className="flex items-center gap-1"><IconMountain size={10} /> {h.weekly_dplus}m</span>
-                <span>&times;{h.weekly_rides}</span>
-              </div>
+              {isOwner && (
+                <div className="flex-1 flex items-center gap-2 text-[10px] text-white/30">
+                  <span className="flex items-center gap-1"><IconCycling size={10} /> {h.weekly_km.toFixed(1)}km</span>
+                  <span className="flex items-center gap-1"><IconMountain size={10} /> {h.weekly_dplus}m</span>
+                  <span>&times;{h.weekly_rides}</span>
+                </div>
+              )}
             </m.div>
           ))}
         </div>

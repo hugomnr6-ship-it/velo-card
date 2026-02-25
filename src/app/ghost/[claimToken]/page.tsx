@@ -10,28 +10,10 @@ import type { CardTier } from "@/types";
 
 interface GhostData {
   rider_name: string;
-  gen_score: number;
   tier: CardTier;
-  race_id: string | null;
   race_name: string;
   race_date: string | null;
-  position: number | null;
-  finish_time: number | null;
   is_claimed: boolean;
-  claimed_by: string | null;
-}
-
-function formatTime(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h${m.toString().padStart(2, "0")}m${s.toString().padStart(2, "0")}s`;
-  return `${m}m${s.toString().padStart(2, "0")}s`;
-}
-
-function formatPosition(pos: number): string {
-  if (pos === 1) return "1er";
-  return `${pos}eme`;
 }
 
 export default function GhostPage() {
@@ -130,14 +112,6 @@ export default function GhostPage() {
             {ghost.rider_name} a deja reclame sa carte VeloCard.
           </p>
           <div className="mt-4 flex flex-col items-center gap-3">
-            {ghost.claimed_by && (
-              <a
-                href={`/card/${ghost.claimed_by}`}
-                className="inline-block rounded-lg bg-[#6366F1] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6366F1]/80"
-              >
-                Voir sa carte
-              </a>
-            )}
             <Link
               href="/races"
               className="text-sm text-[#94A3B8] hover:text-white"
@@ -166,28 +140,11 @@ export default function GhostPage() {
           riderName={ghost.rider_name}
           tier={ghost.tier}
           raceName={ghost.race_name}
-          position={ghost.position ?? undefined}
         />
       </div>
 
-      {/* Context info — position, temps, lien course */}
+      {/* Context info */}
       <div className="flex flex-col items-center gap-3">
-        {/* Position & temps en grand */}
-        {ghost.position && (
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-center rounded-xl border border-white/[0.08] bg-[#1A1A2E]/60 px-5 py-3">
-              <span className="text-2xl font-black text-white">{formatPosition(ghost.position)}</span>
-              <span className="text-[10px] font-bold uppercase text-[#64748B]">Position</span>
-            </div>
-            {ghost.finish_time && ghost.finish_time > 0 && (
-              <div className="flex flex-col items-center rounded-xl border border-white/[0.08] bg-[#1A1A2E]/60 px-5 py-3">
-                <span className="text-2xl font-black text-white">{formatTime(ghost.finish_time)}</span>
-                <span className="text-[10px] font-bold uppercase text-[#64748B]">Temps</span>
-              </div>
-            )}
-          </div>
-        )}
-
         <p className="text-sm text-[#94A3B8]">
           {ghost.race_name}
           {ghost.race_date && (
@@ -195,25 +152,6 @@ export default function GhostPage() {
               {" "}— {new Date(ghost.race_date).toLocaleDateString("fr-FR")}
             </span>
           )}
-        </p>
-
-        {/* Lien vers la course */}
-        {ghost.race_id && (
-          <Link
-            href={`/races/${ghost.race_id}`}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#6366F1] transition hover:text-[#818CF8]"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-            Voir la course
-          </Link>
-        )}
-
-        <p className="text-[10px] text-[#475569]">
-          Score GEN calcule a partir du classement et du temps
         </p>
       </div>
 
