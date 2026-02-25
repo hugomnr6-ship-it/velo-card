@@ -1,16 +1,25 @@
+import { getAuthenticatedUser, isErrorResponse } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
-// Public endpoint — no auth required
+/**
+ * GET /api/ghost/:claimToken
+ * Retourne les infos d'une ghost card pour claim.
+ * Auth obligatoire. Ne retourne pas gen_score (donnée dérivée).
+ */
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ claimToken: string }> },
 ) {
+  // Auth obligatoire
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+
   const { claimToken } = await params;
 
   // Fetch ghost profile
   const { data: ghost, error } = await supabaseAdmin
     .from("ghost_profiles")
-    .select("id, rider_name, gen_score, tier, claimed_by, race_id")
+    .select("id, rider_name, tier, claimed_by, race_id")
     .eq("claim_token", claimToken)
     .single();
 
@@ -25,23 +34,11 @@ export async function GET(
     .eq("id", ghost.race_id)
     .single();
 
-  // Fetch result info (position + time)
-  const { data: result } = await supabaseAdmin
-    .from("race_results")
-    .select("position, finish_time")
-    .eq("ghost_id", ghost.id)
-    .single();
-
   return Response.json({
     rider_name: ghost.rider_name,
-    gen_score: ghost.gen_score,
     tier: ghost.tier,
-    race_id: ghost.race_id,
     race_name: race?.name || "Course inconnue",
     race_date: race?.date || null,
-    position: result?.position || null,
-    finish_time: result?.finish_time || null,
     is_claimed: !!ghost.claimed_by,
-    claimed_by: ghost.claimed_by,
   });
 }

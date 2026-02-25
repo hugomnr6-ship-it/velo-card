@@ -8,12 +8,10 @@ import {
   spotlightGradients,
   tierPillBg,
   tierPillBorder,
-  StatHex,
 } from "@/components/VeloCard";
 
 interface GhostCardProps {
   riderName: string;
-  genScore: number;
   tier: CardTier;
   raceName?: string;
   position?: number;
@@ -21,7 +19,6 @@ interface GhostCardProps {
 
 export default function GhostCard({
   riderName,
-  genScore,
   tier,
 }: GhostCardProps) {
   const config = tierConfig[tier];
@@ -125,11 +122,6 @@ export default function GhostCard({
           <div
             className={`mt-6 h-px w-full bg-gradient-to-r ${tierDividerColors[tier]}`}
           />
-
-          {/* Single GEN stat — centered */}
-          <div className="mt-12 flex w-full justify-center">
-            <StatHex label="GEN" value={genScore} tier={tier} />
-          </div>
 
           {/* Ghost message */}
           <p className="mt-6 text-center text-xs text-white/30 leading-relaxed">

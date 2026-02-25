@@ -115,20 +115,10 @@ export default memo(function LeaderboardRow({
         </span>
       </div>
 
-      {/* Weekly stats */}
-      <div className="flex gap-3 text-xs">
-        <div className="text-center">
-          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_km}</p>
-          <p className="text-[#475569]">km</p>
-        </div>
-        <div className="text-center">
-          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.weekly_dplus}</p>
-          <p className="text-[#475569]">D+</p>
-        </div>
-        <div className="text-center">
-          <p className="font-bold text-white font-['JetBrains_Mono']">{entry.ovr}</p>
-          <p className="text-[#475569]">OVR</p>
-        </div>
+      {/* OVR score */}
+      <div className="text-center text-xs">
+        <p className="font-bold text-white font-['JetBrains_Mono'] text-base">{entry.ovr}</p>
+        <p className="text-[#475569]">OVR</p>
       </div>
     </div>
   );

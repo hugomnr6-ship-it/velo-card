@@ -1,30 +1,45 @@
-import { handleApiError, isValidUUID } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError, isValidUUID } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { hasConsent, sanitizePublicProfile } from "@/lib/privacy";
 
 /**
  * GET /api/users/:userId
- * Returns full public profile data for a user:
- * - Profile info
- * - Current stats + tier
- * - Stats history (last 12 weeks)
- * - Clubs membership
- * - Weekly activity summary
- * - Badges / special card
+ * Retourne le profil d'un utilisateur.
+ * - Si c'est l'user authentifié → profil complet (ses propres données)
+ * - Si c'est un autre user → profil sanitisé (stats abstraites uniquement, avec consentement)
  */
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
+  // Auth obligatoire
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
+
   const { userId } = await params;
   if (!isValidUUID(userId)) {
     return Response.json({ error: "ID invalide" }, { status: 400 });
   }
 
+  const isOwnProfile = userId === profileId;
+
   try {
+    // Si c'est un autre user, vérifier le consentement
+    if (!isOwnProfile) {
+      const consent = await hasConsent(userId);
+      if (!consent) {
+        return Response.json(
+          { error: { code: "CONSENT_REQUIRED", message: "Cet utilisateur n'a pas activé le partage de ses stats" } },
+          { status: 403 }
+        );
+      }
+    }
+
     // 1. Profile
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, avatar_url, custom_avatar_url, region, bio, favorite_climb, bike_name, created_at")
+      .select("id, username, avatar_url, custom_avatar_url, region, bio, favorite_climb, bike_name, created_at, club_name")
       .eq("id", userId)
       .single();
 
@@ -39,6 +54,67 @@ export async function GET(
       .eq("user_id", userId)
       .single();
 
+    // --- Si c'est un AUTRE user → réponse sanitisée ---
+    if (!isOwnProfile) {
+      const publicProfile = sanitizePublicProfile({
+        ...profile,
+        pac: stats?.pac || 0,
+        mon: stats?.mon || 0,
+        val: stats?.val || 0,
+        spr: stats?.spr || 0,
+        end: stats?.end || 0,
+        res: stats?.res || 0,
+        ovr: stats?.ovr || 0,
+        tier: stats?.tier || "bronze",
+        special_card: stats?.special_card || null,
+        active_weeks_streak: stats?.active_weeks_streak || 0,
+      });
+
+      // Badges showcase (données de jeu, pas Strava)
+      let badges: { badge_id: string; earned_at: string }[] = [];
+      try {
+        const { data: badgesData } = await supabaseAdmin
+          .from("user_badges")
+          .select("badge_id, earned_at")
+          .eq("user_id", userId);
+        badges = badgesData || [];
+      } catch { /* table may not exist */ }
+
+      // Clubs (info publique)
+      let clubs: { id: string; name: string; logo_url: string | null }[] = [];
+      try {
+        const { data: clubMemberships } = await supabaseAdmin
+          .from("club_members")
+          .select("club_id, clubs(id, name, logo_url)")
+          .eq("user_id", userId);
+        clubs = (clubMemberships || []).map((cm: any) => ({
+          id: cm.clubs?.id,
+          name: cm.clubs?.name,
+          logo_url: cm.clubs?.logo_url,
+        }));
+      } catch { /* table doesn't exist yet */ }
+
+      return Response.json({
+        profile: publicProfile,
+        stats: {
+          pac: publicProfile.pac,
+          end: publicProfile.end,
+          mon: publicProfile.mon,
+          res: publicProfile.res,
+          spr: publicProfile.spr,
+          val: publicProfile.val,
+          ovr: publicProfile.ovr,
+          tier: publicProfile.tier,
+          special_card: publicProfile.special_card,
+          active_weeks_streak: publicProfile.active_weeks_streak,
+        },
+        badges,
+        clubs,
+      });
+    }
+
+    // --- Profil complet pour l'user authentifié lui-même ---
+
     // 3. Stats history (last 12 weeks)
     const { data: history } = await supabaseAdmin
       .from("stats_history")
@@ -47,7 +123,7 @@ export async function GET(
       .order("week_label", { ascending: false })
       .limit(12);
 
-    // 4. Clubs (table may not exist yet)
+    // 4. Clubs
     let clubs: any[] = [];
     try {
       const { data: clubMemberships } = await supabaseAdmin
@@ -103,7 +179,7 @@ export async function GET(
       echappeeCount = count || 0;
     } catch { /* table may not exist yet */ }
 
-    // 8. War stats (table may not exist yet)
+    // 8. War stats
     let totalWarKm = 0;
     let warsParticipated = 0;
     try {
@@ -123,7 +199,6 @@ export async function GET(
     let recentResults: { position: number; raceName: string; raceDate: string; totalParticipants: number | null; points: number }[] = [];
 
     try {
-      // Get race results with race details
       const { data: raceResultsData } = await supabaseAdmin
         .from("race_results")
         .select("position, created_at, race_id, races!inner(name, date, total_participants)")
@@ -135,15 +210,12 @@ export async function GET(
         victories = raceResultsData.filter((r: any) => r.position === 1).length;
         podiums = raceResultsData.filter((r: any) => r.position <= 3).length;
 
-        // Get total race points
         const { data: pointsData } = await supabaseAdmin
           .from("race_points")
           .select("points")
           .eq("user_id", userId);
-
         totalRacePoints = (pointsData || []).reduce((sum: number, p: any) => sum + (p.points || 0), 0);
 
-        // Get race points for enrichment
         const raceIdsForPoints = raceResultsData.map((r: any) => r.race_id);
         const { data: racePointsData } = await supabaseAdmin
           .from("race_points")
@@ -156,7 +228,6 @@ export async function GET(
           pointsByRace[rp.race_id] = rp.points;
         }
 
-        // Build recent results (last 10) with real points
         recentResults = raceResultsData.slice(0, 10).map((r: any) => ({
           position: r.position,
           raceName: r.races?.name || "Course",
@@ -167,7 +238,7 @@ export async function GET(
       }
     } catch { /* race tables may not exist */ }
 
-    // Compute deltas if prev stats exist
+    // Compute deltas
     const deltas = stats ? {
       pac: stats.pac - (stats.prev_pac || stats.pac),
       end: stats.end - (stats.prev_end || stats.end),
@@ -182,7 +253,7 @@ export async function GET(
       profile,
       stats: stats || { pac: 0, end: 0, mon: 0, res: 0, spr: 0, val: 0, ovr: 0, tier: "bronze", special_card: null, active_weeks_streak: 0 },
       deltas,
-      history: (history || []).reverse(), // chronological order
+      history: (history || []).reverse(),
       clubs,
       weekly: {
         km: Math.round(weeklyKm * 10) / 10,
@@ -198,7 +269,6 @@ export async function GET(
         echappeeSelections: echappeeCount || 0,
         warsParticipated,
         totalWarKm: Math.round(totalWarKm),
-        // Race palmares
         victories,
         podiums,
         racesCompleted,

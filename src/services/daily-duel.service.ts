@@ -48,16 +48,20 @@ export async function generateDailyDuel(userId: string, today: string) {
   const minOvr = Math.max(0, userOvr - 5);
   const maxOvr = Math.min(99, userOvr + 5);
 
-  // Trouver un adversaire dans la range OVR ±5
-  // Exclure l'utilisateur lui-même et ceux qui ont déjà un duel du jour avec lui
-  const { data: candidates } = await supabaseAdmin
+  // Trouver un adversaire consentant dans la range OVR ±5
+  const { data: allCandidates } = await supabaseAdmin
     .from("user_stats")
-    .select("user_id, ovr")
+    .select("user_id, ovr, profiles!user_id(sharing_consent)")
     .neq("user_id", userId)
     .gte("ovr", minOvr)
     .lte("ovr", maxOvr)
     .order("ovr", { ascending: false })
-    .limit(20);
+    .limit(50);
+
+  // Filtrer par consentement de partage
+  const candidates = (allCandidates || []).filter(
+    (c: any) => c.profiles?.sharing_consent === true
+  ).slice(0, 20);
 
   if (!candidates || candidates.length === 0) return null;
 

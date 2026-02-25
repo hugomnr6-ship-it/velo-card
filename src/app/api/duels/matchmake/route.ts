@@ -1,16 +1,11 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError, validateBody } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { insertFeedEvent } from "@/lib/feed";
-import { z } from "zod";
-
-const matchmakeSchema = z.object({
-  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res", "weekly_km", "weekly_dplus", "weekly_rides"]),
-  stake: z.number().int().min(5).max(50),
-});
+import { matchmakeSchema } from "@/schemas";
 
 /**
- * POST /api/duels/matchmake — automatic matchmaking
- * Finds a compatible opponent or queues the user.
+ * POST /api/duels/matchmake — matchmaking automatique
+ * Filtre par sharing_consent = true. Ne retourne pas opponent_ovr.
  */
 export async function POST(request: Request) {
   const auth = await getAuthenticatedUser();
@@ -43,34 +38,37 @@ export async function POST(request: Request) {
       .delete()
       .lt("created_at", oneDayAgo);
 
-    // Look for a match: same category, OVR within ±15, same stake, not self
-    const { data: match } = await supabaseAdmin
+    // Chercher un match : même catégorie, OVR ±15, même mise, pas soi-même
+    // Joindre les profils pour vérifier le consentement
+    const { data: matches } = await supabaseAdmin
       .from("matchmaking_queue")
-      .select("*")
+      .select("*, profiles!user_id(sharing_consent)")
       .eq("category", validated.category)
       .eq("stake", validated.stake)
       .neq("user_id", auth.profileId)
       .gte("user_ovr", userOvr - 15)
       .lte("user_ovr", userOvr + 15)
       .order("created_at", { ascending: true })
-      .limit(1)
-      .single();
+      .limit(10);
+
+    // Filtrer par consentement
+    const match = (matches || []).find((m: any) => m.profiles?.sharing_consent === true);
 
     if (match) {
-      // Found a match! Create a duel and remove from queue
+      // Match trouvé ! Créer le duel et retirer de la queue
       await supabaseAdmin
         .from("matchmaking_queue")
         .delete()
         .eq("id", match.id);
 
-      // Remove self from queue if present
+      // Retirer soi-même de la queue si présent
       await supabaseAdmin
         .from("matchmaking_queue")
         .delete()
         .eq("user_id", auth.profileId)
         .eq("category", validated.category);
 
-      // Create the duel (instant type)
+      // Créer le duel (instant type)
       const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
       const { data: duel, error: duelError } = await supabaseAdmin
@@ -89,19 +87,19 @@ export async function POST(request: Request) {
 
       if (duelError) throw duelError;
 
-      // Notify both players
+      // Notifier les deux joueurs
       insertFeedEvent(match.user_id, "matchmake_found", {
         duelId: duel!.id,
         opponentName: auth.session.user.name || "Cycliste",
       });
 
+      // Ne pas retourner opponent_ovr — les stats sont visibles dans le duel
       return Response.json({
         matched: true,
         duelId: duel!.id,
-        opponent_ovr: match.user_ovr,
       });
     } else {
-      // No match found — add to queue
+      // Pas de match — ajouter à la queue
       await supabaseAdmin.from("matchmaking_queue").upsert({
         user_id: auth.profileId,
         category: validated.category,
@@ -109,7 +107,7 @@ export async function POST(request: Request) {
         user_ovr: userOvr,
       }, { onConflict: "user_id,category" });
 
-      // Count queue position
+      // Position dans la queue
       const { count } = await supabaseAdmin
         .from("matchmaking_queue")
         .select("id", { count: "exact", head: true })

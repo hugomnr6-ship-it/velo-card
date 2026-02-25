@@ -1,33 +1,19 @@
 import { supabaseAdmin } from "@/lib/supabase";
 
-function getWeekBounds(): { monday: string; sunday: string } {
-  const now = new Date();
-  const day = now.getDay();
-  const diffToMonday = day === 0 ? -6 : 1 - day;
-
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + diffToMonday);
-  monday.setHours(0, 0, 0, 0);
-
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23, 59, 59, 999);
-
-  return {
-    monday: monday.toISOString(),
-    sunday: sunday.toISOString(),
-  };
-}
-
+/**
+ * Leaderboard service — compliant Strava ToS.
+ * Tri uniquement par stats abstraites VeloCard (0-99).
+ * Filtre par sharing_consent = true.
+ * Ne retourne aucune donnée Strava brute (km, D+, temps).
+ */
 export async function getWeeklyLeaderboard(region: string, sort: string, limit: number = 100) {
-  const { monday, sunday } = getWeekBounds();
-
-  // Get users — scope: "global" = all, "france" = all french, else filter by region
+  // Récupérer les profils consentants
   const isGlobal = region.toLowerCase() === "global";
   const isNational = region.toLowerCase() === "france";
   let profileQuery = supabaseAdmin
     .from("profiles")
-    .select("id, username, avatar_url");
+    .select("id, username, avatar_url, region")
+    .eq("sharing_consent", true);
 
   if (!isGlobal && !isNational) {
     profileQuery = profileQuery.eq("region", region);
@@ -41,69 +27,49 @@ export async function getWeeklyLeaderboard(region: string, sort: string, limit: 
 
   const userIds = regionProfiles.map((p: any) => p.id);
 
-  // Get weekly activities + stats in parallel
-  const [activitiesRes, statsRes] = await Promise.all([
-    supabaseAdmin
-      .from("strava_activities")
-      .select("user_id, distance, total_elevation_gain")
-      .in("user_id", userIds)
-      .eq("activity_type", "Ride")
-      .gte("start_date", monday)
-      .lte("start_date", sunday),
-    supabaseAdmin
-      .from("user_stats")
-      .select('user_id, pac, "end", mon, val, spr, res, ovr, tier')
-      .in("user_id", userIds),
-  ]);
-  const activities = activitiesRes.data;
-  const allStats = statsRes.data;
-
-  // Aggregate weekly data
-  const weeklyMap: Record<string, { km: number; dplus: number }> = {};
-  for (const a of activities || []) {
-    if (!weeklyMap[a.user_id]) weeklyMap[a.user_id] = { km: 0, dplus: 0 };
-    weeklyMap[a.user_id].km += a.distance / 1000;
-    weeklyMap[a.user_id].dplus += a.total_elevation_gain;
-  }
+  // Récupérer uniquement les stats abstraites (pas d'activités Strava)
+  const { data: allStats } = await supabaseAdmin
+    .from("user_stats")
+    .select('user_id, pac, "end", mon, val, spr, res, ovr, tier, special_card')
+    .in("user_id", userIds);
 
   const statsMap: Record<string, any> = {};
   for (const s of allStats || []) statsMap[s.user_id] = s;
 
-  // Build entries
+  // Construire les entrées — uniquement des données abstraites
   const entries = regionProfiles.map((p: any) => {
-    const weekly = weeklyMap[p.id] || { km: 0, dplus: 0 };
-    const st = statsMap[p.id] || { pac: 0, end: 0, mon: 0, val: 0, spr: 0, res: 0, ovr: 0, tier: "bronze" };
+    const st = statsMap[p.id] || { pac: 0, end: 0, mon: 0, val: 0, spr: 0, res: 0, ovr: 0, tier: "bronze", special_card: null };
     return {
       user_id: p.id,
       username: p.username,
       avatar_url: p.avatar_url,
-      weekly_km: Math.round(weekly.km * 10) / 10,
-      weekly_dplus: Math.round(weekly.dplus),
-      card_score: st.ovr || Math.round((st.pac + st.end + st.mon) / 3),
-      tier: st.tier,
-      pac: st.pac || 0,
-      mon: st.mon || 0,
-      val: st.val || 0,
-      spr: st.spr || 0,
-      end: st.end || 0,
-      res: st.res || 0,
+      region: p.region || null,
       ovr: st.ovr || 0,
+      tier: st.tier || "bronze",
+      special_card: st.special_card || null,
+      // Stats individuelles pour le tri (pas exposées dans LeaderboardEntry mais utilisées pour le sort)
+      _pac: st.pac || 0,
+      _mon: st.mon || 0,
+      _val: st.val || 0,
+      _spr: st.spr || 0,
+      _end: st.end || 0,
+      _res: st.res || 0,
     };
   });
 
-  // Sort
-  const statSorts = ["pac", "mon", "val", "spr", "end", "res", "ovr"];
-  if (sort === "weekly_dplus") {
-    entries.sort((a: any, b: any) => b.weekly_dplus - a.weekly_dplus);
-  } else if (sort === "card_score") {
-    entries.sort((a: any, b: any) => b.card_score - a.card_score);
-  } else if (statSorts.includes(sort)) {
-    entries.sort((a: any, b: any) => (b[sort] || 0) - (a[sort] || 0));
+  // Tri par stats abstraites uniquement
+  const statSorts = ["pac", "mon", "val", "spr", "end", "res"];
+  if (statSorts.includes(sort)) {
+    entries.sort((a: any, b: any) => (b[`_${sort}`] || 0) - (a[`_${sort}`] || 0));
   } else {
-    entries.sort((a: any, b: any) => b.weekly_km - a.weekly_km);
+    // Default: tri par OVR
+    entries.sort((a: any, b: any) => b.ovr - a.ovr);
   }
 
-  // Pagination: cap results to limit
+  // Pagination + nettoyage des champs internes
   const capped = entries.slice(0, limit);
-  return capped.map((e: any, i: number) => ({ rank: i + 1, ...e }));
+  return capped.map((e: any, i: number) => {
+    const { _pac, _mon, _val, _spr, _end, _res, ...clean } = e;
+    return { rank: i + 1, ...clean };
+  });
 }

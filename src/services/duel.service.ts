@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { AppError } from "@/lib/api-utils";
+import { hasConsent } from "@/lib/privacy";
 import type { CardTier } from "@/types";
 import type { CreateDuelInput } from "@/schemas";
 
@@ -87,6 +88,12 @@ export async function createDuel(challengerId: string, input: CreateDuelInput) {
 
   if (!opponent) {
     throw new AppError("OPPONENT_NOT_FOUND", "Adversaire introuvable", 404);
+  }
+
+  // Vérifier que l'adversaire a consenti au partage
+  const opponentConsent = await hasConsent(opponent_id);
+  if (!opponentConsent) {
+    throw new AppError("CONSENT_REQUIRED", "Cet utilisateur n'a pas activé le partage de ses stats", 403);
   }
 
   // Check no existing active duel between these two

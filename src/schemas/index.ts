@@ -3,7 +3,7 @@ import { z } from "zod";
 // ——— Duels ———
 export const createDuelSchema = z.object({
   opponent_id: z.string().uuid("opponent_id invalide"),
-  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res", "weekly_km", "weekly_dplus", "weekly_rides"]),
+  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res"]),
   duel_type: z.enum(["instant", "weekly"]).default("instant"),
   stake: z.number().int().min(5, "Mise minimum : 5").max(100, "Mise maximum : 100").default(10),
 });
@@ -63,7 +63,7 @@ export const updateRegionSchema = z.object({
 // ——— Search params validation ———
 export const leaderboardQuerySchema = z.object({
   region: z.string().min(1, "Région requise"),
-  sort: z.enum(["weekly_km", "weekly_dplus", "card_score", "ovr", "pac", "mon", "val", "spr", "end", "res", "season_points"]).default("weekly_km"),
+  sort: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res"]).default("ovr"),
   scope: z.enum(["region", "france", "global"]).optional().default("region"),
   period: z.enum(["weekly", "monthly", "yearly"]).optional().default("weekly"),
 });
@@ -82,7 +82,7 @@ export const joinTournamentSchema = z.object({
 });
 
 export const matchmakeSchema = z.object({
-  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res", "weekly_km", "weekly_dplus", "weekly_rides"]),
+  category: z.enum(["ovr", "pac", "mon", "val", "spr", "end", "res"]),
   stake: z.number().int().min(5).max(50),
 });
 
@@ -137,4 +137,9 @@ export const marketplaceQuerySchema = z.object({
   sortBy: z.enum(["price_asc", "price_desc", "newest"]).default("newest"),
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().max(10000).optional(),
+});
+
+// ——— Privacy / Consentement ———
+export const consentSchema = z.object({
+  sharing_consent: z.boolean(),
 });

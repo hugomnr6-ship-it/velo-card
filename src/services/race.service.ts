@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { AppError } from "@/lib/api-utils";
+import { hasConsent } from "@/lib/privacy";
 
 export async function getRaceDetail(raceId: string, userId: string) {
   // Fetch race with creator info
@@ -81,7 +82,7 @@ export async function getRaceDetail(raceId: string, userId: string) {
       if (resultUserIds.length > 0) {
         const { data: rp } = await supabaseAdmin
           .from("profiles")
-          .select("id, avatar_url")
+          .select("id, avatar_url, sharing_consent")
           .in("id", resultUserIds);
         for (const p of rp || []) resultProfiles[p.id] = p;
       }
@@ -106,11 +107,26 @@ export async function getRaceDetail(raceId: string, userId: string) {
 
       results = raceResults.map((r: any) => {
         const isGhost = !!r.ghost_id && !ghostMap[r.ghost_id]?.claimed_by;
+        // Si un user_id est lié, vérifier le consentement
+        const userHasConsent = r.user_id ? resultProfiles[r.user_id]?.sharing_consent === true : false;
+        const isOwnResult = r.user_id === userId;
+
+        // Anonymiser les non-consentants (sauf ses propres résultats)
+        if (r.user_id && !userHasConsent && !isOwnResult) {
+          return {
+            position: r.position,
+            rider_name: "Anonyme",
+            is_ghost: false,
+            ghost_claim_token: null,
+            avatar_url: null,
+            tier: "bronze",
+            user_id: null,
+          };
+        }
+
         return {
           position: r.position,
           rider_name: r.rider_name,
-          finish_time: r.finish_time,
-          gen_score: r.gen_score,
           is_ghost: isGhost,
           ghost_claim_token: ghostMap[r.ghost_id]?.claim_token || null,
           avatar_url: r.user_id ? resultProfiles[r.user_id]?.avatar_url || null : null,

@@ -173,16 +173,16 @@ describe("leaderboardQuerySchema", () => {
   it("accepts valid leaderboard query", () => {
     const result = leaderboardQuerySchema.safeParse({
       region: "Bretagne",
-      sort: "weekly_km",
+      sort: "ovr",
     });
     expect(result.success).toBe(true);
   });
 
-  it("defaults sort to weekly_km", () => {
+  it("defaults sort to ovr", () => {
     const result = leaderboardQuerySchema.safeParse({ region: "Bretagne" });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.sort).toBe("weekly_km");
+      expect(result.data.sort).toBe("ovr");
     }
   });
 

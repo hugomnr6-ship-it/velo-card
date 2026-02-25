@@ -63,7 +63,7 @@ export default function Podium({ entries }: PodiumProps) {
                   className="mt-1.5 text-[18px] font-black leading-none font-['JetBrains_Mono']"
                   style={{ color: accent }}
                 >
-                  {entry.card_score || entry.ovr}
+                  {entry.ovr}
                 </span>
                 <span className="mt-0.5 max-w-full truncate text-[8px] font-semibold text-white/60">
                   {entry.username}

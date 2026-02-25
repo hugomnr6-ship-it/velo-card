@@ -118,7 +118,7 @@ describe("leaderboardQuerySchema", () => {
     const result = leaderboardQuerySchema.safeParse({ region: "Bretagne" });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.sort).toBe("weekly_km");
+      expect(result.data.sort).toBe("ovr");
     }
   });
   it("rejects empty region", () => {

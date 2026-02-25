@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useSubscription, useBillingPortal } from '@/hooks/useSubscription';
 import ProBadge from '@/components/ProBadge';
 import ReferralCard from '@/components/ReferralCard';
+import SharingConsentToggle from '@/components/SharingConsentToggle';
 
 function GlobeIcon() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
@@ -134,6 +135,80 @@ function SubscriptionSection() {
   );
 }
 
+function PrivacySection() {
+  const t = useTranslations('settings');
+  const [consent, setConsent] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [deauthing, setDeauthing] = useState(false);
+  const [showDeauthConfirm, setShowDeauthConfirm] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/privacy/consent')
+      .then(res => res.json())
+      .then(data => {
+        setConsent(data.sharing_consent ?? false);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleDeauth = async () => {
+    setDeauthing(true);
+    try {
+      const res = await fetch('/api/privacy/deauth', { method: 'POST' });
+      if (res.ok) {
+        await signOut({ callbackUrl: '/' });
+      }
+    } finally {
+      setDeauthing(false);
+      setShowDeauthConfirm(false);
+    }
+  };
+
+  return (
+    <SettingsSection title={t('privacy')} icon={<ShieldIcon />}>
+      <div className="px-4 py-3">
+        {loading ? (
+          <div className="h-16 animate-pulse rounded-xl bg-white/5" />
+        ) : (
+          <SharingConsentToggle initialConsent={consent} onConsentChange={setConsent} />
+        )}
+      </div>
+      <div className="px-4 py-3 border-t border-white/[0.04]">
+        {!showDeauthConfirm ? (
+          <button
+            onClick={() => setShowDeauthConfirm(true)}
+            className="text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
+          >
+            Déconnecter Strava et supprimer mes données
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-red-400">
+              Toutes vos activités Strava seront supprimées et vous serez retiré(e) de tous les classements. Cette action est irréversible.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDeauth}
+                disabled={deauthing}
+                className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg disabled:opacity-50"
+              >
+                {deauthing ? '...' : 'Confirmer la déconnexion'}
+              </button>
+              <button
+                onClick={() => setShowDeauthConfirm(false)}
+                className="px-4 py-2 bg-bg-elevated text-sm rounded-lg"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </SettingsSection>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const t = useTranslations('settings');
@@ -197,10 +272,7 @@ export default function SettingsPage() {
         <ToggleSetting label={t('notifSocial')} description={t('notifSocialDesc')} />
       </SettingsSection>
 
-      <SettingsSection title={t('privacy')} icon={<ShieldIcon />}>
-        <ToggleSetting label={t('publicProfile')} description={t('publicProfileDesc')} />
-        <ToggleSetting label={t('shareActivities')} description={t('shareActivitiesDesc')} />
-      </SettingsSection>
+      <PrivacySection />
 
       <SettingsSection title={t('myData')} icon={<DatabaseIcon />}>
         <ActionButton label={t('dataExport')} description={t('exportDesc')} onClick={handleExport} />

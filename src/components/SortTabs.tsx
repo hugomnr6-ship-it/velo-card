@@ -10,10 +10,7 @@ interface SortTabsProps {
 }
 
 const mainTabs: { key: LeaderboardSort; label: string }[] = [
-  { key: "weekly_km", label: "Km" },
-  { key: "weekly_dplus", label: "D+" },
   { key: "ovr", label: "OVR" },
-  { key: "card_score", label: "Score" },
 ];
 
 const attrTabs: { key: LeaderboardSort; label: string }[] = [

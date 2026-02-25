@@ -1,13 +1,16 @@
-import { handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
  * GET /api/users/search?q=username
- * Search users by username (case-insensitive, partial match).
- * Returns up to 20 results with their stats and tier.
+ * Recherche d'utilisateurs par username (case-insensitive, partial match).
+ * Auth obligatoire. Filtre par sharing_consent = true.
+ * Retourne uniquement : user_id, username, avatar_url, region (pas de stats).
  */
 export async function GET(request: Request) {
-  // Rate limiting is now handled globally by middleware (Upstash Redis)
+  // Auth obligatoire
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
 
   const { searchParams } = new URL(request.url);
   let query = searchParams.get("q")?.trim();
@@ -26,6 +29,7 @@ export async function GET(request: Request) {
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
       .select("id, username, avatar_url, region")
+      .eq("sharing_consent", true)
       .ilike("username", `%${query}%`)
       .limit(20);
 
@@ -34,31 +38,13 @@ export async function GET(request: Request) {
       return Response.json([]);
     }
 
-    // Get stats for matched users
-    const userIds = profiles.map((p) => p.id);
-    const { data: stats } = await supabaseAdmin
-      .from("user_stats")
-      .select("user_id, pac, end, mon, res, spr, val, ovr, tier, special_card, active_weeks_streak")
-      .in("user_id", userIds);
-
-    const statsMap: Record<string, any> = {};
-    for (const s of stats || []) statsMap[s.user_id] = s;
-
-    const results = profiles.map((p) => {
-      const st = statsMap[p.id];
-      return {
-        user_id: p.id,
-        username: p.username,
-        avatar_url: p.avatar_url,
-        region: p.region || null,
-        ovr: st?.ovr || 0,
-        tier: st?.tier || "bronze",
-        special_card: st?.special_card || null,
-      };
-    });
-
-    // Sort by OVR descending
-    results.sort((a, b) => b.ovr - a.ovr);
+    // Retourner uniquement les infos de base (pas de stats)
+    const results = profiles.map((p) => ({
+      user_id: p.id,
+      username: p.username,
+      avatar_url: p.avatar_url,
+      region: p.region || null,
+    }));
 
     return Response.json(results);
   } catch (err) {

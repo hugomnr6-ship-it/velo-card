@@ -51,6 +51,28 @@ export interface Profile {
   bike_name?: string;
   region?: string;
   created_at: string;
+  sharing_consent: boolean;
+  sharing_consent_at: string | null;
+}
+
+// Profil public sanitisé — sans données Strava brutes
+export interface PublicProfile {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  region: string | null;
+  club_name: string | null;
+  // Stats abstraites VeloCard (0-99) — PAS des données Strava
+  pac: number;
+  mon: number;
+  val: number;
+  spr: number;
+  end: number;
+  res: number;
+  ovr: number;
+  tier: CardTier;
+  special_card: SpecialCardType | null;
+  active_weeks_streak: number;
 }
 
 // ——— Achievement badges (DB shape) ———
@@ -304,20 +326,13 @@ export interface LeaderboardEntry {
   user_id: string;
   username: string;
   avatar_url: string | null;
-  weekly_km: number;
-  weekly_dplus: number;
-  card_score: number;
-  tier: CardTier;
-  pac: number;
-  mon: number;
-  val: number;
-  spr: number;
-  end: number;
-  res: number;
   ovr: number;
+  tier: CardTier;
+  region: string | null;
+  special_card: SpecialCardType | null;
 }
 
-export type LeaderboardSort = "weekly_km" | "weekly_dplus" | "card_score" | "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res";
+export type LeaderboardSort = "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res";
 
 // ——— Phase: Clubs ———
 
@@ -429,7 +444,7 @@ export interface WarHistoryEntry {
 
 // ——— Phase 2: Duels Head-to-Head ———
 
-export type DuelCategory = "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res" | "weekly_km" | "weekly_dplus" | "weekly_rides";
+export type DuelCategory = "ovr" | "pac" | "mon" | "val" | "spr" | "end" | "res";
 export type DuelType = "instant" | "weekly";
 export type DuelStatus = "pending" | "accepted" | "resolved" | "declined" | "expired";
 
@@ -479,9 +494,6 @@ export const DUEL_CATEGORY_LABELS: Record<DuelCategory, { label: string; emoji: 
   spr: { label: "Sprint", emoji: "spr", short: "SPR" },
   end: { label: "Endurance", emoji: "end", short: "END" },
   res: { label: "Puissance", emoji: "res", short: "PUI" },
-  weekly_km: { label: "KM Hebdo", emoji: "weekly_km", short: "KM" },
-  weekly_dplus: { label: "D+ Hebdo", emoji: "weekly_dplus", short: "D+" },
-  weekly_rides: { label: "Sorties Hebdo", emoji: "weekly_rides", short: "×" },
 };
 
 // ——— Phase: Ghost Cards (Growth Hack) ———

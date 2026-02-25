@@ -164,7 +164,6 @@ export default function GhostPage() {
       <div className="scale-[0.85] sm:scale-100">
         <GhostCard
           riderName={ghost.rider_name}
-          genScore={ghost.gen_score}
           tier={ghost.tier}
           raceName={ghost.race_name}
           position={ghost.position ?? undefined}

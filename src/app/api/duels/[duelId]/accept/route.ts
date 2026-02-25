@@ -93,50 +93,18 @@ export async function POST(
 
 async function resolveInstantDuel(duel: any) {
   const category: DuelCategory = duel.category;
-  const statCategories = ["ovr", "pac", "mon", "val", "spr", "end", "res"];
 
-  let challengerValue: number;
-  let opponentValue: number;
+  // Toutes les catégories sont des stats abstraites (pas de données Strava brutes)
+  const { data: stats } = await supabaseAdmin
+    .from("user_stats")
+    .select("user_id, pac, end, mon, res, spr, val, ovr")
+    .in("user_id", [duel.challenger_id, duel.opponent_id]);
 
-  if (statCategories.includes(category)) {
-    // Fetch current card stats
-    const { data: stats } = await supabaseAdmin
-      .from("user_stats")
-      .select("user_id, pac, end, mon, res, spr, val, ovr")
-      .in("user_id", [duel.challenger_id, duel.opponent_id]);
+  const statsMap: Record<string, any> = {};
+  for (const s of stats || []) statsMap[s.user_id] = s;
 
-    const statsMap: Record<string, any> = {};
-    for (const s of stats || []) statsMap[s.user_id] = s;
-
-    challengerValue = statsMap[duel.challenger_id]?.[category] || 0;
-    opponentValue = statsMap[duel.opponent_id]?.[category] || 0;
-  } else {
-    // Weekly performance — fetch this week's activities
-    const now = new Date();
-    const day = now.getDay();
-    const diffToMonday = day === 0 ? -6 : 1 - day;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + diffToMonday);
-    monday.setHours(0, 0, 0, 0);
-
-    const getWeeklyValue = async (userId: string): Promise<number> => {
-      const { data: activities } = await supabaseAdmin
-        .from("strava_activities")
-        .select("distance, total_elevation_gain")
-        .eq("user_id", userId)
-        .eq("activity_type", "Ride")
-        .gte("start_date", monday.toISOString());
-
-      const acts = activities || [];
-      if (category === "weekly_km") return acts.reduce((s, a) => s + a.distance / 1000, 0);
-      if (category === "weekly_dplus") return acts.reduce((s, a) => s + a.total_elevation_gain, 0);
-      if (category === "weekly_rides") return acts.length;
-      return 0;
-    };
-
-    challengerValue = await getWeeklyValue(duel.challenger_id);
-    opponentValue = await getWeeklyValue(duel.opponent_id);
-  }
+  const challengerValue: number = statsMap[duel.challenger_id]?.[category] || 0;
+  const opponentValue: number = statsMap[duel.opponent_id]?.[category] || 0;
 
   // Determine winner
   const isDraw = Math.round(challengerValue * 10) === Math.round(opponentValue * 10);

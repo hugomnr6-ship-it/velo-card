@@ -343,9 +343,6 @@ export const STAT_ICONS: Record<string, (props: IconProps) => ReactElement> = {
   end: IconMuscle,
   res: IconFire,
   progression: IconChartUp,
-  weekly_km: IconCycling,
-  weekly_dplus: IconMountain,
-  weekly_rides: IconCalendar,
 };
 
 export const BADGE_ICONS: Record<string, (props: IconProps) => ReactElement> = {

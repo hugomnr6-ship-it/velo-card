@@ -314,7 +314,78 @@ function SlidesPhase({
   );
 }
 
-/* ═══ Phase 4: CTA ═══ */
+/* ═══ Phase 4: Consent (Rejoindre la communauté) ═══ */
+function ConsentPhase({ onNext }: { onNext: () => void }) {
+  const [consent, setConsent] = useState(true); // ON par défaut
+  const [saving, setSaving] = useState(false);
+
+  const handleContinue = async () => {
+    setSaving(true);
+    try {
+      await fetch("/api/privacy/consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sharing_consent: consent }),
+      });
+    } catch {
+      // Ne pas bloquer l'onboarding si l'appel échoue
+    }
+    setSaving(false);
+    onNext();
+  };
+
+  return (
+    <m.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="flex flex-col items-center gap-6 text-center max-w-sm"
+    >
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03]">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00F5D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+        </svg>
+      </div>
+
+      <h2 className="font-['Space_Grotesk'] text-xl font-bold text-white">
+        Rejoindre la communauté VeloCard
+      </h2>
+
+      <p className="text-sm leading-relaxed text-white/50">
+        Active le partage pour participer aux classements, duels et comparaisons avec les autres cyclistes.
+      </p>
+
+      {/* Toggle */}
+      <button
+        onClick={() => setConsent(!consent)}
+        className="flex w-full items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] p-4"
+      >
+        <div className="text-left">
+          <p className="text-sm font-semibold text-white">Partager mes scores VeloCard</p>
+          <p className="mt-1 text-xs text-white/40">
+            Seuls vos scores de jeu (PAC, MON, OVR...) sont visibles. Jamais vos km ou temps Strava.
+          </p>
+        </div>
+        <div className={`relative ml-4 h-6 w-11 flex-shrink-0 rounded-full transition-colors ${consent ? 'bg-[#00F5D4]' : 'bg-[#374151]'}`}>
+          <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${consent ? 'translate-x-5' : 'translate-x-0.5'}`} />
+        </div>
+      </button>
+
+      <button
+        onClick={handleContinue}
+        disabled={saving}
+        className="rounded-xl px-8 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+        style={{ background: "linear-gradient(135deg, #00F5D4, #6366F1)" }}
+      >
+        {saving ? "..." : "Continuer"}
+      </button>
+    </m.div>
+  );
+}
+
+/* ═══ Phase 5: CTA ═══ */
 function CtaPhase({ onDashboard }: { onDashboard: () => void }) {
   return (
     <m.div
@@ -350,7 +421,7 @@ function CtaPhase({ onDashboard }: { onDashboard: () => void }) {
 /* ═══ MAIN ONBOARDING COMPONENT ═══ */
 export default function OnboardingClient({ userName, userImage, accessToken }: Props) {
   const router = useRouter();
-  const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
+  const [phase, setPhase] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
@@ -427,7 +498,7 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
     if (slideIndex < slides.length - 1) {
       setSlideIndex((i) => i + 1);
     } else {
-      setPhase(4);
+      setPhase(4); // Phase 4 = Consent
     }
   }, [slideIndex]);
 
@@ -505,6 +576,9 @@ export default function OnboardingClient({ userName, userImage, accessToken }: P
           />
         )}
         {phase === 4 && (
+          <ConsentPhase key="consent" onNext={() => setPhase(5)} />
+        )}
+        {phase === 5 && (
           <CtaPhase key="cta" onDashboard={handleDashboard} />
         )}
       </AnimatePresence>

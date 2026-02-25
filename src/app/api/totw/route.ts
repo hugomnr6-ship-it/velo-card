@@ -1,4 +1,4 @@
-import { handleApiError } from "@/lib/api-utils";
+import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
 import { cached } from "@/lib/cache";
 
@@ -8,8 +8,13 @@ export const runtime = "nodejs";
 /**
  * GET /api/totw?week=2026-W07
  * Returns the Team of the Week for a given week (defaults to current week).
+ * Auth obligatoire. Filtre par sharing_consent = true. Ne retourne pas stat_value.
  */
 export async function GET(request: Request) {
+  // Auth obligatoire
+  const authResult = await getAuthenticatedUser();
+  if (isErrorResponse(authResult)) return authResult;
+
   const { searchParams } = new URL(request.url);
   const weekLabel = searchParams.get("week") || getCurrentWeekLabel();
 
@@ -23,34 +28,26 @@ export async function GET(request: Request) {
           .select(`
             week_label,
             category,
-            stat_value,
             user_id,
-            profiles!inner(username, avatar_url),
-            user_stats!inner(ovr, tier, pac, mon, spr, end, res, val)
+            profiles!inner(username, avatar_url, sharing_consent),
+            user_stats!inner(ovr, tier)
           `)
           .eq("week_label", weekLabel);
 
         if (error) throw error;
 
-        return (totwEntries || []).map((entry: any) => ({
-          week_label: entry.week_label,
-          category: entry.category,
-          stat_value: entry.stat_value,
-          user_id: entry.user_id,
-          username: entry.profiles.username,
-          avatar_url: entry.profiles.avatar_url,
-          tier: entry.user_stats.tier,
-          ovr: entry.user_stats.ovr,
-          stats: {
-            pac: entry.user_stats.pac,
-            mon: entry.user_stats.mon,
-            spr: entry.user_stats.spr,
-            end: entry.user_stats.end,
-            res: entry.user_stats.res,
-            val: entry.user_stats.val,
+        // Filtrer par consentement — ne pas exposer les users non consentants
+        return (totwEntries || [])
+          .filter((entry: any) => entry.profiles.sharing_consent === true)
+          .map((entry: any) => ({
+            week_label: entry.week_label,
+            category: entry.category,
+            user_id: entry.user_id,
+            username: entry.profiles.username,
+            avatar_url: entry.profiles.avatar_url,
+            tier: entry.user_stats.tier,
             ovr: entry.user_stats.ovr,
-          },
-        }));
+          }));
       },
       { ttl: 7200, prefix: "totw" }
     );

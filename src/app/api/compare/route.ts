@@ -1,13 +1,17 @@
 import { getAuthenticatedUser, isErrorResponse, handleApiError } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabase";
+import { hasConsent, sanitizePublicProfile } from "@/lib/privacy";
 
 /**
  * GET /api/compare?user1=xxx&user2=xxx
- * Returns full stats + profile for two users for side-by-side comparison.
+ * Comparaison côte à côte de deux profils.
+ * Auth obligatoire. Vérifie le consentement pour les profils d'autres users.
+ * Retourne uniquement des stats abstraites (pas de données Strava brutes).
  */
 export async function GET(request: Request) {
   const authResult = await getAuthenticatedUser();
   if (isErrorResponse(authResult)) return authResult;
+  const { profileId } = authResult;
 
   const { searchParams } = new URL(request.url);
   const user1 = searchParams.get("user1");
@@ -18,6 +22,19 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Vérifier le consentement pour chaque user qui n'est pas l'authentifié
+    for (const uid of [user1, user2]) {
+      if (uid !== profileId) {
+        const consent = await hasConsent(uid);
+        if (!consent) {
+          return Response.json(
+            { error: { code: "CONSENT_REQUIRED", message: "Cet utilisateur n'a pas activé le partage de ses stats" } },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     const [profilesRes, statsRes] = await Promise.all([
       supabaseAdmin
         .from("profiles")
@@ -38,11 +55,12 @@ export async function GET(request: Request) {
     const statsMap: Record<string, any> = {};
     for (const s of stats) statsMap[s.user_id] = s;
 
+    // Construire le profil — sanitisé pour les autres users
     const buildUser = (userId: string) => {
       const p = profileMap[userId];
       const s = statsMap[userId];
-      return {
-        user_id: userId,
+      const merged = {
+        id: userId,
         username: p?.username || "Inconnu",
         avatar_url: p?.avatar_url || null,
         region: p?.region || null,
@@ -58,6 +76,12 @@ export async function GET(request: Request) {
         special_card: s?.special_card || null,
         active_weeks_streak: s?.active_weeks_streak || 0,
       };
+
+      // Pour l'autre user, toujours sanitiser
+      if (userId !== profileId) {
+        return sanitizePublicProfile(merged);
+      }
+      return { user_id: userId, ...merged };
     };
 
     return Response.json({

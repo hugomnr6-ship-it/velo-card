@@ -14,7 +14,7 @@ export async function GET(
     return Response.json({ error: "ID invalide" }, { status: 400 });
   }
 
-  // ═══ N+1 FIX: 1 seule requête avec JOINs au lieu de 4 requêtes séparées ═══
+  // N+1 FIX: 1 seule requête avec JOINs — inclut sharing_consent pour le filtrage
   const { data: club, error } = await supabaseAdmin
     .from("clubs")
     .select(`
@@ -24,7 +24,7 @@ export async function GET(
         user_id,
         role,
         joined_at,
-        profile:profiles (id, username, avatar_url, region),
+        profile:profiles (id, username, avatar_url, region, sharing_consent),
         stats:user_stats (ovr, tier, pac, mon, "end")
       )
     `)
@@ -35,17 +35,27 @@ export async function GET(
     return Response.json({ error: "Club introuvable" }, { status: 404 });
   }
 
-  const membersList = ((club as any).members || []).map((m: any) => ({
-    user_id: m.user_id,
-    username: m.profile?.username || "Inconnu",
-    avatar_url: m.profile?.avatar_url || null,
-    pac: m.stats?.pac || 0,
-    end: m.stats?.end || 0,
-    mon: m.stats?.mon || 0,
-    tier: m.stats?.tier || "bronze",
-    joined_at: m.joined_at,
-    role: m.role,
-  }));
+  // Conditionner les stats au consentement de chaque membre
+  const membersList = ((club as any).members || []).map((m: any) => {
+    const hasConsent = m.profile?.sharing_consent === true;
+    return {
+      user_id: m.user_id,
+      username: m.profile?.username || "Inconnu",
+      avatar_url: m.profile?.avatar_url || null,
+      // Stats uniquement si le membre a consenti au partage
+      ...(hasConsent ? {
+        pac: m.stats?.pac || 0,
+        end: m.stats?.end || 0,
+        mon: m.stats?.mon || 0,
+        ovr: m.stats?.ovr || 0,
+        tier: m.stats?.tier || "bronze",
+      } : {
+        tier: "bronze" as const,
+      }),
+      joined_at: m.joined_at,
+      role: m.role,
+    };
+  });
 
   const userIds = membersList.map((m: any) => m.user_id);
 
